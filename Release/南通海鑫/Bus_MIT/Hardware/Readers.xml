@@ -10,6 +10,12 @@
 +++++++++++++++++++++++++++++++++++ -->
 <readers>
   <readone>
+    <item>
+      <id>ZT001</id>
+      <ip>192.168.0.206</ip>
+      <port>8000</port>
+      <tunnel>ZT001</tunnel>
+    </item>
   </readone>
   <readkeep>
     <item>
