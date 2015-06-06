@@ -85,6 +85,8 @@ type
     FBillItems: TLadingBillItems;
     FUIData,FInnerData: TLadingBillItem;
     //称重数据
+    FListA: TStrings;
+    //数据列表
     procedure InitUIData;
     procedure SetUIData(const nReset: Boolean; const nOnlyData: Boolean = False);
     //界面数据
@@ -100,7 +102,9 @@ type
     //读取车辆称重
     function SavePoundSale: Boolean;
     function SavePoundData: Boolean;
-    //保存称重
+    //保存称重     
+    procedure PlayVoice(const nStrtext: string);
+    //播放语音
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -109,6 +113,7 @@ type
     //子类继承
     property PoundTunnel: PPTTunnelItem read FPoundTunnel write SetTunnel;
     //属性相关
+    property Additional: TStrings read FListA write FListA;
   end;
 
 implementation
@@ -117,7 +122,7 @@ implementation
 
 uses
   ULibFun, UAdjustForm, UFormBase, {$IFDEF HR1847}UKRTruckProber,
-  {$ELSE}UMgrTruckProbe,{$ENDIF} UMgrRemoteVoice, UDataModule,
+  {$ELSE}UMgrTruckProbe,{$ENDIF} UMgrRemoteVoice, UMgrVoiceNet, UDataModule,
   UFormWait, USysBusiness, USysConst, USysDB;
 
 const
@@ -132,6 +137,8 @@ end;
 procedure TfFrameManualPoundItem.OnCreateFrame;
 begin
   inherited;
+  FListA := TStringList.Create;
+
   FPoundTunnel := nil;
   InitUIData;
 end;
@@ -140,9 +147,11 @@ procedure TfFrameManualPoundItem.OnDestroyFrame;
 begin
   gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
   //关闭表头端口
-  
+
   AdjustStringsItem(EditMID.Properties.Items, True);
-  AdjustStringsItem(EditPID.Properties.Items, True); 
+  AdjustStringsItem(EditPID.Properties.Items, True);
+
+  FListA.Free;
   inherited;
 end;
 
@@ -872,7 +881,7 @@ begin
 
     if nBool then
     begin
-      gVoiceHelper.PlayVoice(#9 + FUIData.FTruck);
+      PlayVoice(#9 + FUIData.FTruck);
       //播放语音
       
       Timer2.Enabled := True;
@@ -901,5 +910,11 @@ begin
   end;
 end;
 
+procedure TfFrameManualPoundItem.PlayVoice(const nStrtext: string);
+begin
+  if UpperCase(Additional.Values['Voice'])='NET' then
+       gNetVoiceHelper.PlayVoice(nStrtext, FPoundTunnel.FID, 'pound')
+  else gVoiceHelper.PlayVoice(nStrtext);
+end;
 
 end.

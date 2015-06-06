@@ -48,7 +48,7 @@ implementation
 uses
   IniFiles, UlibFun, UMgrControl, UMgrPoundTunnels, UFramePoundAutoItem,
   {$IFDEF HR1847}UKRTruckProber,{$ELSE}UMgrTruckProbe,{$ENDIF} UMgrRemoteVoice,
-  USysGrid, USysLoger, USysConst;
+  UMgrVoiceNet,USysGrid, USysLoger, USysConst;
 
 class function TfFramePoundAuto.FrameID: integer;
 begin
@@ -112,6 +112,16 @@ begin
     {$IFNDEF DEBUG}
     gVoiceHelper.StartVoice;
     {$ENDIF}
+
+    {$IFNDEF DEBUG}
+    if FileExists(gPath + 'NetVoice.xml') then
+    begin
+      if not Assigned(gNetVoiceHelper) then
+        gNetVoiceHelper := TNetVoiceManager.Create;
+      gNetVoiceHelper.LoadConfig(gPath + 'NetVoice.xml');
+      gNetVoiceHelper.StartVoice;
+    end;
+    {$ENDIF}
   end;
 end;
 
@@ -123,8 +133,12 @@ begin
 
   Dec(gSysParam.FVoiceUser);
   if gSysParam.FVoiceUser < 1 then
+  begin
+    if Assigned(gNetVoiceHelper) then gNetVoiceHelper.StopVoice;
+
     gVoiceHelper.StopVoice;
-  //xxxxx
+    //xxxxx
+  end;
 
   Dec(gSysParam.FProberUser);
   {$IFNDEF HR1847}
@@ -225,6 +239,9 @@ begin
         Align := alTop;
         HintLabel.Caption := nT.FName;
         PoundTunnel := nT;
+
+        Additional.Clear;
+        SplitStr(nT.FAdditional, Additional, 0, ';', False);
       end;
     end;
   end;

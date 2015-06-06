@@ -115,7 +115,7 @@ function TfFrameZhiKaDetail.InitFormDataSQL(const nWhere: string): string;
 begin  
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  Result := 'Select zk.*,zd.*,zd.R_ID as D_RID,S_PY,S_Name,' +
+  Result := 'Select sm.*,zk.*,zd.*,zd.R_ID as D_RID,' +
             'C_PY,C_Name,D_Price-D_PPrice As D_ZDPrice From $ZK zk ' +
             ' Left Join $SM sm on sm.S_ID=zk.Z_SaleMan' +
             ' Left Join $Cus cus on cus.C_ID=zk.Z_Customer' +

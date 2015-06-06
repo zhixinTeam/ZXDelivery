@@ -75,6 +75,7 @@ type
     FLastCardDone: Int64;
     FLastCard: string;
     //上次卡号
+    FListA: TStrings;
     FSampleIndex: Integer;
     FValueSamples: array of Double;
     //数据采样
@@ -97,6 +98,8 @@ type
     //保存称重
     procedure WriteLog(nEvent: string);
     //记录日志
+    procedure PlayVoice(const nStrtext: string);
+    //播放语音
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -105,6 +108,7 @@ type
     //子类继承
     property PoundTunnel: PPTTunnelItem read FPoundTunnel write SetTunnel;
     //属性相关
+    property Additional: TStrings read FListA write FListA;
   end;
 
 implementation
@@ -113,7 +117,7 @@ implementation
 
 uses
   ULibFun, UFormBase, {$IFDEF HR1847}UKRTruckProber,{$ELSE}UMgrTruckProbe,{$ENDIF}
-  UMgrRemoteVoice, UDataModule, USysBusiness,
+  UMgrRemoteVoice, UMgrVoiceNet, UDataModule, USysBusiness,
   USysLoger, USysConst, USysDB;
 
 const
@@ -130,12 +134,14 @@ begin
   inherited;
   FPoundTunnel := nil;
   FIsWeighting := False;
+  FListA := TStringList.Create;
 end;
 
 procedure TfFrameAutoPoundItem.OnDestroyFrame;
 begin
   gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
   //关闭表头端口
+  FListA.Free;
   inherited;
 end;
 
@@ -373,7 +379,7 @@ begin
 
     nStr := '车辆 %s 不能过磅,应该去 %s ';
     nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
-    gVoiceHelper.PlayVoice(nStr);
+    PlayVoice(nStr);
   end;
 
   if nInt = 0 then
@@ -441,13 +447,13 @@ begin
     //新卡时重置
 
     nLast := Trunc((GetTickCount - FLastCardDone) / 1000);
-    if nLast < FPoundTunnel.FCardInterval * 1000 then
+    if nLast < FPoundTunnel.FCardInterval then
     begin
       nStr := '磁卡[ %s ]需等待 %d 秒后才能过磅';
       nStr := Format(nStr, [nCard, FPoundTunnel.FCardInterval - nLast]);
-      
+
       WriteLog(nStr);
-      gVoiceHelper.PlayVoice(nStr);
+      //PlayVoice(nStr);
 
       nStr := Format('磅站[ %s.%s ]: ',[FPoundTunnel.FID,
               FPoundTunnel.FName]) + nStr;
@@ -474,6 +480,7 @@ end;
 //Desc: 保存销售
 function TfFrameAutoPoundItem.SavePoundSale: Boolean;
 var nStr: string;
+    nVal,nNet: Double;
 begin
   Result := False;
   //init
@@ -500,6 +507,51 @@ begin
     begin
       WriteLog('皮重应小于毛重');
       Exit;
+    end;
+
+    nNet := FUIData.FMData.FValue - FUIData.FPData.FValue;
+    //净重
+    nVal := nNet * 1000 - FInnerData.FValue * 1000;
+    //与开票量误差(公斤)
+
+    with gSysParam,FBillItems[0] do
+    begin
+      if FDaiPercent and (FType = sFlag_Dai) then
+      begin
+        if nVal > 0 then
+             FPoundDaiZ := Float2Float(FInnerData.FValue * FPoundDaiZ_1 * 1000,
+                                       cPrecision, False)
+        else FPoundDaiF := Float2Float(FInnerData.FValue * FPoundDaiF_1 * 1000,
+                                       cPrecision, False);
+      end;
+
+      if ((FType = sFlag_Dai) and (
+          ((nVal > 0) and (FPoundDaiZ > 0) and (nVal > FPoundDaiZ)) or
+          ((nVal < 0) and (FPoundDaiF > 0) and (-nVal > FPoundDaiF)))) then
+      begin
+        nStr := '车辆[%s]实际装车量误差较大，请通知司机点验包数';
+        nStr := Format(nStr, [FTruck]);
+        PlayVoice(nStr);
+
+        nStr := '车辆[ %s ]实际装车量误差较大,详情如下:' + #13#10#13#10 +
+                '※.开单量: %.2f吨' + #13#10 +
+                '※.装车量: %.2f吨' + #13#10 +
+                '※.误差量: %.2f公斤';
+
+        if FDaiWCStop then
+        begin
+          nStr := nStr + #13#10#13#10 + '请通知司机点验包数.';
+          nStr := Format(nStr, [FTruck, FInnerData.FValue, nNet, nVal]);
+
+          ShowDlg(nStr, sHint);
+          Exit;
+        end else
+        begin
+          nStr := nStr + #13#10#13#10 + '是否继续保存?';
+          nStr := Format(nStr, [FTruck, FInnerData.FValue, nNet, nVal]);
+          if not QueryDlg(nStr, sAsk) then Exit;
+        end;
+      end;
     end;
   end;
 
@@ -546,7 +598,6 @@ end;
 
 //Desc: 处理表头数据
 procedure TfFrameAutoPoundItem.OnPoundData(const nValue: Double);
-var nVal: Double;
 begin
   FLastBT := GetTickCount;
   EditValue.Text := Format('%.2f', [nValue]);
@@ -561,7 +612,7 @@ begin
   else FUIData.FMData.FValue := nValue;
 
   SetUIData(False);
-  AddSample(nVal);
+  AddSample(nValue);
   if not IsValidSamaple then Exit;
   //样本验证不通过
   {$IFDEF HR1847}
@@ -570,7 +621,7 @@ begin
   if not gProberManager.IsTunnelOK(FPoundTunnel.FID) then
   {$ENDIF}
   begin
-    gVoiceHelper.PlayVoice('车辆未停到位,请移动车辆.');
+    PlayVoice('车辆未停到位,请移动车辆.');
     Exit;
   end;
 
@@ -588,7 +639,7 @@ begin
     FLastCardDone := GetTickCount;
     WriteLog(Format('对车辆[ %s ]称重完毕.', [FUIData.FTruck]));
 
-    gVoiceHelper.PlayVoice(#9 + FUIData.FTruck);
+    PlayVoice(#9 + FUIData.FTruck);
     //播放语音
       
     Timer2.Enabled := True;
@@ -653,6 +704,13 @@ begin
   end;
 
   Result := True;
+end;
+
+procedure TfFrameAutoPoundItem.PlayVoice(const nStrtext: string);
+begin
+  if UpperCase(Additional.Values['Voice'])='NET' then
+       gNetVoiceHelper.PlayVoice(nStrtext, FPoundTunnel.FID, 'pound')
+  else gVoiceHelper.PlayVoice(nStrtext);
 end;
 
 end.

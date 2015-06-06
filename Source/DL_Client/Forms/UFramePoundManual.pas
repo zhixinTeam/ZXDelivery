@@ -54,7 +54,7 @@ implementation
 uses
   IniFiles, UlibFun, UMgrControl, UMgrPoundTunnels, UFramePoundManualItem,
   {$IFDEF HR1847}UKRTruckProber,{$ELSE}UMgrTruckProbe,{$ENDIF}
-  UMgrRemoteVoice, UDataModule, UFormWait, USysDataDict,
+  UMgrRemoteVoice, UMgrVoiceNet, UDataModule, UFormWait, USysDataDict,
   USysGrid, USysLoger, USysConst, USysDB;
 
 class function TfFramePoundManual.FrameID: integer;
@@ -117,6 +117,14 @@ begin
     Inc(gSysParam.FVoiceUser);
     gVoiceHelper.LoadConfig(gPath + 'Voice.xml');
     gVoiceHelper.StartVoice;
+
+    if FileExists(gPath + 'NetVoice.xml') then
+    begin
+      if not Assigned(gNetVoiceHelper) then
+        gNetVoiceHelper := TNetVoiceManager.Create;
+      gNetVoiceHelper.LoadConfig(gPath + 'NetVoice.xml');
+      gNetVoiceHelper.StartVoice;
+    end;
   end;
 end;
 
@@ -128,8 +136,12 @@ begin
 
   Dec(gSysParam.FVoiceUser);
   if gSysParam.FVoiceUser < 1 then
+  begin
+    if Assigned(gNetVoiceHelper) then gNetVoiceHelper.StopVoice;
+
     gVoiceHelper.StopVoice;
-  //xxxxx
+    //xxxxx
+  end;          
 
   Dec(gSysParam.FProberUser);
   {$IFNDEF HR1847}
@@ -202,6 +214,9 @@ begin
         Align := alTop;
         HintLabel.Caption := nT.FName;
         PoundTunnel := nT;
+
+        Additional.Clear;
+        SplitStr(nT.FAdditional, Additional, 0, ';', False);
       end;
     end;
   end;
@@ -214,7 +229,7 @@ begin
   ShowWaitForm(ParentForm, '¶ÁÈ¡Êý¾Ý');
   try
     nStr := 'Select * From $TB Where (P_PDate Is Null Or P_MDate Is Null)' +
-            ' And (P_PDate > $Now-2 Or P_MDate > $Now-2) And (P_Type<>''$Tmp'')';
+            ' And (P_PDate > $Now-2 Or P_MDate > $Now-2) And (P_PModel<>''$Tmp'')';
     nStr := MacroValue(nStr, [MI('$TB', sTable_PoundLog),
             MI('$Now', sField_SQLServer_Now), MI('$Tmp', sFlag_PoundLS)]);
     //xxxxx

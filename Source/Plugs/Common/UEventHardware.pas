@@ -8,7 +8,7 @@ unit UEventHardware;
 interface
 
 uses
-  Windows, Classes, UMgrPlug, UBusinessConst, ULibFun, UPlugConst;
+  Windows, Classes, UMgrPlug, UBusinessConst, ULibFun, UMITConst, UPlugConst;
 
 type
   THardwareWorker = class(TPlugEventWorker)
@@ -133,6 +133,9 @@ procedure THardwareWorker.InitSystemObject;
 begin
   gHardwareHelper := THardwareHelper.Create;
   //‘∂æ‡∂¡Õ∑
+
+  gHardShareData := WhenBusinessMITSharedDataIn;
+  //hard monitor share
 end;
 
 procedure THardwareWorker.BeforeStartServer;

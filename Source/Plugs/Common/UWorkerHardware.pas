@@ -307,6 +307,8 @@ begin
   if RecordCount > 0 then
   begin
     FOut.FData := Fields[0].AsString;
+    gHardwareHelper.SetPoundCardExt(FIn.FData, FOut.FData);
+    //将远距离卡号对应的近距离卡号绑定
   end;
 end;
 

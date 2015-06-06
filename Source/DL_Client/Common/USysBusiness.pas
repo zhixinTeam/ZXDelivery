@@ -5,12 +5,12 @@
 unit USysBusiness;
 
 interface
-
+{$I Link.inc}
 uses
   Windows, DB, Classes, Controls, SysUtils, UBusinessPacker, UBusinessWorker,
   UBusinessConst, ULibFun, UAdjustForm, UFormCtrl, UDataModule, UDataReport,
-  UFormBase, cxMCListBox, UMgrPoundTunnels, HKVNetSDK, USysConst, USysDB,
-  USysLoger;
+  UFormBase, cxMCListBox, UMgrPoundTunnels, UMgrCamera, USysConst,
+  USysDB, USysLoger;
 
 type
   TLadingStockItem = record
@@ -461,17 +461,22 @@ begin
   //clear buffer
 
   nLogin := -1;
-  NET_DVR_Init();
+  gCameraNetSDKMgr.NET_DVR_SetDevType(nTunnel.FCamera.FType);
+  //xxxxx
+
+  gCameraNetSDKMgr.NET_DVR_Init;
+  //xxxxx
+
   try
     for nIdx:=1 to cRetry do
     begin
-      nLogin := NET_DVR_Login(PChar(nTunnel.FCamera.FHost),
+      nLogin := gCameraNetSDKMgr.NET_DVR_Login(nTunnel.FCamera.FHost,
                    nTunnel.FCamera.FPort,
-                   PChar(nTunnel.FCamera.FUser),
-                   PChar(nTunnel.FCamera.FPwd), @nInfo);
+                   nTunnel.FCamera.FUser,
+                   nTunnel.FCamera.FPwd, nInfo);
       //to login
 
-      nErr := NET_DVR_GetLastError;
+      nErr := gCameraNetSDKMgr.NET_DVR_GetLastError;
       if nErr = 0 then break;
 
       if nIdx = cRetry then
@@ -496,11 +501,13 @@ begin
         nStr := MakePicName();
         //file path
 
-        NET_DVR_CaptureJPEGPicture(nLogin, nTunnel.FCameraTunnels[nIdx],
-                                   @nPic, PChar(nStr));
+        gCameraNetSDKMgr.NET_DVR_CaptureJPEGPicture(nLogin,
+                                   nTunnel.FCameraTunnels[nIdx],
+                                   nPic, nStr);
         //capture pic
 
-        nErr := NET_DVR_GetLastError;
+        nErr := gCameraNetSDKMgr.NET_DVR_GetLastError;
+
         if nErr = 0 then
         begin
           nList.Add(nStr);
@@ -518,8 +525,8 @@ begin
     end;
   finally
     if nLogin > -1 then
-      NET_DVR_Logout(nLogin);
-    NET_DVR_Cleanup();
+     gCameraNetSDKMgr.NET_DVR_Logout(nLogin);
+    gCameraNetSDKMgr.NET_DVR_Cleanup();
   end;
 end;
 

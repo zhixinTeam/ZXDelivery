@@ -3063,6 +3063,16 @@ begin
       FListA.Add(nSQL);
       //没有称毛重的过磅记录的皮重,等于本次的毛重
     end;
+
+    nSQL := 'Select P_ID From %s Where P_Bill=''%s'' And P_MValue Is Null';
+    nSQL := Format(nSQL, [sTable_PoundLog, nBills[nInt].FID]);
+    //未称毛重记录
+
+    with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+    if RecordCount > 0 then
+    begin
+      FOut.FData := Fields[0].AsString;
+    end;
   end else
 
   //----------------------------------------------------------------------------
@@ -3226,6 +3236,13 @@ begin
   except
     FDBConn.FConn.RollbackTrans;
     raise;
+  end;
+
+  if FIn.FExtParam = sFlag_TruckBFM then //称量毛重
+  begin
+    if Assigned(gHardShareData) then
+      gHardShareData('TruckOut:' + nBills[0].FCard);
+    //磅房处理自动出厂
   end;
 
   {$IFDEF MicroMsg}

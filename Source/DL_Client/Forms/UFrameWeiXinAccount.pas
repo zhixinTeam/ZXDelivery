@@ -116,7 +116,7 @@ begin
     nSQL := Format(nSQL, [sTable_WeixinMatch, nStr]);
     FDM.ExecuteSQL(nSQL);
 
-    nSQL := 'Update %s Set C_WeiXi=Null Where C_WeiXi=''%s''';
+    nSQL := 'Update %s Set C_WeiXin=Null Where C_WeiXin=''%s''';
     nSQL := Format(nSQL, [sTable_Customer, nStr]);
     FDM.ExecuteSQL(nSQL);
 
