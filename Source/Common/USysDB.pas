@@ -635,7 +635,7 @@ ResourceString
        'L_OutFact DateTime, L_OutMan varChar(32),' +
        'L_Lading Char(1), L_IsVIP varChar(1), L_Seal varChar(100),' +
        'L_HYDan varChar(15), L_Man varChar(32), L_Date DateTime,' +
-       'L_DelMan varChar(8), L_DelDate DateTime)';
+       'L_DelMan varChar(32), L_DelDate DateTime)';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号
@@ -916,16 +916,19 @@ ResourceString
   -----------------------------------------------------------------------------}
 
   sSQL_NewWXMatch = 'Create Table $Table(R_ID $Inc, M_ID varChar(15), ' +
-       'M_WXID varChar(50), M_WXName varChar(64), ' +
-       'M_IsValid Char(1), M_Comment varChar(100))';
+       'M_WXID varChar(50), M_WXName varChar(64), M_WXFactory varChar(15), ' +
+       'M_IsValid Char(1), M_Comment varChar(100), ' +
+       'M_AttentionID varChar(32), M_AttentionType Char(1))';
   {-----------------------------------------------------------------------------
    微信账户:WeixinMatch
    *.R_ID:记录编号
    *.M_ID: 微信编号
    *.M_WXID:开发ID
    *.M_WXName:微信名
+   *.M_WXFactory:微信注册工厂编码
    *.M_IsValid: 是否有效
-   *.M_Comment: 备注
+   *.M_Comment: 备注             
+   *.M_AttentionID,M_AttentionType: 微信关注客户ID,类型(S、业务员;C、客户;G、管理员)
   -----------------------------------------------------------------------------}
 
   sSQL_NewWXTemplate = 'Create Table $Table(R_ID $Inc, W_Type varChar(15), ' +
