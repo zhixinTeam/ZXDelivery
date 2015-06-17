@@ -57,14 +57,16 @@ type
     Timer_ReadCard: TTimer;
     TimerDelay: TTimer;
     MemoLog: TZnTransMemo;
+    Timer_SaveFail: TTimer;
     procedure Timer1Timer(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
     procedure Timer_ReadCardTimer(Sender: TObject);
     procedure TimerDelayTimer(Sender: TObject);
+    procedure Timer_SaveFailTimer(Sender: TObject);
   private
     { Private declarations }
-    FIsWeighting: Boolean;
-    //称重标识
+    FIsWeighting, FIsSaving: Boolean;
+    //称重标识,保存标识
     FPoundTunnel: PPTTunnelItem;
     //磅站通道
     FLastGS,FLastBT,FLastBQ: Int64;
@@ -247,6 +249,7 @@ begin
     EditValue.Text := '0.00';
     EditBill.Properties.Items.Clear;
 
+    FIsSaving    := False;
     FIsWeighting := False;
     gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
     //关闭表头端口
@@ -585,6 +588,9 @@ end;
 procedure TfFrameAutoPoundItem.OnPoundDataEvent(const nValue: Double);
 begin
   try
+    if FIsSaving then Exit;
+    //正在保存。。。
+
     OnPoundData(nValue);
   except
     on E: Exception do
@@ -625,11 +631,12 @@ begin
     Exit;
   end;
 
+  FIsSaving := True;
   if SavePoundSale then
   begin
     FIsWeighting := False;
     TimerDelay.Enabled := True;
-  end else SetUIData(True);
+  end else Timer_SaveFail.Enabled := True;
 end;
 
 procedure TfFrameAutoPoundItem.TimerDelayTimer(Sender: TObject);
@@ -711,6 +718,26 @@ begin
   if UpperCase(Additional.Values['Voice'])='NET' then
        gNetVoiceHelper.PlayVoice(nStrtext, FPoundTunnel.FID, 'pound')
   else gVoiceHelper.PlayVoice(nStrtext);
+end;
+
+procedure TfFrameAutoPoundItem.Timer_SaveFailTimer(Sender: TObject);
+begin
+  inherited;
+  try
+    Timer_SaveFail.Enabled := False;
+    FLastCardDone := GetTickCount;
+
+    gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
+    //关闭表头
+    SetUIData(True);
+  except
+    on E: Exception do
+    begin
+      WriteSysLog(Format('磅站[ %s.%s ]: %s', [FPoundTunnel.FID,
+                                               FPoundTunnel.FName, E.Message]));
+      //loged
+    end;
+  end;
 end;
 
 end.

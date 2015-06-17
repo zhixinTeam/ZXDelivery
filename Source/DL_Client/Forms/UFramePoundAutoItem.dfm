@@ -616,4 +616,10 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Left = 480
     Top = 256
   end
+  object Timer_SaveFail: TTimer
+    Enabled = False
+    OnTimer = Timer_SaveFailTimer
+    Left = 560
+    Top = 256
+  end
 end
