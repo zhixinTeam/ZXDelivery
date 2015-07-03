@@ -81,6 +81,8 @@ type
     FSampleIndex: Integer;
     FValueSamples: array of Double;
     //数据采样
+    FEmptyPoundInit: Int64;
+    //空磅计时
     procedure SetUIData(const nReset: Boolean; const nOnlyData: Boolean = False);
     //界面数据
     procedure SetImageStatus(const nImage: TImage; const nOff: Boolean);
@@ -136,6 +138,8 @@ begin
   inherited;
   FPoundTunnel := nil;
   FIsWeighting := False;
+  
+  FEmptyPoundInit := 0;
   FListA := TStringList.Create;
 end;
 
@@ -251,6 +255,8 @@ begin
 
     FIsSaving    := False;
     FIsWeighting := False;
+    FEmptyPoundInit := 0;
+    
     gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
     //关闭表头端口
   end;
@@ -612,6 +618,18 @@ begin
   //不在称重中
   if gSysParam.FIsManual then Exit;
   //手动时无效
+
+  if nValue < 0.02 then //空磅
+  begin
+    if FEmptyPoundInit = 0 then
+      FEmptyPoundInit := GetTickCount;
+    if GetTickCount - FEmptyPoundInit < 10 * 1000 then Exit;
+    //延迟重置
+
+    FEmptyPoundInit := 0;
+    Timer_SaveFail.Enabled := True;
+    Exit;
+  end else FEmptyPoundInit := 0;
 
   if FBillItems[0].FNextStatus = sFlag_TruckBFP then
        FUIData.FPData.FValue := nValue

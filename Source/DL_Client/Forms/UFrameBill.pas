@@ -13,7 +13,8 @@ uses
   dxLayoutControl, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, Menus,
-  UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters;
+  UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters,
+  cxCheckBox;
 
 type
   TfFrameBill = class(TfFrameNormal)
@@ -45,6 +46,8 @@ type
     N7: TMenuItem;
     N8: TMenuItem;
     N9: TMenuItem;
+    dxLayout1Item10: TdxLayoutItem;
+    CheckDelete: TcxCheckBox;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnDelClick(Sender: TObject);
@@ -57,6 +60,7 @@ type
     procedure N5Click(Sender: TObject);
     procedure N7Click(Sender: TObject);
     procedure PMenu1Popup(Sender: TObject);
+    procedure CheckDeleteClick(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -118,9 +122,13 @@ begin
     Result := Result + nStr + '(' + nWhere + ')';
   //xxxxx
 
-  Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
+  Result := MacroValue(Result, [
             MI('$ST', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
   //xxxxx
+
+  if CheckDelete.Checked then
+       Result := MacroValue(Result, [MI('$Bill', sTable_BillBak)])
+  else Result := MacroValue(Result, [MI('$Bill', sTable_Bill)]);
 end;
 
 procedure TfFrameBill.AfterInitFormData;
@@ -188,6 +196,12 @@ procedure TfFrameBill.EditDatePropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
   if ShowDateFilterForm(FStart, FEnd) then InitFormData('');
+end;
+
+//Desc: 查询删除
+procedure TfFrameBill.CheckDeleteClick(Sender: TObject);
+begin
+  InitFormData('');
 end;
 
 //------------------------------------------------------------------------------

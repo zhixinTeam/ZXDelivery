@@ -55,34 +55,34 @@ inherited fFrameBill: TfFrameBill
     end
     object cxTextEdit1: TcxTextEdit [2]
       Left = 81
-      Top = 93
+      Top = 94
       Hint = 'T.L_ID'
       ParentFont = False
-      TabOrder = 4
+      TabOrder = 5
       Width = 100
     end
     object cxTextEdit2: TcxTextEdit [3]
       Left = 244
-      Top = 93
+      Top = 94
       Hint = 'T.L_CusName'
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 6
       Width = 125
     end
     object cxTextEdit4: TcxTextEdit [4]
       Left = 620
-      Top = 93
+      Top = 94
       Hint = 'T.L_Truck'
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 8
       Width = 100
     end
     object cxTextEdit3: TcxTextEdit [5]
       Left = 795
-      Top = 93
+      Top = 94
       Hint = 'T.L_Value'
       ParentFont = False
-      TabOrder = 8
+      TabOrder = 9
       Width = 100
     end
     object EditDate: TcxButtonEdit [6]
@@ -114,11 +114,21 @@ inherited fFrameBill: TfFrameBill
     end
     object Edit1: TcxTextEdit [8]
       Left = 432
-      Top = 93
+      Top = 94
       Hint = 'T.L_StockName'
       ParentFont = False
-      TabOrder = 6
+      TabOrder = 7
       Width = 125
+    end
+    object CheckDelete: TcxCheckBox [9]
+      Left = 801
+      Top = 36
+      Caption = #26597#35810#24050#21024#38500
+      ParentFont = False
+      TabOrder = 4
+      Transparent = True
+      OnClick = CheckDeleteClick
+      Width = 105
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
@@ -140,6 +150,11 @@ inherited fFrameBill: TfFrameBill
         object dxLayout1Item7: TdxLayoutItem
           Caption = #26085#26399#31579#36873':'
           Control = EditDate
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item10: TdxLayoutItem
+          ShowCaption = False
+          Control = CheckDelete
           ControlOptions.ShowBorder = False
         end
       end
