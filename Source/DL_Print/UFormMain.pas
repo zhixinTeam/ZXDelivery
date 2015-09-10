@@ -282,6 +282,44 @@ begin
   Result := FDR.PrintSuccess;
 end;
 
+//Date: 2012-4-1
+//Parm: 采购单号;提示;数据对象;打印机
+//Desc: 打印nOrder采购单号
+function PrintOrderReport(const nOrder: string; var nHint: string;
+ const nPrinter: string = ''; const nMoney: string = '0'): Boolean;
+var nStr: string;
+    nDS: TDataSet;
+begin
+  Result := False;
+  nStr := 'Select * From %s oo Inner Join %s od on oo.O_ID=od.D_OID Where D_ID=''%s''';
+  nStr := Format(nStr, [sTable_Order, sTable_OrderDtl, nOrder]);
+
+  nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
+  if not Assigned(nDS) then Exit;
+
+  if nDS.RecordCount < 1 then
+  begin
+    nHint := '采购单[ %s ] 已无效!!';
+    nHint := Format(nHint, [nOrder]);
+    Exit;
+  end;
+
+  nStr := gPath + 'Report\PurchaseOrder.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nHint := '无法正确加载报表文件';
+    Exit;
+  end;
+
+  if nPrinter = '' then
+       FDR.Report1.PrintOptions.Printer := 'My_Default_Printer'
+  else FDR.Report1.PrintOptions.Printer := nPrinter;
+
+  FDR.Dataset1.DataSet := FDM.SQLQuery1;
+  FDR.PrintReport;
+  Result := FDR.PrintSuccess;
+end;
+
 //Desc: 打印单据
 procedure TfFormMain.PrintBill(var nBase: TRPDataBase; var nBuf: TIdBytes;
   nCtx: TIdContext);
@@ -303,7 +341,7 @@ end;
 
 procedure TfFormMain.Timer2Timer(Sender: TObject);
 var nPos: Integer;
-    nBill,nHint,nPrinter,nMoney: string;
+    nBill,nHint,nPrinter,nMoney, nType: string;
 begin
   while True do
   begin
@@ -316,7 +354,15 @@ begin
       FSyncLock.Leave;
     end;
 
-    //bill #9 printer #8 money
+    //bill #9 printer #8 money #7 CardType
+    nPos := Pos(#7, nBill);
+    if nPos > 1 then
+    begin
+      nType := nBill;
+      nBill := Copy(nBill, 1, nPos - 1);
+      System.Delete(nType, 1, nPos);
+    end else nType := '';
+
     nPos := Pos(#8, nBill);
     if nPos > 1 then
     begin
@@ -338,7 +384,9 @@ begin
     end else nPrinter := '';
 
     WriteLog('开始打印: ' + nBill);
-    PrintBillReport(nBill, nHint, nPrinter, nMoney);
+    if nType = 'P' then
+         PrintOrderReport(nBill, nHint, nPrinter)
+    else PrintBillReport(nBill, nHint, nPrinter, nMoney);
     WriteLog('打印结束.' + nHint);
   end;
 end;

@@ -56,6 +56,8 @@
 //如东海鑫
 {$IFDEF RDHX}
   {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
 {$ENDIF}
 
 //新安中联

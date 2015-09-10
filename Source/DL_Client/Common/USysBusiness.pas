@@ -59,6 +59,8 @@ function GetSerialNo(const nGroup,nObject: string; nUseDate: Boolean = True): st
 //获取串行编号
 function GetLadingStockItems(var nItems: TDynamicStockItemArray): Boolean;
 //可用品种列表
+function GetCardUsed(const nCard: string): string;
+//获取卡片类型
 
 function LoadSysDictItem(const nItem: string; const nList: TStrings): TDataSet;
 //读取系统字典项
@@ -88,6 +90,10 @@ function GetCustomerValidMoney(nCID: string; const nLimit: Boolean = True;
 function SyncRemoteCustomer: Boolean;
 //同步远程用户
 function SyncRemoteSaleMan: Boolean;
+//同步远程业务员
+function SyncRemoteProviders: Boolean;
+//同步远程用户
+function SyncRemoteMeterails: Boolean;
 //同步远程业务员
 function SaveXuNiCustomer(const nName,nSaleMan: string): string;
 //存临时客户
@@ -119,6 +125,8 @@ function SaveBillCard(const nBill, nCard: string): Boolean;
 //保存交货单磁卡
 function LogoutBillCard(const nCard: string): Boolean;
 //注销指定磁卡
+function SetTruckRFIDCard(nTruck: string; var nRFIDCard: string;
+  var nIsUse: string; nOldCard: string=''): Boolean;
 
 function GetLadingBills(const nCard,nPost: string;
  var nBills: TLadingBillItems): Boolean;
@@ -140,6 +148,30 @@ function ReadPoundCard(const nTunnel: string): string;
 //读取指定磅站读头上的卡号
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
+
+function SaveOrder(const nOrderData: string): string;
+//保存采购单
+function DeleteOrder(const nOrder: string): Boolean;
+//删除采购单
+//function ChangeLadingTruckNo(const nBill,nTruck: string): Boolean;
+////更改提货车辆
+function SetOrderCard(const nOrder,nTruck: string; nVerify: Boolean): Boolean;
+//为采购单办理磁卡
+function SaveOrderCard(const nOrder, nCard: string): Boolean;
+//保存采购单磁卡
+function LogoutOrderCard(const nCard: string): Boolean;
+//注销指定磁卡
+function ChangeOrderTruckNo(const nOrder,nTruck: string): Boolean;
+//修改车牌号
+
+function GetPurchaseOrders(const nCard,nPost: string;
+ var nBills: TLadingBillItems): Boolean;
+//获取指定岗位的采购单列表
+function SavePurchaseOrders(const nPost: string; const nData: TLadingBillItems;
+ const nTunnel: PPTTunnelItem = nil): Boolean;
+//保存指定岗位的采购单
+procedure LoadOrderItemToMC(const nItem: TLadingBillItem; const nMC: TStrings;
+ const nDelimiter: string);
 
 function LoadTruckQueue(var nLines: TZTLineItems; var nTrucks: TZTTruckItems;
  const nRefreshLine: Boolean = False): Boolean;
@@ -174,6 +206,8 @@ function PrintShouJuReport(const nSID: string; const nAsk: Boolean): Boolean;
 //打印收据
 function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
 //打印提货单
+function PrintOrderReport(const nOrder: string;  const nAsk: Boolean): Boolean;
+//打印采购单
 function PrintPoundReport(const nPound: string; nAsk: Boolean): Boolean;
 //打印榜单
 function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
@@ -283,6 +317,40 @@ begin
   end;
 end;
 
+//Date: 2014-09-05
+//Parm: 命令;数据;参数;输出
+//Desc: 调用中间件上的销售单据对象
+function CallBusinessPurchaseOrder(const nCmd: Integer; const nData,nExt: string;
+  const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
+var nIn: TWorkerBusinessCommand;
+    nWorker: TBusinessWorkerBase;
+begin
+  nWorker := nil;
+  try
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+
+    if nWarn then
+         nIn.FBase.FParam := ''
+    else nIn.FBase.FParam := sParam_NoHintOnError;
+
+    if gSysParam.FAutoPound and (not gSysParam.FIsManual) then
+      nIn.FBase.FParam := sParam_NoHintOnError;
+    //自动称重时不提示
+
+    nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessPurchaseOrder);
+    //get worker
+    Result := nWorker.WorkActive(@nIn, nOut);
+
+    if not Result then
+      WriteLog(nOut.FBase.FErrDesc);
+    //xxxxx
+  finally
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
 //Date: 2014-10-01
 //Parm: 命令;数据;参数;输出
 //Desc: 调用中间件上的销售单据对象
@@ -351,6 +419,15 @@ begin
   if CallBusinessCommand(cBC_IsSystemExpired, '', '', @nOut) then
        Result := StrToInt(nOut.FData)
   else Result := 0;
+end;
+
+function GetCardUsed(const nCard: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := '';
+  if CallBusinessCommand(cBC_GetCardUsed, nCard, '', @nOut) then
+    Result := nOut.FData;
+  //xxxxx
 end;
 
 //Desc: 获取当前系统可用的水泥品种列表
@@ -828,6 +905,21 @@ begin
   Result := CallBusinessCommand(cBC_SyncCustomer, '', '', @nOut);
 end;
 
+//Desc: 同步供应商到DL系统
+function SyncRemoteProviders: Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessCommand(cBC_SyncProvider, '', '', @nOut);
+end;
+
+//Date: 2014-10-13
+//Desc: 同步原材料到DL系统
+function SyncRemoteMeterails: Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessCommand(cBC_SyncMaterails, '', '', @nOut);
+end;
+
 //Date: 2014-09-25
 //Parm: 车牌号
 //Desc: 获取nTruck的称皮记录
@@ -1181,6 +1273,7 @@ begin
 
   nP.FParamA := nBill;
   nP.FParamB := nTruck;
+  nP.FParamC := sFlag_Sale;
   CreateBaseFormItem(cFI_FormMakeCard, '', @nP);
   Result := (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK);
 end;
@@ -1247,6 +1340,123 @@ begin
   end;
 end;
 
+//Date: 2014-09-15
+//Parm: 开单数据
+//Desc: 保存采购单,返回采购单号列表
+function SaveOrder(const nOrderData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessPurchaseOrder(cBC_SaveOrder, nOrderData, '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//Date: 2014-09-15
+//Parm: 交货单号
+//Desc: 删除nBillID单据
+function DeleteOrder(const nOrder: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessPurchaseOrder(cBC_DeleteOrder, nOrder, '', @nOut);
+end;
+
+//Date: 2014-09-17
+//Parm: 交货单;车牌号;校验制卡开关
+//Desc: 为nBill交货单制卡
+function SetOrderCard(const nOrder,nTruck: string; nVerify: Boolean): Boolean;
+var nStr: string;
+    nP: TFormCommandParam;
+begin
+  Result := True;
+  if nVerify then
+  begin
+    nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_ViaBillCard]);
+
+    with FDM.QueryTemp(nStr) do
+     if (RecordCount < 1) or (Fields[0].AsString <> sFlag_Yes) then Exit;
+    //no need do card
+  end;
+
+  nP.FParamA := nOrder;
+  nP.FParamB := nTruck;
+  nP.FParamC := sFlag_Provide;
+  CreateBaseFormItem(cFI_FormMakeCard, '', @nP);
+  Result := (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK);
+end;
+
+//Date: 2014-09-17
+//Parm: 交货单号;磁卡
+//Desc: 绑定nBill.nCard
+function SaveOrderCard(const nOrder, nCard: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessPurchaseOrder(cBC_SaveOrderCard, nOrder, nCard, @nOut);
+end;
+
+//Date: 2014-09-17
+//Parm: 磁卡号
+//Desc: 注销nCard
+function LogoutOrderCard(const nCard: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessPurchaseOrder(cBC_LogOffOrderCard, nCard, '', @nOut);
+end;
+
+//Date: 2014-09-15
+//Parm: 交货单;新车牌
+//Desc: 修改nOrder的车牌为nTruck.
+function ChangeOrderTruckNo(const nOrder,nTruck: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessPurchaseOrder(cBC_ModifyBillTruck, nOrder, nTruck, @nOut);
+end;
+
+//Date: 2014-09-17
+//Parm: 磁卡号;岗位;交货单列表
+//Desc: 获取nPost岗位上磁卡为nCard的交货单列表
+function GetPurchaseOrders(const nCard,nPost: string;
+ var nBills: TLadingBillItems): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessPurchaseOrder(cBC_GetPostOrders, nCard, nPost, @nOut);
+  if Result then
+    AnalyseBillItems(nOut.FData, nBills);
+  //xxxxx
+end;
+
+//Date: 2014-09-18
+//Parm: 岗位;交货单列表;磅站通道
+//Desc: 保存nPost岗位上的交货单数据
+function SavePurchaseOrders(const nPost: string; const nData: TLadingBillItems;
+ const nTunnel: PPTTunnelItem): Boolean;
+var nStr: string;
+    nIdx: Integer;
+    nList: TStrings;
+    nOut: TWorkerBusinessCommand;
+begin
+  nStr := CombineBillItmes(nData);
+  Result := CallBusinessPurchaseOrder(cBC_SavePostOrders, nStr, nPost, @nOut);
+  if (not Result) or (nOut.FData = '') then Exit;
+
+  if Assigned(nTunnel) then //过磅称重
+  begin
+    nList := TStringList.Create;
+    try
+      CapturePicture(nTunnel, nList);
+      //capture file
+
+      for nIdx:=0 to nList.Count - 1 do
+        SavePicture(nOut.FData, nData[0].FTruck,
+                                nData[0].FStockName, nList[nIdx]);
+      //save file
+    finally
+      nList.Free;
+    end;
+  end;
+end;
+
+
 //Date: 2014-09-17
 //Parm: 交货单项; MCListBox;分隔符
 //Desc: 将nItem载入nMC
@@ -1272,6 +1482,34 @@ begin
     Add(Format('提货磁卡:%s %s', [nDelimiter, FCard]));
     Add(Format('单据类型:%s %s', [nDelimiter, BillTypeToStr(FIsVIP)]));
     Add(Format('客户名称:%s %s', [nDelimiter, FCusName]));
+  end;
+end;
+
+//Date: 2014-09-17
+//Parm: 交货单项; MCListBox;分隔符
+//Desc: 将nItem载入nMC
+procedure LoadOrderItemToMC(const nItem: TLadingBillItem; const nMC: TStrings;
+ const nDelimiter: string);
+var nStr: string;
+begin
+  with nItem,nMC do
+  begin
+    Clear;
+    Add(Format('车牌号码:%s %s', [nDelimiter, FTruck]));
+    Add(Format('当前状态:%s %s', [nDelimiter, TruckStatusToStr(FStatus)]));
+
+    Add(Format('%s ', [nDelimiter]));
+    Add(Format('采购单号:%s %s', [nDelimiter, FZhiKa]));
+//    Add(Format('交货数量:%s %.3f 吨', [nDelimiter, FValue]));
+    if FType = sFlag_Dai then nStr := '袋装' else nStr := '散装';
+
+    Add(Format('品种类型:%s %s', [nDelimiter, nStr]));
+    Add(Format('品种名称:%s %s', [nDelimiter, FStockName]));
+    
+    Add(Format('%s ', [nDelimiter]));
+    Add(Format('送货磁卡:%s %s', [nDelimiter, FCard]));
+    Add(Format('单据类型:%s %s', [nDelimiter, BillTypeToStr(FIsVIP)]));
+    Add(Format('供 应 商:%s %s', [nDelimiter, FCusName]));
   end;
 end;
 
@@ -1585,6 +1823,56 @@ begin
   Result := FDR.PrintSuccess;
 end;
 
+
+//Date: 2012-4-1
+//Parm: 采购单号;提示;数据对象;打印机
+//Desc: 打印nOrder采购单号
+function PrintOrderReport(const nOrder: string;  const nAsk: Boolean): Boolean;
+var nStr: string;
+    nDS: TDataSet;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印采购单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+
+  nStr := 'Select * From %s oo Inner Join %s od on oo.O_ID=od.D_OID Where D_ID=''%s''';
+  nStr := Format(nStr, [sTable_Order, sTable_OrderDtl, nOrder]);
+
+  nDS := FDM.QueryTemp(nStr);
+  if not Assigned(nDS) then Exit;
+
+  if nDS.RecordCount < 1 then
+  begin
+    nStr := '采购单[ %s ] 已无效!!';
+    nStr := Format(nStr, [nOrder]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + 'Report\PurchaseOrder.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nParam.FName := 'UserName';
+  nParam.FValue := gSysParam.FUserID;
+  FDR.AddParamItem(nParam);
+
+  nParam.FName := 'Company';
+  nParam.FValue := gSysParam.FHintText;
+  FDR.AddParamItem(nParam);
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+end;
+
 //Date: 2012-4-15
 //Parm: 过磅单号;是否询问
 //Desc: 打印nPound过磅记录
@@ -1748,5 +2036,23 @@ begin
   FDR.ShowReport;
   Result := FDR.PrintSuccess;
 end;
+
+//Date: 2015/1/18
+//Parm: 车牌号；电子标签；是否启用；旧电子标签
+//Desc: 读标签是否成功；新的电子标签
+function SetTruckRFIDCard(nTruck: string; var nRFIDCard: string;
+  var nIsUse: string; nOldCard: string=''): Boolean;
+var nP: TFormCommandParam;
+begin
+  nP.FParamA := nTruck;
+  nP.FParamB := nOldCard;
+  nP.FParamC := nIsUse;
+  CreateBaseFormItem(cFI_FormMakeRFIDCard, '', @nP);
+
+  nRFIDCard := nP.FParamB;
+  nIsUse    := nP.FParamC;
+  Result    := (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK);
+end;
+
 
 end.

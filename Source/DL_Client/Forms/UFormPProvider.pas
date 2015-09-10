@@ -44,9 +44,6 @@ type
     dxLayoutControl1Group9: TdxLayoutGroup;
     dxLayoutControl1Group7: TdxLayoutGroup;
     dxLayoutControl1Group3: TdxLayoutGroup;
-    cxTextEdit1: TcxTextEdit;
-    dxLayoutControl1Item1: TdxLayoutItem;
-    dxLayoutControl1Group6: TdxLayoutGroup;
     dxLayoutControl1Item3: TdxLayoutItem;
     EditID: TcxTextEdit;
     procedure FormCreate(Sender: TObject);

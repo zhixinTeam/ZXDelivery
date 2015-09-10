@@ -107,6 +107,8 @@ end;
 function TfFrameBill.InitFormDataSQL(const nWhere: string): string;
 var nStr: string;
 begin
+  FEnableBackDB := True;
+
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
   Result := 'Select * From $Bill ';

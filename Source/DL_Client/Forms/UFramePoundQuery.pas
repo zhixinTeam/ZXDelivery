@@ -102,6 +102,9 @@ end;
 
 function TfFramePoundQuery.InitFormDataSQL(const nWhere: string): string;
 begin
+  FEnableBackDB := True;
+  //启用备份数据库
+
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
   Result := 'Select pl.*,(P_MValue-P_PValue) As P_NetWeight,' +

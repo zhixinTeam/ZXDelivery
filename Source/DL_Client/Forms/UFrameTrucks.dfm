@@ -1,4 +1,4 @@
-inherited fFrameMaterails: TfFrameMaterails
+inherited fFrameTrucks: TfFrameTrucks
   Width = 686
   inherited ToolBar1: TToolBar
     Width = 686
@@ -17,22 +17,22 @@ inherited fFrameMaterails: TfFrameMaterails
     Width = 686
     Height = 165
     inherited cxView1: TcxGridDBTableView
-      PopupMenu = PopupMenu1
+      PopupMenu = PMenu1
     end
   end
   inherited dxLayout1: TdxLayoutControl
     Width = 686
     Height = 135
     object cxTextEdit1: TcxTextEdit [0]
-      Left = 69
-      Top = 96
-      Hint = 'T.M_Name'
+      Left = 81
+      Top = 93
+      Hint = 'T.T_Truck'
       ParentFont = False
       TabOrder = 1
       Width = 125
     end
     object EditName: TcxButtonEdit [1]
-      Left = 69
+      Left = 81
       Top = 36
       ParentFont = False
       Properties.Buttons = <
@@ -46,30 +46,43 @@ inherited fFrameMaterails: TfFrameMaterails
       Width = 125
     end
     object cxTextEdit2: TcxTextEdit [2]
-      Left = 257
-      Top = 96
-      Hint = 'T.M_Memo'
+      Left = 269
+      Top = 93
+      Hint = 'T.T_Owner'
       ParentFont = False
       TabOrder = 2
-      Width = 274
+      Width = 125
+    end
+    object cxTextEdit3: TcxTextEdit [3]
+      Left = 457
+      Top = 93
+      Hint = 'T.T_PValue'
+      ParentFont = False
+      TabOrder = 3
+      Width = 125
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #21407#26448#26009':'
+          Caption = #36710#29260#21495#30721':'
           Control = EditName
           ControlOptions.ShowBorder = False
         end
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #21407#26448#26009':'
+          Caption = #36710#29260#21495#30721':'
           Control = cxTextEdit1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
-          Caption = #22791#27880#20449#24687':'
+          Caption = #36710#20027#22995#21517':'
           Control = cxTextEdit2
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item3: TdxLayoutItem
+          Caption = #26377#25928#30382#37325':'
+          Control = cxTextEdit3
           ControlOptions.ShowBorder = False
         end
       end
@@ -82,7 +95,7 @@ inherited fFrameMaterails: TfFrameMaterails
   inherited TitlePanel1: TZnBitmapPanel
     Width = 686
     inherited TitleBar: TcxLabel
-      Caption = #21407#26448#26009#31649#29702
+      Caption = #36710#36742#26723#26696#31649#29702
       Style.IsFontAssigned = True
       Width = 686
       AnchorX = 343
@@ -95,13 +108,47 @@ inherited fFrameMaterails: TfFrameMaterails
   inherited DataSource1: TDataSource
     Top = 234
   end
-  object PopupMenu1: TPopupMenu
-    OnPopup = PopupMenu1Popup
-    Left = 56
-    Top = 232
+  object PMenu1: TPopupMenu
+    AutoHotkeys = maManual
+    OnPopup = PMenu1Popup
+    Left = 6
+    Top = 262
     object N1: TMenuItem
-      Caption = #21516#27493#21407#26448#26009
-      OnClick = N1Click
+      Caption = '-'
+      Enabled = False
+    end
+    object N2: TMenuItem
+      Caption = #36710#36742#31614#21040
+      OnClick = N2Click
+    end
+    object N3: TMenuItem
+      Caption = '-'
+      Enabled = False
+    end
+    object N4: TMenuItem
+      Caption = #21150#29702#30005#23376#26631#31614
+      OnClick = N4Click
+    end
+    object N5: TMenuItem
+      Caption = #21551#29992#30005#23376#26631#31614
+      OnClick = N5Click
+    end
+    object N7: TMenuItem
+      Caption = #20572#29992#30005#23376#26631#31614
+      OnClick = N7Click
+    end
+    object N6: TMenuItem
+      Caption = '-'
+    end
+    object VIP1: TMenuItem
+      Caption = #21551#29992'VIP'
+      Visible = False
+      OnClick = VIP1Click
+    end
+    object VIP2: TMenuItem
+      Caption = #20851#38381'VIP'
+      Visible = False
+      OnClick = VIP2Click
     end
   end
 end

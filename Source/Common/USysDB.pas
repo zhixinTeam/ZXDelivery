@@ -108,6 +108,17 @@ ResourceString
   sFlag_BillPost      = 'G';                         //过账
   sFlag_BillDone      = 'O';                         //完成
 
+  sFlag_OrderNew       = 'N';                        //新单
+  sFlag_OrderEdit      = 'E';                        //修改
+  sFlag_OrderDel       = 'D';                        //删除
+  sFlag_OrderPuring    = 'L';                        //送货中
+  sFlag_OrderDone      = 'O';                        //完成
+  sFlag_OrderAbort     = 'A';                        //废弃
+  sFlag_OrderStop      = 'S';                        //终止
+
+  sFlag_OrderCardL     = 'L';                        //临时
+  sFlag_OrderCardG     = 'G';                        //固定
+
   sFlag_TypeShip      = 'S';                         //船运
   sFlag_TypeZT        = 'Z';                         //栈台
   sFlag_TypeVIP       = 'V';                         //VIP
@@ -126,7 +137,8 @@ ResourceString
   sFlag_TruckSH       = 'S';                         //送货车辆
   sFlag_TruckFH       = 'F';                         //放灰车辆
   sFlag_TruckZT       = 'Z';                         //栈台车辆
-  
+  sFlag_TruckXH       = 'X';                         //验收车辆
+
   sFlag_TJNone        = 'N';                         //未调价
   sFlag_TJing         = 'T';                         //调价中
   sFlag_TJOver        = 'O';                         //调价完成
@@ -174,6 +186,7 @@ ResourceString
   sFlag_TruckItem     = 'TruckItem';                 //车辆信息项
   sFlag_CustomerItem  = 'CustomerItem';              //客户信息项
   sFlag_BankItem      = 'BankItem';                  //银行信息项
+  sFlag_UserLogItem   = 'UserLogItem';               //用户登录项
 
   sFlag_StockItem     = 'StockItem';                 //水泥信息项
   sFlag_ContractItem  = 'ContractItem';              //合同信息项
@@ -200,6 +213,7 @@ ResourceString
   sFlag_NoSanQueue    = 'NoSanQueue';                //散装禁用队列
   sFlag_DelayQueue    = 'DelayQueue';                //延迟排队(厂内)
   sFlag_PoundQueue    = 'PoundQueue';                //延迟排队(厂内依据过皮时间)
+  sFlag_NetPlayVoice  = 'NetPlayVoice';              //使用网络语音播发
 
   sFlag_BusGroup      = 'BusFunction';               //业务编码组
   sFlag_BillNo        = 'Bus_Bill';                  //交货单号
@@ -210,7 +224,9 @@ ResourceString
   sFlag_WeiXin        = 'Bus_WeiXin';                //微信映射编号
   sFlag_HYDan         = 'Bus_HYDan';                 //化验单号
   sFlag_ForceHint     = 'Bus_HintMsg';               //强制提示
-  
+  sFlag_Order         = 'Bus_Order';              //采购单号
+  sFlag_OrderDtl      = 'Bus_OrderDtl';              //采购单号
+
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
   sTable_User         = 'Sys_User';                  //用户表
@@ -255,6 +271,11 @@ ResourceString
   sTable_Bill         = 'S_Bill';                    //提货单
   sTable_BillBak      = 'S_BillBak';                 //已删交货单
   sTable_StockMatch   = 'S_StockMatch';              //品种映射
+
+  sTable_Order        = 'S_Order';                   //采购订单
+  sTable_OrderBak     = 'S_OrderBak';                //已删除采购订单
+  sTable_OrderDtl     = 'S_OrderDtl';                //采购订单明细
+  sTable_OrderDtlBak  = 'S_OrderDtlBak';                //采购订单明细
 
   sTable_Truck        = 'S_Truck';                   //车辆表
   sTable_ZTLines      = 'S_ZTLines';                 //装车道
@@ -671,6 +692,64 @@ ResourceString
    *.L_Memo: 动作备注
   -----------------------------------------------------------------------------}
 
+  sSQL_NewOrder = 'Create Table $Table(R_ID $Inc, O_ID varChar(20),' +
+       'O_Card varChar(16), O_CType varChar(1), ' +
+       'O_Area varChar(50), O_Project varChar(100),' +
+       'O_ProID varChar(15), O_ProName varChar(80), O_ProPY varChar(80),' +
+       'O_SaleID varChar(15), O_SaleMan varChar(32), O_SalePY varChar(80),' +
+       'O_Type Char(1), O_StockNo varChar(20), O_StockName varChar(80),' +
+       'O_Truck varChar(15), O_OStatus Char(1),' +
+       'O_Man varChar(32), O_Date DateTime,' +
+       'O_DelMan varChar(32), O_DelDate DateTime, O_Memo varChar(500))';
+  {-----------------------------------------------------------------------------
+   采购订单表: Order
+   *.R_ID: 编号
+   *.O_ID: 提单号
+   *.O_Card,O_CType: 磁卡号,磁卡类型(L、临时卡;G、固定卡)
+   *.O_OStatus: 订单状态
+   *.O_Area,O_Project: 区域,项目
+   *.O_ProID,O_ProName,O_ProPY:供应商
+   *.O_SaleID,O_SaleMan:业务员
+   *.O_Type: 类型(袋,散)
+   *.O_StockNo: 原材料编号
+   *.O_StockName: 原材料名称
+   *.O_Truck: 车船号
+   *.O_Man:操作人
+   *.O_Date:创建时间
+   *.O_DelMan: 采购单删除人员
+   *.O_DelDate: 采购单删除时间
+   *.O_Memo: 动作备注
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewOrderDtl = 'Create Table $Table(R_ID $Inc, D_ID varChar(20),' +
+       'D_OID varChar(20), D_PID varChar(20), D_Card varChar(16), ' +
+       'D_DStatus Char(1), D_Status Char(1), D_NextStatus Char(1),' +
+       'D_InTime DateTime, D_InMan varChar(32),' +
+       'D_PValue $Float, D_PDate DateTime, D_PMan varChar(32),' +
+       'D_MValue $Float, D_MDate DateTime, D_MMan varChar(32),' +
+       'D_YTime DateTime, D_YMan varChar(32), ' +
+       'D_KZValue $Float, D_AKValue $Float,' +
+       'D_YLine varChar(15), D_YLineName varChar(32), ' +
+       'D_DelMan varChar(32), D_DelDate DateTime, ' +
+       'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500))';
+  {-----------------------------------------------------------------------------
+   采购订单明细表: OrderDetail
+   *.R_ID: 编号
+   *.D_ID: 采购明细号
+   *.D_OID: 采购单号
+   *.D_PID: 磅单号
+   *.D_Card: 采购磁卡号
+   *.D_DStatus: 订单状态
+   *.D_Status,D_NextStatus: 状态
+   *.D_InTime,D_InMan: 进厂放行
+   *.D_PValue,D_PDate,D_PMan: 称皮重
+   *.D_MValue,D_MDate,D_MMan: 称毛重
+   *.D_YTime,D_YMan: 收货时间,验收人,
+   *.D_KZValue,D_AKValue: 验收扣除(明扣),暗扣
+   *.D_YLine,D_YLineName: 收货通道
+   *.D_OutFact,D_OutMan: 出厂放行
+  -----------------------------------------------------------------------------}
+
   sSQL_NewCard = 'Create Table $Table(R_ID $Inc, C_Card varChar(16),' +
        'C_Card2 varChar(32), C_Card3 varChar(32),' +
        'C_Owner varChar(15), C_TruckNo varChar(15), C_Status Char(1),' +
@@ -683,7 +762,7 @@ ResourceString
    *.C_Card2,C_Card3:副卡号
    *.C_Owner:持有人标识
    *.C_TruckNo:提货车牌
-   *.C_Used:用途(供应,销售)
+   *.C_Used:用途(供应,销售,临时)
    *.C_UseTime:使用次数
    *.C_Status:状态(空闲,使用,注销,挂失)
    *.C_Freeze:是否冻结
@@ -692,10 +771,14 @@ ResourceString
    *.C_Memo:备注信息
   -----------------------------------------------------------------------------}
 
-  sSQL_NewTruck = 'Create Table $Table(R_ID $Inc, T_Truck varChar(15), ' +
-       'T_PY varChar(15), T_Owner varChar(32), T_Phone varChar(15), ' +
-       'T_Used Char(1), T_PrePValue $Float, T_PrePMan varChar(32), ' +
-       'T_PrePTime DateTime, T_Man varChar(32), T_Valid Char(1))';
+    sSQL_NewTruck = 'Create Table $Table(R_ID $Inc, T_Truck varChar(15), ' +
+       'T_PY varChar(15), T_Owner varChar(32), T_Phone varChar(15), T_Used Char(1), ' +
+       'T_PrePValue $Float, T_PrePMan varChar(32), T_PrePTime DateTime, ' +
+       'T_PrePUse Char(1), T_MinPVal $Float, T_MaxPVal $Float, ' +
+       'T_PValue $Float Default 0, T_PTime Integer Default 0,' +
+       'T_PlateColor varChar(12),T_Type varChar(12), T_LastTime DateTime, ' +
+       'T_Card varChar(32), T_CardUse Char(1), T_NoVerify Char(1),' +
+       'T_Valid Char(1), T_VIPTruck Char(1), T_HasGPS Char(1))';
   {-----------------------------------------------------------------------------
    车辆信息:Truck
    *.R_ID: 记录号
@@ -707,7 +790,23 @@ ResourceString
    *.T_PrePValue: 预置皮重
    *.T_PrePMan: 预置司磅
    *.T_PrePTime: 预置时间
+   *.T_PrePUse: 使用预置
+   *.T_MinPVal: 历史最小皮重
+   *.T_MaxPVal: 历史最大皮重
+   *.T_PValue: 有效皮重
+   *.T_PTime: 过皮次数
+   *.T_PlateColor: 车牌颜色
+   *.T_Type: 车型
+   *.T_LastTime: 上次活动
+   *.T_Card: 电子标签
+   *.T_CardUse: 使用电子签(Y/N)
+   *.T_NoVerify: 不校验时间
    *.T_Valid: 是否有效
+   *.T_VIPTruck:是否VIP
+   *.T_HasGPS:安装GPS(Y/N)
+
+   有效平均皮重算法:
+   T_PValue = (T_PValue * T_PTime + 新皮重) / (T_PTime + 1)
   -----------------------------------------------------------------------------}
 
   sSQL_NewPoundLog = 'Create Table $Table(R_ID $Inc, P_ID varChar(15),' +
@@ -720,12 +819,12 @@ ResourceString
        'P_FactID varChar(32), P_PStation varChar(10), P_MStation varChar(10),' +
        'P_Direction varChar(10), P_PModel varChar(10), P_Status Char(1),' +
        'P_Valid Char(1), P_PrintNum Integer Default 1,' +
-       'P_DelMan varChar(32), P_DelDate DateTime)';
+       'P_DelMan varChar(32), P_DelDate DateTime, P_KZValue $Float)';
   {-----------------------------------------------------------------------------
    过磅记录: Materails
    *.P_ID: 编号
    *.P_Type: 类型(销售,供应,临时)
-   *.P_Order: 订单号
+   *.P_Order: 订单号(供应)
    *.P_Bill: 交货单
    *.P_Truck: 车牌
    *.P_CusID: 客户号
@@ -744,6 +843,7 @@ ResourceString
    *.P_Valid: 是否有效
    *.P_PrintNum: 打印次数
    *.P_DelMan,P_DelDate: 删除记录
+   *.P_KZValue: 供应扣杂
   -----------------------------------------------------------------------------}
 
   sSQL_NewPicture = 'Create Table $Table(R_ID $Inc, P_ID varChar(15),' +
@@ -1141,6 +1241,7 @@ begin
   if nStatus = sFlag_TruckBFP then Result := '称皮重' else
   if nStatus = sFlag_TruckBFM then Result := '称毛重' else
   if nStatus = sFlag_TruckSH then Result := '送货中' else
+  if nStatus = sFlag_TruckXH then Result := '验收处' else
   if nStatus = sFlag_TruckFH then Result := '放灰处' else
   if nStatus = sFlag_TruckZT then Result := '栈台' else Result := '未进厂';
 end;
@@ -1217,6 +1318,10 @@ begin
   AddSysTableItem(sTable_Card, sSQL_NewCard);
   AddSysTableItem(sTable_Bill, sSQL_NewBill);
   AddSysTableItem(sTable_BillBak, sSQL_NewBill);
+  AddSysTableItem(sTable_Order, sSQL_NewOrder);
+  AddSysTableItem(sTable_OrderBak, sSQL_NewOrder);
+  AddSysTableItem(sTable_OrderDtl, sSQL_NewOrderDtl);
+  AddSysTableItem(sTable_OrderDtlBak, sSQL_NewOrderDtl);
 
   AddSysTableItem(sTable_Truck, sSQL_NewTruck);
   AddSysTableItem(sTable_ZTLines, sSQL_NewZTLines);

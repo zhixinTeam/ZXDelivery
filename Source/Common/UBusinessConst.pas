@@ -24,6 +24,7 @@ const
   cBC_GetSerialNO             = $0001;   //获取串行编号
   cBC_ServerNow               = $0002;   //服务器当前时间
   cBC_IsSystemExpired         = $0003;   //系统是否已过期
+  cBC_GetCardUsed             = $0004;   //获取卡片类型
 
   cBC_GetCustomerMoney        = $0010;   //获取客户可用金
   cBC_GetZhiKaMoney           = $0011;   //获取纸卡可用金
@@ -39,6 +40,13 @@ const
   cBC_SaleAdjust              = $0023;   //销售调拨
   cBC_SaveBillCard            = $0024;   //绑定交货单磁卡
   cBC_LogoffCard              = $0025;   //注销磁卡
+
+  cBC_SaveOrder               = $0040;
+  cBC_DeleteOrder             = $0041;
+  cBC_SaveOrderCard           = $0042;
+  cBC_LogOffOrderCard         = $0043;
+  cBC_GetPostOrders           = $0044;   //获取岗位采购单
+  cBC_SavePostOrders          = $0045;   //保存岗位采购单
 
   cBC_GetPostBills            = $0030;   //获取岗位交货单
   cBC_SavePostBills           = $0031;   //保存岗位交货单
@@ -64,6 +72,9 @@ const
   cBC_SyncSaleMan             = $0081;   //远程同步业务员
   cBC_SyncStockBill           = $0082;   //同步单据到远程
   cBC_CheckStockValid         = $0083;   //验证是否允许发货
+  cBC_SyncStockOrder          = $0084;   //同步采购单据到远程
+  cBC_SyncProvider            = $0085;   //远程同步供应商
+  cBC_SyncMaterails           = $0086;   //远程同步原材料
 
 type
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
@@ -114,6 +125,9 @@ type
     FPType      : string;          //业务类型
     FPoundID    : string;          //称重记录
     FSelected   : Boolean;         //选中状态
+
+    FKZValue    : Double;          //供应扣除
+    FMemo       : string;          //动作备注
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -144,6 +158,7 @@ resourcestring
   sBus_BusinessSaleBill       = 'Bus_BusinessSaleBill'; //交货单相关
   sBus_BusinessCommand        = 'Bus_BusinessCommand';  //业务指令
   sBus_HardwareCommand        = 'Bus_HardwareCommand';  //硬件指令
+  sBus_BusinessPurchaseOrder  = 'Bus_BusinessPurchaseOrder'; //采购单相关
 
   {*client function name*}
   sCLI_ServiceStatus          = 'CLI_ServiceStatus';    //服务状态
@@ -152,6 +167,7 @@ resourcestring
   sCLI_BusinessSaleBill       = 'CLI_BusinessSaleBill'; //交货单业务
   sCLI_BusinessCommand        = 'CLI_BusinessCommand';  //业务指令
   sCLI_HardwareCommand        = 'CLI_HardwareCommand';  //硬件指令
+  sCLI_BusinessPurchaseOrder  = 'CLI_BusinessPurchaseOrder'; //采购单相关
 
 implementation
 
@@ -232,6 +248,13 @@ begin
         if (nStr <> '') and IsNumber(nStr, True) then
              FPrice := StrToFloat(nStr)
         else FPrice := 0;
+
+        nStr := Trim(Values['KZValue']);
+        if (nStr <> '') and IsNumber(nStr, True) then
+             FKZValue := StrToFloat(nStr)
+        else FKZValue := 0;
+
+        FMemo := Values['Memo'];
       end;
 
       Inc(nInt);
@@ -305,6 +328,9 @@ begin
         if FSelected then
              Values['Selected'] := sFlag_Yes
         else Values['Selected'] := sFlag_No;
+
+        Values['KZValue']    := FloatToStr(FKZValue);
+        Values['Memo']       := FMemo;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));

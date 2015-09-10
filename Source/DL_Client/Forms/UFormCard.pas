@@ -45,7 +45,7 @@ implementation
 
 {$R *.dfm}
 uses
-  IniFiles, ULibFun, UMgrControl, USysBusiness, USmallFunc, USysConst;
+  IniFiles, ULibFun, UMgrControl, USysBusiness, USmallFunc, USysConst, USysDB;
 
 type
   TReaderType = (ptT800, pt8142);
@@ -78,6 +78,11 @@ begin
   with TfFormCard.Create(Application) do
   try
     FParam := nParam;
+
+    if FParam.FParamC=sFlag_Provide then
+         dxLayout1Item3.Caption := '采购单号'
+    else dxLayout1Item3.Caption := '交货单号';
+
     InitFormData;
     ActionComPort(False);
 
@@ -189,6 +194,7 @@ end;
 
 //Desc: 保存磁卡
 procedure TfFormCard.BtnOKClick(Sender: TObject);
+var nRet: Boolean;
 begin
   EditCard.Text := Trim(EditCard.Text);
   if EditCard.Text = '' then
@@ -200,7 +206,10 @@ begin
     Exit;
   end;
 
-  if SaveBillCard(EditBill.Text, EditCard.Text) then
+  if FParam.FParamC = sFlag_Provide then
+       nRet := SaveOrderCard(EditBill.Text, EditCard.Text)
+  else nRet := SaveBillCard(EditBill.Text, EditCard.Text);
+  if nRet then
     ModalResult := mrOk;
   //done
 end;

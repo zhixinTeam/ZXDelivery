@@ -101,7 +101,6 @@ object fFormMain: TfFormMain
     Top = 114
   end
   object Timer2: TTimer
-    Interval = 200
     OnTimer = Timer2Timer
     Left = 70
     Top = 114

@@ -36,7 +36,7 @@ uses
   SysUtils, USysLoger, UHardBusiness, UMgrTruckProbe, UMgrParam,
   UMgrQueue, UMgrLEDCard, UMgrHardHelper, UMgrRemotePrint, U02NReader,
   UMgrERelay, UMultiJS, UMgrRemoteVoice, UMgrCodePrinter, UMgrLEDDisp,
-  UMgrRFID102;
+  UMgrRFID102, UMgrVoiceNet;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
 begin
@@ -79,6 +79,15 @@ begin
 
     nStr := '语音服务';
     gVoiceHelper.LoadConfig(nCfg + 'Voice.xml');
+
+    nStr := '网络语音服务';
+    if FileExists(nCfg + 'NetVoice.xml') then
+    begin
+      if not Assigned(gNetVoiceHelper) then
+        gNetVoiceHelper := TNetVoiceManager.Create;
+      gNetVoiceHelper.LoadConfig(nCfg + 'NetVoice.xml');
+    end;
+
 
     nStr := '喷码机';
     gCodePrinterManager.LoadConfig(nCfg + 'CodePrinter.xml');
@@ -171,10 +180,14 @@ begin
   gVoiceHelper.StartVoice;
   //voice
 
+  if Assigned(gNetVoiceHelper) then
+    gNetVoiceHelper.StartVoice;
+  //NetVoice
+
   gCardManager.StartSender;
   //led display
   gDisplayManager.StartDisplay;
-  //small led 
+  //small led
 end;
 
 procedure THardwareWorker.AfterStopServer;
@@ -183,6 +196,9 @@ begin
   //voice
   gRemotePrinter.StopPrinter;
   //printer
+  if Assigned(gNetVoiceHelper) then
+    gNetVoiceHelper.StopVoice;
+  //NetVoice  
 
   gERelayManager.ControlStop;
   //erelay

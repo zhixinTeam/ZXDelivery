@@ -65,6 +65,8 @@ type
     procedure Timer_SaveFailTimer(Sender: TObject);
   private
     { Private declarations }
+    FCardUsed: string;
+    //卡片类型
     FIsWeighting, FIsSaving: Boolean;
     //称重标识,保存标识
     FPoundTunnel: PPTTunnelItem;
@@ -99,6 +101,7 @@ type
     function IsValidSamaple: Boolean;
     //处理采样
     function SavePoundSale: Boolean;
+    function SavePoundData: Boolean;
     //保存称重
     procedure WriteLog(nEvent: string);
     //记录日志
@@ -320,6 +323,8 @@ begin
          nStr := '销售并单'
     else nStr := '销售';
 
+    if FCardUsed = sFlag_Provide then nStr := '供应';
+
     if FUIData.FNextStatus = sFlag_TruckBFP then
     begin
       RadioCC.Enabled := False;
@@ -345,15 +350,21 @@ end;
 //Parm: 磁卡或交货单号
 //Desc: 读取nCard对应的交货单
 procedure TfFrameAutoPoundItem.LoadBillItems(const nCard: string);
-var nStr,nHint: string;
+var nRet: Boolean;
+    nStr,nHint: string;
     nIdx,nInt: Integer;
     nBills: TLadingBillItems;
 begin
   nStr := Format('读取到卡号[ %s ],开始执行业务.', [nCard]);
   WriteLog(nStr);
 
-  if (not GetLadingBills(nCard, sFlag_TruckBFP, nBills)) or
-     (Length(nBills) < 1) then
+  FCardUsed := GetCardUsed(nCard);
+  if FCardUsed=sFlag_Provide then
+       nRet := GetPurchaseOrders(nCard, sFlag_TruckBFP, nBills)
+  else nRet := GetLadingBills(nCard, sFlag_TruckBFP, nBills);
+
+  if (not nRet) or (Length(nBills) < 1)
+  then
   begin
     SetUIData(True);
     Exit;
@@ -590,6 +601,55 @@ begin
   end;
 end;
 
+//------------------------------------------------------------------------------
+//Desc: 原材料或临时
+function TfFrameAutoPoundItem.SavePoundData: Boolean;
+var nNextStatus: string;
+begin
+  Result := False;
+  //init
+
+  if (FUIData.FPData.FValue <= 0) and (FUIData.FMData.FValue <= 0) then
+  begin
+    WriteLog('请先称重');
+    Exit;
+  end;
+
+  if (FUIData.FPData.FValue > 0) and (FUIData.FMData.FValue > 0) then
+  begin
+    if FUIData.FPData.FValue > FUIData.FMData.FValue then
+    begin
+      WriteLog('皮重应小于毛重');
+      Exit;
+    end;
+  end;
+
+  SetLength(FBillItems, 1);
+  FBillItems[0] := FUIData;
+  //复制用户界面数据
+  
+  with FBillItems[0] do
+  begin
+    FFactory := gSysParam.FFactNum;
+    //xxxxx
+    
+    if FNextStatus = sFlag_TruckBFP then
+         FPData.FStation := FPoundTunnel.FID
+    else FMData.FStation := FPoundTunnel.FID;
+  end;
+
+  if FCardUsed = sFlag_Provide then
+  begin
+    //xxxxx
+    if FBillItems[0].FStatus = sFlag_TruckXH then
+         nNextStatus := sFlag_TruckBFM
+    else nNextStatus := sFlag_TruckBFP;
+
+    Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel); 
+  end else Result := SaveTruckPoundItem(FPoundTunnel, FBillItems);
+  //保存称重
+end;
+
 //Desc: 读取表头数据
 procedure TfFrameAutoPoundItem.OnPoundDataEvent(const nValue: Double);
 begin
@@ -610,6 +670,7 @@ end;
 
 //Desc: 处理表头数据
 procedure TfFrameAutoPoundItem.OnPoundData(const nValue: Double);
+var nRet: Boolean;
 begin
   FLastBT := GetTickCount;
   EditValue.Text := Format('%.2f', [nValue]);
@@ -631,6 +692,29 @@ begin
     Exit;
   end else FEmptyPoundInit := 0;
 
+  if FCardUsed = sFlag_Provide then
+  begin
+    if FInnerData.FPData.FValue > 0 then
+    begin
+      if nValue <= FInnerData.FPData.FValue then
+      begin
+        FUIData.FPData := FInnerData.FMData;
+        FUIData.FMData := FInnerData.FPData;
+
+        FUIData.FPData.FValue := nValue;
+        FUIData.FNextStatus := sFlag_TruckBFP;
+        //切换为称皮重
+      end else
+      begin
+        FUIData.FPData := FInnerData.FPData;
+        FUIData.FMData := FInnerData.FMData;
+
+        FUIData.FMData.FValue := nValue;
+        FUIData.FNextStatus := sFlag_TruckBFM;
+        //切换为称毛重
+      end;
+    end else FUIData.FPData.FValue := nValue;
+  end else
   if FBillItems[0].FNextStatus = sFlag_TruckBFP then
        FUIData.FPData.FValue := nValue
   else FUIData.FMData.FValue := nValue;
@@ -650,7 +734,11 @@ begin
   end;
 
   FIsSaving := True;
-  if SavePoundSale then
+  if FCardUsed = sFlag_Provide then
+       nRet := SavePoundData
+  else nRet := SavePoundSale;
+
+  if nRet then
   begin
     FIsWeighting := False;
     TimerDelay.Enabled := True;

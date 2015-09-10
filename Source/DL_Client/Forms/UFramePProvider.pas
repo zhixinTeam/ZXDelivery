@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFramePProvider;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -14,7 +15,7 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore,
-  dxSkinsDefaultPainters;
+  dxSkinsDefaultPainters, Menus;
 
 type
   TfFrameProvider = class(TfFrameNormal)
@@ -24,11 +25,15 @@ type
     dxLayout1Item2: TdxLayoutItem;
     cxTextEdit2: TcxTextEdit;
     dxLayout1Item4: TdxLayoutItem;
+    PopupMenu1: TPopupMenu;
+    N1: TMenuItem;
     procedure EditNamePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+    procedure PopupMenu1Popup(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -43,7 +48,7 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormBase;
+  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormBase, USysBusiness;
 
 class function TfFrameProvider.FrameID: integer;
 begin
@@ -118,6 +123,21 @@ begin
     FWhere := Format('P_Name Like ''%%%s%%''', [EditName.Text]);
     InitFormData(FWhere);
   end;
+end;
+
+procedure TfFrameProvider.N1Click(Sender: TObject);
+begin
+  inherited;
+  SyncRemoteProviders;
+  BtnRefresh.Click;
+end;
+
+procedure TfFrameProvider.PopupMenu1Popup(Sender: TObject);
+begin
+  inherited;
+  {$IFDEF SyncRemote}
+  N1.Visible := True;
+  {$ENDIF}
 end;
 
 initialization

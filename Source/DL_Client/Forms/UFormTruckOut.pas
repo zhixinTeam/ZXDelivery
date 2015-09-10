@@ -48,6 +48,7 @@ uses
   USysDB, USysConst;
 
 var
+  gCardUsed: string;
   gBills: TLadingBillItems;
   //提货单列表
 
@@ -60,6 +61,7 @@ class function TfFormTruckOut.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
 var nStr,nHint: string;
     nIdx: Integer;
+    nRet: Boolean;
 begin
   Result := nil;
   nStr := '';
@@ -70,7 +72,13 @@ begin
     nStr := Trim(nStr);
 
     if nStr = '' then Continue;
-    if GetLadingBills(nStr, sFlag_TruckOut, gBills) then Break;
+
+    gCardUsed := GetCardUsed(nStr);
+    if gCardUsed = sFlag_Provide then
+         nRet := GetPurchaseOrders(nStr, sFlag_TruckOut, gBills)
+    else nRet := GetLadingBills(nStr, sFlag_TruckOut, gBills);
+
+    if nRet and (Length(gBills)>0) then Break;
   end;
 
   nHint := '';
@@ -142,7 +150,10 @@ begin
   for nIdx:=Low(gBills) to High(gBills) do
   with ListBill.Items.Add,gBills[nIdx] do
   begin
-    Caption := FID;
+    if gCardUsed = sFlag_Provide then
+         Caption := FZhiKa
+    else Caption := FID;
+
     SubItems.Add(Format('%.3f', [FValue]));
     SubItems.Add(FStockName);
 
@@ -160,12 +171,24 @@ begin
   if Selected and Assigned(Item) then
   begin
     nIdx := Integer(Item.Data);
-    LoadBillItemToMC(gBills[nIdx], ListInfo.Items, ListInfo.Delimiter);
 
     with gBills[nIdx] do
     begin
-      LayItem1.Caption := '交货单号:';
-      EditBill.Text := FID;
+      if gCardUsed = sFlag_Provide then
+      begin
+        LayItem1.Caption := '采购单号:';
+        EditBill.Text := FZhiKa;
+
+        LoadOrderItemToMC(gBills[nIdx], ListInfo.Items, ListInfo.Delimiter);
+      end
+      else
+      begin
+        LayItem1.Caption := '交货单号:';
+        EditBill.Text := FID;
+
+        LoadBillItemToMC(gBills[nIdx], ListInfo.Items, ListInfo.Delimiter);
+      end;
+
       EditCus.Text := FCusName;
     end;
   end;
@@ -190,8 +213,13 @@ begin
 end;
 
 procedure TfFormTruckOut.BtnOKClick(Sender: TObject);
+var nRet: Boolean;
 begin
-  if SaveLadingBills(sFlag_TruckOut, gBills) then
+  if gCardUsed = sFlag_Provide then
+       nRet := SavePurchaseOrders(sFlag_TruckOut, gBills)
+  else nRet := SaveLadingBills(sFlag_TruckOut, gBills);
+
+  if nRet then
   begin
     ShowMsg('车辆出厂成功', sHint);
     ModalResult := mrOk;

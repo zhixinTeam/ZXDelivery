@@ -31,6 +31,7 @@ const
   cFI_FrameMakeCard     = $0012;                     //办理磁卡
   cFI_FrameBill         = $0013;                     //开提货单
   cFI_FrameBillQuery    = $0014;                     //开单查询
+  cFI_FrameMakeOCard    = $0015;                     //办理采购磁卡
 
   cFI_FrameShouJu       = $0020;                     //收据查询
   cFI_FrameZhiKaVerify  = $0021;                     //纸卡审核
@@ -57,6 +58,7 @@ const
   cFI_FrameSaleDetailQuery = $0054;                  //发货明细
   cFI_FrameZhiKaDetail  = $0055;                     //纸卡明细
   cFI_FrameDispatchQuery = $0056;                    //调度查询
+  cFI_FrameOrderDetailQuery = $0057;                 //采购明细
 
   cFI_FrameSaleInvoice  = $0061;                     //发票管理
   cFI_FrameMakeInvoice  = $0062;                     //开具发票
@@ -64,9 +66,13 @@ const
   cFI_FrameSaleZZ       = $0065;                     //销售扎账
   cFI_FrameSaleJS       = $0069;                     //销售结算
 
+  cFI_FrameTrucks       = $0070;                     //车辆档案
+
   cFI_FrameProvider     = $0102;                     //供应
   cFI_FrameProvideLog   = $0105;                     //供应日志
   cFI_FrameMaterails    = $0106;                     //原材料
+  cFI_FrameOrder        = $0107;                     //采购订单
+  cFI_FrameOrderDetail  = $0108;                     //采购明细
 
   cFI_FrameWXAccount    = $0110;                     //微信账户
   cFI_FrameWXSendLog    = $0111;                     //发送日志
@@ -85,6 +91,7 @@ const
   cFI_FormZhiKaParam    = $1011;                     //纸卡参数
   cFI_FormGetZhika      = $1012;                     //选择纸卡
   cFI_FormMakeCard      = $1013;                     //办理磁卡
+  cFI_FormMakeRFIDCard  = $1014;                     //办理电子标签
 
   cFI_FormBill          = $1016;                     //开提货单
   cFI_FormShouJu        = $1017;                     //开收据
@@ -112,12 +119,17 @@ const
 
   cFI_FormZTLine        = $1045;                     //装车线
 
+  cFI_FormGetProvider   = $1041;                     //选择供应商
+  cFI_FormGetMeterail   = $1042;                     //选择原材料
+
   cFI_FormGetTruck      = $1047;                     //选择车辆
   cFI_FormGetContract   = $1048;                     //选择合同
   cFI_FormGetCustom     = $1049;                     //选择客户
   cFI_FormGetStockNo    = $1050;                     //选择编号
   cFI_FormProvider      = $1051;                     //供应商
   cFI_FormMaterails     = $1052;                     //原材料
+  cFI_FormOrder         = $1053;                     //采购订单
+  cFI_FormPurchase      = $1054;                     //采购验收
 
   cFI_FormStockParam    = $1065;                     //品种管理
   cFI_FormStockHuaYan   = $1066;                     //开化验单
@@ -126,6 +138,8 @@ const
   cFI_FormPaymentZK     = $1068;                     //纸卡回款
   cFI_FormFreezeZK      = $1069;                     //冻结纸卡
   cFI_FormAdjustPrice   = $1070;                     //纸卡调价
+
+  cFI_FormTrucks        = $1071;                     //车辆档案
 
   cFI_FormInvoiceWeek   = $1075;                     //结算周期
   cFI_FormSaleInvoice   = $1076;                     //发票管理
@@ -308,6 +322,7 @@ begin
   AddMenuModuleItem('MAIN_F01', cFI_FormLadDai, mtForm);
   AddMenuModuleItem('MAIN_F03', cFI_FrameZhanTaiQuery);
   AddMenuModuleItem('MAIN_F04', cFI_FrameZTDispatch);
+  AddMenuModuleItem('MAIN_F05', cFI_FormPurchase, mtForm);
 
   AddMenuModuleItem('MAIN_G01', cFI_FormLadSan, mtForm);
   AddMenuModuleItem('MAIN_G02', cFI_FrameFangHuiQuery);
@@ -326,14 +341,19 @@ begin
   AddMenuModuleItem('MAIN_L06', cFI_FrameSaleDetailQuery);
   AddMenuModuleItem('MAIN_L07', cFI_FrameSaleTotalQuery);
   AddMenuModuleItem('MAIN_L08', cFI_FrameZhiKaDetail);
+  AddMenuModuleItem('MAIN_L09', cFI_FrameOrderDetailQuery); 
 
   AddMenuModuleItem('MAIN_H01', cFI_FormTruckIn, mtForm);
   AddMenuModuleItem('MAIN_H02', cFI_FormTruckOut, mtForm);
   AddMenuModuleItem('MAIN_H03', cFI_FrameTruckQuery);
 
+  AddMenuModuleItem('MAIN_J01', cFI_FrameTrucks);
+
   AddMenuModuleItem('MAIN_M01', cFI_FrameProvider);
   AddMenuModuleItem('MAIN_M02', cFI_FrameMaterails);
-  AddMenuModuleItem('MAIN_M04', cFI_FrameProvideLog);
+  AddMenuModuleItem('MAIN_M03', cFI_FrameMakeOCard); 
+  AddMenuModuleItem('MAIN_M04', cFI_FrameOrder);
+  AddMenuModuleItem('MAIN_M08', cFI_FrameOrderDetail);
 
   AddMenuModuleItem('MAIN_W01', cFI_FrameWXAccount);
   AddMenuModuleItem('MAIN_W02', cFI_FrameWXSendLog);

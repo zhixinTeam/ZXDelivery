@@ -127,15 +127,6 @@ inherited fFormProvider: TfFormProvider
       OnKeyDown = FormKeyDown
       Width = 182
     end
-    object cxTextEdit1: TcxTextEdit
-      Left = 87
-      Top = 101
-      Hint = 'T.P_Saler'
-      ParentFont = False
-      Properties.MaxLength = 32
-      TabOrder = 2
-      Width = 132
-    end
     object EditID: TcxTextEdit
       Left = 87
       Top = 45
@@ -168,23 +159,12 @@ inherited fFormProvider: TfFormProvider
             Control = EditName
             ControlOptions.ShowBorder = False
           end
-          object dxLayoutControl1Group6: TdxLayoutGroup
-            ShowCaption = False
-            Hidden = True
-            LayoutDirection = ldHorizontal
-            ShowBorder = False
-            object dxLayoutControl1Item1: TdxLayoutItem
-              Caption = #19994#21153#20154#21592':'
-              Control = cxTextEdit1
-              ControlOptions.ShowBorder = False
-            end
-            object dxLayoutControl1Item14: TdxLayoutItem
-              AutoAligns = [aaVertical]
-              AlignHorz = ahClient
-              Caption = #32852#31995#26041#24335':'
-              Control = cxTextEdit3
-              ControlOptions.ShowBorder = False
-            end
+          object dxLayoutControl1Item14: TdxLayoutItem
+            AutoAligns = [aaVertical]
+            AlignHorz = ahClient
+            Caption = #32852#31995#26041#24335':'
+            Control = cxTextEdit3
+            ControlOptions.ShowBorder = False
           end
         end
         object dxLayoutControl1Item4: TdxLayoutItem

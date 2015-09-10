@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFramePMaterails;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -14,7 +15,7 @@ uses
   cxContainer, dxLayoutControl, cxMaskEdit, cxButtonEdit, cxTextEdit,
   ADODB, cxLabel, UBitmapPanel, cxSplitter, cxGridLevel, cxClasses,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
-  cxGridDBTableView, cxGrid, ComCtrls, ToolWin;
+  cxGridDBTableView, cxGrid, ComCtrls, ToolWin, Menus;
 
 type
   TfFrameMaterails = class(TfFrameNormal)
@@ -24,11 +25,15 @@ type
     dxLayout1Item2: TdxLayoutItem;
     cxTextEdit2: TcxTextEdit;
     dxLayout1Item4: TdxLayoutItem;
+    PopupMenu1: TPopupMenu;
+    N1: TMenuItem;
     procedure EditNamePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
+    procedure N1Click(Sender: TObject);
+    procedure PopupMenu1Popup(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -43,7 +48,7 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormBase;
+  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormBase, USysBusiness;
 
 class function TfFrameMaterails.FrameID: integer;
 begin
@@ -118,6 +123,21 @@ begin
     FWhere := Format('M_Name Like ''%%%s%%''', [EditName.Text]);
     InitFormData(FWhere);
   end;
+end;
+
+procedure TfFrameMaterails.N1Click(Sender: TObject);
+begin
+  inherited;
+  SyncRemoteMeterails;
+  BtnRefresh.Click;
+end;
+
+procedure TfFrameMaterails.PopupMenu1Popup(Sender: TObject);
+begin
+  inherited;
+  {$IFDEF SyncRemote}
+  N1.Visible := True;
+  {$ENDIF}
 end;
 
 initialization

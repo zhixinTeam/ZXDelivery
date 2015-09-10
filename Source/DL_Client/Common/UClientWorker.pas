@@ -50,6 +50,12 @@ type
     class function FunctionName: string; override;
   end;
 
+  TClientBusinessPurchaseOrder = class(TClient2MITWorker)
+  public
+    function GetFlagStr(const nFlag: Integer): string; override;
+    class function FunctionName: string; override;
+  end;
+
   TClientBusinessHardware = class(TClient2MITWorker)
   public
     function GetFlagStr(const nFlag: Integer): string; override;
@@ -90,6 +96,7 @@ end;
 function TClient2MITWorker.DoWork(const nIn, nOut: Pointer): Boolean;
 var nStr: string;
     nParam: string;
+    nPackEncode: Boolean;
     nArray: TDynamicStrArray;
 begin
   with PBWDataBase(nIn)^,gSysParam do
@@ -107,7 +114,13 @@ begin
     end;
   end;
 
-  nStr := FPacker.PackIn(nIn);
+  FListA.Clear;
+  FListA.Text := PWorkerBusinessCommand(nIn).FExtParam;
+  nPackEncode := FListA.Values['PackEncode'] <> 'N';
+
+  nStr := FPacker.PackIn(nIn, nPackEncode);
+  WriteLog(nStr);
+
   Result := MITWork(nStr);
 
   if not Result then
@@ -122,7 +135,7 @@ begin
     Exit;
   end;
 
-  FPacker.UnPackOut(nStr, nOut);
+  FPacker.UnPackOut(nStr, nOut, nPackEncode);
   with PBWDataBase(nOut)^ do
   begin
     nStr := 'User:[ %s ] FUN:[ %s ] TO:[ %s ] KP:[ %d ]';
@@ -285,6 +298,22 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+class function TClientBusinessPurchaseOrder.FunctionName: string;
+begin
+  Result := sCLI_BusinessPurchaseOrder;
+end;
+
+function TClientBusinessPurchaseOrder.GetFlagStr(const nFlag: Integer): string;
+begin
+  Result := inherited GetFlagStr(nFlag);
+
+  case nFlag of
+   cWorker_GetPackerName : Result := sBus_BusinessCommand;
+   cWorker_GetMITName    : Result := sBus_BusinessPurchaseOrder;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 class function TClientBusinessHardware.FunctionName: string;
 begin
   Result := sCLI_HardwareCommand;
@@ -310,4 +339,5 @@ initialization
   gBusinessWorkerManager.RegisteWorker(TClientBusinessCommand);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessSaleBill);
   gBusinessWorkerManager.RegisteWorker(TClientBusinessHardware);
+  gBusinessWorkerManager.RegisteWorker(TClientBusinessPurchaseOrder);
 end.

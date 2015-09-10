@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Classes, DB, SysUtils, SyncObjs, UMgrDBConn, UWaitItem, ULibFun,
-  USysLoger, USysDB, UMgrRemoteVoice;
+  USysLoger, USysDB, UMgrRemoteVoice, UMgrVoiceNet;
 
 type
   PLineItem = ^TLineItem;
@@ -65,6 +65,7 @@ type
     FNoSanQueue : Boolean;     //散装禁用队列
     FDelayQueue : Boolean;     //延时排队(厂内)
     FPoundQueue : Boolean;     //延时排队(厂内依据过皮时间)
+    FNetVoice   : Boolean;     //网络播放语音
   end;
 
   TStockMatchItem = record
@@ -166,6 +167,7 @@ type
     function IsDaiQueueClosed: Boolean;
     function IsSanQueueClosed: Boolean;
     function IsDelayQueue: Boolean;
+    function IsNetPlayVoice: Boolean;
     //队列参数
     procedure RefreshParam;
     procedure RefreshTrucks(const nLoadLine: Boolean);
@@ -353,6 +355,19 @@ begin
   end;
 end;
 
+function TTruckQueueManager.IsNetPlayVoice: Boolean;
+begin
+  Result := False;
+
+  if Assigned(FDBReader) then
+  try
+    FSyncLock.Enter;
+    Result := FDBReader.FParam.FNetVoice;
+  finally
+    FSyncLock.Leave;
+  end;
+end;
+
 //Desc: 添加nSQL语句
 procedure TTruckQueueManager.AddExecuteSQL(const nSQL: string);
 begin
@@ -463,7 +478,9 @@ begin
 
     if nStr <> FLastQueueVoice then
     begin
-      gVoiceHelper.PlayVoice(nStr);
+      if IsNetPlayVoice and Assigned(gNetVoiceHelper) then
+           gNetVoiceHelper.PlayVoice(nStr)
+      else gVoiceHelper.PlayVoice(nStr);
       FLastQueueVoice := nStr;
     end;
   finally
@@ -629,6 +646,8 @@ begin
     FNoDaiQueue := False;
     FNoSanQueue := False;
     FDelayQueue := False;
+
+    FNetVoice   := False;
   end;
 
   FWaiter := TWaitObject.Create;
@@ -851,6 +870,10 @@ begin
 
       if CompareText(Fields[1].AsString, sFlag_PoundQueue) = 0 then
         FParam.FPoundQueue := Fields[0].AsString = sFlag_Yes;
+
+      if CompareText(Fields[1].AsString, sFlag_NetPlayVoice) = 0 then
+        FParam.FNetVoice := Fields[0].AsString = sFlag_Yes;
+      //NetVoice
       Next;
     end;
   end;
@@ -1359,7 +1382,10 @@ begin
 
           nTruck.FIsVIP := FIsVIP;
           nTruck.FIndex := FIndex;
+
           nTruck.FValue := FValue;
+          if nLine.FPeerWeight>0 then
+            nTruck.FDai := Trunc(FValue * 1000 / nLine.FPeerWeight);
 
           nTruck.FBill  := FBill;
           nTruck.FHKBills := FHKBills;

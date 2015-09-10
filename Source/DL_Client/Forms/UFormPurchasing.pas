@@ -1,19 +1,19 @@
 {*******************************************************************************
-  作者: dmzn@163.com 2010-3-14
-  描述: 车辆进厂
+  作者: fendou116688@163.com 2015/8/8
+  描述: 采购验收
 *******************************************************************************}
-unit UFormTruckIn;
+unit UFormPurchasing;
 
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
+  USysBusiness, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, ComCtrls, cxContainer, cxEdit, cxTextEdit,
   cxListView, cxMCListBox, dxLayoutControl, StdCtrls;
 
 type
-  TfFormTruckIn = class(TfFormNormal)
+  TfFormPurchasing = class(TfFormNormal)
     dxGroup2: TdxLayoutGroup;
     ListInfo: TcxMCListBox;
     dxLayout1Item3: TdxLayoutItem;
@@ -24,14 +24,21 @@ type
     EditBill: TcxTextEdit;
     LayItem1: TdxLayoutItem;
     dxLayout1Group2: TdxLayoutGroup;
+    EditKZValue: TcxTextEdit;
+    dxLayout1Item4: TdxLayoutItem;
+    EditMemo: TcxTextEdit;
+    dxLayout1Item6: TdxLayoutItem;
+    dxLayout1Group3: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ListBillSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
     procedure ListInfoClick(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
+    procedure EditKZValuePropertiesEditValueChanged(Sender: TObject);
   protected
     { Protected declarations }
+    FItemIndex: Integer;
     procedure InitFormData;
   public
     { Public declarations }
@@ -44,79 +51,82 @@ implementation
 
 {$R *.dfm}
 uses
-  IniFiles, ULibFun, UMgrControl, UFormInputbox, USysGrid, UBusinessConst, 
-  USysBusiness, USysDB, USysConst;
+  IniFiles, ULibFun, UMgrControl, UFormInputbox, USysGrid, UBusinessConst,
+  USysDB, USysConst;
 
 var
-  gCardUsed: string;
   gBills: TLadingBillItems;
   //提货单列表
 
-class function TfFormTruckIn.FormID: integer;
+class function TfFormPurchasing.FormID: integer;
 begin
-  Result := cFI_FormTruckIn;
+  Result := cFI_FormPurchase;
 end;
 
-class function TfFormTruckIn.CreateForm(const nPopedom: string;
+class function TfFormPurchasing.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
 var nStr,nHint: string;
-    nIdx: Integer;
-    nRet: Boolean;
+    nIdx,nInt: Integer;
 begin
   Result := nil;
   nStr := '';
 
   while True do
   begin
-    if not ShowInputBox('请输入提货磁卡号:', '进厂', nStr) then Exit;
+    if not ShowInputBox('请输入采购磁卡号:', '现场验收', nStr) then Exit;
     nStr := Trim(nStr);
-    
+
     if nStr = '' then Continue;
-
-    gCardUsed := GetCardUsed(nStr);
-    if gCardUsed = sFlag_Provide then
-         nRet := GetPurchaseOrders(nStr, sFlag_TruckIn, gBills)
-    else nRet := GetLadingBills(nStr, sFlag_TruckIn, gBills);
-
-    if nRet and (Length(gBills)>0) then Break;
+    if GetPurchaseOrders(nStr, sFlag_TruckXH, gBills) then Break;
   end;
 
+  nInt := 0 ;
   nHint := '';
+
   for nIdx:=Low(gBills) to High(gBills) do
-  if gBills[nIdx].FStatus <> sFlag_TruckNone then
+  with gBills[nIdx] do
   begin
+    FSelected := FNextStatus = sFlag_TruckXH;
+    if FSelected then
+    begin
+      Inc(nInt);
+      Continue;
+    end;
+
     nStr := '※.单号:[ %s ] 状态:[ %-6s -> %-6s ]   ';
     if nIdx < High(gBills) then nStr := nStr + #13#10;
 
-    nStr := Format(nStr, [gBills[nIdx].FID,
-            TruckStatusToStr(gBills[nIdx].FStatus),
-            TruckStatusToStr(gBills[nIdx].FNextStatus)]);
+    nStr := Format(nStr, [FID,
+            TruckStatusToStr(FStatus), TruckStatusToStr(FNextStatus)]);
     nHint := nHint + nStr;
   end;
 
-  if nHint <> '' then
+  if (nHint <> '') and (nInt = 0) then
   begin
-    nHint := '该车辆当前不能进厂,详情如下: ' + #13#10#13#10 + nHint;
+    nHint := '该车辆当前不能验收,详情如下: ' + #13#10#13#10 + nHint;
     ShowDlg(nHint, sHint);
     Exit;
   end;
 
-  with TfFormTruckIn.Create(Application) do
+  with TfFormPurchasing.Create(Application) do
   begin
-    Caption := '车辆进厂';
+    Caption := '现场验收';
     InitFormData;
     ShowModal;
     Free;
   end;
 end;
 
-procedure TfFormTruckIn.FormCreate(Sender: TObject);
+procedure TfFormPurchasing.FormCreate(Sender: TObject);
 var nIni: TIniFile;
 begin
+  FItemIndex := -1;
+  //xxxxx
+
   dxGroup1.AlignVert := avClient;
   dxLayout1Item3.AlignVert := avClient;
   //client align
-
+  
   nIni := TIniFile.Create(gPath + sFormConfig);
   try
     LoadFormConfig(Self, nIni);
@@ -127,7 +137,7 @@ begin
   end;
 end;
 
-procedure TfFormTruckIn.FormClose(Sender: TObject;
+procedure TfFormPurchasing.FormClose(Sender: TObject;
   var Action: TCloseAction);
 var nIni: TIniFile;
 begin
@@ -142,7 +152,7 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-procedure TfFormTruckIn.InitFormData;
+procedure TfFormPurchasing.InitFormData;
 var nIdx: Integer;
 begin
   ListBill.Clear;
@@ -150,9 +160,7 @@ begin
   for nIdx:=Low(gBills) to High(gBills) do
   with ListBill.Items.Add,gBills[nIdx] do
   begin
-    if gCardUsed = sFlag_Provide then
-         Caption := FZhiKa
-    else Caption := FID;
+    Caption := FID;
     SubItems.Add(Format('%.3f', [FValue]));
     SubItems.Add(FStockName);
 
@@ -163,38 +171,30 @@ begin
   ListBill.ItemIndex := 0;
 end;
 
-procedure TfFormTruckIn.ListBillSelectItem(Sender: TObject;
+procedure TfFormPurchasing.ListBillSelectItem(Sender: TObject;
   Item: TListItem; Selected: Boolean);
 var nIdx: Integer;
 begin
   if Selected and Assigned(Item) then
   begin
     nIdx := Integer(Item.Data);
-
+    LoadOrderItemToMC(gBills[nIdx], ListInfo.Items, ListInfo.Delimiter);
 
     with gBills[nIdx] do
     begin
-      if gCardUsed = sFlag_Provide then
-      begin
-        LayItem1.Caption := '采购单号:';
-        EditBill.Text := FZhiKa;
-
-        LoadOrderItemToMC(gBills[nIdx], ListInfo.Items, ListInfo.Delimiter);
-      end
-      else
-      begin
-        LayItem1.Caption := '交货单号:';
-        EditBill.Text := FID;
-
-        LoadBillItemToMC(gBills[nIdx], ListInfo.Items, ListInfo.Delimiter);
-      end;    
-
+      LayItem1.Caption := '派车单号:';
+      EditBill.Text := FID;
       EditCus.Text := FCusName;
+
+      EditKZValue.Text := FloatToStr(FKZValue);
+      EditMemo.Text := FMemo;
     end;
+
+    FItemIndex := nIdx;
   end;
 end;
 
-procedure TfFormTruckIn.ListInfoClick(Sender: TObject);
+procedure TfFormPurchasing.ListInfoClick(Sender: TObject);
 var nStr: string;
     nPos: Integer;
 begin
@@ -212,20 +212,31 @@ begin
   end;
 end;
 
-procedure TfFormTruckIn.BtnOKClick(Sender: TObject);
-var nRet: Boolean;
+procedure TfFormPurchasing.BtnOKClick(Sender: TObject);
 begin
-  if (gCardUsed = sFlag_Provide) then
-       nRet := SavePurchaseOrders(sFlag_TruckIn, gBills)
-  else nRet := SaveLadingBills(sFlag_TruckIn, gBills);
-
-  if nRet then
+  if SavePurchaseOrders(sFlag_TruckXH, gBills) then
   begin
-    ShowMsg('车辆进厂成功', sHint);
+    ShowMsg('原材料验收成功', sHint);
     ModalResult := mrOk;
   end;
 end;
 
+procedure TfFormPurchasing.EditKZValuePropertiesEditValueChanged(
+  Sender: TObject);
+var nInt: Integer;
+    nChanged: Boolean;
+begin
+  if (FItemIndex >= 0) and IsNumber(EditKZValue.Text, True) then
+  begin
+    gBills[FItemIndex].FKZValue := StrToFloatDef(EditKZValue.Text, 0);
+    gBills[FItemIndex].FMemo := EditMemo.Text;
+
+    if not (EditKZValue.IsFocused or EditMemo.IsFocused) then
+      FItemIndex := -1;
+    //xxxxx
+  end;
+end;
+
 initialization
-  gControlManager.RegCtrl(TfFormTruckIn, TfFormTruckIn.FormID);
+  gControlManager.RegCtrl(TfFormPurchasing, TfFormPurchasing.FormID);
 end.
