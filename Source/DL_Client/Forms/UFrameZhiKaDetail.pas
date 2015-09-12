@@ -49,6 +49,10 @@ type
     N11: TMenuItem;
     N15: TMenuItem;
     N16: TMenuItem;
+    N17: TMenuItem;
+    N18: TMenuItem;
+    N19: TMenuItem;
+    N20: TMenuItem;
     procedure EditZKPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure N1Click(Sender: TObject);
@@ -59,6 +63,8 @@ type
     procedure N13Click(Sender: TObject);
     procedure PMenu1Popup(Sender: TObject);
     procedure N15Click(Sender: TObject);
+    procedure N17Click(Sender: TObject);
+    procedure N20Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -77,6 +83,7 @@ type
     //冻结选中提货单
     procedure SelectedZK(const nList: TStrings);
     //获取选中纸卡号
+    function GetAreaName: string;
     function GetVal(const nRow: Integer; const nField: string): string;
     //获取指定字段
   public
@@ -89,7 +96,7 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormDateFilter,
-  UFormBase, UFrameBase;
+  UFormBase, UFrameBase, UFormBaseInfo;
 
 //------------------------------------------------------------------------------
 class function TfFrameZhiKaDetail.FrameID: integer;
@@ -115,11 +122,12 @@ function TfFrameZhiKaDetail.InitFormDataSQL(const nWhere: string): string;
 begin  
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  Result := 'Select sm.*,zk.*,zd.*,zd.R_ID as D_RID,' +
+  Result := 'Select sm.*,zk.*,zd.*,ht.*,zd.R_ID as D_RID,' +
             'C_PY,C_Name,D_Price-D_PPrice As D_ZDPrice From $ZK zk ' +
             ' Left Join $SM sm on sm.S_ID=zk.Z_SaleMan' +
             ' Left Join $Cus cus on cus.C_ID=zk.Z_Customer' +
-            ' Left Join $ZD zd on zd.D_ZID=zk.Z_ID ';
+            ' Left Join $ZD zd on zd.D_ZID=zk.Z_ID ' +
+            ' Left join $HT ht on zk.Z_CID=ht.C_ID ';
   //xxxxx
 
   if nWhere = '' then
@@ -138,7 +146,8 @@ begin
   Result := MacroValue(Result, [MI('$ZK', sTable_ZhiKa), MI('$Yes', sFlag_Yes),
             MI('$ZD', sTable_ZhiKaDtl), MI('$SM', sTable_Salesman),
             MI('$Cus', sTable_Customer), MI('$Now', FDM.SQLServerNow),
-            MI('$STT', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+            MI('$STT', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)),
+            MI('$HT', sTable_SaleContract)]);
   //xxxxx
 end;
 
@@ -417,6 +426,103 @@ begin
 
   InitFormData(FWhere);
   //xxxxx
+end;
+
+function TfFrameZhiKaDetail.GetAreaName: string;
+var nBool,nSelected: Boolean;
+begin
+  Result:= '';
+  nBool := True;
+  nSelected := True;
+
+  with ShowBaseInfoEditForm(nBool, nSelected, '区域', '', sFlag_AreaItem) do
+  begin
+    if nSelected then Result := FText;
+  end;
+end;
+
+procedure TfFrameZhiKaDetail.N17Click(Sender: TObject);
+var nArea, nStr: string;
+    nFreeze: Boolean;
+begin
+  nArea := GetAreaName;
+  if nArea = '' then Exit;
+
+  if (Sender as TMenuItem) = N17 then       nFreeze := True
+  else if (Sender as TMenuItem) = N18 then  nFreeze := False
+  else Exit;
+
+  nStr := '确定要%s所有合同区域为[%s]的纸卡吗?';
+  if nFreeze then
+        nStr := Format(nStr, ['冻结', nArea])
+  else  nStr := Format(nStr, ['解冻', nArea]);
+  if not QueryDlg(nStr, sAsk, Handle) then Exit;
+
+  if nFreeze then
+  begin
+    nStr := 'Update $ZK Set Z_TJStatus=''$Frz'' Where Z_ID In (' +
+            ' Select Z_ID From $ZK zk Left Join $HT ht on zk.Z_CID=ht.C_ID ' +
+            ' Where C_Area = ''$Area'') and ' +
+            'IsNull(Z_InValid,'''')<>''$Yes'' And Z_ValidDays>$Now';
+    //tjing
+  end else
+  begin
+    nStr := 'Update $ZK Set Z_TJStatus=''$Ovr'' Where Z_ID In (' +
+            ' Select Z_ID From $ZK zk Left Join $HT ht on zk.Z_CID=ht.C_ID ' +
+            ' Where C_Area = ''$Area'') and ' +
+            'Z_TJStatus=''$Frz''';
+    //jtover
+  end;
+
+  nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa), MI('$Area', nArea),
+          MI('$Dtl', sTable_ZhiKaDtl), MI('$Frz', sFlag_TJing),
+          MI('$Ovr', sFlag_TJOver), MI('$Yes', sFlag_Yes),
+          MI('$Now', FDM.SQLServerNow), MI('$HT', sTable_SaleContract)]);
+  FDM.ExecuteSQL(nStr);
+
+  InitFormData(FWhere);
+end;
+
+procedure TfFrameZhiKaDetail.N20Click(Sender: TObject);
+var nArea, nStr: string;
+    nFreeze: Boolean;
+begin
+  nArea := GetAreaName;
+  if nArea = '' then Exit;
+
+  if (Sender as TMenuItem) = N20 then       nFreeze := True
+  else if (Sender as TMenuItem) = N19 then  nFreeze := False
+  else Exit;
+
+  nStr := '确定要%s所有业务员区域为[%s]的纸卡吗?';
+  if nFreeze then
+        nStr := Format(nStr, ['冻结', nArea])
+  else  nStr := Format(nStr, ['解冻', nArea]);
+  if not QueryDlg(nStr, sAsk, Handle) then Exit;
+
+  if nFreeze then
+  begin
+    nStr := 'Update $ZK Set Z_TJStatus=''$Frz'' Where Z_ID In (' +
+            ' Select Z_ID From $ZK zk Left Join $SM sm on sm.S_ID=zk.Z_SaleMan ' +
+            ' Where S_Area = ''$Area'') and ' +
+            'IsNull(Z_InValid,'''')<>''$Yes'' And Z_ValidDays>$Now';
+    //tjing
+  end else
+  begin
+    nStr := 'Update $ZK Set Z_TJStatus=''$Ovr'' Where Z_ID In (' +
+            ' Select Z_ID From $ZK zk Left Join $SM sm on sm.S_ID=zk.Z_SaleMan ' +
+            ' Where S_Area = ''$Area'') and ' +
+            'Z_TJStatus=''$Frz''';
+    //jtover
+  end;
+
+  nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa), MI('$Area', nArea),
+          MI('$Dtl', sTable_ZhiKaDtl), MI('$Frz', sFlag_TJing),
+          MI('$Ovr', sFlag_TJOver), MI('$Yes', sFlag_Yes),
+          MI('$Now', FDM.SQLServerNow), MI('$SM', sTable_Salesman)]);
+  FDM.ExecuteSQL(nStr);
+
+  InitFormData(FWhere);
 end;
 
 initialization

@@ -101,6 +101,7 @@ inherited fFrameMaterails: TfFrameMaterails
     Top = 232
     object N1: TMenuItem
       Caption = #21516#27493#21407#26448#26009
+      Visible = False
       OnClick = N1Click
     end
   end

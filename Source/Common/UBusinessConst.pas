@@ -25,6 +25,8 @@ const
   cBC_ServerNow               = $0002;   //服务器当前时间
   cBC_IsSystemExpired         = $0003;   //系统是否已过期
   cBC_GetCardUsed             = $0004;   //获取卡片类型
+  cBC_UserLogin               = $0005;   //用户登录
+  cBC_UserLogOut              = $0006;   //用户注销
 
   cBC_GetCustomerMoney        = $0010;   //获取客户可用金
   cBC_GetZhiKaMoney           = $0011;   //获取纸卡可用金
