@@ -243,17 +243,12 @@ end;
 //Parm: 如参数护具
 //Desc: 获取连接数据库所需的资源
 function TMITDBWorker.DoWork(var nData: string): Boolean;
-var nPackEncode: Boolean;
-    nListExt: TStrings;
 begin
   Result := False;
   FDBConn := nil;
 
   with gParamManager.ActiveParam^ do
   try
-    nListExt:= TStringList.Create;
-    //Get ExtParam
-
     FDBConn := gDBConnManager.GetConnection(FDB.FID, FErrNum);
     if not Assigned(FDBConn) then
     begin
@@ -267,12 +262,7 @@ begin
 
     FDataOutNeedUnPack := True;
     GetInOutData(FDataIn, FDataOut);
-
-    nListExt.Text := nData;
-    nListExt.Text := nListExt.Values['ExtParam'];
-    nPackEncode := nListExt.Values['PackEncode'] <> 'N';
-
-    FPacker.UnPackIn(nData, FDataIn, nPackEncode);
+    FPacker.UnPackIn(nData, FDataIn);
 
     with FDataIn.FVia do
     begin
@@ -299,7 +289,7 @@ begin
     if Result then
     begin
       if FDataOutNeedUnPack then
-        FPacker.UnPackOut(nData, FDataOut, nPackEncode);
+        FPacker.UnPackOut(nData, FDataOut);
       //xxxxx
 
       Result := DoAfterDBWork(nData, True);
@@ -307,7 +297,7 @@ begin
 
       with FDataOut.FVia do
         FKpLong := GetTickCount - FWorkTimeInit;
-      nData := FPacker.PackOut(FDataOut, nPackEncode);
+      nData := FPacker.PackOut(FDataOut);
 
       {$IFDEF DEBUG}
       WriteLog('Fun: '+FunctionName+' OutData:'+ FPacker.PackOut(FDataOut, False));
@@ -483,8 +473,7 @@ end;
 //Parm: 用户名，密码；返回用户数据
 //Desc: 用户登录
 function TWorkerBusinessCommander.Login(var nData: string): Boolean;
-var nStr, nInfo: string;
-    nOut: TWorkerBusinessCommand;
+var nStr: string;
 begin
   Result := False;
 
@@ -3828,7 +3817,6 @@ var nStr: string;
     nIdx: Integer;
     nOut: TWorkerBusinessCommand;
 begin
-  Result := False;
   FListA.Text := PackerDecodeStr(FIn.FData);
   //unpack Order
 
@@ -3884,6 +3872,7 @@ begin
     Result := True;
   except
     FDBConn.FConn.RollbackTrans;
+    Result := False;
     raise;
   end;
 end;
@@ -4084,9 +4073,6 @@ end;
 function TWorkerBusinessOrders.ChangeOrderTruck(var nData: string): Boolean;
 var nStr: string;
 begin
-  Result := False;
-  //Init
-
   //----------------------------------------------------------------------------
   FDBConn.FConn.BeginTrans;
   try
@@ -4099,6 +4085,7 @@ begin
     Result := True;
   except
     FDBConn.FConn.RollbackTrans;
+    Result := False;
     raise;
   end;
 end;
