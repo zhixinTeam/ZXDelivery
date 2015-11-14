@@ -190,7 +190,7 @@ end;
 //Parm: 
 //Desc: É¾³ıÎ´Íê³É¼ÇÂ¼
 procedure TfFrameOrderDetailQuery.N3Click(Sender: TObject);
-var nStr, nSQL: string;
+var nStr: string;
 begin
   inherited;
   if cxView1.DataController.GetSelectedCount > 0 then

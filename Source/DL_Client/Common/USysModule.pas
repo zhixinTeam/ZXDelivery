@@ -27,11 +27,17 @@ uses
   UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,
   UFramePoundManual, UFramePoundAuto, UFramePMaterails, UFormPMaterails,
   UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,
-  UFrameZTDispatch, UFramePurchaseOrder, UFormPurchaseOrder,UFormPurchasing,
+  UFrameZTDispatch, UFrameTrucks, UFormTruck, UFormRFIDCard,
+  {$IFDEF MicroMsg}
+  UFrameWeiXinAccount, UFormWeiXinAccount,
+  UFrameWeiXinSendlog, UFormWeiXinSendlog,
+  {$ENDIF}
+  {$IFDEF XAZL}
+  UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
   UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,
-  UFrameTrucks, UFormTruck, UFormRFIDCard, UFormGetProvider, UFormGetMeterails,
-  {$IFDEF MicroMsg}UFrameWeiXinAccount, UFormWeiXinAccount, UFrameWeiXinSendlog,
-  UFormWeiXinSendlog,{$ENDIF}
+  UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,
+  UFormGetPOrderBase,
+  {$ENDIF}
   //----------------------------------------------------------------------------
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo,
   UFrameHYStock, UFrameHYData, UFrameHYRecord;

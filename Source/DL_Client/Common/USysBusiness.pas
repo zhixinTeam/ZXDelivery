@@ -149,6 +149,10 @@ function ReadPoundCard(const nTunnel: string): string;
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
 
+function SaveOrderBase(const nOrderData: string): string;
+//保存采购申请单
+function DeleteOrderBase(const nOrder: string): Boolean;
+//删除采购申请单
 function SaveOrder(const nOrderData: string): string;
 //保存采购单
 function DeleteOrder(const nOrder: string): Boolean;
@@ -1338,6 +1342,24 @@ begin
       nList.Free;
     end;
   end;
+end;
+
+//------------------------------------------------------------------------------
+//Date: 2015/9/19
+//Parm: 
+//Desc: 保存采购申请单
+function SaveOrderBase(const nOrderData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessPurchaseOrder(cBC_SaveOrderBase, nOrderData, '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+function DeleteOrderBase(const nOrder: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessPurchaseOrder(cBC_DeleteOrderBase, nOrder, '', @nOut);
 end;
 
 //Date: 2014-09-15

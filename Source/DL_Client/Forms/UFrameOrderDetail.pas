@@ -1,6 +1,6 @@
 {*******************************************************************************
   作者: fendou116688@163.com 2015/8/10
-  描述: 采购验收明细管理
+  描述: 采购车辆查询
 *******************************************************************************}
 unit UFrameOrderDetail;
 
@@ -99,7 +99,7 @@ function TfFrameOrderDetail.InitFormDataSQL(const nWhere: string): string;
 begin
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   Result := 'Select *,(D_MValue-D_PValue-D_KZValue) as D_NetWeight ' +
-            'From $OD od Inner Join $OO oo on od.D_OID=oo.O_ID ';
+            'From $OD od Left Join $OO oo on od.D_OID=oo.O_ID ';
   //xxxxxx
 
   if FJBWhere = '' then
@@ -186,8 +186,7 @@ procedure TfFrameOrderDetail.N2Click(Sender: TObject);
 begin
   inherited;
   try
-    FJBWhere := '(D_OutFact Is Null And D_DStatus<>''%s'')';
-    FJBWhere := Format(FJBWhere, [sFlag_OrderDel]);
+    FJBWhere := '(D_OutFact Is Null)';
     InitFormData('');
   finally
     FJBWhere := '';
@@ -198,14 +197,27 @@ end;
 //Parm: 
 //Desc: 删除未完成记录
 procedure TfFrameOrderDetail.N3Click(Sender: TObject);
-var nStr, nSQL, nP, nID: string;
+var nStr, nSQL, nP, nID, nOrderID,nCardType: string;
+    nOutFact : Boolean;
     nIdx: Integer;
+    nVal, nFreeze: Double;
 begin
   inherited;
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
     nID := SQLQuery.FieldByName('D_ID').AsString;
     if not QueryDlg('确认删除该采购订单么?', sAsk) then Exit;
+
+    nP       := SQLQuery.FieldByName('D_MDate').AsString;
+    nOrderID := SQLQuery.FieldByName('D_OID').AsString;
+    nCardType:= SQLQuery.FieldByName('O_CType').AsString;
+
+    nFreeze  := SQLQuery.FieldByName('O_Value').AsFloat;
+    nVal     := SQLQuery.FieldByName('D_NetWeight').AsFloat;
+
+    if nP <> '' then
+         nOutFact := True
+    else nOutFact := False;
 
     nStr := Format('Select * From %s Where 1<>1', [sTable_OrderDtl]);
     //only for fields
@@ -223,6 +235,35 @@ begin
 
     FDM.ADOConn.BeginTrans;
     try
+      if nOutFact then
+      begin
+        nSQL := 'Update $OrderBase Set B_SentValue=B_SentValue-$Val ' +
+                'Where B_ID = (select O_BID From $Order Where O_ID=''$ID'')';
+        nSQL := MacroValue(nSQL, [MI('$OrderBase', sTable_OrderBase),
+                MI('$Order', sTable_Order),MI('$ID', nOrderID),
+                MI('$Val', FloatToStr(nVal))]);
+        FDM.ExecuteSQL(nSQL);
+        //减少已验收量
+      end else
+      begin
+        if nCardType = sFlag_OrderCardL then
+        begin
+          nSQL := 'Update $OrderBase Set B_FreezeValue=B_FreezeValue-$FreezeVal  ' +
+                  'Where B_ID = (select O_BID From $Order Where O_ID=''$ID'') and '+
+                  'B_Value>0'; 
+
+          nSQL := MacroValue(nSQL, [MI('$OrderBase', sTable_OrderBase),
+                  MI('$Order', sTable_Order),MI('$ID', nOrderID),
+                  MI('$FreezeVal', FloatToStr(nFreeze))]);
+          FDM.ExecuteSQL(nSQL);
+
+          nSQL := 'Update $Order Set O_Value=0.00 Where O_ID=''$ID'''; 
+          nSQL := MacroValue(nSQL, [MI('$Order', sTable_Order),MI('$ID', nOrderID)]);
+          FDM.ExecuteSQL(nSQL);
+          //防止二次进厂删除重复冻结量
+        end;
+      end;  
+
       nStr := 'Insert Into $DB($FL,D_DelMan,D_DelDate) ' +
               'Select $FL,''$User'',$Now From $DL Where D_ID=''$ID''';
       nStr := MacroValue(nStr, [MI('$DB', sTable_OrderDtlBak),
@@ -244,20 +285,20 @@ begin
     end;
   end;
 
-  N2.Click;
+  InitFormData('');
 end;
 
 procedure TfFrameOrderDetail.Check1Click(Sender: TObject);
 begin
   inherited;
-   BtnRefresh.Click;
+  InitFormData(FWhere);
 end;
 
 procedure TfFrameOrderDetail.N4Click(Sender: TObject);
 var nStr: String;
 begin
   inherited;
-    if cxView1.DataController.GetSelectedCount > 0 then
+  if cxView1.DataController.GetSelectedCount > 0 then
   begin
     nStr := SQLQuery.FieldByName('D_ID').AsString;
     PrintOrderReport(nStr, False);

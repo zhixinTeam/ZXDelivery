@@ -750,7 +750,7 @@ begin
   try
     TimerDelay.Enabled := False;
     FLastCardDone := GetTickCount;
-    WriteLog(Format('对车辆[ %s ]称重完毕.', [FUIData.FTruck]));
+    WriteSysLog(Format('对车辆[ %s ]称重完毕.', [FUIData.FTruck]));
 
     PlayVoice(#9 + FUIData.FTruck);
     //播放语音
@@ -832,6 +832,7 @@ begin
   try
     Timer_SaveFail.Enabled := False;
     FLastCardDone := GetTickCount;
+    FLastCard     := '';
 
     gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
     //关闭表头

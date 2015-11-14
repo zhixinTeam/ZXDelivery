@@ -47,7 +47,6 @@ type
     procedure BtnAddClick(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
-    procedure BtnExitClick(Sender: TObject);
     procedure cxView1DblClick(Sender: TObject);
     procedure N1Click(Sender: TObject);
     procedure N2Click(Sender: TObject);
@@ -117,17 +116,6 @@ begin
   //xxxxx
 end;
 
-//Desc: 关闭
-procedure TfFramePurchaseOrder.BtnExitClick(Sender: TObject);
-var nParam: TFormCommandParam;
-begin
-  if not IsBusy then
-  begin
-    nParam.FCommand := cCmd_FormClose;
-    CreateBaseFormItem(cFI_FormOrder, '', @nParam); Close;
-  end;
-end;
-
 //------------------------------------------------------------------------------
 //Desc: 添加
 procedure TfFramePurchaseOrder.BtnAddClick(Sender: TObject);
@@ -175,19 +163,12 @@ begin
 
   if DeleteOrder(nStr) then ShowMsg('已成功删除记录', sHint);
 
-  BtnRefresh.Click;
+  InitFormData('');
 end;
 
 //Desc: 查看内容
 procedure TfFramePurchaseOrder.cxView1DblClick(Sender: TObject);
-//var nParam: TFormCommandParam;
 begin
-  if cxView1.DataController.GetSelectedCount > 0 then
-  begin
-//    nParam.FCommand := cCmd_ViewData;
-//    nParam.FParamA := SQLQuery.FieldByName('O_ID').AsString;
-//    CreateBaseFormItem(cFI_FormOrder, PopedomItem, @nParam);
-  end;
 end;
 
 //Desc: 日期筛选
@@ -286,7 +267,7 @@ end;
 procedure TfFramePurchaseOrder.Check1Click(Sender: TObject);
 begin
   inherited;
-  BtnRefresh.Click;
+  InitFormData('');
 end;
 
 initialization

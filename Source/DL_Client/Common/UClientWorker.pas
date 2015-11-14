@@ -134,7 +134,6 @@ begin
     nStr := 'User:[ %s ] FUN:[ %s ] TO:[ %s ] KP:[ %d ]';
     nStr := Format(nStr, [gSysParam.FUserID, FunctionName, FVia.FIP,
             GetTickCount - FWorkTimeInit]);
-    WriteLog(nStr);
 
     Result := FResult;
     if Result then
