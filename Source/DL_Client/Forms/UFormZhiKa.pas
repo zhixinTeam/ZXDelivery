@@ -718,7 +718,7 @@ var nStr: string;
     nVal: Double;
 begin
   nStr := 'Select Sum(Z_FixedMoney) From %s ' +
-          'Where Z_Custom=''%s'' and Z_OnlyMoney=''%s''';
+          'Where Z_Customer=''%s'' and Z_OnlyMoney=''%s''';
   nStr := Format(nStr, [sTable_ZhiKa, nCusID, sFlag_Yes]);
 
   nVal := FDM.QueryTemp(nStr).Fields[0].AsFloat;
