@@ -50,7 +50,7 @@ implementation
 
 uses
   UMgrChannel, UChannelChooser, UDataModule, USysDB, USysMAC, SysUtils,
-  USysLoger, USysConst;
+  USysLoger, USysConst, UMemDataPool;
 
 //Desc: 初始化系统对象
 procedure InitSystemObject;
@@ -64,6 +64,9 @@ begin
   gChannelChoolser := TChannelChoolser.Create('');
   gChannelChoolser.AutoUpdateLocal := False;
   //channel
+
+  gMemDataManager := TMemDataManager.Create;
+  //mem pool
 end;
 
 //Desc: 运行系统对象
