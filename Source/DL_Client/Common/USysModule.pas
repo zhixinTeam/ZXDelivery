@@ -21,7 +21,7 @@ uses
   UFrameCusInOutMoney, UFrameInvoiceWeek, UFormInvoiceWeek, UFormInvoiceGetWeek,
   UFrameInvoice, UFormInvoice, UFormInvoiceAdjust,UFrameInvoiceK, UFormInvoiceK,
   UFrameInvoiceDtl, UFrameInvoiceZZ, UFormInvoiceZZAll, UFormInvoiceZZCus,
-  UFormGetZhiKa, UFrameBill,
+  UFormGetZhiKa, UFrameBill, UFormReadCard, UFormTruckEmpty,
   UFormBill, UFormGetTruck, UFrameZhiKaDetail, UFormZhiKaFreeze,
   UFormZhiKaPrice, UFrameQueryDiapatch, UFrameTruckQuery, UFrameBillCard,
   UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,
@@ -32,12 +32,12 @@ uses
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
   {$ENDIF}
-  {$IFDEF XAZL}
+  {.$IFDEF XAZL}
   UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
   UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,
   UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,
   UFormGetPOrderBase,
-  {$ENDIF}
+  {.$ENDIF}
   //----------------------------------------------------------------------------
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo,
   UFrameHYStock, UFrameHYData, UFrameHYRecord;
@@ -58,6 +58,9 @@ begin
   if not Assigned(gSysLoger) then
     gSysLoger := TSysLoger.Create(gPath + sLogDir);
   //system loger
+
+  if not Assigned(gMemDataManager) then
+    gMemDataManager := TMemDataManager.Create;
 
   gChannelManager := TChannelManager.Create;
   gChannelManager.ChannelMax := 20;

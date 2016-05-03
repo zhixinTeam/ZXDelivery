@@ -175,7 +175,7 @@ begin
     if EditCard.Text = '' then Exit;
 
     FUseDate := Length(EditCard.Text) <= 3;
-    FWhere := Format('L_Card=''%s''', [EditCard.Text]);
+    FWhere := Format('L_Truck like ''%%%s%%''', [EditCard.Text]);
     InitFormData(FWhere);
   end;
 end;

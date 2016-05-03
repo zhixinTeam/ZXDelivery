@@ -77,6 +77,7 @@ type
     function CustomerHasMoney(var nData: string): Boolean;
     //验证客户是否有钱
     function SaveTruck(var nData: string): Boolean;
+    function UpdateTruck(var nData: string): Boolean;
     //保存车辆到Truck表
     function GetTruckPoundData(var nData: string): Boolean;
     function SaveTruckPoundData(var nData: string): Boolean;
@@ -428,6 +429,7 @@ begin
    cBC_GetZhiKaMoney       : Result := GetZhiKaValidMoney(nData);
    cBC_CustomerHasMoney    : Result := CustomerHasMoney(nData);
    cBC_SaveTruckInfo       : Result := SaveTruck(nData);
+   cBC_UpdateTruckInfo     : Result := UpdateTruck(nData);
    cBC_GetTruckPoundData   : Result := GetTruckPoundData(nData);
    cBC_SaveTruckPoundData  : Result := SaveTruckPoundData(nData);
    cBC_UserLogin           : Result := Login(nData);
@@ -823,6 +825,39 @@ begin
   begin
     nStr := 'Insert Into %s(T_Truck, T_PY) Values(''%s'', ''%s'')';
     nStr := Format(nStr, [sTable_Truck, FIn.FData, GetPinYinOfStr(FIn.FData)]);
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+  end;
+end;
+
+//Date: 2016-02-16
+//Parm: 车牌号(Truck); 表字段名(Field);数据值(Value)
+//Desc: 更新车辆信息到sTable_Truck表
+function TWorkerBusinessCommander.UpdateTruck(var nData: string): Boolean;
+var nStr: string;
+    nValInt: Integer;
+    nValFloat: Double;
+begin
+  Result := True;
+  FListA.Text := FIn.FData;
+
+  if FListA.Values['Field'] = 'T_PValue' then
+  begin
+    nStr := 'Select T_PValue, T_PTime From %s Where T_Truck=''%s''';
+    nStr := Format(nStr, [sTable_Truck, FListA.Values['Truck']]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    if RecordCount > 0 then
+    begin
+      nValInt := Fields[1].AsInteger;
+      nValFloat := Fields[0].AsFloat;
+    end else Exit;
+
+    nValFloat := nValFloat * nValInt + StrToFloatDef(FListA.Values['Value'], 0);
+    nValFloat := nValFloat / (nValInt + 1);
+    nValFloat := Float2Float(nValFloat, cPrecision);
+
+    nStr := 'Update %s Set T_PValue=%.2f, T_PTime=T_PTime+1 Where T_Truck=''%s''';
+    nStr := Format(nStr, [sTable_Truck, nValFloat, FListA.Values['Truck']]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
   end;
 end;
@@ -2971,6 +3006,56 @@ begin
     end;
   end;
 
+  //----------------------------------------------------------------------------
+  nSQL := 'Select T_HKBills From %s Where T_Truck=''%s'' ';
+  nSQL := Format(nSQL, [sTable_ZTTrucks, nTruck]);
+
+  //还在队列中车辆
+  nStr := '';
+  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+  if RecordCount > 0 then
+  begin
+    First;
+
+    while not Eof do
+    try
+      nStr := nStr + Fields[0].AsString;
+    finally
+      Next;
+    end;
+
+    nStr := Copy(nStr, 1, Length(nStr)-1);
+    nStr := StringReplace(nStr, '.', ',', [rfReplaceAll]);
+  end; 
+
+  nStr := AdjustListStrFormat(nStr, '''', True, ',', False);
+  //队列中交货单列表
+
+  nSQL := 'Select L_Card From %s Where L_ID In (%s)';
+  nSQL := Format(nSQL, [sTable_Bill, nStr]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+  if RecordCount > 0 then
+  begin
+    First;
+
+    while not Eof do
+    begin
+      if (Fields[0].AsString <> '') and
+         (Fields[0].AsString <> FIn.FExtParam) then
+      begin
+        nData := '车辆[ %s ]的磁卡号不一致,不能并单.' + #13#10#13#10 +
+                 '*.本单磁卡: [%s]' + #13#10 +
+                 '*.其它磁卡: [%s]' + #13#10#13#10 +
+                 '相同磁卡号才能并单,请修改车牌号,或者单独办卡.';
+        nData := Format(nData, [nTruck, FIn.FExtParam, Fields[0].AsString]);
+        Exit;
+      end;
+
+      Next;
+    end;  
+  end;
+
   FDBConn.FConn.BeginTrans;
   try
     if FIn.FData <> '' then
@@ -3270,6 +3355,17 @@ begin
       nData := Format(nData, [PostTypeToStr(FIn.FExtParam)]);
       Exit;
     end;
+
+    //--------------------------------------------------------------------------
+    FListC.Clear;
+    FListC.Values['Field'] := 'T_PValue';
+    FListC.Values['Truck'] := nBills[nInt].FTruck;
+    FListC.Values['Value'] := FloatToStr(nBills[nInt].FPData.FValue);
+
+    if not TWorkerBusinessCommander.CallMe(cBC_UpdateTruckInfo,
+          FListC.Text, '', @nOut) then
+      raise Exception.Create(nOut.FData);
+    //保存车辆有效皮重
 
     FListC.Clear;
     FListC.Values['Group'] := sFlag_BusGroup;

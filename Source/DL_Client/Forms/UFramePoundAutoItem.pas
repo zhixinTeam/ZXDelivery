@@ -12,7 +12,7 @@ uses
   UMgrPoundTunnels, UBusinessConst, UFrameBase, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, StdCtrls,
   UTransEdit, ExtCtrls, cxRadioGroup, cxTextEdit, cxMaskEdit,
-  cxDropDownEdit, cxLabel, ULEDFont;
+  cxDropDownEdit, cxLabel, ULEDFont, DateUtils;
 
 type
   TfFrameAutoPoundItem = class(TBaseFrame)
@@ -77,7 +77,7 @@ type
     FUIData,FInnerData: TLadingBillItem;
     //称重数据
     FLastCardDone: Int64;
-    FLastCard: string;
+    FLastCard, FCardTmp: string;
     //上次卡号
     FListA: TStrings;
     FSampleIndex: Integer;
@@ -436,6 +436,22 @@ begin
   FUIData := FInnerData;
   SetUIData(False);
 
+  nInt := SecondsBetween(Now, FUIData.FPData.FDate);
+  if (nInt > 0) and (nInt < FPoundTunnel.FCardInterval) then
+  begin
+    nStr := '磁卡[ %s ]需等待 %d 秒后才能过磅';
+    nStr := Format(nStr, [nCard, FPoundTunnel.FCardInterval - nInt]);
+
+    WriteLog(nStr);
+    //PlayVoice(nStr);
+
+    nStr := Format('磅站[ %s.%s ]: ',[FPoundTunnel.FID,
+            FPoundTunnel.FName]) + nStr;
+    WriteSysLog(nStr);
+    SetUIData(True);
+    Exit;
+  end;
+
   InitSamples;
   //初始化样本
   
@@ -481,7 +497,7 @@ begin
       Exit;
     end;
 
-    FLastCard := nCard;
+    FCardTmp := nCard;
     EditBill.Text := nCard;
     LoadBillItems(EditBill.Text);
   except
@@ -511,6 +527,25 @@ begin
     begin
       WriteLog('请先称量皮重');
       Exit;
+    end;
+
+    nNet := GetTruckEmptyValue(FUIData.FTruck);
+    nVal := nNet * 1000 - FUIData.FPData.FValue * 1000;
+
+    if (nNet > 0) and (Abs(nVal) > gSysParam.FPoundSanF) then
+    begin
+      nStr := '车辆[%s]实时皮重误差较大,请通知司机检查车厢';
+      nStr := Format(nStr, [FUIData.FTruck]);
+      PlayVoice(nStr);
+
+      nStr := '车辆[ %s ]实时皮重误差较大,详情如下:' + #13#10#13#10 +
+              '※.实时皮重: %.2f吨' + #13#10 +
+              '※.历史皮重: %.2f吨' + #13#10 +
+              '※.误差量: %.2f公斤' + #13#10#13#10 +
+              '是否继续保存?';
+      nStr := Format(nStr, [FUIData.FTruck, FUIData.FPData.FValue,
+              nNet, nVal]);
+      if not QueryDlg(nStr, sAsk) then Exit;
     end;
   end else
   begin
@@ -750,6 +785,7 @@ begin
   try
     TimerDelay.Enabled := False;
     FLastCardDone := GetTickCount;
+    FLastCard     := FCardTmp;
     WriteSysLog(Format('对车辆[ %s ]称重完毕.', [FUIData.FTruck]));
 
     PlayVoice(#9 + FUIData.FTruck);
@@ -808,7 +844,7 @@ begin
 
   for nIdx:=FPoundTunnel.FSampleNum-1 downto 1 do
   begin
-    if FValueSamples[nIdx] < 1 then Exit;
+    if FValueSamples[nIdx] < 0.02 then Exit;
     //样本不完整
 
     nVal := Trunc(FValueSamples[nIdx] * 1000 - FValueSamples[nIdx-1] * 1000);
@@ -832,7 +868,6 @@ begin
   try
     Timer_SaveFail.Enabled := False;
     FLastCardDone := GetTickCount;
-    FLastCard     := '';
 
     gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
     //关闭表头

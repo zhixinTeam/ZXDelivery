@@ -33,6 +33,7 @@ const
   cBC_CustomerHasMoney        = $0012;   //客户是否有余额
 
   cBC_SaveTruckInfo           = $0013;   //保存车辆信息
+  cBC_UpdateTruckInfo         = $0017;   //保存车辆信息
   cBC_GetTruckPoundData       = $0015;   //获取车辆称重数据
   cBC_SaveTruckPoundData      = $0016;   //保存车辆称重数据
 

@@ -143,7 +143,7 @@ inherited fFrameBill: TfFrameBill
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #30913#21345#32534#21495':'
+          Caption = #36710#29260#21495#30721':'
           Control = EditCard
           ControlOptions.ShowBorder = False
         end

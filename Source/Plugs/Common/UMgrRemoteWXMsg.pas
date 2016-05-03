@@ -37,6 +37,7 @@ type
     FName      : string;
     FHost      : string;
     FPort      : Integer;
+    FEnable    : Boolean;
   end;
 
   TWXPlatFormHelper = class;
@@ -137,7 +138,7 @@ procedure TWXPlatFormHelper.StartPlatConnector;
 begin
   if not Assigned(FPlatConnector) then
     FPlatConnector := TTWXPlatFormConnector.Create(Self);
-  FPlatConnector.WakupMe;
+  if FHost.FEnable then FPlatConnector.WakupMe;
 end;
 
 procedure TWXPlatFormHelper.StopPlatConnector;
@@ -172,7 +173,7 @@ begin
     nPtr.FBase.FCommand := cWXCmd_SendMsg;
     nPtr.FData := EncodeBase64(nData);
 
-    if Assigned(FPlatConnector) then
+    if Assigned(FPlatConnector) and FHost.FEnable then
       FPlatConnector.WakupMe;
     //xxxxx
   finally
@@ -206,7 +207,7 @@ begin
     nPtr.FBase.FCommand := cWXCmd_SendMsg;
     nPtr.FData := EncodeBase64(nData);
 
-    if Assigned(FPlatConnector) then
+    if Assigned(FPlatConnector) and FHost.FEnable  then
       FPlatConnector.WakupMe;
     //xxxxx
   finally
@@ -217,7 +218,7 @@ end;
 //Desc: ‘ÿ»ÎnFile≈‰÷√Œƒº˛
 procedure TWXPlatFormHelper.LoadConfig(const nFile: string);
 var nXML: TNativeXml;
-    nNode: TXmlNode;
+    nNode, nTmp: TXmlNode;
 begin
   nXML := TNativeXml.Create;
   try
@@ -230,6 +231,11 @@ begin
       FName  := nNode.NodeByName('name').ValueAsString;
       FHost  := nNode.NodeByName('ip').ValueAsString;
       FPort  := nNode.NodeByName('port').ValueAsInteger;
+
+      nTmp := nNode.FindNode('enable');
+      if Assigned(nTmp) then
+            FEnable := nTmp.ValueAsString <> '0'
+      else  FEnable := False;
     end;
   finally
     nXML.Free;
@@ -284,7 +290,7 @@ begin
   while not Terminated do
   try
     FWaiter.EnterWait;
-    if Terminated then Exit;
+    if Terminated or (not FOwner.FHost.FEnable) then Exit;
 
     try
       if not FClient.Connected then

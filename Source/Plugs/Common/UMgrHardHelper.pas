@@ -122,6 +122,7 @@ type
     procedure SetCardLastDone(const nCard,nReader: string);
     function GetReaderLastOn(const nCard: string): string;
     //磁卡活动
+    property ConnHelper: Boolean read FConnHelper write FConnHelper;
     property OnProce: THHProce read FProce write FProce;
     property OnEvent: THHEvent read FEvent write FEvent;
     //事件相关
