@@ -160,6 +160,47 @@ begin
   gSysLoger.AddLog(TBlueReader, '蓝卡远距读卡器', nEvent);
 end;
 
+function GetLocalIpList(var nIPList:TStrings):Integer;
+type
+  TAPInAddr = array[0..10] of PInAddr;
+  PAPInAddr = ^TAPInAddr;
+var
+  nIdx: Integer;
+  nPtr: PAPInAddr;
+  nNameLen: Integer;
+  nWSData: TWSAData;
+  nHostEnt: PHostEnt;
+  nHostName: array [0..MAX_PATH] of char;
+begin
+  Result := 0;
+  if WSAStartup(MakeWord(2,0), nWSData) <> 0 then Exit;
+
+  try
+    nNameLen := SizeOf(nHostName);
+    FillChar(nHostName, nNameLen, #0);
+
+    nNameLen := GetHostName(nHostName, nNameLen);
+    if nNameLen = SOCKET_ERROR then Exit;
+
+    nHostEnt := GetHostByName(nHostName);
+    if not Assigned(nHostEnt) then Exit;
+
+    nIdx := 0;
+    nPtr := PAPInAddr(nHostEnt^.h_addr_list);
+
+    nIPList.Clear;
+    while Assigned(nPtr^[nIdx]) do
+    begin
+      nIPList.Add(inet_ntoa(nPtr^[nIdx]^));
+      Inc(nIdx);
+    end;
+
+    Result := nIPList.Count;
+  finally
+    WSACleanup;
+  end;
+end;
+
 constructor TBlueReader.Create;
 begin
   inherited Create(False);
@@ -250,6 +291,7 @@ begin
 end;
 
 procedure TBlueReader.StartReader(const nPort: Integer);
+var nIdx: Integer;
 begin
   if nPort > 0 then
     FSrvPort := nPort;
@@ -257,6 +299,19 @@ begin
 
   FServer.Active := False;
   FServer.DefaultPort := FSrvPort;
+
+  if FSrvIPList.Count < 1 then
+    GetLocalIpList(FSrvIPList);
+  //获取IP地址表
+  
+  for nIdx := 0 to FSrvIPList.Count-1 do
+  with FServer do
+  begin
+    Bindings.Add;
+    Bindings[nIdx].IP := FSrvIPList[nIdx];
+    Bindings[nIdx].Port := FSrvPort;
+  end;
+
   FServer.Active := True;
 
   FWaiter.Interval := cBlueReader_Query_Interval;
@@ -293,6 +348,11 @@ begin
     if Assigned(nNode) then
     begin
       FSrvPort := nNode.NodeByName('port').ValueAsInteger;
+
+      FSrvIPList.Clear;
+      nTP := nNode.FindNode('IP');
+      if Assigned(nTP) then
+        FSrvIPList.Add(nTP.ValueAsString);
 
       nTP := nNode.FindNode('enable');
       if Assigned(nTP) then
@@ -513,6 +573,9 @@ begin
   end;
 end;
 
+//Date: 2016/5/5
+//Parm: 读卡器编号
+//Desc: 获取读卡器对应连接 加锁调用
 function TBlueReader.GetReaderContext(const nReaderID: string): TIdContext;
 var nIdx: Integer;
     nReader: PBlueReaderHost;
@@ -520,21 +583,16 @@ begin
   Result := nil;
   //init
 
-  FSyncLock.Enter;
-  try
-    for nIdx := 0 to FActiveReaders.Count - 1 do
-    begin
-      nReader := FActiveReaders[nIdx];
+  for nIdx := 0 to FActiveReaders.Count - 1 do
+  begin
+    nReader := FActiveReaders[nIdx];
 
-      if Assigned(nReader)  and
-         (CompareText(nReaderID, nReader.FReaderID) = 0) then
-      begin
-        Result := nReader.FContext;
-        Exit;
-      end;  
+    if Assigned(nReader)  and
+       (CompareText(nReaderID, nReader.FReaderID) = 0) then
+    begin
+      Result := nReader.FContext;
+      Exit;
     end;  
-  finally
-    FSyncLock.Leave;
   end;
 end;
 
@@ -559,27 +617,29 @@ begin
   nPeerIP := AContext.Connection.Socket.Binding.PeerIP;
   nPeerPort := IntToStr(AContext.Connection.Socket.Binding.PeerPort);
 
+  Socket_Connection(AContext, '', False);
   WriteLog('客户端: [' + nPeerIP + ':' + nPeerPort + '] 断开连接');
 end;
 
 procedure TBlueReader.TCPServerExecute(AContext: TIdContext);
-var nSend, nRecv, nReaderID: string;
+var nRecv, nReaderID: string;
     nPos: Integer;
 begin
-  nSend := cBlueReader_BUMAC + cBlueReader_Flag_End;
+  //nSend := cBlueReader_BUMAC + cBlueReader_Flag_End;
   with AContext.Connection do
   try
     if Terminated then Exit;
 
-    Socket.Write(nSend);
+    //Socket.Write(nSend);
     nRecv := Socket.ReadLn;
 
     if Length(nRecv) < 1 then
     begin
+      Socket_Connection(AContext, '', False);
+
       Disconnect;
       if Assigned(IOHandler) then
         IOHandler.InputBuffer.Clear;
-      Socket_Connection(AContext, '', False);
     end;
 
     if Length(nRecv) >= 10 then
@@ -670,7 +730,8 @@ begin
     begin
       nReader := FActiveReaders[nIdx];
 
-      if Assigned(nReader)  and (nReader.FContext = nContext) then
+      if Assigned(nReader)  and
+        ((nReader.FContext = nContext) or (nReader.FReaderID = nReaderID))then
       begin
         nInt := nIdx;
         Break;
@@ -683,15 +744,25 @@ begin
         if nInt < 0 then
         begin
           New(nNew);
-          nNew.FReaderID := nReaderID;
-          nNew.FContext  := nContext;
+          nNew.FContext    := nContext;
+          if nReaderID <> '' then
+            nNew.FReaderID := nReaderID;
 
           FActiveReaders.Add(nNew);
+        end else
+        begin
+          with PBlueReaderHost(FActiveReaders[nInt])^ do
+          begin
+            FContext  := nContext;
+
+            if nReaderID <> '' then
+              FReaderID := nReaderID;
+          end;  
         end;
       end;  
     False :
       begin
-        if nInt > 0 then
+        if nInt > -1 then
         begin
           nReader := FActiveReaders[nInt];
           Dispose(nReader);
@@ -703,47 +774,6 @@ begin
     end;
   finally
     FSyncLock.Leave;
-  end;
-end;
-
-function GetLocalIpList(var nIPList:TStrings):Integer;
-type
-  TAPInAddr = array[0..10] of PInAddr;
-  PAPInAddr = ^TAPInAddr;
-var
-  nIdx: Integer;
-  nPtr: PAPInAddr;
-  nNameLen: Integer;
-  nWSData: TWSAData;
-  nHostEnt: PHostEnt;
-  nHostName: array [0..MAX_PATH] of char;
-begin
-  Result := 0;
-  if WSAStartup(MakeWord(2,0), nWSData) <> 0 then Exit;
-
-  try
-    nNameLen := SizeOf(nHostName);
-    FillChar(nHostName, nNameLen, #0);
-
-    nNameLen := GetHostName(nHostName, nNameLen);
-    if nNameLen = SOCKET_ERROR then Exit;
-
-    nHostEnt := GetHostByName(nHostName);
-    if not Assigned(nHostEnt) then Exit;
-
-    nIdx := 0;
-    nPtr := PAPInAddr(nHostEnt^.h_addr_list);
-
-    nIPList.Clear;
-    while Assigned(nPtr^[nIdx]) do
-    begin
-      nIPList.Add(inet_ntoa(nPtr^[nIdx]^));
-      Inc(nIdx);
-    end;
-
-    Result := nIPList.Count;
-  finally
-    WSACleanup;
   end;
 end;
 
@@ -817,7 +847,7 @@ begin
 end;
 
 //Date: 2016/4/21
-//Parm: 
+//Parm:
 //Desc: 打开道闸
 function TBlueReader.OpenDoor(const nReaderID: string): Boolean;
 var nSend, nRecv: string;
@@ -830,26 +860,40 @@ begin
   //xxxxx
 
   nSend := cBlueReader_OpenDoor + cBlueReader_Flag_End;
-  nContext := GetReaderContext(nReaderID);
-  if not Assigned(nContext) then Exit;
 
-  if not nContext.Connection.Connected then Exit;
-
-  with nContext.Connection do
+  FSyncLock.Enter;
   try
-    Socket.Write(nSend);
-    Sleep(100);
+    nContext := GetReaderContext(nReaderID);
+    if not Assigned(nContext) then Exit;
 
-    nRecv := Socket.ReadLn;
-    Result := Length(nRecv) > 0;
-  except
-    Disconnect;
-    if Assigned(IOHandler) then
-      IOHandler.InputBuffer.Clear;
-  end;
+    with nContext.Connection do
+    try
+      if not Assigned(nContext.Connection) then Exit;
+      if not nContext.Connection.Connected then Exit;
+      //服务器网络断开后，Connection=nil
 
-  WriteLog('读卡器 [' + nReaderID + '] 抬杆成功。');
-  //xxxxx
+      Socket.InputBuffer.Clear;
+      Socket.Write(nSend);
+      Sleep(100);
+
+      nRecv := Socket.ReadLn;
+      Result := Length(nRecv) > 0;
+
+      WriteLog('读卡器 [' + nReaderID + '] 抬杆成功。');
+      //xxxxx
+    except
+      on E: Exception do
+      begin
+        WriteLog(E.Message);
+
+        Disconnect;
+        if Assigned(IOHandler) then
+          IOHandler.InputBuffer.Clear;
+      end; 
+    end;
+  finally
+    FSyncLock.Leave;
+  end;   
 end;  
 
 initialization
