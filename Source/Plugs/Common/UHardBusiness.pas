@@ -651,11 +651,13 @@ begin
   WriteHardHelperLog(Format('»ªÒæ±êÇ© %s:%s', [nReader.FTunnel, nReader.FCard]));
   {$ENDIF}
 
-  {$IFDEF JYZL}
-  gHardwareHelper.SetReaderCard(nReader.FID, 'H' + nReader.FCard, False);
-  {$ELSE}
-  g02NReader.ActiveELabel(nReader.FID, nReader.FCard);
-  {$ENDIF}
+  if nReader.FVirtual then
+  begin
+    case nReader.FVType of
+      rt900 :gHardwareHelper.SetReaderCard(nReader.FVReader, 'H' + nReader.FCard, False);
+      rt02n :g02NReader.SetReaderCard(nReader.FVReader, 'H' + nReader.FCard);
+    end;
+  end else g02NReader.ActiveELabel(nReader.FTunnel, nReader.FCard);
 end;
 
 procedure WhenBlueReaderCardArrived(nHost: TBlueReaderHost; nCard: TBlueReaderCard);

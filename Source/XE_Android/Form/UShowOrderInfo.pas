@@ -129,7 +129,7 @@ begin
   for nIdx := Low(gOrders) to High(gOrders) do
   with gOrders[nIdx] do
   begin
-    FSelected := (FNextStatus='X') or (FNextStatus='M') or (FStatus='M');
+    FSelected := (FNextStatus='X') or (FNextStatus='M');
     if FSelected then Inc(nInt);
   end;
 
