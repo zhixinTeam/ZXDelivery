@@ -40,7 +40,7 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
       OnKeyPress = OnCtrlKeyPress
       Width = 125
     end
-    object EditName: TcxButtonEdit [1]
+    object EditTruck: TcxButtonEdit [1]
       Left = 433
       Top = 36
       ParentFont = False
@@ -73,7 +73,7 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
     object cxTextEdit4: TcxTextEdit [4]
       Left = 433
       Top = 93
-      Hint = 'T.O_SaleMan'
+      Hint = 'T.O_Truck'
       ParentFont = False
       TabOrder = 6
       Width = 125
@@ -126,8 +126,8 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #19994#21153#21592':'
-          Control = EditName
+          Caption = #36710#29260#21495':'
+          Control = EditTruck
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item8: TdxLayoutItem
@@ -148,7 +148,7 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          Caption = #19994#21153#21592':'
+          Caption = #36710#29260#21495':'
           Control = cxTextEdit4
           ControlOptions.ShowBorder = False
         end

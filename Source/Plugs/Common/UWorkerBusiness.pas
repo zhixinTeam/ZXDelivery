@@ -696,7 +696,7 @@ begin
       Exit;
     end;
 
-    nVal := FieldByName('A_InMoney').AsFloat -
+    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
             FieldByName('A_OutMoney').AsFloat -
             FieldByName('A_Compensation').AsFloat -
             FieldByName('A_FreezeMoney').AsFloat;
@@ -743,7 +743,7 @@ begin
     FOut.FExtParam := FieldByName('Z_OnlyMoney').AsString;
     nMoney := FieldByName('Z_FixedMoney').AsFloat;
 
-    nVal := FieldByName('A_InMoney').AsFloat -
+    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
             FieldByName('A_OutMoney').AsFloat -
             FieldByName('A_Compensation').AsFloat -
             FieldByName('A_FreezeMoney').AsFloat +
@@ -2231,10 +2231,13 @@ end;
 //Date: 2014-09-15
 //Desc: 保存交货单
 function TWorkerBusinessBills.SaveBills(var nData: string): Boolean;
-var nStr,nSQL,nFixMoney: string;
-    nIdx: Integer;
+var nIdx: Integer;
     nVal,nMoney: Double;
     nOut: TWorkerBusinessCommand;
+    nStr,nSQL,nFixMoney: string;
+    {$IFDEF TruckInNow}
+    nStatus, nNextStatus: string;
+    {$ENDIF}
 begin
   Result := False;
   FListA.Text := PackerDecodeStr(FIn.FData);
@@ -2314,6 +2317,11 @@ begin
               SF('L_Value', FListC.Values['Value'], sfVal),
               SF('L_Price', FListC.Values['Price'], sfVal),
 
+              {$IFDEF PrintGLF}
+              SF('L_PrintGLF', FListC.Values['PrintGLF']),
+              //自动打印过路费
+              {$ENDIF}
+
               SF('L_ZKMoney', nFixMoney),
               SF('L_Truck', FListA.Values['Truck']),
               SF('L_Status', sFlag_BillNew),
@@ -2377,6 +2385,33 @@ begin
             ], sTable_ZTTrucks, '', True);
           gDBConnManager.WorkerExec(FDBConn, nSQL);
         end;
+
+        {$IFDEF TruckInNow}
+        nStatus := sFlag_TruckIn;
+        nNextStatus := sFlag_TruckBFP;
+        if FListC.Values['Type'] = sFlag_Dai then
+        begin
+          nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+          nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_PoundIfDai]);
+
+          with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+           if (RecordCount > 0) and (Fields[0].AsString = sFlag_No) then
+            nNextStatus := sFlag_TruckZT;
+          //袋装不过磅
+        end;
+
+        nSQL := MakeSQLByStr([
+                SF('L_Status', nStatus),
+                SF('L_NextStatus', nNextStatus),
+                SF('L_InTime', sField_SQLServer_Now, sfVal)
+                ], sTable_Bill, SF('L_ID', nOut.FData), False);
+        gDBConnManager.WorkerExec(FDBConn, nSQL);
+
+        nSQL := 'Update %s Set T_InFact=%s Where T_HKBills Like ''%%%s%%''';
+        nSQL := Format(nSQL, [sTable_ZTTrucks, sField_SQLServer_Now,
+                nOut.FData]);
+        gDBConnManager.WorkerExec(FDBConn, nSQL);
+        {$ENDIF}
       end;
     end;
 
@@ -4836,6 +4871,16 @@ begin
               MI('$KDVal', FloatToStr(FValue))]);
       FListA.Add(nSQL);
       //调整冻结量
+
+      nSQL := 'Select P_ID From %s Where P_Order=''%s'' And P_MValue Is Null';
+      nSQL := Format(nSQL, [sTable_PoundLog, FID]);
+      //未称毛重记录
+
+      with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+      if RecordCount > 0 then
+      begin
+        FOut.FData := Fields[0].AsString;
+      end;
     end;
   end else
 

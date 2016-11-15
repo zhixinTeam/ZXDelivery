@@ -12,7 +12,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxMaskEdit,
   cxDropDownEdit, cxListView, cxTextEdit, cxMCListBox, dxLayoutControl,
-  StdCtrls, cxButtonEdit;
+  StdCtrls, cxButtonEdit, cxCheckBox;
 
 type
   TfFormBill = class(TfFormNormal)
@@ -42,6 +42,8 @@ type
     dxLayout1Item6: TdxLayoutItem;
     EditType: TcxComboBox;
     dxLayout1Group3: TdxLayoutGroup;
+    PrintGLF: TcxCheckBox;
+    dxLayout1Item13: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -170,6 +172,10 @@ begin
   finally
     nIni.Free;
   end;
+
+  {$IFDEF PrintGLF}
+  dxLayout1Item13.Visible := True;
+  {$ENDIF}
 
   AdjustCtrlData(Self);
 end;
@@ -508,6 +514,10 @@ begin
       Values['Price'] := FloatToStr(FPrice);
       Values['Value'] := FloatToStr(FValue);
 
+      if not PrintGLF.Checked  then
+           Values['PrintGLF'] := sFlag_No
+      else Values['PrintGLF'] := sFlag_Yes;
+
       nList.Add(PackerEncodeStr(nTmp.Text));
       //new bill
 
@@ -541,7 +551,7 @@ begin
   //∞Ï¿Ì¥≈ø®
 
   if nPrint then
-    PrintBillReport(gInfo.FIDList, True);
+    PrintBillFYDReport(gInfo.FIDList, True);
   //print report
   
   ModalResult := mrOk;

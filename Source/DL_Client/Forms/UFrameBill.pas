@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameBill;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -48,6 +49,8 @@ type
     N9: TMenuItem;
     dxLayout1Item10: TdxLayoutItem;
     CheckDelete: TcxCheckBox;
+    N10: TMenuItem;
+    N11: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnDelClick(Sender: TObject);
@@ -61,6 +64,8 @@ type
     procedure N7Click(Sender: TObject);
     procedure PMenu1Popup(Sender: TObject);
     procedure CheckDeleteClick(Sender: TObject);
+    procedure N10Click(Sender: TObject);
+    procedure N11Click(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -253,6 +258,12 @@ procedure TfFrameBill.PMenu1Popup(Sender: TObject);
 begin
   N3.Enabled := gPopedomManager.HasPopedom(PopedomItem, sPopedom_Edit);
   //销售调拨
+
+  {$IFDEF DYGL}
+  N10.Visible := True;
+  N11.Visible := True;
+  //打印预提单和过路费
+  {$ENDIF}
 end;
 
 //Desc: 修改未进厂车牌号
@@ -364,6 +375,26 @@ begin
       InitFormData(FWhere);
       ShowMsg('调拨成功', sHint);
     end;
+  end;
+end;
+
+procedure TfFrameBill.N10Click(Sender: TObject);
+var nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('L_ID').AsString;
+    PrintBillLoadReport(nStr, False);
+  end;
+end;
+
+procedure TfFrameBill.N11Click(Sender: TObject);
+var nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('L_ID').AsString;
+    PrintBillFYDReport(nStr, False);
   end;
 end;
 

@@ -301,7 +301,7 @@ ResourceString
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
        'D_Desc varChar(30), D_Value varChar(50), D_Memo varChar(20),' +
-       'D_ParamA $Float, D_ParamB varChar(50), D_Index Integer Default 0)';
+       'D_ParamA $Float, D_ParamB varChar(50), D_ParamC varChar(50), D_Index Integer Default 0)';
   {-----------------------------------------------------------------------------
    系统字典: SysDict
    *.D_ID: 编号
@@ -311,6 +311,7 @@ ResourceString
    *.D_Memo: 相关信息
    *.D_ParamA: 浮点参数
    *.D_ParamB: 字符参数
+   *.D_ParamC: 字符参数
    *.D_Index: 显示索引
   -----------------------------------------------------------------------------}
   
@@ -472,6 +473,7 @@ ResourceString
        'A_Used Char(1), A_InMoney Decimal(15,5) Default 0,' +
        'A_OutMoney Decimal(15,5) Default 0, A_DebtMoney Decimal(15,5) Default 0,' +
        'A_Compensation Decimal(15,5) Default 0,' +
+       'A_InitMoney Decimal(15,5) Default 0,' +
        'A_FreezeMoney Decimal(15,5) Default 0,' +
        'A_CreditLimit Decimal(15,5) Default 0, A_Date DateTime)';
   {-----------------------------------------------------------------------------
@@ -479,6 +481,7 @@ ResourceString
    *.R_ID:记录编号
    *.A_CID:客户号
    *.A_Used:用途(供应,销售)
+   *.A_InitMoney:初始额度
    *.A_InMoney:入金
    *.A_OutMoney:出金
    *.A_DebtMoney:欠款
@@ -488,6 +491,7 @@ ResourceString
    *.A_Date:创建日期
 
    *.水泥销售账中
+     A_InitMoney:客户初始账户金额
      A_InMoney:客户存入账户的金额
      A_OutMoney:客户实际花费的金额
      A_DebtMoney:还未支付的金额
@@ -495,7 +499,7 @@ ResourceString
      A_FreezeMoney:已办纸卡但未进厂提货的金额
      A_CreditLimit:授信给用户的最高可欠款金额
 
-     可用余额 = 入金 + 信用额 - 出金 - 补偿金 - 已冻结
+     可用余额 = 期初 + 入金 + 信用额 - 出金 - 补偿金 - 已冻结
      消费总额 = 出金 + 欠款 + 已冻结
   -----------------------------------------------------------------------------}
 
@@ -656,7 +660,7 @@ ResourceString
        'L_LadeTime DateTime, L_LadeMan varChar(32), ' +
        'L_LadeLine varChar(15), L_LineName varChar(32), ' +
        'L_DaiTotal Integer , L_DaiNormal Integer, L_DaiBuCha Integer,' +
-       'L_OutFact DateTime, L_OutMan varChar(32),' +
+       'L_OutFact DateTime, L_OutMan varChar(32), L_PrintGLF Char(1),' +
        'L_Lading Char(1), L_IsVIP varChar(1), L_Seal varChar(100),' +
        'L_HYDan varChar(15), L_Man varChar(32), L_Date DateTime,' +
        'L_DelMan varChar(32), L_DelDate DateTime)';
@@ -686,6 +690,7 @@ ResourceString
    *.L_OutFact,L_OutMan: 出厂放行
    *.L_Lading: 提货方式(自提,送货)
    *.L_IsVIP:VIP单
+   *.L_PrintGLF:是否自动打印过路费
    *.L_Seal: 封签号
    *.L_HYDan: 化验单
    *.L_Man:操作人
@@ -1105,7 +1110,8 @@ ResourceString
 
   sSQL_NewMaterails = 'Create Table $Table(R_ID $Inc, M_ID varChar(32),' +
        'M_Name varChar(80),M_PY varChar(80),M_Unit varChar(20),M_Price $Float,' +
-       'M_PrePValue Char(1), M_PrePTime Integer, M_Memo varChar(50))';
+       'M_PrePValue Char(1), M_PrePTime Integer, M_Memo varChar(50), ' +
+       'M_IsSale Char(1) Default ''N'')';
   {-----------------------------------------------------------------------------
    物料表: Materails
    *.M_ID: 编号
@@ -1115,6 +1121,7 @@ ResourceString
    *.M_PrePValue: 预置皮重
    *.M_PrePTime: 皮重时长(天)
    *.M_Memo: 备注
+   *.M_IsSale: 销售品种
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockParam = 'Create Table $Table(P_ID varChar(15), P_Stock varChar(30),' +

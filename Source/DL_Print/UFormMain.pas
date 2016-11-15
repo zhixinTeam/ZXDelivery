@@ -4,7 +4,7 @@
 *******************************************************************************}
 unit UFormMain;
 
-{.$DEFINE DEBUG}
+{$DEFINE PrintGLF}
 interface
 
 uses
@@ -280,6 +280,20 @@ begin
   FDR.Dataset1.DataSet := FDM.SQLQuery1;
   FDR.PrintReport;
   Result := FDR.PrintSuccess;
+
+  {$IFDEF PrintGLF}
+  if nDS.FieldByName('L_PrintGLF').AsString <> 'Y' then Exit;
+
+  nStr := gPath + 'Report\BillLoad.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nHint := '无法正确加载报表文件BillLoad.fr3';
+    Exit;
+  end;
+
+  FDR.Dataset1.DataSet := FDM.SQLQuery1;
+  FDR.PrintReport;
+  {$ENDIF}
 end;
 
 //Date: 2012-4-1

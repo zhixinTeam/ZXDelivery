@@ -20,7 +20,7 @@ type
   TfFramePurchaseOrder = class(TfFrameNormal)
     EditID: TcxButtonEdit;
     dxLayout1Item1: TdxLayoutItem;
-    EditName: TcxButtonEdit;
+    EditTruck: TcxButtonEdit;
     dxLayout1Item2: TdxLayoutItem;
     cxTextEdit1: TcxTextEdit;
     dxLayout1Item3: TdxLayoutItem;
@@ -187,17 +187,17 @@ begin
     EditID.Text := Trim(EditID.Text);
     if EditID.Text = '' then Exit;
 
-    FWhere := 'con.O_ID like ''%' + EditID.Text + '%''';
+    FWhere := 'O_ID like ''%' + EditID.Text + '%''';
     InitFormData(FWhere);
   end else
 
-  if Sender = EditName then
+  if Sender = EditTruck then
   begin
-    EditName.Text := Trim(EditName.Text);
-    if EditName.Text = '' then Exit;
+    EditTruck.Text := Trim(EditTruck.Text);
+    if EditTruck.Text = '' then Exit;
 
-    FWhere := 'O_SaleMan like ''%%%s%%'' Or O_SaleMan like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditName.Text, EditName.Text]);
+    FWhere := 'O_Truck like ''%%%s%%''';
+    FWhere := Format(FWhere, [EditTruck.Text]);
     InitFormData(FWhere);
   end else
 

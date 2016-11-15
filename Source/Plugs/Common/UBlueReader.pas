@@ -26,7 +26,7 @@ const
 
   cBlueReader_BUMAC         = 'BUMAC';                      //¶Á¿¨Æ÷IDÖ¸Áî
   cBlueReader_WatchDog      = 'watchdog';                   //¶Á¿¨Æ÷ÐÄÌøÖ¸Áî
-  cBlueReader_OpenDoor      = 'WRITEGPIO 01';               //¶Á¿¨Æ÷Ì§¸ËÖ¸Áî
+  cBlueReader_OpenDoor      = 'WRITEGPIO 1';               //¶Á¿¨Æ÷Ì§¸ËÖ¸Áî
   cBlueReader_BroastServer  = 'SERVERIP $ServIP $ServPort'; //¹ã²¥·þÎñÆ÷µØÖ·
 
   cBlueReader_Query_Interval= 30*100;                          //Ö¸Áî¼ä¸ô
@@ -720,7 +720,7 @@ begin
   except
     if Connected then
     begin
-      Disconnect;
+      //Disconnect;
       if Assigned(IOHandler) then
         IOHandler.InputBuffer.Clear;
     end;
@@ -902,7 +902,7 @@ begin
             begin
               WriteLog(E.Message);
 
-              Disconnect;
+              //Disconnect;
               if Assigned(IOHandler) then
                 IOHandler.InputBuffer.Clear;
             end; 

@@ -514,7 +514,7 @@ begin
       Exit;
     end;
 
-    nVal := FieldByName('A_InMoney').AsFloat -
+    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
             FieldByName('A_OutMoney').AsFloat -
             FieldByName('A_Compensation').AsFloat -
             FieldByName('A_FreezeMoney').AsFloat;
@@ -559,7 +559,7 @@ begin
     FOut.FExtParam := FieldByName('Z_OnlyMoney').AsString;
     nMoney := FieldByName('Z_FixedMoney').AsFloat;
 
-    nVal := FieldByName('A_InMoney').AsFloat -
+    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
             FieldByName('A_OutMoney').AsFloat -
             FieldByName('A_Compensation').AsFloat -
             FieldByName('A_FreezeMoney').AsFloat +

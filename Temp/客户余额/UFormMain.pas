@@ -15,11 +15,15 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Button5: TButton;
+    Button6: TButton;
     procedure FormResize(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -181,6 +185,52 @@ begin
   finally
     nList.Free;
   end;
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+var nStr: string;
+    nIdx: Integer;
+    nList: TStrings;
+begin
+  nList := TStringList.Create;
+  try
+    Memo2.Clear;
+    //xxxxx
+
+    for nIdx:=0 to Memo1.Lines.Count - 1 do
+    begin
+      nStr := Trim(Memo1.Lines[nIdx]);
+      if not SplitStr(nStr, nList, 3, #9) then Continue;
+      //xxxxx
+
+      if not IsNumber(nList[2], True) then Continue;
+      //非金额
+
+      nStr := 'Insert Into %s(C_ID, C_Name, C_PY, C_Xuni) ' +
+              'Values(''%s'', ''%s'', ''%s'', ''N'')' + #9#9 + '--%d';
+      nStr := Format(nStr, [sTable_Customer, nList[0], nList[1],
+              GetPinYinOfStr(nList[1]), Memo2.Lines.Count+1]);
+      Memo2.Lines.Add(nStr);
+      //客户信息
+
+      nStr := MakeSQLByStr([SF('A_CID', nList[0]),
+              SF('A_InitMoney', -StrToFloat(nList[2]), sfVal),
+              SF('A_Date', 'getDate()', sfVal)
+              ], sTable_CusAccount, '', True);
+
+      nStr := nStr + #9#9 + '--%d';
+      nStr := Format(nStr, [Memo2.Lines.Count+1]);
+      Memo2.Lines.Add(nStr);
+      //客户资金
+    end;
+  finally
+    nList.Free;
+  end;
+end;
+
+procedure TForm1.Button6Click(Sender: TObject);
+begin
+  Memo2.Lines.SaveToFile(ExtractFilePath(ParamStr(0)) + 'SaveFile.txt');
 end;
 
 end.

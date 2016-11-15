@@ -218,6 +218,9 @@ function PrintPoundReport(const nPound: string; nAsk: Boolean): Boolean;
 function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
 function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
 //化验单,合格证
+function PrintBillFYDReport(const nBill: string;  const nAsk: Boolean): Boolean;
+function PrintBillLoadReport(nBill: string; const nAsk: Boolean): Boolean;
+//打印发运单，过路费
 
 implementation
 
@@ -2073,6 +2076,102 @@ begin
   FDR.ShowReport;
   Result := FDR.PrintSuccess;
 end;
+
+//Date: 2016-8-10
+//Parm: 交货单号;提示
+//Desc: 打印nBill单号的发运单
+function PrintBillFYDReport(const nBill: string;  const nAsk: Boolean): Boolean;
+var nStr: string;
+    nDS: TDataSet;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印现场发运单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+
+  nStr := 'Select * From %s  Where L_ID=''%s''';
+  nStr := Format(nStr, [sTable_Bill, nBill]);
+
+  nDS := FDM.QueryTemp(nStr);
+  if not Assigned(nDS) then Exit;
+
+  if nDS.RecordCount < 1 then
+  begin
+    nStr := '交货单[ %s ] 已无效!!';
+    nStr := Format(nStr, [nBill]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + 'Report\BillFYD.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nParam.FName := 'UserName';
+  nParam.FValue := gSysParam.FUserID;
+  FDR.AddParamItem(nParam);
+
+  nParam.FName := 'Company';
+  nParam.FValue := gSysParam.FHintText;
+  FDR.AddParamItem(nParam);
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+end;
+
+//Desc: 打印过路单
+function PrintBillLoadReport(nBill: string; const nAsk: Boolean): Boolean;
+var nStr: string; 
+    nDS: TDataSet;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印过路单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+
+  nStr := 'Select * From %s  Where L_ID=''%s''';
+  nStr := Format(nStr, [sTable_Bill, nBill]);
+
+  nDS := FDM.QueryTemp(nStr);
+  if not Assigned(nDS) then Exit;
+
+  if nDS.RecordCount < 1 then
+  begin
+    nStr := '交货单[ %s ] 已无效!!';
+    nStr := Format(nStr, [nBill]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + 'Report\BillLoad.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nParam.FName := 'UserName';
+  nParam.FValue := gSysParam.FUserID;
+  FDR.AddParamItem(nParam);
+
+  nParam.FName := 'Company';
+  nParam.FValue := gSysParam.FHintText;
+  FDR.AddParamItem(nParam);
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+end;                                                 
 
 //Date: 2015/1/18
 //Parm: 车牌号；电子标签；是否启用；旧电子标签

@@ -748,6 +748,9 @@ begin
     end;
   end;
 
+  if (Length(FBillItems)>0) and (FCardUsed = sFlag_Provide) then
+    nNextStatus := FBillItems[0].FNextStatus;
+
   SetLength(FBillItems, 1);
   FBillItems[0] := FUIData;
   //复制用户界面数据
@@ -763,14 +766,8 @@ begin
   end;
 
   if FCardUsed = sFlag_Provide then
-  begin
-    //xxxxx
-    if FBillItems[0].FStatus = sFlag_TruckXH then
-         nNextStatus := sFlag_TruckBFM
-    else nNextStatus := sFlag_TruckBFP;
-
-    Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel); 
-  end else Result := SaveTruckPoundItem(FPoundTunnel, FBillItems);
+       Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel)
+  else Result := SaveTruckPoundItem(FPoundTunnel, FBillItems);
   //保存称重
 end;
 

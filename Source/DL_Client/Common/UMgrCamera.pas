@@ -48,7 +48,7 @@ type
   TNET_DVR_Logout = function(LoginID: longint): Boolean; stdcall;
   {功能：注册用户退出硬盘录像机}
   TNET_DVR_CaptureJPEGPicture = function(LoginID, lChannel: longint;
-    nJpegPara: NET_DVR_JPEGPARA; sPicFileName: String)
+    nJpegPara: PNET_DVR_JPEGPARA; sPicFileName: String)
     :Boolean; stdcall;
   {功能：JPEG截图}
 
@@ -498,7 +498,7 @@ begin
   FCLIENT_Logout          :=  GetProcAddress(FLibhandle, 'NET_DVR_Logout');
 
   FCLIENT_GetLastError    :=  GetProcAddress(FLibhandle, 'NET_DVR_GetLastError');
-  FCLIENT_CapturePicture  :=  GetProcAddress(FLibhandle, 'NET_DVR_CapturePicture');
+  FCLIENT_CapturePicture  :=  GetProcAddress(FLibhandle, 'NET_DVR_CaptureJPEGPicture');
 
 
   Result := IsAssignedFunc(@FCLIENT_Init, 'NET_DVR_Init');
@@ -578,7 +578,7 @@ begin
                                nPPassWord, nDeviceInfo);
   //xxxxxx
 
-  if nDevLoginID<=0 then
+  if nDevLoginID < 0 then
   begin
     nLog := '注册用户到设备失败，返回错误码[%s]';
     nLog := Format(nLog, [IntToHex(NET_DVR_GetLastError,2)]);
@@ -620,7 +620,7 @@ function THKVNetSDK.NET_DVR_CaptureJPEGPicture(nLoginID, nChannel: longint;
 var
   nLog, nErr: string;
 begin
-  Result := IsAssignedFunc(@FCLIENT_CapturePicture, 'NET_DVR_CapturePicture');
+  Result := IsAssignedFunc(@FCLIENT_CapturePicture, 'NET_DVR_CaptureJPEGPicture');
   if (not Result) then Exit;
 
   if not FNeedClearUp then
@@ -630,7 +630,7 @@ begin
     Exit;
   end;
 
-  Result := FCLIENT_CapturePicture(nLoginID,nChannel,nJpegPara,nPicFileName);
+  Result := FCLIENT_CapturePicture(nLoginID,nChannel,@nJpegPara,nPicFileName);
   if not Result then
   begin
     nLog := '实时抓图失败，返回错误码[%s]';

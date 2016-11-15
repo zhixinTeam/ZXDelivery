@@ -89,6 +89,7 @@ type
     procedure EditSalesManKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure EditSalesManPropertiesEditValueChanged(Sender: TObject);
+    procedure EditCustomerKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     FContractID: string;
@@ -563,6 +564,35 @@ begin
     nList.Free;
     FDM.ADOConn.RollbackTrans;
     ShowMsg('数据保存失败', '未知原因');
+  end;
+end;
+
+procedure TfFormSaleContract.EditCustomerKeyPress(Sender: TObject;
+  var Key: Char);
+var nStr: string;
+    nP: TFormCommandParam;
+begin
+  if Key = #13 then
+  begin
+    Key := #0;
+    nP.FParamA := GetCtrlData(EditCustomer);
+    
+    if nP.FParamA = '' then
+      nP.FParamA := EditCustomer.Text;
+    //xxxxx
+
+    CreateBaseFormItem(cFI_FormGetCustom, '', @nP);
+    if (nP.FCommand <> cCmd_ModalResult) or (nP.FParamA <> mrOK) then Exit;
+
+    SetCtrlData(EditSalesMan, nP.FParamD);
+    SetCtrlData(EditCustomer, nP.FParamB);
+    
+    if EditCustomer.ItemIndex < 0 then
+    begin
+      nStr := Format('%s=%s.%s', [nP.FParamB, nP.FParamB, nP.FParamC]);
+      InsertStringsItem(EditCustomer.Properties.Items, nStr);
+      SetCtrlData(EditCustomer, nP.FParamB);
+    end;
   end;
 end;
 

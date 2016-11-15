@@ -134,6 +134,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Properties.ItemHeight = 20
       TabOrder = 3
       OnKeyDown = EditSalesManKeyDown
+      OnKeyPress = EditCustomerKeyPress
       Width = 121
     end
     object cxTextEdit2: TcxTextEdit

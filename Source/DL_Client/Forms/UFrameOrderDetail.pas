@@ -50,6 +50,7 @@ type
     procedure N3Click(Sender: TObject);
     procedure Check1Click(Sender: TObject);
     procedure N4Click(Sender: TObject);
+    procedure BtnEditClick(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -72,7 +73,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness,
-  UBusinessConst, USysConst, USysDB, UDataModule;
+  UBusinessConst, USysConst, USysDB, UDataModule, UFormBase;
 
 class function TfFrameOrderDetail.FrameID: integer;
 begin
@@ -302,6 +303,20 @@ begin
   begin
     nStr := SQLQuery.FieldByName('D_ID').AsString;
     PrintOrderReport(nStr, False);
+  end;
+end;
+
+procedure TfFrameOrderDetail.BtnEditClick(Sender: TObject);
+var nP: TFormCommandParam;
+begin
+  inherited;
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nP.FCommand := cCmd_EditData;
+    nP.FParamA  := SQLQuery.FieldByName('D_ID').AsString;
+    nP.FParamB  := SQLQuery.FieldByName('D_OID').AsString;
+
+    CreateBaseFormItem(cFI_FormOrderDtl, '', @nP);
   end;
 end;
 

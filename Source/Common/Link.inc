@@ -50,8 +50,19 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE RDHX}
+{$DEFINE DYGL}
 //特定系统
+
+//当阳骨料
+{$IFDEF DYGL}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE PrintGLF}
+  //打印过路费
+  {$DEFINE TruckInNow}
+  //开单立即进厂,需要采用厂内排队模式
+{$ENDIF}
 
 //如东海鑫
 {$IFDEF RDHX}
@@ -66,6 +77,8 @@
   //远程同步
   {$DEFINE MicroMsg}
   //微信支持
+  {$DEFINE BlueCard}
+  //蓝卡抬杆
 {$ENDIF}
 
 //济源中联

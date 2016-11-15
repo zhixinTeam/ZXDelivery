@@ -244,10 +244,22 @@ begin
 end;
 
 procedure BlueOpenDoor(const nReader: string);
+var nIdx: Integer;
 begin
-  if gHardwareHelper.ConnHelper then
-       gHardwareHelper.OpenDoor(nReader)
-  else gBlueReader.OpenDoor(nReader);
+  nIdx := 0;
+  if nReader <> '' then
+  while nIdx < 5 do
+  begin
+    if gHardwareHelper.ConnHelper then
+         gHardwareHelper.OpenDoor(nReader)
+    {$IFDEF BlueCard}
+    else gHYReaderManager.OpenDoor(nReader);
+    {$ELSE}
+    else gHYReaderManager.OpenDoor(nReader);
+    {$ENDIF}
+
+    Inc(nIdx);
+  end;
 end;
 
 //Date: 2012-4-22

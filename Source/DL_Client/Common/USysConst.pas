@@ -132,7 +132,8 @@ const
   cFI_FormOrder         = $1053;                     //采购订单
   cFI_FormOrderBase     = $1054;                     //采购订单
   cFI_FormPurchase      = $1055;                     //采购验收
-  cFI_FormGetPOrderBase  = $1056;                     //采购订单
+  cFI_FormGetPOrderBase  = $1056;                    //采购订单
+  cFI_FormOrderDtl      = $1057;                     //采购明细
 
   cFI_FormStockParam    = $1065;                     //品种管理
   cFI_FormStockHuaYan   = $1066;                     //开化验单

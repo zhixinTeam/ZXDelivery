@@ -9,7 +9,7 @@ inherited fFrameOrderDetail: TfFrameOrderDetail
     end
     inherited BtnEdit: TToolButton
       Left = 79
-      Visible = False
+      OnClick = BtnEditClick
     end
     inherited BtnDel: TToolButton
       Left = 158

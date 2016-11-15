@@ -1,7 +1,7 @@
 inherited fFormBill: TfFormBill
-  Left = 630
-  Top = 259
-  ClientHeight = 452
+  Left = 608
+  Top = 168
+  ClientHeight = 460
   ClientWidth = 419
   Position = poDesktopCenter
   OnClose = FormClose
@@ -10,17 +10,17 @@ inherited fFormBill: TfFormBill
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 419
-    Height = 452
+    Height = 460
     AutoControlTabOrders = False
     inherited BtnOK: TButton
       Left = 273
-      Top = 419
+      Top = 427
       Caption = #24320#21333
       TabOrder = 5
     end
     inherited BtnExit: TButton
       Left = 343
-      Top = 419
+      Top = 427
       TabOrder = 9
     end
     object ListInfo: TcxMCListBox [2]
@@ -44,7 +44,7 @@ inherited fFormBill: TfFormBill
     end
     object ListBill: TcxListView [3]
       Left = 23
-      Top = 292
+      Top = 296
       Width = 372
       Height = 113
       Columns = <
@@ -70,7 +70,7 @@ inherited fFormBill: TfFormBill
     end
     object EditValue: TcxTextEdit [4]
       Left = 81
-      Top = 267
+      Top = 271
       ParentFont = False
       TabOrder = 3
       OnKeyPress = EditLadingKeyPress
@@ -87,7 +87,7 @@ inherited fFormBill: TfFormBill
     end
     object EditStock: TcxComboBox [6]
       Left = 81
-      Top = 242
+      Top = 246
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 15
@@ -99,7 +99,7 @@ inherited fFormBill: TfFormBill
     end
     object BtnAdd: TButton [7]
       Left = 357
-      Top = 242
+      Top = 246
       Width = 39
       Height = 17
       Caption = #28155#21152
@@ -108,7 +108,7 @@ inherited fFormBill: TfFormBill
     end
     object BtnDel: TButton [8]
       Left = 357
-      Top = 267
+      Top = 271
       Width = 39
       Height = 18
       Caption = #21024#38500
@@ -151,6 +151,15 @@ inherited fFormBill: TfFormBill
       TabOrder = 14
       OnKeyPress = EditLadingKeyPress
       Width = 120
+    end
+    object PrintGLF: TcxCheckBox [12]
+      Left = 11
+      Top = 427
+      Caption = #25171#21360#36807#36335#36153
+      ParentFont = False
+      TabOrder = 15
+      Transparent = True
+      Width = 121
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -254,6 +263,15 @@ inherited fFormBill: TfFormBill
           Caption = 'New Item'
           ShowCaption = False
           Control = ListBill
+          ControlOptions.ShowBorder = False
+        end
+      end
+      inherited dxLayout1Group1: TdxLayoutGroup
+        object dxLayout1Item13: TdxLayoutItem [0]
+          Caption = 'cxCheckBox1'
+          ShowCaption = False
+          Visible = False
+          Control = PrintGLF
           ControlOptions.ShowBorder = False
         end
       end
