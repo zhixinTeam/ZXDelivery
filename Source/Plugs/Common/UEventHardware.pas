@@ -69,6 +69,8 @@ begin
     gBlueReader.LoadConfig(nCfg + 'BlueCardReader.XML');
 
     nStr := '近距读头';
+    if not Assigned(g02NReader) then
+      g02NReader := T02NReader.Create;
     g02NReader.LoadConfig(nCfg + 'Readers.xml');
 
     nStr := '计数器';

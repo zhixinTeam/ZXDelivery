@@ -213,9 +213,6 @@ begin
         Align := alTop;
         HintLabel.Caption := nT.FName;
         PoundTunnel := nT;
-
-        Additional.Clear;
-        SplitStr(nT.FAdditional, Additional, 0, ';', False);
       end;
     end;
   end;

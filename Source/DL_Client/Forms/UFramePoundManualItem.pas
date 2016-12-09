@@ -115,7 +115,6 @@ type
     //子类继承
     property PoundTunnel: PPTTunnelItem read FPoundTunnel write SetTunnel;
     //属性相关
-    property Additional: TStrings read FListA write FListA;
   end;
 
 implementation
@@ -945,9 +944,10 @@ end;
 
 procedure TfFrameManualPoundItem.PlayVoice(const nStrtext: string);
 begin
-  if UpperCase(Additional.Values['Voice'])='NET' then
+  if UpperCase(FPoundTunnel.FOptions.Values['Voice'])='NET' then
        gNetVoiceHelper.PlayVoice(nStrtext, FPoundTunnel.FID, 'pound')
   else gVoiceHelper.PlayVoice(nStrtext);
 end;
 
 end.
+
