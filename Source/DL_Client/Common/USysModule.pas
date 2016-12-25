@@ -61,15 +61,13 @@ begin
 
   if not Assigned(gMemDataManager) then
     gMemDataManager := TMemDataManager.Create;
+  //mem pool
 
   gChannelManager := TChannelManager.Create;
   gChannelManager.ChannelMax := 20;
   gChannelChoolser := TChannelChoolser.Create('');
   gChannelChoolser.AutoUpdateLocal := False;
   //channel
-
-  gMemDataManager := TMemDataManager.Create;
-  //mem pool
 end;
 
 //Desc: 运行系统对象

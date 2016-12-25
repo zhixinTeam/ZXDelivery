@@ -50,7 +50,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE DYGL}
+{$DEFINE YNHT}
 //特定系统
 
 //当阳骨料
@@ -95,5 +95,21 @@
   //打印时显金额
   {$DEFINE HR1847}
   //北京科瑞车检
+{$ENDIF}
+
+//云南红塔
+{$IFDEF YNHT}
+  {$DEFINE XAZL}
+  //使用新安
+  {$DEFINE SyncRemote}
+  //远程同步
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE AppAtTaskBar}
+  //状态栏显示
+  {$DEFINE PrintBillMoney}
+  //打印时显金额
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
 {$ENDIF}
 

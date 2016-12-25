@@ -150,6 +150,13 @@ function ReadPoundCard(const nTunnel: string): string;
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
 
+function IsTunnelOK(const nTunnel: string): Boolean;
+//查询通道光栅是否正常
+procedure TunnelOC(const nTunnel: string; const nOpen: Boolean);
+//控制通道红绿灯开合
+function PlayNetVoice(const nText,nCard,nContent: string): Boolean;
+//经中间件播发语音
+
 function SaveOrderBase(const nOrderData: string): string;
 //保存采购申请单
 function DeleteOrderBase(const nOrder: string): Boolean;
@@ -627,6 +634,46 @@ begin
      gCameraNetSDKMgr.NET_DVR_Logout(nLogin);
     gCameraNetSDKMgr.NET_DVR_Cleanup();
   end;
+end;
+
+//------------------------------------------------------------------------------
+//Date: 2014-07-03
+//Parm: 通道号
+//Desc: 查询nTunnel的光栅状态是否正常
+function IsTunnelOK(const nTunnel: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessHardware(cBC_IsTunnelOK, nTunnel, '', @nOut) then
+       Result := nOut.FData = sFlag_Yes
+  else Result := False;
+end;
+
+procedure TunnelOC(const nTunnel: string; const nOpen: Boolean);
+var nStr: string;
+    nOut: TWorkerBusinessCommand;
+begin
+  if nOpen then
+       nStr := sFlag_Yes
+  else nStr := sFlag_No;
+
+  CallBusinessHardware(cBC_TunnelOC, nTunnel, nStr, @nOut);
+end;
+
+//Date: 2016-01-06
+//Parm: 文本;语音卡;内容
+//Desc: 用nCard播发nContent模式的nText文本.
+function PlayNetVoice(const nText,nCard,nContent: string): Boolean;
+var nStr: string;
+    nOut: TWorkerBusinessCommand;
+begin
+  nStr := 'Card=' + nCard + #13#10 +
+          'Content=' + nContent + #13#10 + 'Truck=' + nText;
+  //xxxxxx
+
+  Result := CallBusinessHardware(cBC_PlayVoice, nStr, '', @nOut);
+  if not Result then
+    WriteLog(nOut.FBase.FErrDesc);
+  //xxxxx
 end;
 
 //------------------------------------------------------------------------------

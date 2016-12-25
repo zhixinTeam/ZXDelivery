@@ -115,7 +115,6 @@ type
     //子类继承
     property PoundTunnel: PPTTunnelItem read FPoundTunnel write SetTunnel;
     //属性相关
-    property Additional: TStrings read FListA write FListA;
   end;
 
 implementation
@@ -216,10 +215,13 @@ begin
 
   Timer2.Tag := 0;
   Timer2.Enabled := False;
-  {$IFDEF HR1847}
-  gKRMgrProber.TunnelOC(FPoundTunnel.FID,False);
-  {$ELSE}
-  gProberManager.TunnelOC(FPoundTunnel.FID,False);
+
+  {$IFNDEF MITTruckProber}
+    {$IFDEF HR1847}
+    gKRMgrProber.TunnelOC(FPoundTunnel.FID,False);
+    {$ELSE}
+    gProberManager.TunnelOC(FPoundTunnel.FID,False);
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -755,10 +757,15 @@ begin
   AddSample(nValue);
   if not IsValidSamaple then Exit;
   //样本验证不通过
-  {$IFDEF HR1847}
-  if not gKRMgrProber.IsTunnelOK(FPoundTunnel.FID) then
+
+  {$IFDEF MITTruckProber}
+    if not IsTunnelOK(FPoundTunnel.FID) then
   {$ELSE}
-  if not gProberManager.IsTunnelOK(FPoundTunnel.FID) then
+    {$IFDEF HR1847}
+    if not gKRMgrProber.IsTunnelOK(FPoundTunnel.FID) then
+    {$ELSE}
+    if not gProberManager.IsTunnelOK(FPoundTunnel.FID) then
+    {$ENDIF}
   {$ENDIF}
   begin
     PlayVoice('车辆未停到位,请移动车辆.');
@@ -789,12 +796,17 @@ begin
     //播放语音
       
     Timer2.Enabled := True;
-    {$IFDEF HR1847}
-    gKRMgrProber.TunnelOC(FPoundTunnel.FID, True);
+
+    {$IFDEF MITTruckProber}
+        TunnelOC(FPoundTunnel.FID, True);
     {$ELSE}
-    gProberManager.TunnelOC(FPoundTunnel.FID, True);
-    {$ENDIF}
-    //开红绿灯
+      {$IFDEF HR1847}
+      gKRMgrProber.TunnelOC(FPoundTunnel.FID, True);
+      {$ELSE}
+      gProberManager.TunnelOC(FPoundTunnel.FID, True);
+      {$ENDIF}
+    {$ENDIF} //开红绿灯
+    
     gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
     //关闭表头
     SetUIData(True);
@@ -854,7 +866,8 @@ end;
 
 procedure TfFrameAutoPoundItem.PlayVoice(const nStrtext: string);
 begin
-  if UpperCase(Additional.Values['Voice'])='NET' then
+  if (Assigned(FPoundTunnel.FOptions)) and
+     (CompareText('NET', FPoundTunnel.FOptions.Values['Voice']) = 0) then
        gNetVoiceHelper.PlayVoice(nStrtext, FPoundTunnel.FID, 'pound')
   else gVoiceHelper.PlayVoice(nStrtext);
 end;

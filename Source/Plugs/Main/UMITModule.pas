@@ -11,7 +11,7 @@ interface
 
 uses
   Windows, Forms, Classes, SysUtils, ULibFun, UBusinessWorker, UBusinessPacker,
-  UTaskMonitor, USysShareMem, USysLoger, UMITConst, UMITPacker,
+  UTaskMonitor, UBaseObject, USysShareMem, USysLoger, UMITConst, UMITPacker,
   {$IFDEF HardMon}UEventHardware, UWorkerHardware,{$ENDIF} UWorkerBusiness,
   {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF} UMemDataPool,
   UMgrDBConn, UMgrParam, UMgrPlug, UMgrChannel, UChannelChooser, USAPConnection;
@@ -143,6 +143,9 @@ var nParam: TPlugRunParameter;
 begin
   gSysLoger := TSysLoger.Create(gPath + sLogDir, sLogSyncLock);
   //日志管理器
+  gCommonObjectManager := TCommonObjectManager.Create;
+  //通用对象状态管理
+
   gTaskMonitor := TTaskMonitor.Create;
   //任务监控器
   gMemDataManager := TMemDataManager.Create;

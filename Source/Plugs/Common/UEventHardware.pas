@@ -192,6 +192,9 @@ begin
   //led display
   gDisplayManager.StartDisplay;
   //small led
+
+  gProberManager.StartProber;
+  //truck
 end;
 
 procedure THardwareWorker.AfterStopServer;
@@ -233,6 +236,9 @@ begin
   //small led
   gCardManager.StopSender;
   //led
+
+  gProberManager.StopProber;
+  //truck
 
   gTruckQueueManager.StopQueue;
   //queue
