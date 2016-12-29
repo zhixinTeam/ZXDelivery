@@ -224,9 +224,12 @@ ResourceString
   sFlag_WeiXin        = 'Bus_WeiXin';                //微信映射编号
   sFlag_HYDan         = 'Bus_HYDan';                 //化验单号
   sFlag_ForceHint     = 'Bus_HintMsg';               //强制提示
-  sFlag_Order         = 'Bus_Order';              //采购单号
+  sFlag_Order         = 'Bus_Order';                 //采购单号
   sFlag_OrderDtl      = 'Bus_OrderDtl';              //采购单号
   sFlag_OrderBase     = 'Bus_OrderBase';             //采购申请单号
+
+  sFlag_LSStock       = 'ls-sn-00';                  //零售水泥编号(预开)
+  sFlag_LSCustomer    = 'ls-kh-00';                  //零售客户编号(预开)
 
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
