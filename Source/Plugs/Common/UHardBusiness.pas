@@ -10,7 +10,8 @@ interface
 uses
   Windows, Classes, Controls, SysUtils, UMgrDBConn, UMgrParam, DB,
   UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue,
-  UMgrHardHelper, U02NReader, UMgrERelay, UMultiJS, UMgrRemotePrint,
+  {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint,
   UMgrLEDDisp, UMgrRFID102, UBlueReader;
 
 procedure WhenReaderCardArrived(const nReader: THHReaderItem);

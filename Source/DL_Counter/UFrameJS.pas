@@ -4,14 +4,16 @@
 *******************************************************************************}
 unit UFrameJS;
 
+{$I Link.inc} 
 {$I js_inc.inc}
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UMultiJS, ULibFun, USysConst, UFormWait, UFormInputbox, cxLookAndFeels,
-  cxLookAndFeelPainters, cxContainer, cxEdit, StdCtrls, ExtCtrls, cxLabel,
-  cxGraphics, cxControls;
+  {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  UMgrCodePrinter, ULibFun, USysConst, UFormWait, UFormInputbox,
+  cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, StdCtrls,
+  ExtCtrls, cxLabel, cxGraphics, cxControls;
 
 type
   TfFrameCounter = class(TFrame)
@@ -24,6 +26,7 @@ type
     EditTon: TLabeledEdit;
     Timer1: TTimer;
     BtnPause: TButton;
+    EditCode: TLabeledEdit;
     procedure BtnClearClick(Sender: TObject);
     procedure BtnStartClick(Sender: TObject);
     procedure EditTonChange(Sender: TObject);
@@ -55,7 +58,12 @@ implementation
 constructor TfFrameCounter.Create(AOwner: TComponent);
 begin
   inherited;
-  BtnPause.Enabled := False;
+  BtnPause.Enabled := True;
+  {$IFDEF USE_MIT}
+  EditTruck.ReadOnly := True;
+  {$ELSE}
+  EditTruck.ReadOnly := False;
+  {$ENDIF}
 end;
 
 procedure TfFrameCounter.SaveCountResult(const nProcess: Boolean);
@@ -85,24 +93,27 @@ begin
       {$IFDEF USE_MIT}
       StopJS(FTunnel.FID);
       {$ELSE}
-      gMultiJSManager.DelJS(FTunnel.FID);
+      if not gMultiJSManager.DelJS(FTunnel.FID) then Exit;
       if not BtnStart.Enabled then
         SaveCountResult(True);
       //正常计数
       {$ENDIF}
+
+      FBill := '' ;
+      LabelHint.Caption := '0';
+
+      EditTruck.Text := '';
+      EditDai.Text := '';
+      EditTon.Text := '';
+      EditCode.Text:= '';
+        
+      EditDai.Enabled := True;
+      EditTon.Enabled := True;
+      BtnStart.Enabled := True;
+      BtnPause.Enabled := True;
     end;
   finally
-    FBill := '' ;
-    LabelHint.Caption := '0';
 
-    EditTruck.Text := '';
-    EditDai.Text := '';
-    EditTon.Text := '';
-        
-    EditDai.Enabled := True;
-    EditTon.Enabled := True;
-    BtnStart.Enabled := True;
-    BtnPause.Enabled := False;
   end;
 end;
 
@@ -129,6 +140,7 @@ begin
   try
     Sleep(1000);
 
+    {$IFDEF USE_MIT}
     if not PrintBillCode(FTunnel.FID, FBill, nHint) then
     begin
       CloseWaitForm;
@@ -137,13 +149,24 @@ begin
       ShowDlg(nHint, sWarn);
       Exit;
     end;
+    {$ELSE}
+    if not gCodePrinterManager.PrintCode(FTunnel.FID, Trim(EditCode.Text), nHint) then
+    begin
+      CloseWaitForm;
+      Application.ProcessMessages;
+
+      ShowDlg(nHint, sWarn);
+      Exit;
+    end;  
+    {$ENDIF}
 
     nInt := StrToInt(EditDai.Text);
     {$IFDEF USE_MIT}
     ShowWaitForm(nil, '连接计数器');
     StartJS(FTunnel.FID, EditTruck.Text, FBill, nInt);
     {$ELSE}
-    gMultiJSManager.AddJS(FTunnel.FID, EditTruck.Text, '', nInt);
+    if not gMultiJSManager.AddJS(FTunnel.FID, EditTruck.Text, '', nInt) then
+      Exit;
     {$ENDIF}
 
     Timer1.Enabled := True;
@@ -208,7 +231,7 @@ begin
   {$ELSE}
   gMultiJSManager.PauseJS(FTunnel.FID);
   {$ENDIF}
-  BtnStart.Enabled := True;
+  //BtnStart.Enabled := True;
 end;
 
 end.

@@ -438,11 +438,11 @@ begin
   FUIData := FInnerData;
   SetUIData(False);
 
-  nInt := SecondsBetween(Now, FUIData.FPData.FDate);
+  nInt := GetTruckLastTime(FUIData.FTruck);
   if (nInt > 0) and (nInt < FPoundTunnel.FCardInterval) then
   begin
-    nStr := '磁卡[ %s ]需等待 %d 秒后才能过磅';
-    nStr := Format(nStr, [nCard, FPoundTunnel.FCardInterval - nInt]);
+    nStr := '车辆[ %s ]需等待 %d 秒后才能过磅';
+    nStr := Format(nStr, [FUIData.FTruck, FPoundTunnel.FCardInterval - nInt]);
 
     WriteLog(nStr);
     //PlayVoice(nStr);
@@ -609,6 +609,17 @@ begin
           if not QueryDlg(nStr, sAsk) then Exit;
         end;
       end;
+
+      if (FType = sFlag_San) and IsStrictSanValue and
+         FloatRelation(FValue, nNet, rtLess, cPrecision) then
+      begin
+        nStr := '车辆[n1]%s[p500]净重[n2]%.2f吨[p500]开票量[n2]%.2f吨,请卸货';
+        nStr := Format(nStr, [FTruck, Float2Float(nNet, cPrecision, True),
+                Float2Float(FValue, cPrecision, True)]);
+        WriteSysLog(nStr);
+        PlayVoice(nStr);
+        Exit;        
+      end;  
     end;
   end;
 
@@ -769,6 +780,7 @@ begin
   {$ENDIF}
   begin
     PlayVoice('车辆未停到位,请移动车辆.');
+    InitSamples;
     Exit;
   end;
 

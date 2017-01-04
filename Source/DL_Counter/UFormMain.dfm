@@ -19,8 +19,8 @@ object fFormMain: TfFormMain
   object wPanel: TScrollBox
     Left = 0
     Top = 37
-    Width = 573
-    Height = 178
+    Width = 565
+    Height = 167
     HorzScrollBar.Smooth = True
     HorzScrollBar.Tracking = True
     VertScrollBar.Smooth = True
@@ -31,15 +31,15 @@ object fFormMain: TfFormMain
   end
   object SBar: TStatusBar
     Left = 0
-    Top = 403
-    Width = 573
+    Top = 392
+    Width = 565
     Height = 19
     Panels = <>
   end
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 573
+    Width = 565
     Height = 37
     AutoSize = True
     ButtonHeight = 35
@@ -54,6 +54,7 @@ object fFormMain: TfFormMain
       Top = 0
       Caption = ' '#27979#35797#26381#21153' '
       ImageIndex = 0
+      Visible = False
     end
     object BtnLog: TToolButton
       Left = 67
@@ -75,6 +76,7 @@ object fFormMain: TfFormMain
       Top = 0
       Caption = #21047#26032#38431#21015
       ImageIndex = 1
+      Visible = False
       OnClick = BtnRefreshClick
     end
     object ToolButton4: TToolButton
@@ -90,13 +92,14 @@ object fFormMain: TfFormMain
       Top = 0
       Caption = #21047#21345#35013#36710
       ImageIndex = 12
+      Visible = False
       OnClick = BtnCardClick
     end
   end
   object cxSplitter1: TcxSplitter
     Left = 0
-    Top = 215
-    Width = 573
+    Top = 204
+    Width = 565
     Height = 8
     HotZoneClassName = 'TcxXPTaskBarStyle'
     AlignSplitter = salBottom
@@ -104,8 +107,8 @@ object fFormMain: TfFormMain
   end
   object dxChart1: TdxOrgChart
     Left = 0
-    Top = 223
-    Width = 573
+    Top = 212
+    Width = 565
     Height = 180
     DefaultNodeWidth = 60
     DefaultNodeHeight = 32
@@ -682,7 +685,7 @@ object fFormMain: TfFormMain
   end
   object Timer1: TTimer
     OnTimer = Timer1Timer
-    Left = 6
+    Left = 8
     Top = 74
   end
 end

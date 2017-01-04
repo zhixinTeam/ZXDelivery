@@ -246,6 +246,11 @@ function PrintBillFYDReport(const nBill: string;  const nAsk: Boolean): Boolean;
 function PrintBillLoadReport(nBill: string; const nAsk: Boolean): Boolean;
 //打印发运单，过路费
 
+function GetTruckLastTime(const nTruck: string): Integer;
+//最后一次过磅时间
+function IsStrictSanValue: Boolean;
+//判断是否严格执行散装禁止超发
+
 implementation
 
 //Desc: 记录日志
@@ -2300,6 +2305,47 @@ begin
   nIsUse    := nP.FParamC;
   Result    := (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK);
 end;
+
+//Date: 2016/8/7
+//Parm: 车牌号
+//Desc: 查看车辆上次过磅时间间隔
+function GetTruckLastTime(const nTruck: string): Integer;
+var nStr: string;
+    nNow, nPDate, nMDate: TDateTime;
+begin
+  Result := -1;
+  //默认允许
+
+  nStr := 'Select Top 1 %s as T_Now,P_PDate,P_MDate ' +
+          'From %s Where P_Truck=''%s'' Order By P_ID Desc';
+  nStr := Format(nStr, [sField_SQLServer_Now, sTable_PoundLog, nTruck]);
+  //选择最后一次过磅
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    nNow   := FieldByName('T_Now').AsDateTime;
+    nPDate := FieldByName('P_PDate').AsDateTime;
+    nMDate := FieldByName('P_MDate').AsDateTime;
+
+    if nPDate > nMDate then
+         Result := Trunc((nNow - nPDate) * 24 * 60 * 60)
+    else Result := Trunc((nNow - nMDate) * 24 * 60 * 60);
+  end;
+end;
+
+function IsStrictSanValue: Boolean;
+var nSQL: string;
+begin
+  Result := False;
+
+  nSQL := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+  nSQL := Format(nSQL, [sTable_SysDict, sFlag_SysParam, sFlag_StrictSanVal]);
+
+  with FDM.QueryTemp(nSQL) do
+  if RecordCount > 0 then
+    Result := Fields[0].AsString = sFlag_Yes;
+end;  
 
 
 end.

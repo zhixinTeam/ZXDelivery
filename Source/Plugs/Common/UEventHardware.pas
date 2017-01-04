@@ -35,7 +35,8 @@ implementation
 uses
   SysUtils, USysLoger, UHardBusiness, UMgrTruckProbe, UMgrParam,
   UMgrQueue, UMgrLEDCard, UMgrHardHelper, UMgrRemotePrint, U02NReader,
-  UMgrERelay, UMultiJS, UMgrRemoteVoice, UMgrCodePrinter, UMgrLEDDisp,
+  {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrLEDDisp,
   UMgrRFID102, UMgrVoiceNet, UBlueReader;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
@@ -69,8 +70,6 @@ begin
     gBlueReader.LoadConfig(nCfg + 'BlueCardReader.XML');
 
     nStr := '近距读头';
-    if not Assigned(g02NReader) then
-      g02NReader := T02NReader.Create;
     g02NReader.LoadConfig(nCfg + 'Readers.xml');
 
     nStr := '计数器';
@@ -142,6 +141,14 @@ procedure THardwareWorker.InitSystemObject;
 begin
   gHardwareHelper := THardwareHelper.Create;
   //远距读头
+
+  if not Assigned(g02NReader) then
+    g02NReader := T02NReader.Create;
+  //近距读头
+
+  if not Assigned(gMultiJSManager) then
+    gMultiJSManager := TMultiJSManager.Create;
+  //计数器
 
   gHardShareData := WhenBusinessMITSharedDataIn;
   //hard monitor share

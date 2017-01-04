@@ -465,17 +465,44 @@ begin
 
     for nIdx:=0 to FListB.Count - 1 do
     begin
-      FListC.Values['Group'] :=sFlag_BusGroup;
-      FListC.Values['Object'] := sFlag_BillNo;
-      //to get serial no
+      if Length(FListA.Values['Card']) > 0 then
+      begin      //厂内销售业务，自带交货单号
+        nSQL := 'Select L_ID From %s Where L_Card = ''%s'' And L_OutFact Is NULL';
+        nSQL := Format(nSQL, [sTable_Bill, FListA.Values['Card']]);
+        with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+        begin
+          if RecordCount < 1 then
+          begin
+            nData := '无法找到磁卡[ %s ]对应厂内业务单号.';
+            nData := Format(nData, [FListA.Values['Card']]);
+            Exit;
+          end;
 
-      if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
-            FListC.Text, sFlag_Yes, @nOut) then
-        raise Exception.Create(nOut.FData);
-      //xxxxx
+          if RecordCount > 1 then
+          begin
+            nData := '厂内销售业务禁止拼单.';
+            Exit;
+          end;
+
+          nOut.FData := Fields[0].AsString;
+        end;
+
+      end else   //其他业务，获取交货单号
+
+      begin
+        FListC.Values['Group'] :=sFlag_BusGroup;
+        FListC.Values['Object'] := sFlag_BillNo;
+        //to get serial no
+
+        if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+              FListC.Text, sFlag_Yes, @nOut) then
+          raise Exception.Create(nOut.FData);
+        //xxxxx
+      end;
 
       FOut.FData := FOut.FData + nOut.FData + ',';
       //combine bill
+
       FListC.Text := PackerDecodeStr(FListB[nIdx]);
       //get bill info
 
@@ -502,14 +529,47 @@ begin
 
               SF('L_ZKMoney', nFixMoney),
               SF('L_Truck', FListA.Values['Truck']),
-              SF('L_Status', sFlag_BillNew),
               SF('L_Lading', FListA.Values['Lading']),
               SF('L_IsVIP', FListA.Values['IsVIP']),
               SF('L_Seal', FListA.Values['Seal']),
               SF('L_Man', FIn.FBase.FFrom.FUser),
               SF('L_Date', sField_SQLServer_Now, sfVal)
-              ], sTable_Bill, '', True);
+              ], sTable_Bill,SF('L_ID', nOut.FData),FListA.Values['Card']='');
       gDBConnManager.WorkerExec(FDBConn, nStr);
+      //根据卡号新增或者更新信息
+
+      nStr := MakeSQLByStr([
+                SF('P_Truck', FListA.Values['Truck']),
+                SF('P_CusID', FListA.Values['CusID']),
+                SF('P_CusName', FListA.Values['CusName']),
+                SF('P_MID', FListC.Values['StockNO']),
+                SF('P_MName', FListC.Values['StockName']),
+                SF('P_MType', FListC.Values['Type']),
+                SF('P_LimValue', FListC.Values['Value'], sfVal)
+                ], sTable_PoundLog, SF('P_Bill', nOut.FData), False);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+      //更新磅单基本信息
+
+      if FListA.Values['Card'] = '' then
+      begin
+        nStr := MakeSQLByStr([
+                SF('L_Status', sFlag_TruckNone)
+                ], sTable_Bill, SF('L_ID', nOut.FData), False);
+        gDBConnManager.WorkerExec(FDBConn, nStr);
+        //新生成交货单状态为未知
+
+        if FListC.Values['IsPlan'] = sFlag_Yes then
+        begin
+          nStr := MakeSQLByStr([
+                  SF('S_InterID', FListC.Values['InterID']),
+                  SF('S_EntryID', FListC.Values['EntryID']),
+                  SF('S_Truck', FListA.Values['Truck']),
+                  SF('S_Date', sField_SQLServer_Now, sfVal)
+                  ], sTable_K3_SalePlan, '', True);
+          gDBConnManager.WorkerExec(FDBConn, nStr);
+        end;
+        //保存已使用的销售计划
+      end;  
 
       if FListA.Values['BuDan'] = sFlag_Yes then //补单
       begin

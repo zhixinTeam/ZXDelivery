@@ -2,7 +2,7 @@ object fFrameCounter: TfFrameCounter
   Left = 0
   Top = 0
   Width = 284
-  Height = 287
+  Height = 353
   Font.Charset = GB2312_CHARSET
   Font.Color = clWindowText
   Font.Height = -24
@@ -15,7 +15,7 @@ object fFrameCounter: TfFrameCounter
     Left = 10
     Top = 10
     Width = 265
-    Height = 265
+    Height = 335
     Caption = #35013#36710'1'#36947
     TabOrder = 0
     object LabelHint: TcxLabel
@@ -75,7 +75,7 @@ object fFrameCounter: TfFrameCounter
     end
     object BtnStart: TButton
       Left = 10
-      Top = 212
+      Top = 284
       Width = 85
       Height = 42
       Caption = #21551#21160
@@ -90,7 +90,7 @@ object fFrameCounter: TfFrameCounter
     end
     object BtnClear: TButton
       Left = 170
-      Top = 212
+      Top = 284
       Width = 85
       Height = 42
       Caption = #28165#38646
@@ -124,7 +124,7 @@ object fFrameCounter: TfFrameCounter
     end
     object BtnPause: TButton
       Left = 102
-      Top = 212
+      Top = 284
       Width = 60
       Height = 42
       Caption = #26242#20572
@@ -136,6 +136,23 @@ object fFrameCounter: TfFrameCounter
       ParentFont = False
       TabOrder = 6
       OnClick = BtnPauseClick
+    end
+    object EditCode: TLabeledEdit
+      Left = 10
+      Top = 228
+      Width = 245
+      Height = 37
+      EditLabel.Width = 60
+      EditLabel.Height = 24
+      EditLabel.Caption = #21943#30721':'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -29
+      Font.Name = #23435#20307
+      Font.Style = []
+      MaxLength = 200
+      ParentFont = False
+      TabOrder = 7
     end
   end
   object Timer1: TTimer

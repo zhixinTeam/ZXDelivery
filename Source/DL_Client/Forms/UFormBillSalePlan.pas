@@ -274,6 +274,7 @@ begin
   if EditCard.Text <> '' then
   begin
     FParam.FParamB := EditCard.Text;
+    FParam.FParamD := EditTruck.Text;
     FParam.FParamC := 0;
   end else
   begin

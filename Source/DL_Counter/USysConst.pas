@@ -8,7 +8,9 @@ interface
 
 uses
   Windows, Classes, SysUtils, UBusinessPacker, UBusinessWorker, UBusinessConst,
-  UClientWorker, UMITPacker, UWaitItem, ULibFun, UMultiJS, USysDB, USysLoger;
+  {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  UClientWorker, UMITPacker, UWaitItem, ULibFun, 
+  USysDB, USysLoger;
 
 type
   TSysParam = record

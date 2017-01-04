@@ -134,6 +134,7 @@ inherited fFormBill: TfFormBill
       Top = 157
       ParentFont = False
       Properties.MaxLength = 100
+      Properties.OnEditValueChanged = EditFQPropertiesEditValueChanged
       TabOrder = 13
       Width = 120
     end

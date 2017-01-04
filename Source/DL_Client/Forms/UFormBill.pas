@@ -51,6 +51,7 @@ type
     procedure BtnDelClick(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
     procedure EditLadingKeyPress(Sender: TObject; var Key: Char);
+    procedure EditFQPropertiesEditValueChanged(Sender: TObject);
   protected
     { Protected declarations }
     FBuDanFlag: string;
@@ -84,6 +85,7 @@ type
     FPriceChanged: Boolean;
 
     FCard: string;
+    FTruck: string;
     FPlan: PSalePlanItem;
   end;
 
@@ -123,7 +125,8 @@ begin
 
     CreateBaseFormItem(cFI_FormGetZhika, nPopedom, nP);
     if (nP.FCommand <> cCmd_ModalResult) or (nP.FParamA <> mrOK) then Exit;
-    
+
+    gInfo.FCard  := '';
     gInfo.FZhiKa := nP.FParamB;
     gInfo.FCusID := nP.FParamC;
 
@@ -136,6 +139,7 @@ begin
       with gInfo do
       begin
         FCard := nP.FParamB;
+        FTruck:= nP.FParamD;
         FPlan := Pointer(Integer(nP.FParamC));
       end;
     end;
@@ -346,6 +350,12 @@ begin
     EditValue.Text := FloatToStr(gInfo.FPlan.FValue);
     ActiveControl := BtnAdd;
   end else
+
+  if Length(gInfo.FCard) > 0  then //零售刷卡
+  begin
+    EditTruck.Text := gInfo.FTruck;
+    ActiveControl  := EditValue;
+  end else
   begin
     ActiveControl := EditTruck;
   end;
@@ -393,6 +403,7 @@ end;
 //Dessc: 选择品种
 procedure TfFormBill.EditStockPropertiesChange(Sender: TObject);
 var nInt: Int64;
+    nIni: TIniFile;
 begin
   dxGroup2.Caption := '提单明细';
   if EditStock.ItemIndex < 0 then Exit;
@@ -407,6 +418,14 @@ begin
       dxGroup2.Caption := Format('提单明细 单价:%.2f元/吨', [FPrice]);
     //xxxxx
   end;
+
+  nIni := TIniFile.Create(gPath + sFormConfig);
+  try
+    EditFQ.Text := nIni.ReadString('EditFQ', GetCtrlData(EditStock), '');
+  finally
+    nIni.Free;
+  end;
+  //读取对应品种的封签号
 end;
 
 function TfFormBill.OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean;
@@ -557,6 +576,13 @@ begin
            Values['PrintGLF'] := sFlag_No
       else Values['PrintGLF'] := sFlag_Yes;
 
+      if Integer(gInfo.FPlan) > 0 then
+      begin
+        Values['IsPlan'] := sFlag_Yes;
+        Values['InterID']:= gInfo.FPlan.FInterID;
+        Values['EntryID']:= gInfo.FPlan.FEntryID;
+      end else Values['IsPlan'] := sFlag_No;
+
       nList.Add(PackerEncodeStr(nTmp.Text));
       //new bill
 
@@ -574,6 +600,7 @@ begin
       Values['IsVIP'] := GetCtrlData(EditType);
       Values['Seal'] := EditFQ.Text;
       Values['BuDan'] := FBuDanFlag;
+      Values['Card'] := gInfo.FCard;
     end;
 
     gInfo.FIDList := SaveBill(PackerEncodeStr(nList.Text));
@@ -585,7 +612,7 @@ begin
     nStocks.Free;
   end;
 
-  if FBuDanFlag <> sFlag_Yes then
+  if (FBuDanFlag <> sFlag_Yes) and (gInfo.FCard <> '') then
     SetBillCard(gInfo.FIDList, EditTruck.Text, True);
   //办理磁卡
 
@@ -595,6 +622,19 @@ begin
   
   ModalResult := mrOk;
   ShowMsg('提货单保存成功', sHint);
+end;
+
+procedure TfFormBill.EditFQPropertiesEditValueChanged(Sender: TObject);
+var nIni: TIniFile;
+begin
+  inherited;
+  nIni := TIniFile.Create(gPath + sFormConfig);
+  try
+    nIni.WriteString('EditFQ', GetCtrlData(EditStock), EditFQ.Text);
+  finally
+    nIni.Free;
+  end;
+  //保存封签号
 end;
 
 initialization

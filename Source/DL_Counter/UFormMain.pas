@@ -10,9 +10,10 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UMultiJS, USysConst, UFrameJS, cxGraphics, cxControls, cxLookAndFeels,
+  {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  USysConst, UFrameJS, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, Menus, ImgList, dxorgchr, cxSplitter, ComCtrls,
-  ToolWin, ExtCtrls;
+  ToolWin, ExtCtrls, UMemDataPool;
 
 type
   TfFormMain = class(TForm)
@@ -90,7 +91,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, ULibFun, UMgrChannel, UFormLog, UFormWait, UFormCard,
-  USysLoger, USysMAC, USysDB;
+  USysLoger, USysMAC, USysDB, UMgrCodePrinter;
 
 procedure TfFormMain.FormCreate(Sender: TObject);
 var nInt: Integer;
@@ -98,7 +99,11 @@ var nInt: Integer;
 begin
   gPath := ExtractFilePath(Application.ExeName);
   InitGlobalVariant(gPath, gPath + sConfigFile, gPath + sFormConfig);
-             
+
+  gMemDataManager := TMemDataManager.Create;  
+  gMultiJSManager := TMultiJSManager.Create;
+  //初始化计数器
+
   nIni := TIniFile.Create(gPath + sConfigFile);
   try
     gChannelManager := TChannelManager.Create;
@@ -112,6 +117,12 @@ begin
     if nInt < 100 then
       nInt := 100;
     dxChart1.Height := nInt;
+
+    {$IFDEF USE_MIT}
+    //ToolBar1.Visible := True;
+    BtnRefresh.Visible := True;
+    BtnCard.Visible := True;
+    {$ENDIF}
   finally
     nIni.Free;
   end;
@@ -174,6 +185,9 @@ procedure TfFormMain.InitFormData;
 begin
   gSysLoger := TSysLoger.Create(gPath + 'Logs\');
   gMultiJSManager.LoadFile(gPath + 'JSQ.xml');
+
+  if FileExists(gPath + 'CodePrinter.xml') then
+    gCodePrinterManager.LoadConfig(gPath + 'CodePrinter.xml');
 
   LoadTunnelPanels;
   ResetPanelPosition;

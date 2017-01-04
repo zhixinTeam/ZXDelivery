@@ -866,6 +866,17 @@ begin
           if not QueryDlg(nStr, sAsk) then Exit;
         end;  
       end;
+
+      if (FType = sFlag_San) and IsStrictSanValue and
+         FloatRelation(FValue, nNet, rtLess, cPrecision) then
+      begin
+        nStr := '车辆[n1]%s[p500]净重[n2]%.2f吨[p500]开票量[n2]%.2f吨,请卸货';
+        nStr := Format(nStr, [FTruck, Float2Float(nNet, cPrecision, True),
+                Float2Float(FValue, cPrecision, True)]);
+                
+        ShowDlg(nStr, sHint);
+        Exit;        
+      end;
     end;
   end;
 

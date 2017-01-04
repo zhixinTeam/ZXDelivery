@@ -113,5 +113,7 @@
   //车检由中间件控制
   {$DEFINE UseK3SalePlan}
   //K3销售计划
+  {$DEFINE MultiReplay}
+  //计数器应答模式
 {$ENDIF}
 
