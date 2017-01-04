@@ -82,6 +82,9 @@ type
     FIDList: string;
     FShowPrice: Boolean;
     FPriceChanged: Boolean;
+
+    FCard: string;
+    FPlan: PSalePlanItem;
   end;
 
   TStockItem = record
@@ -100,7 +103,8 @@ var
 
 class function TfFormBill.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
-var nBool: Boolean;
+var nBool,nBuDan: Boolean;
+    nInfo: TCommonInfo;
     nP: PFormCommandParam;
 begin
   Result := nil;
@@ -113,9 +117,29 @@ begin
   end else nP := nParam;
 
   try
+    nBuDan := nPopedom = 'MAIN_D04';
+    FillChar(nInfo, SizeOf(nInfo), #0);
+    gInfo := nInfo;
+
     CreateBaseFormItem(cFI_FormGetZhika, nPopedom, nP);
     if (nP.FCommand <> cCmd_ModalResult) or (nP.FParamA <> mrOK) then Exit;
+    
     gInfo.FZhiKa := nP.FParamB;
+    gInfo.FCusID := nP.FParamC;
+
+    {$IFDEF YNHT}
+    if not nBuDan then
+    begin
+      CreateBaseFormItem(cFI_Form_HT_SalePlan, nPopedom, nP);
+      if (nP.FCommand <> cCmd_ModalResult) or (nP.FParamA <> mrOK) then Exit;
+
+      with gInfo do
+      begin
+        FCard := nP.FParamB;
+        FPlan := Pointer(Integer(nP.FParamC));
+      end;
+    end;
+    {$ENDIF}
   finally
     if not Assigned(nParam) then Dispose(nP);
   end;
@@ -132,7 +156,7 @@ begin
     nBool := not gPopedomManager.HasPopedom(nPopedom, sPopedom_Edit);
     EditLading.Properties.ReadOnly := nBool;
 
-    if nPopedom = 'MAIN_D04' then //补单
+    if nBuDan then //补单
          FBuDanFlag := sFlag_Yes
     else FBuDanFlag := sFlag_No;
 
@@ -305,11 +329,26 @@ begin
     FDM.ExecuteSQL(nStr);
   end;
 
-  LoadStockList;
-  //load stock into window
-
   EditType.ItemIndex := 0;
-  ActiveControl := EditTruck;
+  LoadStockList;
+  //load stock into window 
+
+  if Integer(gInfo.FPlan) > 0 then //使用销售计划
+  begin
+    EditTruck.Properties.ReadOnly := True;
+    EditTruck.Text := gInfo.FPlan.FTruck;
+
+    EditStock.Properties.ReadOnly := True;
+    nIdx := EditStock.Properties.Items.IndexOf(gInfo.FPlan.FStockName);
+    EditStock.ItemIndex := nIdx;
+
+    EditValue.Properties.ReadOnly := True;
+    EditValue.Text := FloatToStr(gInfo.FPlan.FValue);
+    ActiveControl := BtnAdd;
+  end else
+  begin
+    ActiveControl := EditTruck;
+  end;
 end;
 
 //Desc: 刷新水泥列表到窗体

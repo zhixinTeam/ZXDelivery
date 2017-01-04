@@ -111,5 +111,7 @@
   //打印时显金额
   {$DEFINE MITTruckProber}
   //车检由中间件控制
+  {$DEFINE UseK3SalePlan}
+  //K3销售计划
 {$ENDIF}
 

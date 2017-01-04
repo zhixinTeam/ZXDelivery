@@ -9,8 +9,8 @@ interface
 
 uses
   Windows, Classes, Controls, DB, SysUtils, UBusinessWorker, UBusinessPacker,
-  UBusinessConst, UMgrDBConn, UMgrParam, ZnMD5, ULibFun, UFormCtrl, USysLoger,
-  USysDB, UMITConst;
+  UBusinessConst, UMgrDBConn, UMgrParam, ZnMD5, ULibFun, UFormCtrl, UBase64,
+  USysLoger, USysDB, UMITConst;
 
 type
   TBusWorkerQueryField = class(TBusinessWorkerBase)
@@ -48,12 +48,22 @@ type
     //记录日志
   end;
 
+  TK3SalePalnItem = record
+    FInterID: string;       //主表编号
+    FEntryID: string;       //附表编号
+    FTruck: string;         //车牌号
+  end;
+
   TWorkerBusinessCommander = class(TMITDBWorker)
   private
     FListA,FListB,FListC: TStrings;
     //list
     FIn: TWorkerBusinessCommand;
     FOut: TWorkerBusinessCommand;
+    {$IFDEF UseK3SalePlan}
+    FSalePlans: array of TK3SalePalnItem;
+    //k3销售计划
+    {$ENDIF}
   protected
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
     function DoDBWork(var nData: string): Boolean; override;
@@ -93,6 +103,11 @@ type
     //同步交货单到K3系统
     function IsStockValid(var nData: string): Boolean;
     //验证物料是否允许发货
+    {$ENDIF}
+    {$IFDEF UseK3SalePlan}
+    function IsSalePlanUsed(const nInter,nEntry,nTruck: string): Boolean;
+    function GetSalePlan(var nData: string): Boolean;
+    //读取销售计划
     {$ENDIF}
   public
     constructor Create; override;
@@ -338,6 +353,10 @@ begin
    cBC_CheckStockValid     : Result := IsStockValid(nData);
 
    cBC_SyncStockOrder      : Result := SyncRemoteStockOrder(nData);
+   {$ENDIF}
+
+   {$IFDEF UseK3SalePlan}
+   cBC_LoadSalePlan        : Result := GetSalePlan(nData);
    {$ENDIF}
    else
     begin
@@ -1798,6 +1817,150 @@ begin
     gDBConnManager.ReleaseConnection(nK3Worker);
   end;
 end;   
+{$ENDIF}
+
+{$IFDEF UseK3SalePlan}
+//Desc: 计划已使用
+function TWorkerBusinessCommander.IsSalePlanUsed(const nInter, nEntry,
+  nTruck: string): Boolean;
+var nIdx: Integer;
+begin
+  Result := False;
+  for nIdx:=Low(FSalePlans) to High(FSalePlans) do
+   with FSalePlans[nIdx] do
+    if (FInterID=nInter) and (FEntryID=nEntry) and (FTruck=nTruck) then
+    begin
+      Result := True;
+      Exit;
+    end;
+  //xxxxx
+end;
+
+//Date: 2017-01-03
+//Parm: 客户编号[FIn.FData]
+//Desc: 读取客户的销售计划
+function TWorkerBusinessCommander.GetSalePlan(var nData: string): Boolean;
+var nIdx: Integer;
+    nStr: string;
+    nWorker: PDBWorker;
+begin
+  Result := False;
+  nStr := 'select e.FInterID,e.FEntryID,i.FItemID as StockID,' +
+          'i.FName as StockName,org.FItemID CusID,org.FName as CusName,' +
+          'e.FQty as StockValue,e.FNote as Truck from SEOrderEntry e ' +
+          '  left join SEOrder o on o.fInterID=e.fInterID' +
+          '  left join t_Organization org on org.FItemID=o.FcustID' +
+          '  left join t_ICItem i on i.FItemID=e.FItemID ' +
+          'WHERE e.FDate>=%s-3 and o.FcustID=''%s''';
+  nStr := Format(nStr, [sField_SQLServer_Now, FIn.FData]);
+
+  nWorker := nil;
+  try
+    with gDBConnManager.SQLQuery(nStr, nWorker, sFlag_DB_K3) do
+    begin
+      if RecordCount < 1 then
+      begin
+        nData := '未找到该客户的销售计划';
+        Exit;
+      end;
+
+      SetLength(FSalePlans, 0);
+      FListC.Clear;
+      First;
+
+      while not Eof do
+      begin
+        FListC.Add(FieldByName('FInterID').AsString);
+        Next;
+      end;
+
+      nStr := 'Delete From %s Where S_Date<%s-3';
+      nStr := Format(nStr, [sTable_K3_SalePlan, sField_SQLServer_Now]);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr := 'Select * From %s Where S_InterID in (%s)';
+      nStr := Format(nStr, [sTable_K3_SalePlan, CombinStr(FListC, ',', False)]);
+
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      if RecordCount > 0 then
+      begin
+        SetLength(FSalePlans, RecordCount);
+        nIdx := 0;
+        First;
+
+        while not Eof do
+        begin
+          with FSalePlans[nIdx] do
+          begin
+            FInterID := FieldByName('FInterID').AsString;
+            FEntryID := FieldByName('FEntryID').AsString;
+            FTruck := FieldByName('S_Truck').AsString;
+          end;
+
+          Inc(nIdx);
+          Next;
+        end;
+      end;
+
+      //------------------------------------------------------------------------
+      FListA.Clear;
+      FListB.Clear;
+      First;
+
+      while not Eof do
+      try
+        nStr := Trim(FieldByName('Truck').AsString);
+        if nStr = '' then Continue;
+        SplitStr(nStr, FListC, 0, ' ');
+
+        for nIdx:=FListC.Count-1 downto 0 do
+         if Trim(FListC[nIdx]) = '' then FListC.Delete(nIdx);
+        //xxxxx
+
+        if FListC.Count < 2 then Continue;
+        if FListC.Count mod 2 <> 0 then Continue;
+        //格式: 车牌 吨 车牌 吨
+
+        nIdx:=0;
+        while nIdx< FListC.Count do
+        with FListB do
+        begin
+          if IsSalePlanUsed(FieldByName('FInterID').AsString,
+             FieldByName('FEntryID').AsString, FListC[nIdx]) then
+          begin
+            Inc(nIdx, 2);
+            Continue;
+          end;
+
+          Values['inter'] := FieldByName('FInterID').AsString;
+          Values['entry'] := FieldByName('FEntryID').AsString;
+
+          Values['id'] := FieldByName('StockID').AsString;
+          Values['name'] := FieldByName('StockName').AsString;
+          Values['truck'] := FListC[nIdx];
+          Inc(nIdx);
+          
+          if IsNumber(FListC[nIdx], True) then
+               Values['value'] := FListC[nIdx]
+          else Values['value'] := '0';
+          Inc(nIdx);
+
+          FListA.Add(EncodeBase64(FListB.Text));
+          //new item
+        end;
+      finally
+        Next;
+      end;
+
+      Result := FListA.Count > 0;
+      if Result then
+           FOut.FData := EncodeBase64(FListA.Text)
+      else nData := '找到销售计划,但车辆信息无效,有效格式: 车牌 吨 车牌 吨.';
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nWorker);
+  end;
+end;
 {$ENDIF}
 
 initialization

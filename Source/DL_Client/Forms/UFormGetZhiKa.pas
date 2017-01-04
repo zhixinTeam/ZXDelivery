@@ -279,6 +279,7 @@ begin
   end;
 
   gParam.FParamB := GetCtrlData(EditZK);
+  gParam.FParamC := GetCtrlData(EditName);
   ModalResult := mrOk;
 end;
 

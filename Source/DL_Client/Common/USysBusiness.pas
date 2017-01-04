@@ -9,7 +9,7 @@ interface
 uses
   Windows, DB, Classes, Controls, SysUtils, UBusinessPacker, UBusinessWorker,
   UBusinessConst, ULibFun, UAdjustForm, UFormCtrl, UDataModule, UDataReport,
-  UFormBase, cxMCListBox, UMgrPoundTunnels, UMgrCamera, USysConst,
+  UFormBase, cxMCListBox, UMgrPoundTunnels, UMgrCamera, UBase64, USysConst,
   USysDB, USysLoger;
 
 type
@@ -47,6 +47,19 @@ type
 
   TZTLineItems = array of TZTLineItem;
   TZTTruckItems = array of TZTTruckItem;
+
+  PSalePlanItem = ^TSalePlanItem;
+  TSalePlanItem = record
+    FInterID: string;        //主表编号
+    FEntryID: string;        //附表编号
+    FStockID: string;        //物料编号
+    FStockName: string;      //物料名称
+
+    FTruck: string;          //车牌号码
+    FValue: Double;          //开单量
+    FSelected: Boolean;      //状态
+  end;
+  TSalePlanItems = array of TSalePlanItem;
   
 //------------------------------------------------------------------------------
 function AdjustHintToRead(const nHint: string): string;
@@ -122,6 +135,10 @@ function BillSaleAdjust(const nBill, nNewZK: string): Boolean;
 //交货单调拨
 function SetBillCard(const nBill,nTruck: string; nVerify: Boolean): Boolean;
 //为交货单办理磁卡
+function SaveBillLSCard(const nCard,nTruck: string): Boolean;
+//办理厂内零售磁卡
+function LoadSalePlan(const nCusID: string;var nPlans: TSalePlanItems): Boolean;
+//读取销售计划
 function SaveBillCard(const nBill, nCard: string): Boolean;
 //保存交货单磁卡
 function LogoutBillCard(const nCard: string): Boolean;
@@ -1345,6 +1362,53 @@ begin
   nP.FParamC := sFlag_Sale;
   CreateBaseFormItem(cFI_FormMakeCard, '', @nP);
   Result := (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK);
+end;
+
+//Date: 2016-12-30
+//Parm: 磁卡号;车牌号
+//Desc: 为nTruck办理厂内零售磁卡
+function SaveBillLSCard(const nCard,nTruck: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessSaleBill(cBC_SaveBillLSCard, nCard, nTruck, @nOut);
+end;
+
+//Date: 2017-01-03
+//Parm: 客户编号;计划列表
+//Desc: 读取nCusID的销售计划
+function LoadSalePlan(const nCusID: string;var nPlans: TSalePlanItems): Boolean;
+var nIdx: Integer;
+    nListA,nListB: TStrings;
+    nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessCommand(cBC_LoadSalePlan, nCusID, '', @nOut);
+  if not Result then Exit;
+
+  nListA := TStringList.Create;
+  nListB := TStringList.Create;
+  try
+    nListA.Text := DecodeBase64(nOut.FData);
+    SetLength(nPlans, nListA.Count);
+
+    for nIdx:=0 to nListA.Count-1 do
+    begin
+      nListB.Text := DecodeBase64(nListA[nIdx]);
+      with nPlans[nIdx] do
+      begin
+        FSelected := False;
+        FInterID := nListB.Values['inter'];
+        FEntryID := nListB.Values['entry'];
+        
+        FStockID := nListB.Values['id'];
+        FStockName := nListB.Values['name'];
+        FTruck := nListB.Values['truck'];
+        FValue := StrToFloat(nListB.Values['value']);
+      end;
+    end;
+  finally
+    nListA.Free;
+    nListB.Free;
+  end;   
 end;
 
 //Date: 2014-09-17

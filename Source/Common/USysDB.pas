@@ -300,6 +300,7 @@ ResourceString
 
   sTable_K3_SyncItem  = 'DL_SyncItem';               //数据同步项
   sTable_K3_Customer  = 'T_Organization';            //组织结构(客户)
+  sTable_K3_SalePlan  = 'S_K3_SalePlan';             //销售计划
 
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
@@ -1249,6 +1250,17 @@ ResourceString
    *.H_Reporter:报告人
   -----------------------------------------------------------------------------}
 
+  sSQL_NewK3SalePlan = 'Create Table $Table(R_ID $Inc, S_InterID Integer,' +
+       'S_EntryID Integer, S_Truck varChar(15), S_Date DateTime)';
+  {-----------------------------------------------------------------------------
+   销售计划:SalePlan
+   *.R_ID:记录编号
+   *.S_InterID:主表号
+   *.S_EntryID:附表号
+   *.S_Truck:车牌号
+   *.S_Date: 使用时间
+  -----------------------------------------------------------------------------}
+
 //------------------------------------------------------------------------------
 // 数据查询
 //------------------------------------------------------------------------------
@@ -1395,6 +1407,8 @@ begin
   AddSysTableItem(sTable_OrderDtlBak, sSQL_NewOrderDtl);
   AddSysTableItem(sTable_OrderBase, sSQL_NewOrderBase);
   AddSysTableItem(sTable_OrderBaseBak, sSQL_NewOrderBase);
+
+  AddSysTableItem(sTable_K3_SalePlan, sSQL_NewK3SalePlan);
 end;
 
 //Desc: 清理系统表

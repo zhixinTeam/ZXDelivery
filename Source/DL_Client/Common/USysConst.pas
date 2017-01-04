@@ -160,6 +160,8 @@ const
   cFI_FormWXAccount     = $1091;                     //微信账户
   cFI_FormWXSendlog     = $1092;                     //微信日志
 
+  cFI_Form_HT_SalePlan  = $1100;                     //销售计划(红塔)
+
   {*Command*}
   cCmd_RefreshData      = $0002;                     //刷新数据
   cCmd_ViewSysLog       = $0003;                     //系统日志

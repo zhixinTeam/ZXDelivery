@@ -28,6 +28,7 @@ uses
   UFramePoundManual, UFramePoundAuto, UFramePMaterails, UFormPMaterails,
   UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,
   UFrameZTDispatch, UFrameTrucks, UFormTruck, UFormRFIDCard,
+  UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,

@@ -10,8 +10,8 @@ interface
 uses
   Windows, Classes, Controls, DB, SysUtils, UBusinessWorker, UBusinessPacker,
   {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF}
-  UWorkerBusiness, UBusinessConst, UMgrDBConn, ULibFun, UFormCtrl, USysLoger,
-  USysDB, UMITConst;
+  UWorkerBusiness, UBusinessConst, UMgrDBConn, ULibFun, UFormCtrl, UBase64,
+  USysLoger, USysDB, UMITConst;
 
 type
   TStockMatchItem = record
@@ -44,7 +44,7 @@ type
     FMatchItems: array of TStockMatchItem;
     //分组匹配
     FBillLines: array of TBillLadingLine;
-    //装车线
+    //装车线 
   protected
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
     function DoDBWork(var nData: string): Boolean; override;
@@ -63,6 +63,7 @@ type
     function BillSaleAdjust(var nData: string): Boolean;
     //销售调拨
     function SaveBillCard(var nData: string): Boolean;
+    function SaveBillLSCard(var nData: string): Boolean;
     //绑定磁卡
     function LogoffCard(var nData: string): Boolean;
     //注销磁卡
@@ -138,6 +139,7 @@ begin
    cBC_ModifyBillTruck     : Result := ChangeBillTruck(nData);
    cBC_SaleAdjust          : Result := BillSaleAdjust(nData);
    cBC_SaveBillCard        : Result := SaveBillCard(nData);
+   cBC_SaveBillLSCard      : Result := SaveBillLSCard(nData);
    cBC_LogoffCard          : Result := LogoffCard(nData);
    cBC_GetPostBills        : Result := GetPostBillItems(nData);
    cBC_SavePostBills       : Result := SavePostBillItems(nData);
@@ -1304,6 +1306,74 @@ begin
               ], sTable_Card, nStr, False);
       gDBConnManager.WorkerExec(FDBConn, nStr);
     end;
+
+    FDBConn.FConn.CommitTrans;
+    Result := True;
+  except
+    FDBConn.FConn.RollbackTrans;
+    raise;
+  end;
+end;
+
+//Date: 2016-12-30
+//Parm: 车牌号[FIn.FData];磁卡号[FIn.FExtParam]
+//Desc: 生成车辆的厂内零售提货记录
+function TWorkerBusinessBills.SaveBillLSCard(var nData: string): Boolean;
+var nStr: string;
+    nOut: TWorkerBusinessCommand;
+begin
+  Result := False;
+  nStr := 'Select T_HKBills From %s Where T_Truck=''%s''';
+  nStr := Format(nStr, [sTable_ZTTrucks, FIn.FData]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := '车辆[ %s ]还有单据[ %s ]未完成,不能办理磁卡.';
+    nData := Format(nStr, [FIn.FData, Fields[0].AsString]);
+    Exit;
+  end;
+
+  FListC.Values['Group'] :=sFlag_BusGroup;
+  FListC.Values['Object'] := sFlag_BillNo;
+  //to get serial no
+
+  if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+        FListC.Text, sFlag_Yes, @nOut) then
+    raise Exception.Create(nOut.FData);
+  //xxxxx
+
+  FOut.FData := nOut.FData;
+  //bill no
+
+  FDBConn.FConn.BeginTrans;
+  try
+    nStr := MakeSQLByStr([SF('L_ID', nOut.FData),
+            SF('L_Card', FIn.FExtParam),
+            SF('L_CusID', sFlag_LSCustomer),
+            SF('L_CusName', '零售客户_待定'),
+
+            SF('L_Type', sFlag_San),
+            SF('L_StockNo', sFlag_LSStock),
+            SF('L_StockName', '零售物料_待定'),
+            SF('L_Value', 0, sfVal),
+            SF('L_Price', 0, sfVal),
+
+            SF('L_Truck', FIn.FData),
+            SF('L_Status', sFlag_BillNew),
+            SF('L_Man', FIn.FBase.FFrom.FUser),
+            SF('L_Date', sField_SQLServer_Now, sfVal)
+            ], sTable_Bill, '', True);
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+
+    nStr := Format('C_Card=''%s''', [FIn.FExtParam]);
+    nStr := MakeSQLByStr([SF('C_Status', sFlag_CardUsed),
+            SF('C_Used', sFlag_Sale),
+            SF('C_Freeze', sFlag_No),
+            SF('C_Man', FIn.FBase.FFrom.FUser),
+            SF('C_Date', sField_SQLServer_Now, sfVal)
+            ], sTable_Card, nStr, False);
+    gDBConnManager.WorkerExec(FDBConn, nStr);
 
     FDBConn.FConn.CommitTrans;
     Result := True;

@@ -43,6 +43,8 @@ const
   cBC_SaleAdjust              = $0023;   //销售调拨
   cBC_SaveBillCard            = $0024;   //绑定交货单磁卡
   cBC_LogoffCard              = $0025;   //注销磁卡
+  cBC_SaveBillLSCard          = $0026;   //绑定厂内零售磁卡
+  cBC_LoadSalePlan            = $0027;   //读取销售计划
 
   cBC_SaveOrder               = $0040;
   cBC_DeleteOrder             = $0041;
