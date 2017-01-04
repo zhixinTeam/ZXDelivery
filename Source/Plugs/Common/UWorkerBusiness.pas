@@ -1162,6 +1162,11 @@ begin
             //'(FFullName like ''%%原材料_燃料%%'')';
     //xxxxx
 
+    {$IFDEF YNHT}
+    nStr := nStr + ' Where FDeleted=0 and ' +
+            '(FParentID=''3406'' or FParentID=''3410'')';
+    {$ENDIF}
+
     with gDBConnManager.SQLQuery(nStr, nDBWorker, sFlag_DB_K3) do
     if RecordCount > 0 then
     begin
@@ -1364,7 +1369,44 @@ begin
         nID := FieldByName('FInterID').AsInteger;
       end;
 
-      {$IFDEF JYZL}
+      {$IFDEF YNHT}
+        nSQL := MakeSQLByStr([
+          SF('Frob', 1, sfVal),
+          SF('Fbrno', 0, sfVal),
+          SF('Fbrid', 0, sfVal),
+
+          SF('Fpoordbillno', ''),
+          SF('Fstatus', 0, sfVal),
+          SF('Fdate', Date2Str(Now)),
+
+          SF('Ftrantype', 21, sfVal),
+          SF('Fdeptid', 186, sfVal),
+          SF('Fconsignee', 0, sfVal),
+
+          SF('Frelatebrid', 0, sfVal),
+          SF('Fmanagetype', 0, sfVal),
+          SF('Fvchinterid', 0, sfVal),
+
+          SF('Fsalestyle', 101, sfVal),
+          SF('Fseltrantype', 0, sfVal),
+          SF('Fsettledate', Date2Str(Now)),
+
+          SF('Fbillerid', 16429, sfVal),
+          SF('Ffmanagerid', 1144, sfVal),
+          SF('Fsmanagerid', 1144, sfVal),
+
+          SF('Fupstockwhensave', 0, sfVal),
+          SF('Fmarketingstyle', 12530, sfVal),
+
+          SF('Fbillno', nBill),
+          SF('Finterid', nID, sfVal),
+
+          SF('Fempid', FieldByName('L_SaleID').AsString, sfVal),
+          SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
+          ], 'ICStockBill', '', True);
+        FListA.Add(nSQL);
+      {$ELSE}
+        {$IFDEF JYZL}
         nSQL := MakeSQLByStr([
           SF('Frob', 1, sfVal),
           SF('Fbrno', 0, sfVal),
@@ -1400,7 +1442,7 @@ begin
           SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
           ], 'ICStockBill', '', True);
         FListA.Add(nSQL);
-      {$ELSE}
+        {$ELSE}
         nSQL := MakeSQLByStr([
           SF('Frob', 1, sfVal),
           SF('Fbrno', 0, sfVal),
@@ -1436,6 +1478,7 @@ begin
           SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
           ], 'ICStockBill', '', True);
         FListA.Add(nSQL);
+        {$ENDIF}
       {$ENDIF}
 
       //------------------------------------------------------------------------
@@ -1443,7 +1486,44 @@ begin
       nMoney := nVal * FieldByName('L_Price').AsFloat;
       nMoney := Float2Float(nMoney, cPrecision, True);
 
-      {$IFDEF JYZL}
+      {$IFDEF YNHT}
+        nStr := FieldByName('L_StockNo').AsString;
+        if nStr = '3396' then  //熟料
+             nStockID := '3213'
+        else nStockID := '3214';
+
+        nSQL := MakeSQLByStr([
+          SF('Fbrno', 0, sfVal),
+          SF('Finterid', nID),
+          SF('Fitemid', FieldByName('L_StockNo').AsString),
+                                              
+          SF('Fentryid', 1, sfVal),
+          SF('Funitid', 64, sfVal),
+          //SF('Fplanmode', 14036, sfVal),
+
+          SF('Fsourceentryid', 1, sfVal),
+          //SF('Fchkpassitem', 1058, sfVal),
+
+          SF('Fseoutbillno', FieldByName('L_ID').AsString),
+          SF('Fseoutinterid', '0', sfVal),
+          SF('Fseoutentryid', '0', sfVal),
+
+          SF('Fsourcebillno', '0'),
+          SF('Fsourcetrantype', 83, sfVal),
+          SF('Fsourceinterid', '0', sfVal),
+
+          SF('Fqty',  nVal, sfVal),
+          SF('Fauxqty', nVal, sfVal),
+          SF('Fqtymust', nVal, sfVal),
+          SF('Fauxqtymust', nVal, sfVal),
+
+          SF('Fconsignprice', FieldByName('L_Price').AsFloat , sfVal),
+          SF('Fconsignamount', nMoney, sfVal),
+          SF('fdcstockid', nStockID, sfVal)
+          ], 'ICStockBillEntry', '', True);
+        FListA.Add(nSQL);
+      {$ELSE}
+        {$IFDEF JYZL}
         nStr := FieldByName('L_StockNo').AsString;
         if nStr = '6053' then  //熟料
              nStockID := '322'
@@ -1479,7 +1559,7 @@ begin
           SF('fdcstockid', nStockID, sfVal)
           ], 'ICStockBillEntry', '', True);
         FListA.Add(nSQL);
-      {$ELSE}
+        {$ELSE}
         nStr := FieldByName('L_StockNo').AsString;
         if (nStr = '444') or (nStr = '1388') then  //熟料
              nStockID := '1731'
@@ -1519,6 +1599,7 @@ begin
           SF('fdcstockid', nStockID, sfVal)
           ], 'ICStockBillEntry', '', True);
         FListA.Add(nSQL);
+        {$ENDIF}
       {$ENDIF}
 
       Next;
@@ -1611,7 +1692,7 @@ begin
         nID := FieldByName('FInterID').AsInteger;
       end;
 
-      {$IFDEF JYZL}
+      {$IFDEF YNHT}
         nSQL := MakeSQLByStr([
           SF('Frob', 1, sfVal),
           SF('Fbrno', 0, sfVal),
@@ -1623,19 +1704,19 @@ begin
           SF('Fbillno', nBill),
           SF('Finterid', nID, sfVal),
 
-          SF('Fdeptid', 0, sfVal),
+          SF('Fdeptid', 191, sfVal),
           SF('FEmpid', 0, sfVal),
           SF('Fsupplyid', FieldByName('O_ProID').AsString, sfVal),
           //SF('FPosterid', FieldByName('O_SaleID').AsString, sfVal),
           //SF('FCheckerid', FieldByName('O_SaleID').AsString, sfVal),
 
 
-          SF('Fbillerid', 16394, sfVal),
-          SF('Ffmanagerid', 1789, sfVal),
-          SF('Fsmanagerid', 1789, sfVal),
+          SF('Fbillerid', 16449, sfVal),
+          SF('Ffmanagerid', 1203, sfVal),
+          SF('Fsmanagerid', 1491, sfVal),
 
           SF('Fstatus', 0, sfVal),
-          SF('Fvchinterid', 9662, sfVal),
+          SF('Fvchinterid', 0, sfVal),
 
           SF('Fconsignee', 0, sfVal),
 
@@ -1647,6 +1728,7 @@ begin
           ], 'ICStockBill', '', True);
         FListA.Add(nSQL);
       {$ELSE}
+        {$IFDEF JYZL}
         nSQL := MakeSQLByStr([
           SF('Frob', 1, sfVal),
           SF('Fbrno', 0, sfVal),
@@ -1681,12 +1763,82 @@ begin
           SF('Fmarketingstyle', 12530, sfVal)
           ], 'ICStockBill', '', True);
         FListA.Add(nSQL);
+        {$ELSE}
+        nSQL := MakeSQLByStr([
+          SF('Frob', 1, sfVal),
+          SF('Fbrno', 0, sfVal),
+          SF('Fbrid', 0, sfVal),
+
+          SF('Ftrantype', 1, sfVal),
+          SF('Fdate', Date2Str(Now)),
+
+          SF('Fbillno', nBill),
+          SF('Finterid', nID, sfVal),
+
+          SF('Fdeptid', 0, sfVal),
+          SF('FEmpid', 0, sfVal),
+          SF('Fsupplyid', FieldByName('O_ProID').AsString, sfVal),
+          //SF('FPosterid', FieldByName('O_SaleID').AsString, sfVal),
+          //SF('FCheckerid', FieldByName('O_SaleID').AsString, sfVal),
+
+
+          SF('Fbillerid', 16394, sfVal),
+          SF('Ffmanagerid', 1789, sfVal),
+          SF('Fsmanagerid', 1789, sfVal),
+
+          SF('Fstatus', 0, sfVal),
+          SF('Fvchinterid', 9662, sfVal),
+
+          SF('Fconsignee', 0, sfVal),
+
+          SF('Frelatebrid', 0, sfVal),
+          SF('Fseltrantype', 0, sfVal),
+
+          SF('Fupstockwhensave', 0, sfVal),
+          SF('Fmarketingstyle', 12530, sfVal)
+          ], 'ICStockBill', '', True);
+        FListA.Add(nSQL);
+        {$ENDIF}
       {$ENDIF}
 
       //------------------------------------------------------------------------
       nVal := FieldByName('D_Value').AsFloat;
 
-      {$IFDEF JYZL}
+      {$IFDEF YNHT}
+        nStockID := FieldByName('O_StockNo').AsString;
+
+        nSQL := MakeSQLByStr([
+          SF('Fbrno', 0, sfVal),
+          SF('Finterid', nID),
+          SF('Fitemid', nStockID),
+
+          SF('Fqty',  nVal, sfVal),
+          SF('Fauxqty', nVal, sfVal),
+          SF('Fqtymust', 0, sfVal),
+          SF('Fauxqtymust', 0, sfVal),
+
+          SF('Fentryid', 1, sfVal),
+          SF('Funitid', 64, sfVal),
+          //SF('Fplanmode', 14036, sfVal),
+
+          SF('Fsourceentryid', 0, sfVal),
+          //SF('Fchkpassitem', 1058, sfVal),
+
+          SF('Fsourcetrantype', 0, sfVal),
+          SF('Fsourceinterid', '0', sfVal),
+
+          SF('finstockid', '0', sfVal),
+          SF('fdcstockid', '3211', sfVal),
+
+          SF('FEntrySelfA0158', FieldByName('D_MValue').AsFloat, sfVal),
+          SF('FEntrySelfA0159', FieldByName('D_PValue').AsFloat, sfVal),
+          SF('FEntrySelfA0160', FieldByName('D_KZValue').AsFloat, sfVal),
+          SF('FEntrySelfA0161', FieldByName('O_Truck').AsString),
+          SF('FEntrySelfA0162', FieldByName('D_ID').AsString)
+          ], 'ICStockBillEntry', '', True);
+        FListA.Add(nSQL);
+      {$ELSE}
+        {$IFDEF JYZL}
         nStockID := FieldByName('O_StockNo').AsString;
 
         nSQL := MakeSQLByStr([
@@ -1752,6 +1904,7 @@ begin
           SF('FEntrySelfA0162', FieldByName('D_ID').AsString)
           ], 'ICStockBillEntry', '', True);
         FListA.Add(nSQL);
+        {$ENDIF}
       {$ENDIF}
 
       Next;
