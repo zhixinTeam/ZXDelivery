@@ -159,6 +159,8 @@ const
   cFI_FormAuthorize     = $1090;                     //安全验证
   cFI_FormWXAccount     = $1091;                     //微信账户
   cFI_FormWXSendlog     = $1092;                     //微信日志
+  cFI_FormTodo          = $1093;                     //需干预事件
+  cFI_FormTodoSend      = $1094;                     //推送事件
 
   cFI_Form_HT_SalePlan  = $1100;                     //销售计划(红塔)
 
@@ -195,10 +197,12 @@ type
     FLocalIP    : string;                            //本机IP
     FLocalMAC   : string;                            //本机MAC
     FLocalName  : string;                            //本机名称
+    FMITServURL : string;                            //业务服务
     FHardMonURL : string;                            //硬件守护
 
     FFactNum    : string;                            //工厂编号
     FSerialID   : string;                            //电脑编号
+    FDepartment : string;                            //所属部门
     FIsManual   : Boolean;                           //手动过磅
     FAutoPound  : Boolean;                           //自动称重
 
@@ -301,6 +305,8 @@ begin
   AddMenuModuleItem('MAIN_A04', cFI_FormRestore, mtForm);
   AddMenuModuleItem('MAIN_A05', cFI_FormChangePwd, mtForm);
   AddMenuModuleItem('MAIN_A07', cFI_FrameAuthorize);
+  AddMenuModuleItem('MAIN_A08', cFI_FormTodo, mtForm);
+  AddMenuModuleItem('MAIN_A09', cFI_FormTodoSend, mtForm);
 
   AddMenuModuleItem('MAIN_B01', cFI_FormBaseInfo, mtForm);
   AddMenuModuleItem('MAIN_B02', cFI_FrameCustomer);

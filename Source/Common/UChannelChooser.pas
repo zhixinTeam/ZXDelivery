@@ -321,7 +321,8 @@ var nStr,nTag: string;
     nIni: TIniFile;
     nIdx,nLen: Integer;
 begin
-  if nFile = '' then Exit;
+  if ExtractFileName(nFile) = '' then
+    Exit;
   nIni := TIniFile.Create(nFile);
 
   with nIni do
@@ -476,6 +477,8 @@ begin
   FLockOuter.Enter;
   try
     Result := FActiveOne;
+    if not Assigned(FRefresher) then Exit;
+    
     if FNumChecker > 0 then Exit;
     if GetTickCount - FLastCheck < 60 * 1000 then Exit;
 
