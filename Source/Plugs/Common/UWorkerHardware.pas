@@ -431,7 +431,7 @@ begin
         nData := Format('交货单[ %s ]已无效.', [FIn.FData]); Exit;
       end;
 
-      {$IFDEF XAZL}
+      {$IFDEF UseERP_K3}
       nCode := StringReplace(Fields[0].AsString, 'TH', '', [rfIgnoreCase]);
       nCode := Fields[1].AsString + ' ' + nCode;
       {$ENDIF}

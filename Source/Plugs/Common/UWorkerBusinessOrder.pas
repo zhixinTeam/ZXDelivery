@@ -1065,7 +1065,7 @@ begin
       FListA.Add(nSQL); //更新采购单
     end;
 
-    {$IFDEF XAZL}
+    {$IFDEF UseERP_K3}
     nStr := nPound[0].FID;
     if not TWorkerBusinessCommander.CallMe(cBC_SyncStockOrder, nStr, '', @nOut) then
     begin

@@ -91,7 +91,7 @@ type
     function GetTruckPoundData(var nData: string): Boolean;
     function SaveTruckPoundData(var nData: string): Boolean;
     //存取车辆称重数据
-    {$IFDEF XAZL}
+    {$IFDEF UseERP_K3}
     function SyncRemoteSaleMan(var nData: string): Boolean;
     function SyncRemoteCustomer(var nData: string): Boolean;
     function SyncRemoteProviders(var nData: string): Boolean;
@@ -344,7 +344,7 @@ begin
    cBC_UserLogin           : Result := Login(nData);
    cBC_UserLogOut          : Result := LogOut(nData);
 
-   {$IFDEF XAZL}
+   {$IFDEF UseERP_K3}
    cBC_SyncCustomer        : Result := SyncRemoteCustomer(nData);
    cBC_SyncSaleMan         : Result := SyncRemoteSaleMan(nData);
    cBC_SyncProvider        : Result := SyncRemoteProviders(nData);
@@ -924,7 +924,7 @@ begin
   end;
 end;
 
-{$IFDEF XAZL}
+{$IFDEF UseERP_K3}
 //Date: 2014-10-14
 //Desc: 同步新安中联客户数据到DL系统
 function TWorkerBusinessCommander.SyncRemoteCustomer(var nData: string): Boolean;
@@ -1392,7 +1392,7 @@ begin
 
           SF('Fbillerid', 16429, sfVal),
           SF('Ffmanagerid', 36761, sfVal),
-          SF('Fsmanagerid', 136761, sfVal),
+          SF('Fsmanagerid', 36761, sfVal),
 
           SF('Fupstockwhensave', 1, sfVal),
           SF('Fmarketingstyle', 12530, sfVal),
@@ -1718,8 +1718,8 @@ begin
 
 
           SF('Fbillerid', 16449, sfVal),
-          SF('Ffmanagerid', 1203, sfVal),
-          SF('Fsmanagerid', 1491, sfVal),
+          SF('Ffmanagerid', 36761, sfVal),
+          SF('Fsmanagerid', 36761, sfVal),
 
           SF('Fstatus', 0, sfVal),
           SF('Fvchinterid', 0, sfVal),

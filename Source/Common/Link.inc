@@ -73,8 +73,12 @@
 
 //新安中联
 {$IFDEF XAZL}
+  {$DEFINE UseERP_K3}
+  //使用k3
   {$DEFINE SyncRemote}
   //远程同步
+  {$DEFINE VerifyK3Stock}
+  //开单时验证品种
   {$DEFINE MicroMsg}
   //微信支持
   {$DEFINE BlueCard}
@@ -83,10 +87,12 @@
 
 //济源中联
 {$IFDEF JYZL}
-  {$DEFINE XAZL}
-  //使用新安
+  {$DEFINE UseERP_K3}
+  //使用k3
   {$DEFINE SyncRemote}
   //远程同步
+  {$DEFINE VerifyK3Stock}
+  //开单时验证品种
   {$DEFINE HYRFID201}
   //华益读头
   {$DEFINE AppAtTaskBar}
@@ -99,8 +105,8 @@
 
 //云南红塔
 {$IFDEF YNHT}
-  {$DEFINE XAZL}
-  //使用新安
+  {$DEFINE UseERP_K3}
+  //使用k3
   {$DEFINE SyncRemote}
   //远程同步
   {$DEFINE HYRFID201}

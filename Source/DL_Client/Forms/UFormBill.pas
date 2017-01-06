@@ -131,7 +131,7 @@ begin
     gInfo.FZhiKa := nP.FParamB;
     gInfo.FCusID := nP.FParamC;
 
-    {$IFDEF YNHT}
+    {$IFDEF UseK3SalePlan}
     if not nBuDan then
     begin
       CreateBaseFormItem(cFI_Form_HT_SalePlan, nPopedom, nP);
@@ -551,7 +551,7 @@ begin
   nList := TStringList.Create;
   nTmp := TStringList.Create;
   try
-    {$IFDEF XAZL} //新安中联: 验证品种能否发货
+    {$IFDEF VerifyK3Stock} //新安中联: 验证品种能否发货
     nList.Clear;
     for nIdx:=Low(gStockList) to High(gStockList) do
      with gStockList[nIdx],nTmp do

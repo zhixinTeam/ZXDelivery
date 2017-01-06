@@ -712,7 +712,7 @@ begin
     raise;
   end;
 
-  {$IFDEF XAZL}
+  {$IFDEF UseERP_K3}
   if FListA.Values['BuDan'] = sFlag_Yes then //补单
   try
     nSQL := AdjustListStrFormat(FOut.FData, '''', True, ',', False);
@@ -2049,7 +2049,7 @@ begin
       FListA.Add(nSQL); //更新客户资金(可能不同客户)
     end;
 
-    {$IFDEF XAZL}
+    {$IFDEF UseERP_K3}
     nStr := CombinStr(FListB, ',', True);
     if not TWorkerBusinessCommander.CallMe(cBC_SyncStockBill, nStr, '', @nOut) then
     begin
