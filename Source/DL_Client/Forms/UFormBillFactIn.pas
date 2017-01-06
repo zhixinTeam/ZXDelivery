@@ -214,6 +214,16 @@ end;
 procedure TfFormBillFactIn.BtnOKClick(Sender: TObject);
 var nRet: Boolean;
 begin
+  EditTruck.Text := Trim(EditTruck.Text);
+  if Length(EditTruck.Text) < 3 then
+  begin
+    ActiveControl := EditTruck;
+    EditTruck.SelectAll;
+
+    ShowMsg('请输入有效车牌号,最小长度为3', sHint);
+    Exit;
+  end;
+
   EditCard.Text := Trim(EditCard.Text);
   if EditCard.Text = '' then
   begin

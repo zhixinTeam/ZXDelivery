@@ -1327,7 +1327,7 @@ begin
   nStr := AdjustListStrFormat(FIn.FData , '''' , True , ',' , True);
 
   nSQL := 'select L_ID,L_Truck,L_SaleID,L_CusID,L_StockNo,L_Value,' +
-          'L_Price,L_OutFact From $BL ' +
+          'L_Seal,L_Price,L_OutFact From $BL ' +
           'where L_ID In ($IN)';
   nSQL := MacroValue(nSQL, [MI('$BL', sTable_Bill) , MI('$IN', nStr)]);
 
@@ -1382,7 +1382,6 @@ begin
 
           SF('Ftrantype', 21, sfVal),
           SF('Fdeptid', 186, sfVal),
-          //SF('Fconsignee', 0, sfVal),
 
           SF('Frelatebrid', 0, sfVal),
           //SF('Fmanagetype', 0, sfVal),
@@ -1390,18 +1389,19 @@ begin
 
           SF('Fsalestyle', 101, sfVal),
           SF('Fseltrantype', 0, sfVal),
-          SF('FCheckDate', Date2Str(Now)),
-          //SF('Fsettledate', Date2Str(Now)),
 
           SF('Fbillerid', 16429, sfVal),
-          SF('Ffmanagerid', 1144, sfVal),
-          SF('Fsmanagerid', 1144, sfVal),
+          SF('Ffmanagerid', 36761, sfVal),
+          SF('Fsmanagerid', 136761, sfVal),
 
-          SF('Fupstockwhensave', 0, sfVal),
+          SF('Fupstockwhensave', 1, sfVal),
           SF('Fmarketingstyle', 12530, sfVal),
 
           SF('Fbillno', nBill),
           SF('Finterid', nID, sfVal),
+
+          SF('Fheadselfb0144', 15263, sfVal),
+          SF('Fheadselfb0146', FieldByName('L_Truck').AsString),
 
           SF('Fempid', FieldByName('L_SaleID').AsString, sfVal),
           SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
@@ -1501,14 +1501,15 @@ begin
                                               
           SF('Fentryid', 1, sfVal),
           SF('Funitid', 64, sfVal),
-          //SF('Fplanmode', 14036, sfVal),
 
+          SF('Fdcspid', 0, sfVal),
+          SF('Fsnlistid', 0, sfVal),
           SF('Fsourceentryid', 1, sfVal),
-          //SF('Fchkpassitem', 1058, sfVal),
 
-          //SF('Fseoutbillno', FieldByName('L_ID').AsString),
-          //SF('Fseoutinterid', '0', sfVal),
-          //SF('Fseoutentryid', '0', sfVal),
+          SF('Forderbillno', FieldByName('L_ID').AsString),
+          SF('Forderinterid', '0', sfVal),
+          SF('Forderentryid', '0', sfVal),
+          //订单编号
 
           SF('Fsourcebillno', '0'),
           SF('Fsourcetrantype', 83, sfVal),
@@ -1518,6 +1519,9 @@ begin
           SF('Fauxqty', nVal, sfVal),
           SF('Fqtymust', nVal, sfVal),
           SF('Fauxqtymust', nVal, sfVal),
+
+          SF('FEntrySelfB0155', FieldByName('L_Seal').AsString),
+          //水泥出厂编号
 
           SF('Fconsignprice', FieldByName('L_Price').AsFloat , sfVal),
           SF('Fconsignamount', nMoney, sfVal),

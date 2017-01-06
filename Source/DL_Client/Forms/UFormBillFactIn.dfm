@@ -47,6 +47,7 @@ inherited fFormBillFactIn: TfFormBillFactIn
     object EditTruck: TcxButtonEdit [4]
       Left = 81
       Top = 36
+      ParentFont = False
       Properties.Buttons = <
         item
           Default = True

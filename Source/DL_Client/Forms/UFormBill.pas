@@ -72,7 +72,8 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, DB, IniFiles, UMgrControl, UAdjustForm, UFormBase, UBusinessPacker,
-  UDataModule, USysPopedom, USysBusiness, USysDB, USysGrid, USysConst;
+  UDataModule, USysPopedom, USysBusiness, USysDB, USysGrid, USysConst,
+  UFormWait;
 
 type
   TCommonInfo = record
@@ -150,8 +151,13 @@ begin
 
   with TfFormBill.Create(Application) do
   try
-    LoadFormData;
-    //try load data
+    ShowWaitForm(Application.MainForm, '正在加载数据', True);
+    try
+      LoadFormData;
+      //try load data
+    finally
+      CloseWaitForm;
+    end;
 
     if not BtnOK.Enabled then Exit;
     gInfo.FShowPrice := gPopedomManager.HasPopedom(nPopedom, sPopedom_ViewPrice);
@@ -603,7 +609,12 @@ begin
       Values['Card'] := gInfo.FCard;
     end;
 
-    gInfo.FIDList := SaveBill(PackerEncodeStr(nList.Text));
+    ShowWaitForm(Self, '正在保存订单', True);
+    try
+      gInfo.FIDList := SaveBill(PackerEncodeStr(nList.Text));
+    finally
+      CloseWaitForm;
+    end;
     //call mit bus
     if gInfo.FIDList = '' then Exit;
   finally
