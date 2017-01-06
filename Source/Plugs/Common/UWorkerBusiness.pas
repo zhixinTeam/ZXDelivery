@@ -1164,7 +1164,8 @@ begin
 
     {$IFDEF YNHT}
     nStr := nStr + ' Where FDeleted=0 and ' +
-            '(FParentID=''3406'' or FParentID=''3410'')';
+            '(FParentID=''3406'' or FParentID=''3408'' or ' +
+            ' FParentID=''3410'' or FParentID=''27200'')';
     {$ENDIF}
 
     with gDBConnManager.SQLQuery(nStr, nDBWorker, sFlag_DB_K3) do
@@ -1381,15 +1382,16 @@ begin
 
           SF('Ftrantype', 21, sfVal),
           SF('Fdeptid', 186, sfVal),
-          SF('Fconsignee', 0, sfVal),
+          //SF('Fconsignee', 0, sfVal),
 
           SF('Frelatebrid', 0, sfVal),
-          SF('Fmanagetype', 0, sfVal),
+          //SF('Fmanagetype', 0, sfVal),
           SF('Fvchinterid', 0, sfVal),
 
           SF('Fsalestyle', 101, sfVal),
           SF('Fseltrantype', 0, sfVal),
-          SF('Fsettledate', Date2Str(Now)),
+          SF('FCheckDate', Date2Str(Now)),
+          //SF('Fsettledate', Date2Str(Now)),
 
           SF('Fbillerid', 16429, sfVal),
           SF('Ffmanagerid', 1144, sfVal),
@@ -1504,9 +1506,9 @@ begin
           SF('Fsourceentryid', 1, sfVal),
           //SF('Fchkpassitem', 1058, sfVal),
 
-          SF('Fseoutbillno', FieldByName('L_ID').AsString),
-          SF('Fseoutinterid', '0', sfVal),
-          SF('Fseoutentryid', '0', sfVal),
+          //SF('Fseoutbillno', FieldByName('L_ID').AsString),
+          //SF('Fseoutinterid', '0', sfVal),
+          //SF('Fseoutentryid', '0', sfVal),
 
           SF('Fsourcebillno', '0'),
           SF('Fsourcetrantype', 83, sfVal),
@@ -1718,7 +1720,7 @@ begin
           SF('Fstatus', 0, sfVal),
           SF('Fvchinterid', 0, sfVal),
 
-          SF('Fconsignee', 0, sfVal),
+          //SF('Fconsignee', 0, sfVal),
 
           SF('Frelatebrid', 0, sfVal),
           SF('Fseltrantype', 0, sfVal),
@@ -2045,8 +2047,8 @@ begin
         begin
           with FSalePlans[nIdx] do
           begin
-            FInterID := FieldByName('FInterID').AsString;
-            FEntryID := FieldByName('FEntryID').AsString;
+            FInterID := FieldByName('S_InterID').AsString;
+            FEntryID := FieldByName('S_EntryID').AsString;
             FTruck := FieldByName('S_Truck').AsString;
           end;
 

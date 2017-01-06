@@ -612,7 +612,7 @@ begin
     nStocks.Free;
   end;
 
-  if (FBuDanFlag <> sFlag_Yes) and (gInfo.FCard <> '') then
+  if (FBuDanFlag <> sFlag_Yes) and (gInfo.FCard = '') then
     SetBillCard(gInfo.FIDList, EditTruck.Text, True);
   //∞Ï¿Ì¥≈ø®
 

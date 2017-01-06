@@ -242,7 +242,7 @@ begin
   end;
 
   Key := #0;
-  nStr := 'Select L_Truck From %s Where L_Card=''%s''';
+  nStr := 'Select L_Truck, L_PValue From %s Where L_Card=''%s''';
   nStr := Format(nStr, [sTable_Bill, EditCard.Text]);
 
   with FDM.QueryTemp(nStr) do
@@ -252,6 +252,12 @@ begin
       ShowMsg('该磁卡没有提货单', sHint);
       Exit;
     end;
+
+    if FloatRelation(Fields[1].AsFloat, 0, rtLE) then
+    begin
+      ShowMsg('请先称重', sHint);
+      Exit;
+    end;  
 
     EditTruck.Text := Fields[0].AsString;
   end;

@@ -624,6 +624,26 @@ begin
           gDBConnManager.WorkerExec(FDBConn, nSQL);
         end;
 
+        if Length(FListA.Values['Card']) > 0 then
+        begin
+          if FListC.Values['Type'] = sFlag_Dai then
+          begin
+            nSQL := 'Update $Bill Set L_NextStatus=''$NT'' '+
+                    'Where L_ID=''$ID''';
+            nSQL := MacroValue(nSQL, [MI('$Bill', sTable_Bill),
+                    MI('$NT', sFlag_TruckZT),
+                    MI('$ID', nOut.FData)]);
+            gDBConnManager.WorkerExec(FDBConn, nSQL);
+          end;
+          //包装下一状态栈台
+
+          nSQL := 'Update %s Set T_InFact=%s Where T_HKBills Like ''%%%s%%''';
+          nSQL := Format(nSQL, [sTable_ZTTrucks, sField_SQLServer_Now,
+                  nOut.FData]);
+          gDBConnManager.WorkerExec(FDBConn, nSQL);
+        end;
+        //厂内零售业务，已进厂
+
         {$IFDEF TruckInNow}
         nStatus := sFlag_TruckIn;
         nNextStatus := sFlag_TruckBFP;
