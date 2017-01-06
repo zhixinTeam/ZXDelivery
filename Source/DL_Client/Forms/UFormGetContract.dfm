@@ -8,46 +8,47 @@ inherited fFormGetContract: TfFormGetContract
   Constraints.MinWidth = 445
   OnClose = FormClose
   OnCreate = FormCreate
-  PixelsPerInch = 120
-  TextHeight = 15
+  PixelsPerInch = 96
+  TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 437
-    Height = 268
+    Height = 273
     inherited BtnOK: TButton
-      Left = 255
-      Top = 226
+      Left = 291
+      Top = 240
       Caption = #30830#23450
       TabOrder = 5
     end
     inherited BtnExit: TButton
-      Left = 342
-      Top = 226
+      Left = 361
+      Top = 240
       TabOrder = 6
     end
     object EditSMan: TcxComboBox [2]
-      Left = 87
-      Top = 70
+      Left = 81
+      Top = 61
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 20
       Properties.ItemHeight = 18
       Properties.OnEditValueChanged = EditSManPropertiesEditValueChanged
       TabOrder = 1
-      Width = 152
+      Width = 121
     end
     object EditCustom: TcxComboBox [3]
-      Left = 87
-      Top = 95
+      Left = 81
+      Top = 86
       ParentFont = False
       Properties.DropDownRows = 20
       Properties.ItemHeight = 18
       Properties.OnEditValueChanged = EditCustomPropertiesEditValueChanged
       TabOrder = 2
-      Width = 152
+      OnKeyPress = EditCustomKeyPress
+      Width = 121
     end
     object EditCID: TcxButtonEdit [4]
-      Left = 87
-      Top = 45
+      Left = 81
+      Top = 36
       ParentFont = False
       Properties.Buttons = <
         item
@@ -57,29 +58,25 @@ inherited fFormGetContract: TfFormGetContract
       Properties.OnButtonClick = EditCIDPropertiesButtonClick
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
-      Width = 152
+      Width = 121
     end
     object ListContract: TcxListView [5]
-      Left = 29
-      Top = 141
-      Width = 521
-      Height = 181
+      Left = 23
+      Top = 132
+      Width = 417
+      Height = 145
       Columns = <
         item
           Caption = #21512#21516#32534#21495
-          Width = 63
         end
         item
           Caption = #19994#21153#21592
-          Width = 63
         end
         item
           Caption = #23458#25143#21517#31216
-          Width = 63
         end
         item
           Caption = #39033#30446#21517#31216
-          Width = 63
         end>
       HideSelection = False
       ParentFont = False
@@ -93,8 +90,8 @@ inherited fFormGetContract: TfFormGetContract
       OnKeyPress = ListContractKeyPress
     end
     object cxLabel1: TcxLabel [6]
-      Left = 29
-      Top = 120
+      Left = 23
+      Top = 111
       Caption = #26597#35810#32467#26524':'
       ParentFont = False
       Transparent = True

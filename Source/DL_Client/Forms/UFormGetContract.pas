@@ -35,10 +35,13 @@ type
     procedure EditSManPropertiesEditValueChanged(Sender: TObject);
     procedure EditCustomPropertiesEditValueChanged(Sender: TObject);
     procedure ListContractDblClick(Sender: TObject);
+    procedure EditCustomKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     FSelectedID: string;
     //选中标识
+    FLastQuery: Int64;
+    //上次查询
     procedure InitFormData(const nID: string);
     //初始化数据
     function QueryContract(const nType: Byte): Boolean;
@@ -88,6 +91,7 @@ end;
 procedure TfFormGetContract.FormCreate(Sender: TObject);
 var nIni: TIniFile;
 begin
+  FLastQuery := 0;
   nIni := TIniFile.Create(gPath + sFormConfig);
   try
     LoadFormConfig(Self, nIni);
@@ -132,7 +136,7 @@ begin
   begin
     EditCID.Text := nID;
     if QueryContract(10) then ActiveControl := ListContract;
-  end else ActiveControl := EditSMan;
+  end else ActiveControl := EditCustom;
 end;
 
 //Date: 2010-3-9
@@ -142,6 +146,9 @@ function TfFormGetContract.QueryContract(const nType: Byte): Boolean;
 var nStr,nWhere: string;
 begin
   Result := False;
+  if csDestroying in ComponentState then Exit;
+  if GetTickCount - FLastQuery < 1000 then Exit;
+
   nWhere := '';
   ListContract.Items.Clear;
 
@@ -152,7 +159,12 @@ begin
 
   if nType = 20 then
   begin
-    if (EditSMan.ItemIndex < 1) and (EditCustom.ItemIndex < 1) then Exit;
+    if EditCustom.ItemIndex < 1 then
+      EditCustom.Text := Trim(EditCustom.Text);
+    //xxxxx
+    
+    if (EditSMan.ItemIndex < 1) and ((EditCustom.ItemIndex < 1) and
+       (EditCustom.Text = '')) then Exit;
     //无查询条件
 
     if EditSMan.ItemIndex > 0 then
@@ -164,6 +176,11 @@ begin
       if nWhere <> '' then
         nWhere := nWhere + ' And ';
       nWhere := nWhere + 'sc.C_Customer=''$CID''';
+    end else
+    begin
+      if nWhere <> '' then
+        nWhere := nWhere + ' And ';
+      nWhere := nWhere + 'cus.C_PY Like ''%$CPY%''';
     end;
   end;
 
@@ -180,7 +197,8 @@ begin
   nStr := MacroValue(nStr, [MI('$SC', sTable_SaleContract),
           MI('$SM', sTable_Salesman), MI('$Cus', sTable_Customer),
           MI('$ID', EditCID.Text), MI('$SID', GetCtrlData(EditSMan)),
-          MI('$Yes', sFlag_Yes), MI('$CID', GetCtrlData(EditCustom))]);
+          MI('$Yes', sFlag_Yes), MI('$CID', GetCtrlData(EditCustom)),
+          MI('$CPY', EditCustom.Text)]);
   //xxxxx
 
   with FDM.QueryTemp(nStr) do
@@ -203,6 +221,9 @@ begin
     ListContract.ItemIndex := 0;
     Result := True;
   end;
+
+  FLastQuery := GetTickCount;
+  //xxxxx
 end;
 
 procedure TfFormGetContract.ListContractKeyPress(Sender: TObject;
@@ -258,6 +279,16 @@ procedure TfFormGetContract.EditCustomPropertiesEditValueChanged(
   Sender: TObject);
 begin
   if QueryContract(20) then ListContract.SetFocus;
+end;
+
+procedure TfFormGetContract.EditCustomKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    Key := #0;
+    if QueryContract(20) then ListContract.SetFocus;
+  end;
 end;
 
 procedure TfFormGetContract.BtnOKClick(Sender: TObject);
