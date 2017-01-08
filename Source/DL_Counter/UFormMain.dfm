@@ -95,6 +95,37 @@ object fFormMain: TfFormMain
       Visible = False
       OnClick = BtnCardClick
     end
+    object ToolButton1: TToolButton
+      Left = 288
+      Top = 0
+      Width = 8
+      Caption = 'ToolButton1'
+      ImageIndex = 13
+      Style = tbsSeparator
+    end
+    object BtnPsw: TToolButton
+      Left = 296
+      Top = 0
+      Caption = #36755#20837#23494#30721
+      ImageIndex = 0
+      OnClick = BtnPswClick
+    end
+    object ToolButton6: TToolButton
+      Left = 363
+      Top = 0
+      Width = 8
+      Caption = 'ToolButton6'
+      ImageIndex = 14
+      Style = tbsSeparator
+    end
+    object BtnSetPsw: TToolButton
+      Left = 371
+      Top = 0
+      Caption = #35774#32622#23494#30721
+      Enabled = False
+      ImageIndex = 11
+      OnClick = BtnSetPswClick
+    end
   end
   object cxSplitter1: TcxSplitter
     Left = 0

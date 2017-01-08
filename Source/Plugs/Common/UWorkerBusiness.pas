@@ -1390,7 +1390,7 @@ begin
           SF('Fsalestyle', 101, sfVal),
           SF('Fseltrantype', 0, sfVal),
 
-          SF('Fbillerid', 16429, sfVal),
+          SF('Fbillerid', 36761, sfVal),
           SF('Ffmanagerid', 36761, sfVal),
           SF('Fsmanagerid', 36761, sfVal),
 
@@ -1699,7 +1699,7 @@ begin
       end;
 
       {$IFDEF YNHT}
-        nSQL := MakeSQLByStr([
+      { nSQL := MakeSQLByStr([
           SF('Frob', 1, sfVal),
           SF('Fbrno', 0, sfVal),
           SF('Fbrid', 0, sfVal),
@@ -1717,7 +1717,7 @@ begin
           //SF('FCheckerid', FieldByName('O_SaleID').AsString, sfVal),
 
 
-          SF('Fbillerid', 16449, sfVal),
+          SF('Fbillerid', 36761, sfVal),
           SF('Ffmanagerid', 36761, sfVal),
           SF('Fsmanagerid', 36761, sfVal),
 
@@ -1732,7 +1732,7 @@ begin
           SF('Fupstockwhensave', 0, sfVal),
           SF('Fmarketingstyle', 12530, sfVal)
           ], 'ICStockBill', '', True);
-        FListA.Add(nSQL);
+        FListA.Add(nSQL);     }
       {$ELSE}
         {$IFDEF JYZL}
         nSQL := MakeSQLByStr([
@@ -1813,7 +1813,7 @@ begin
       {$IFDEF YNHT}
         nStockID := FieldByName('O_StockNo').AsString;
 
-        nSQL := MakeSQLByStr([
+      { nSQL := MakeSQLByStr([
           SF('Fbrno', 0, sfVal),
           SF('Finterid', nID),
           SF('Fitemid', nStockID),
@@ -1842,6 +1842,27 @@ begin
           SF('FEntrySelfA0161', FieldByName('O_Truck').AsString),
           SF('FEntrySelfA0162', FieldByName('D_ID').AsString)
           ], 'ICStockBillEntry', '', True);
+        FListA.Add(nSQL);  }
+        nSQL := MakeSQLByStr([
+          SF('FInTime', FieldByName('D_InTime').AsString),
+          SF('FOutTime', FieldByName('D_OutFact').AsString),
+
+          SF('FNO', nID),
+          SF('FPrintNum', '1'),
+          SF('FStatus', 3, sfVal),
+          SF('FBillerID', 36761, sfVal),
+
+          SF('FCarNO', FieldByName('D_Truck').AsString),
+          SF('FSupplyID', FieldByName('D_ProID').AsString),
+          SF('FICItemID', FieldByName('D_StockNo').AsString),
+
+
+          SF('FTotal', Float2Float(FieldByName('D_MValue').AsFloat * 1000, 1, True), sfVal),
+          SF('FTruck', Float2Float(FieldByName('D_PValue').AsFloat * 1000, 1, True), sfVal),
+          SF('FNet', Float2Float(nVal * 1000, 1, True), sfVal),
+
+          SF('FICItemID', FieldByName('D_StockNo').AsString)
+          ], 'A_BuyWeight', '', True);
         FListA.Add(nSQL);
       {$ELSE}
         {$IFDEF JYZL}

@@ -4,7 +4,7 @@
 *******************************************************************************}
 unit UFrameJS;
 
-{$I Link.inc} 
+{$I Link.Inc}
 {$I js_inc.inc}
 interface
 
@@ -91,7 +91,7 @@ begin
     if Assigned(Sender) then
     begin
       {$IFDEF USE_MIT}
-      StopJS(FTunnel.FID);
+      if not StopJS(FTunnel.FID) then Exit;
       {$ELSE}
       if not gMultiJSManager.DelJS(FTunnel.FID) then Exit;
       if not BtnStart.Enabled then
@@ -105,7 +105,6 @@ begin
       EditTruck.Text := '';
       EditDai.Text := '';
       EditTon.Text := '';
-      EditCode.Text:= '';
         
       EditDai.Enabled := True;
       EditTon.Enabled := True;

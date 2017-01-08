@@ -4,13 +4,13 @@
 *******************************************************************************}
 unit USysConst;
 
+{$I Link.Inc}
 interface
 
 uses
   Windows, Classes, SysUtils, UBusinessPacker, UBusinessWorker, UBusinessConst,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
-  UClientWorker, UMITPacker, UWaitItem, ULibFun, 
-  USysDB, USysLoger;
+  UClientWorker, UMITPacker, UWaitItem, ULibFun, USysDB, USysLoger;
 
 type
   TSysParam = record
@@ -25,6 +25,8 @@ type
     FLocalMAC   : string;                            //本机MAC
     FLocalName  : string;                            //本机名称
     FHardMonURL : string;                            //硬件守护
+
+    FIsEncode   : Boolean;                           //是否需要密码启动
   end;
   //系统参数
 
@@ -105,6 +107,7 @@ resourceString
   sConfigSec          = 'Config';                    //主配置小节
   sVerifyCode         = ';Verify:';                  //校验码标记
   sFormConfig         = 'FormInfo.ini';              //窗体配置
+  sPConfigFile        = 'PConfig.Ini';               //面板加载控制
 
   sInvalidConfig      = '配置文件无效或已经损坏';    //配置文件无效
   sCloseQuery         = '确定要退出程序吗?';         //主窗口退出
