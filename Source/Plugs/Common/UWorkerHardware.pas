@@ -433,7 +433,8 @@ begin
 
       {$IFDEF UseERP_K3}
       nCode := StringReplace(Fields[0].AsString, 'TH', '', [rfIgnoreCase]);
-      nCode := Fields[1].AsString + ' ' + nCode;
+      nCode := Fields[1].AsString + '-' +
+               Copy(FIn.FExtParam, Length(FIn.FExtParam) - 1, 2) + '-' + nCode;
       {$ENDIF}
 
       {$IFDEF RDHX}

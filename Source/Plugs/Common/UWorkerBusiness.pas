@@ -1390,7 +1390,7 @@ begin
           SF('Fsalestyle', 101, sfVal),
           SF('Fseltrantype', 0, sfVal),
 
-          SF('Fbillerid', 36761, sfVal),
+          SF('Fbillerid', 16559, sfVal),
           SF('Ffmanagerid', 36761, sfVal),
           SF('Fsmanagerid', 36761, sfVal),
 
@@ -1644,7 +1644,7 @@ begin
   nK3Worker := nil;
 
   nSQL := 'select O_ID,O_Truck,O_SaleID,O_ProID,O_StockNo,' +
-          'D_ID, (D_MValue-D_PValue-D_KZValue) as D_Value,D_OutFact, ' +
+          'D_ID, (D_MValue-D_PValue-D_KZValue) as D_Value,D_InTime, ' +
           'D_PValue, D_MValue, D_YSResult, D_KZValue ' +
           'From $OD od left join $OO oo on od.D_OID=oo.O_ID ' +
           'where D_ID=''$IN''';
@@ -1699,7 +1699,7 @@ begin
       end;
 
       {$IFDEF YNHT}
-      { nSQL := MakeSQLByStr([
+      nSQL := MakeSQLByStr([
           SF('Frob', 1, sfVal),
           SF('Fbrno', 0, sfVal),
           SF('Fbrid', 0, sfVal),
@@ -1732,7 +1732,7 @@ begin
           SF('Fupstockwhensave', 0, sfVal),
           SF('Fmarketingstyle', 12530, sfVal)
           ], 'ICStockBill', '', True);
-        FListA.Add(nSQL);     }
+      //  FListA.Add(nSQL);
       {$ELSE}
         {$IFDEF JYZL}
         nSQL := MakeSQLByStr([
@@ -1845,23 +1845,23 @@ begin
         FListA.Add(nSQL);  }
         nSQL := MakeSQLByStr([
           SF('FInTime', FieldByName('D_InTime').AsString),
-          SF('FOutTime', FieldByName('D_OutFact').AsString),
+          SF('FOutTime', sField_SQLServer_Now, sfVal),
 
           SF('FNO', nID),
-          SF('FPrintNum', '1'),
-          SF('FStatus', 3, sfVal),
-          SF('FBillerID', 36761, sfVal),
+          SF('FPrintNum', 1, sfVal),
+          SF('FState', 3, sfVal),
+          SF('FBillerID', 16559, sfVal),
+          //DLϵͳ
 
-          SF('FCarNO', FieldByName('D_Truck').AsString),
-          SF('FSupplyID', FieldByName('D_ProID').AsString),
-          SF('FICItemID', FieldByName('D_StockNo').AsString),
+          SF('FRemark', FieldByName('D_ID').AsString),
+          SF('FCarNO', FieldByName('O_Truck').AsString),
+          SF('FSupplyID', FieldByName('O_ProID').AsString),
+          SF('FICItemID', FieldByName('O_StockNo').AsString),
 
 
-          SF('FTotal', Float2Float(FieldByName('D_MValue').AsFloat * 1000, 1, True), sfVal),
-          SF('FTruck', Float2Float(FieldByName('D_PValue').AsFloat * 1000, 1, True), sfVal),
-          SF('FNet', Float2Float(nVal * 1000, 1, True), sfVal),
-
-          SF('FICItemID', FieldByName('D_StockNo').AsString)
+          SF('FTotal', Float2Float(FieldByName('D_MValue').AsFloat, 100, True) * 1000, sfVal),
+          SF('FTruck', Float2Float(FieldByName('D_PValue').AsFloat, 100, True) * 1000, sfVal),
+          SF('FNet', Float2Float(nVal, 100, True) * 1000, sfVal)
           ], 'A_BuyWeight', '', True);
         FListA.Add(nSQL);
       {$ELSE}
@@ -2031,7 +2031,7 @@ begin
           '  left join SEOrder o on o.fInterID=e.fInterID' +
           '  left join t_Organization org on org.FItemID=o.FcustID' +
           '  left join t_ICItem i on i.FItemID=e.FItemID ' +
-          'WHERE e.FDate>=%s-3 and o.FcustID=''%s''';
+          'WHERE e.FDate>=%s-1 and o.FcustID=''%s''';
   nStr := Format(nStr, [sField_SQLServer_Now, FIn.FData]);
 
   nWorker := nil;
@@ -2054,7 +2054,7 @@ begin
         Next;
       end;
 
-      nStr := 'Delete From %s Where S_Date<%s-3';
+      nStr := 'Delete From %s Where S_Date<%s-1';
       nStr := Format(nStr, [sTable_K3_SalePlan, sField_SQLServer_Now]);
       gDBConnManager.WorkerExec(FDBConn, nStr);
 

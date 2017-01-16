@@ -40,6 +40,8 @@ type
     N2: TMenuItem;
     N3: TMenuItem;
     Check1: TcxCheckBox;
+    N4: TMenuItem;
+    N5: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
@@ -52,6 +54,7 @@ type
     procedure N2Click(Sender: TObject);
     procedure N3Click(Sender: TObject);
     procedure Check1Click(Sender: TObject);
+    procedure N5Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -268,6 +271,15 @@ procedure TfFramePurchaseOrder.Check1Click(Sender: TObject);
 begin
   inherited;
   InitFormData('');
+end;
+
+procedure TfFramePurchaseOrder.N5Click(Sender: TObject);
+begin
+  inherited;
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    PrintRCOrderReport(SQLQuery.FieldByName('O_ID').AsString, False);
+  end;
 end;
 
 initialization

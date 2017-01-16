@@ -170,6 +170,8 @@ ResourceString
   sFlag_PayCredit     = 'Pay_Credit';                //回款冲信用
   sFlag_HYValue       = 'HYMaxValue';                //化验批次量
   sFlag_SaleManDept   = 'SaleManDepartment';         //业务员部门编号
+  sFlag_VerifyFQValue = 'VerifyFQValue';             //禁止封签号超发
+  sFlag_VerifyTruckP  = 'VerifyTruckP';              //校验预置皮重
   
   sFlag_PDaiWuChaZ    = 'PoundDaiWuChaZ';            //袋装正误差
   sFlag_PDaiWuChaF    = 'PoundDaiWuChaF';            //袋装负误差

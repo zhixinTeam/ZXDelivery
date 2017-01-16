@@ -237,6 +237,8 @@ function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
 //打印提货单
 function PrintOrderReport(const nOrder: string;  const nAsk: Boolean): Boolean;
 //打印采购单
+function PrintRCOrderReport(const nID: string;  const nAsk: Boolean): Boolean;
+//打印采购单
 function PrintPoundReport(const nPound: string; nAsk: Boolean): Boolean;
 //打印榜单
 function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
@@ -250,6 +252,11 @@ function GetTruckLastTime(const nTruck: string): Integer;
 //最后一次过磅时间
 function IsStrictSanValue: Boolean;
 //判断是否严格执行散装禁止超发
+
+function GetFQValueByStockNo(const nStock: string): Double;
+//获取封签号已发量
+function VerifyFQSumValue: Boolean;
+//是否校验封签号
 
 implementation
 
@@ -291,13 +298,24 @@ end;
 function GetTruckEmptyValue(nTruck: string): Double;
 var nStr: string;
 begin
+  Result := 0;
+  //init
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_VerifyTruckP]);
+  with FDM.QueryTemp(nStr) do
+  if Recordcount > 0 then
+   nStr := Fields[0].AsString;
+
+  if nStr <> sFlag_Yes then Exit;
+  //不校验皮重
+
   nStr := 'Select T_PValue From %s Where T_Truck=''%s''';
   nStr := Format(nStr, [sTable_Truck, nTruck]);
 
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
-       Result := Fields[0].AsFloat
-  else Result := 0;
+    Result := Fields[0].AsFloat;
 end;
 
 //Date: 2014-09-05
@@ -2081,6 +2099,55 @@ begin
   end;
 end;
 
+//Date: 2017-01-11
+//Parm: 采购单号;是否弹出询问
+//Desc: 打印采购验收单
+function PrintRCOrderReport(const nID: string;  const nAsk: Boolean): Boolean;
+var nStr: string;
+    nDS: TDataSet;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印入厂单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+
+  nStr := 'Select * From %s Where O_ID=''%s''';
+  nStr := Format(nStr, [sTable_Order, nID]);
+
+  nDS := FDM.QueryTemp(nStr);
+  if not Assigned(nDS) then Exit;
+
+  if nDS.RecordCount < 1 then
+  begin
+    nStr := '入厂单[ %s ] 已无效!!';
+    nStr := Format(nStr, [nID]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + 'Report\ProvideRC.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nParam.FName := 'UserName';
+  nParam.FValue := gSysParam.FUserID;
+  FDR.AddParamItem(nParam);
+
+  nParam.FName := 'Company';
+  nParam.FValue := gSysParam.FHintText;
+  FDR.AddParamItem(nParam);
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+end;
+
 //Desc: 获取nStock品种的报表文件
 function GetReportFileByStock(const nStock: string): string;
 begin
@@ -2345,7 +2412,34 @@ begin
   with FDM.QueryTemp(nSQL) do
   if RecordCount > 0 then
     Result := Fields[0].AsString = sFlag_Yes;
-end;  
+end;
 
+function GetFQValueByStockNo(const nStock: string): Double;
+var nSQL: string;
+begin
+  Result := 0;
+  if nStock = '' then Exit;
+
+  nSQL := 'Select Sum(L_Value) From %s Where L_Seal=''%s'' ' +
+          'and L_Date > GetDate() - 30';   //一个月内的总计
+  nSQL := Format(nSQL, [sTable_Bill, nStock]);
+  with FDM.QueryTemp(nSQL) do
+  if RecordCount > 0 then
+    Result := Fields[0].AsFloat;
+end;
+
+function VerifyFQSumValue: Boolean;
+var nStr: string;
+begin
+  Result := False;
+  //默认不判断
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_VerifyFQValue]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+    Result := Fields[0].AsString = sFlag_Yes;
+end;  
 
 end.

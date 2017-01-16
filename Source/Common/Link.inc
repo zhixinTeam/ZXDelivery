@@ -121,5 +121,7 @@
   //K3销售计划
   {$DEFINE MultiReplay}
   //计数器应答模式
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
 {$ENDIF}
 

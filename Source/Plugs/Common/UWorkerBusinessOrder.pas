@@ -319,6 +319,10 @@ begin
   nVal := StrToFloat(FListA.Values['Value']);
   //unpack Order
 
+  nStr := FListA.Values['Truck'];
+  TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo,nStr, '',@nOut);
+  //±£´æ³µÅÆºÅ
+
   //----------------------------------------------------------------------------
   FDBConn.FConn.BeginTrans;
   try
@@ -498,7 +502,7 @@ begin
   end;
 
   //----------------------------------------------------------------------------
-  nSQL := 'Select O_ID,O_Truck From %s Where O_Card In (%s)';
+  nSQL := 'Select O_ID,O_Truck From %s Where O_Card=''%s''';
   nSQL := Format(nSQL, [sTable_Order, FIn.FExtParam]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nSQL) do

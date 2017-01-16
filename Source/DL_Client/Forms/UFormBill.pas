@@ -94,6 +94,7 @@ type
     FType: string;
     FStockNO: string;
     FStockName: string;
+    FStockSeal: string;
     FPrice: Double;
     FValue: Double;
     FSelecte: Boolean;
@@ -330,9 +331,11 @@ begin
             AdjustHintToRead(nStr) + #13#10 +
             '请询问客户是否接受新单价,接受点"是"按钮.' ;
     nStr := Format(nStr, [gInfo.FZhiKa]);
-    
+
+    {$IFNDEF NoShowPriceChange}
     BtnOK.Enabled := QueryDlg(nStr, sHint);
     if not BtnOK.Enabled then Exit;
+    {$ENDIF}
 
     nStr := 'Update %s Set Z_TJStatus=Null Where Z_ID=''%s''';
     nStr := Format(nStr, [sTable_ZhiKa, gInfo.FZhiKa]);
@@ -455,7 +458,14 @@ begin
   begin
     Result := EditLading.ItemIndex > -1;
     nHint := '请选择有效的提货方式';
-  end;
+  end else
+
+  if Sender = EditFQ then
+  begin
+    EditFQ.Text := Trim(EditFQ.Text);
+    Result := (Length(EditFQ.Text) > 0) or (not VerifyFQSumValue);
+    nHint := '出厂编号不能为空';
+  end;  
 
   if Sender = EditValue then
   begin
@@ -492,6 +502,7 @@ end;
 //Desc: 添加
 procedure TfFormBill.BtnAddClick(Sender: TObject);
 var nIdx: Integer;
+    nSend, nMax, nVal: Double;
 begin
   if IsDataValid then
   begin
@@ -505,6 +516,27 @@ begin
         Exit;
       end;
 
+      EditFQ.Text := Trim(EditFQ.Text);
+      nMax := GetHYMaxValue;
+      nSend:= GetFQValueByStockNo(EditFQ.Text);
+      nVal := nSend + StrToFloat(EditValue.Text);
+
+      if VerifyFQSumValue then
+      begin
+        if FloatRelation(nMax, nVal, rtLE, cPrecision) then
+        begin
+          ShowMsg('出厂封签号已超发,请更换封签号', sHint);
+          ActiveControl := EditFQ;
+          Exit;
+        end;
+
+        if FloatRelation(nMax * 0.9, nVal, rtLE, cPrecision) then
+        begin
+          ShowDlg('出厂封签号已发90%,请及时通知化验室更新.', sWarn);
+        end;  
+      end;
+
+      FStockSeal := Trim(EditFQ.Text);
       FValue := StrToFloat(EditValue.Text);
       FValue := Float2Float(FValue, cPrecision, False);
       FSelecte := True;
@@ -575,6 +607,7 @@ begin
       Values['Type'] := FType;
       Values['StockNO'] := FStockNO;
       Values['StockName'] := FStockName;
+      Values['Seal']  := FStockSeal;
       Values['Price'] := FloatToStr(FPrice);
       Values['Value'] := FloatToStr(FValue);
 
@@ -604,7 +637,6 @@ begin
       Values['Truck'] := EditTruck.Text;
       Values['Lading'] := GetCtrlData(EditLading);
       Values['IsVIP'] := GetCtrlData(EditType);
-      Values['Seal'] := EditFQ.Text;
       Values['BuDan'] := FBuDanFlag;
       Values['Card'] := gInfo.FCard;
     end;

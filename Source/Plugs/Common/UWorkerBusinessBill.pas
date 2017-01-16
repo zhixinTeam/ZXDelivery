@@ -531,7 +531,7 @@ begin
               SF('L_Truck', FListA.Values['Truck']),
               SF('L_Lading', FListA.Values['Lading']),
               SF('L_IsVIP', FListA.Values['IsVIP']),
-              SF('L_Seal', FListA.Values['Seal']),
+              SF('L_Seal', FListC.Values['Seal']),
               SF('L_Man', FIn.FBase.FFrom.FUser),
               SF('L_Date', sField_SQLServer_Now, sfVal)
               ], sTable_Bill,SF('L_ID', nOut.FData),FListA.Values['Card']='');

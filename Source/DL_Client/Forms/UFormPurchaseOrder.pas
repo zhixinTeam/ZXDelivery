@@ -249,6 +249,10 @@ begin
   nOrder := SaveOrder(PackerEncodeStr(FListA.Text));
   if nOrder='' then Exit;
 
+  if nCardType = 'L' then
+    PrintRCOrderReport(nOrder, True);
+  //临时卡提示打印入厂  
+
   SetOrderCard(nOrder, FListA.Values['Truck'], True);
   //办理磁卡
 

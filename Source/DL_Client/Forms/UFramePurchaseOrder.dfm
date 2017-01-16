@@ -215,5 +215,13 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
       Caption = #20462#25913#36710#29260#21495
       OnClick = N3Click
     end
+    object N4: TMenuItem
+      Caption = '-'
+      Enabled = False
+    end
+    object N5: TMenuItem
+      Caption = #25171#21360#20837#21378#21333
+      OnClick = N5Click
+    end
   end
 end
