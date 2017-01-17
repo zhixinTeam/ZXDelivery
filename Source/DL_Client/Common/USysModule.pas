@@ -27,8 +27,8 @@ uses
   UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,
   UFramePoundManual, UFramePoundAuto, UFramePMaterails, UFormPMaterails,
   UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,
-  UFrameZTDispatch, UFrameTrucks, UFormTruck, UFormRFIDCard,
-  UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
+  UFrameQuerySaleTotal, UFrameZTDispatch, UFrameTrucks, UFormTruck,
+  UFormRFIDCard, UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   UFormTodo, UFormTodoSend,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
