@@ -94,13 +94,13 @@ begin
 
   if Radio1.Checked then
   begin
-    Result := 'select L_CusID,L_CusName,L_CusPY,' +
+    Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
               'Sum(L_Value) as L_Value,Sum(L_Value * L_Price) as L_Money ' +
               'From $Bill ';
     //xxxxx
   end else
   begin
-    Result := 'select L_CusID,L_CusName,L_CusPY,L_Type,' +
+    Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,L_Type,' +
               'L_StockNo,L_StockName,Sum(L_Value) as L_Value,' +
               'Sum(L_Value * L_Price) as L_Money From $Bill ';
     //xxxxx
@@ -120,10 +120,10 @@ begin
 
   if Radio1.Checked then
   begin
-    Result := Result + ' Group By L_CusID,L_CusName,L_CusPY';
+    Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY';
   end else
   begin
-    Result := Result + ' Group By L_CusID,L_CusName,L_CusPY,' +
+    Result := Result + ' Group L_SaleID,L_SaleMan,By L_CusID,L_CusName,L_CusPY,' +
               'L_Type,L_StockNo,L_StockName';
     //xxxxx
   end;
