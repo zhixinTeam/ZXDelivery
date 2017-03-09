@@ -1,0 +1,1 @@
+ALTER TABLE Sys_CustomerCredit ADD C_Verify Char(1) Default 'N', C_VerMan varChar(32), C_VerDate DateTime
