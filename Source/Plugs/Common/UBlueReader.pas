@@ -26,15 +26,16 @@ const
 
   cBlueReader_BUMAC         = 'BUMAC';                      //读卡器ID指令
   cBlueReader_WatchDog      = 'watchdog';                   //读卡器心跳指令
-  cBlueReader_OpenDoor      = 'WRITEGPIO 1';               //读卡器抬杆指令
+  cBlueReader_OpenDoor      = 'WRITEGPIO 01';               //读卡器抬杆指令
   cBlueReader_BroastServer  = 'SERVERIP $ServIP $ServPort'; //广播服务器地址
 
-  cBlueReader_Query_Interval= 30*100;                          //指令间隔
+  cBlueReader_Query_Interval= 3*100;                          //指令间隔
+  cBlueReader_Recv_Length   = 200;                             //接收缓冲区长度
 
   sBlueReaderConfig = 'BlueCardReader.XML';
 type
-  PBlueReaderConfig = ^TBlueReaderConfig;
-  TBlueReaderConfig = record
+  PBlueReaderItem = ^TBlueReaderItem;
+  TBlueReaderItem = record
     FID      :string;
     FEnable  :Boolean;
 
@@ -42,12 +43,15 @@ type
     FHostPort:Integer;
   end;
 
-  TBlueReaderConfigs = array of TBlueReaderConfig;
+  TBlueReaderItems = array of TBlueReaderItem;
   //array of Config host
 
   TBlueReaderHost = record
-    FReaderID :string;
-    FContext  :TIdContext;
+    FReaderID :string;                          //读卡器编号
+    FRecvData :string;                          //接收区缓冲
+
+    FContext  :TIdContext;                      //读卡器链路
+    FPeerIP   : string;                         //读卡器IP
   end;
   //online host
 
@@ -73,7 +77,7 @@ type
 
   TBlueReader = class(TThread)
   private
-    FItems: TBlueReaderConfigs;
+    FItems: TBlueReaderItems;
     //配置读头列表
     FActiveReaders: TList;
     //活动读头列表
@@ -99,6 +103,7 @@ type
     FEnable: Boolean;
     //是否启用
     FCardArrived: TOnCard;
+    //事件
   protected
     procedure Execute; override;
     //执行线程
@@ -109,6 +114,8 @@ type
     //客户端断开
     procedure TCPServerExecute(AContext: TIdContext);
     //服务器执行线程
+    procedure DoReadEvent(const nContext: TIdContext; const nBuff: string='');
+    //处理读到的内容
 
     function GetReaderID(const nContext: TIdContext): String;
     //获取读卡器编号
@@ -309,6 +316,10 @@ begin
   if FSrvIPList.Count < 1 then
     GetLocalIpList(FSrvIPList);
   //获取IP地址表
+
+  FServer.Active := False;
+  FServer.Bindings.Clear;
+  //停止服务
   
   for nIdx := 0 to FSrvIPList.Count-1 do
   with FServer do
@@ -317,8 +328,10 @@ begin
     Bindings[nIdx].IP := FSrvIPList[nIdx];
     Bindings[nIdx].Port := FSrvPort;
   end;
+  //绑定端口
 
   FServer.Active := True;
+  //启动服务
 
   FWaiter.Interval := cBlueReader_Query_Interval;
   FWaiter.Wakeup;
@@ -631,8 +644,7 @@ begin
 end;
 
 procedure TBlueReader.TCPServerExecute(AContext: TIdContext);
-var nSend, nRecv, nReaderID: string;
-    nPos: Integer;
+var nSend: string;
 begin
   nSend := cBlueReader_BUMAC + cBlueReader_Flag_End;
   //获取读卡器信息
@@ -642,81 +654,14 @@ begin
     FWaiter.EnterWait;
     if Terminated then Exit;
 
-    if Socket.InputBufferIsEmpty then Exit;
-    nRecv := Socket.InputBufferAsString;
-    //nRecv := Socket.ReadLn;
-    //ReadLn方法会阻塞线程，导致线程无响应
-
-    if Length(nRecv) >= 10 then
+    if Socket.InputBufferIsEmpty then
     begin
-      nPos := Pos(cBlueReader_Flag_ReaderID, nRecv);
-      if nPos > 0 then
-      begin
-        nReaderID := Copy(nRecv, 10, 10);
+      Socket.Write(nSend);
+      Exit;
+    end;
 
-        Socket_Connection(AContext, nReaderID, True);
-        {$IFDEF DEBUG}
-        WriteLog(nReaderID);
-        {$ENDIF}
-        Exit;
-      end;
-      //读卡器编号
-
-      nPos := Pos(cBlueReader_Flag_Bumac, nRecv);
-      if nPos > 0 then
-      begin
-        nReaderID := Copy(nRecv, 7, 10);
-        
-        Socket_Connection(AContext, nReaderID, True);
-        {$IFDEF DEBUG}
-        WriteLog(nReaderID);
-        {$ENDIF}
-        Exit;
-      end;
-      //读卡器编号
-
-      nPos := Pos(cBlueReader_Flag_Record, nRecv);
-      if nPos > 0 then
-      begin
-        nReaderID := GetReaderID(AContext);
-        SplitStr(nRecv, FCardInfo, 0, ' ', False);
-        SeTBlueReaderCard(nReaderID, FCardInfo[2]);
-
-        {$IFDEF DEBUG}
-        WriteLog('读卡器:' + nReaderID + ' 收到卡号:' + FCardInfo[2]);
-        {$ENDIF}
-        Exit;
-      end;
-      //卡号
-
-      nPos := Pos(cBlueReader_Flag_CardNO, nRecv);
-      if nPos > 0 then
-      begin
-        nReaderID := GetReaderID(AContext);
-        SplitStr(nRecv, FCardInfo, 0, ' ', False);
-        SeTBlueReaderCard(nReaderID, FCardInfo[2]);
-        
-        {$IFDEF DEBUG}
-        WriteLog('读卡器:' + nReaderID + ' 收到卡号:' + FCardInfo[2]);
-        {$ENDIF}
-        Exit;
-      end;
-      //卡号
-
-      nPos := Pos(cBlueReader_Flag_FIRMWARE, nRecv);
-      if nPos > 0 then
-      begin
-        {$IFDEF DEBUG}
-        WriteLog(nRecv);
-        {$ENDIF}
-        Exit;
-      end;
-      //固件版本
-    end else Socket.Write(nSend);
-
-    if Assigned(IOHandler) then
-      IOHandler.InputBuffer.Clear;
-    //预防接收一半
+    //ReadLn方法会阻塞线程，导致线程无响应
+    DoReadEvent(AContext, Socket.InputBufferAsString);;
   except
     if Connected then
     begin
@@ -726,6 +671,127 @@ begin
     end;
   end;
 end;
+
+procedure TBlueReader.DoReadEvent(const nContext: TIdContext; const nBuff: string);
+var nPeerIP, nTmp: string;
+    nReader: PBlueReaderHost;
+    nIdx, nInt, nPos: Integer;
+begin
+  FSyncLock.Enter;
+  try
+    nInt := -1;
+    nReader := nil;
+    nPeerIP := nContext.Connection.Socket.Binding.PeerIP;
+    
+    for nIdx:=0 to FActiveReaders.Count-1 do
+    begin
+      nReader := FActiveReaders[nIdx];
+      if CompareText(UpperCase(nPeerIP), nReader.FPeerIP) = 0 then
+      begin
+        nInt := nIdx;
+        Break;
+      end;  
+    end;
+
+    if nInt < 0 then
+    begin
+      New(nReader);
+      nReader.FContext := nContext;
+      nReader.FPeerIP  := nPeerIP;
+
+      nReader.FReaderID:= '';
+      nReader.FRecvData:= nBuff;
+
+      FActiveReaders.Add(nReader);
+    end else //新读卡器
+
+    begin
+       nReader.FContext := nContext;
+       nReader.FRecvData:= nReader.FRecvData + nBuff;
+    end;     //已存在读卡器
+
+    if Length(nReader.FRecvData) < 10 then Exit;
+    //最小长度大于10
+
+    if Length(nReader.FReaderID) > 0 then //有读卡器编号(先读卡号,后读编号)
+    begin
+      nPos := Pos(cBlueReader_Flag_Record, nReader.FRecvData);
+      if nPos > 0 then
+      begin
+        Delete(nReader.FRecvData, 1, nPos - 1);
+        //清除卡号前的无效数据
+
+        nPos := Pos(cBlueReader_Flag_End, nReader.FRecvData);
+        nTmp := Copy(nReader.FRecvData, 1, nPos - 1);
+        Delete(nReader.FRecvData, 1, nPos - 1);
+        //获取卡号信息
+
+        SplitStr(nTmp, FCardInfo, 0, ' ', False);
+        SeTBlueReaderCard(nReader.FReaderID, FCardInfo[2]);
+        //解析卡号
+
+        {$IFDEF DEBUG}
+        WriteLog('读卡器:' + nReader.FReaderID + ' 收到卡号:' + FCardInfo[2]);
+        {$ENDIF}
+      end;
+      //卡号
+
+      nPos := Pos(cBlueReader_Flag_CardNO, nReader.FRecvData);
+      if nPos > 0 then
+      begin
+        nTmp := Copy(nReader.FRecvData, nPos, cBlueReader_Card_Length);
+        SplitStr(nTmp, FCardInfo, 0, ' ', False);
+        SeTBlueReaderCard(nReader.FReaderID, FCardInfo[2]);
+        
+        {$IFDEF DEBUG}
+        WriteLog('读卡器:' + nReader.FReaderID + ' 收到卡号:' + FCardInfo[2]);
+        {$ENDIF}
+      end;
+      //卡号
+    end;
+
+    nPos := Pos(cBlueReader_Flag_ReaderID, nReader.FRecvData);
+    if nPos > 0 then
+    begin
+      Delete(nReader.FRecvData, 1, nPos - 1);
+      //清除读卡器编号前的无效数据
+
+      nReader.FReaderID := Copy(nReader.FRecvData, 10, 10);
+      Delete(nReader.FRecvData, 1, 19);
+      //获取到读卡器编号
+
+      {$IFDEF DEBUG}
+      WriteLog(nReader.FReaderID);
+      {$ENDIF}
+    end;
+    //读卡器编号
+
+    nPos := Pos(cBlueReader_Flag_Bumac, nReader.FRecvData);
+    if nPos > 0 then
+    begin
+      Delete(nReader.FRecvData, 1, nPos - 1);
+      //清除卡号前的无效数据
+
+      nReader.FReaderID := Copy(nReader.FRecvData, 7, 10);
+      Delete(nReader.FRecvData, 1, 16);
+      //获取到读卡器编号
+
+      {$IFDEF DEBUG}
+      WriteLog(nReader.FReaderID);
+      {$ENDIF}
+    end;
+    //读卡器编号
+
+    {$IFDEF DEBUG}
+    WriteLog(nReader.FRecvData);
+    {$ENDIF}
+
+    if Length(nReader.FRecvData) > cBlueReader_Recv_Length then
+      nReader.FRecvData := '';
+  finally
+    FSyncLock.Leave;
+  end;
+end;  
 
 procedure TBlueReader.Socket_Connection(const nContext: TIdContext;
   const nReaderID: string; nFlag :Boolean = True);
@@ -860,7 +926,7 @@ procedure TBlueReader.DoOpenDoor;
 var nIdx: Integer;
     nThreads: TThreadList;
     nContext: TIdContext;
-    nSend, nRecv, nReader: string;
+    nSend, nReader: string;
 begin
   nSend := cBlueReader_OpenDoor + cBlueReader_Flag_End;
   //Send Open door command
@@ -886,14 +952,8 @@ begin
             //服务器网络断开后，Connection=nil
 
             WriteLog('读卡器 [' + nReader + '] 执行抬杆');
-
             Socket.Write(nSend);
-            Sleep(100);
-
-            nRecv := Socket.InputBufferAsString;
-            Socket.InputBuffer.Clear;
-            if Length(nRecv) > 0 then
-              WriteLog('读卡器 [' + nReader + '] 抬杆成功。');
+            WriteLog('读卡器 [' + nReader + '] 抬杆成功。');
             //xxxxx
 
             FDataBuffer.Delete(nIdx);
@@ -933,7 +993,6 @@ begin
     FSyncLock.Leave;
   end;   
 end;
-
 
 initialization
   gBlueReader := TBlueReader.Create;
