@@ -24,6 +24,8 @@ procedure WhenReaderCardOut(const nCard: string; const nHost: PReaderHost);
 //现场读头卡号超时
 procedure WhenBusinessMITSharedDataIn(const nData: string);
 //业务中间件共享数据
+function GetJSTruck(const nTruck,nBill: string): string;
+//获取计数器显示车牌
 procedure WhenSaveJS(const nTunnel: PMultiJSTunnel);
 //保存计数结果
 
@@ -1185,6 +1187,39 @@ begin
   if Pos('TruckOut', nData) = 1 then
     MakeTruckAutoOut(Copy(nData, Pos(':', nData) + 1, MaxInt));
   //auto out
+end;
+
+//Date: 2015-01-14
+//Parm: 车牌号;交货单
+//Desc: 格式化nBill交货单需要显示的车牌号
+function GetJSTruck(const nTruck,nBill: string): string;
+var nStr: string;
+    nLen: Integer;
+    nWorker: PDBWorker;
+begin
+  Result := nTruck;
+  if nBill = '' then Exit;
+
+  {$IFDEF LNYK}
+  nWorker := nil;
+  try
+    nStr := 'Select L_StockNo From %s Where L_ID=''%s''';
+    nStr := Format(nStr, [sTable_Bill, nBill]);
+
+    with gDBConnManager.SQLQuery(nStr, nWorker) do
+    if RecordCount > 0 then
+    begin
+      nStr := UpperCase(Fields[0].AsString);
+      if nStr <> 'BPC-02' then Exit;
+      //只处理32.5(b)
+
+      nLen := cMultiJS_Truck - 2;
+      Result := 'B-' + Copy(nTruck, Length(nTruck) - nLen + 1, nLen);
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nWorker);
+  end;   
+  {$ENDIF}
 end;
 
 //Date: 2013-07-17

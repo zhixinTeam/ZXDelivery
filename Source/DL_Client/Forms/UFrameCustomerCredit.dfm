@@ -28,6 +28,8 @@ inherited fFrameCustomerCredit: TfFrameCustomerCredit
       OnDblClick = cxView1DblClick
     end
     object cxView2: TcxGridDBTableView [1]
+      PopupMenu = PMenu1
+      OnDblClick = cxView2DblClick
       NavigatorButtons.ConfirmDelete = False
       OnFocusedRecordChanged = cxView2FocusedRecordChanged
       DataController.DataSource = DataSource2
@@ -76,7 +78,7 @@ inherited fFrameCustomerCredit: TfFrameCustomerCredit
     end
     object EditCusID: TcxTextEdit [2]
       Left = 81
-      Top = 96
+      Top = 93
       Hint = 'T.C_ID'
       ParentFont = False
       TabOrder = 3
@@ -84,7 +86,7 @@ inherited fFrameCustomerCredit: TfFrameCustomerCredit
     end
     object EditCusName: TcxTextEdit [3]
       Left = 249
-      Top = 96
+      Top = 93
       Hint = 'T.C_Name'
       ParentFont = False
       TabOrder = 4
@@ -92,7 +94,7 @@ inherited fFrameCustomerCredit: TfFrameCustomerCredit
     end
     object EditMoney: TcxTextEdit [4]
       Left = 456
-      Top = 96
+      Top = 93
       Hint = 'T.A_CreditLimit'
       ParentFont = False
       TabOrder = 5
@@ -100,7 +102,7 @@ inherited fFrameCustomerCredit: TfFrameCustomerCredit
     end
     object EditMemo: TcxTextEdit [5]
       Left = 593
-      Top = 96
+      Top = 93
       ParentFont = False
       TabOrder = 6
       Width = 121
@@ -192,5 +194,14 @@ inherited fFrameCustomerCredit: TfFrameCustomerCredit
     DataSet = QueryDtl
     Left = 34
     Top = 284
+  end
+  object PMenu1: TPopupMenu
+    AutoHotkeys = maManual
+    Left = 6
+    Top = 312
+    object N1: TMenuItem
+      Caption = #20449#29992#23457#26680
+      OnClick = N1Click
+    end
   end
 end

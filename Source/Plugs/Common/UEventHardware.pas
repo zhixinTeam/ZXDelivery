@@ -181,6 +181,7 @@ begin
   //near reader
 
   gMultiJSManager.SaveDataProc := WhenSaveJS;
+  gMultiJSManager.GetTruckProc := GetJSTruck;
   gMultiJSManager.StartJS;
   //counter
   gERelayManager.ControlStart;

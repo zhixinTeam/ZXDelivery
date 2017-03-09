@@ -53,6 +53,11 @@
 {$DEFINE YNHT}
 //特定系统
 
+//辽宁营口
+{$IFDEF LNYK}
+  {$DEFINE COMMON}
+{$ENDIF}
+
 //当阳骨料
 {$IFDEF DYGL}
   {$DEFINE COMMON}

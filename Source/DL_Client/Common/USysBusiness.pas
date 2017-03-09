@@ -968,15 +968,43 @@ begin
     nVal := Float2Float(nCredit, cPrecision, False);
     //adjust float value
 
-    nStr := 'Insert Into %s(C_CusID,C_Money,C_Man,C_Date,C_End,C_Memo) ' +
-            'Values(''%s'', %.2f, ''%s'', %s, ''%s'', ''%s'')';
-    nStr := Format(nStr, [sTable_CusCredit, nCusID, nVal, gSysParam.FUserID,
-            FDM.SQLServerNow, DateTime2Str(nEndTime), nMemo]);
-    FDM.ExecuteSQL(nStr);
+    nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_CreditVerify]);
 
-    nStr := 'Update %s Set A_CreditLimit=A_CreditLimit+%.2f Where A_CID=''%s''';
-    nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
-    FDM.ExecuteSQL(nStr);
+    with FDM.QueryTemp(nStr) do
+    if RecordCount > 0 then
+         nStr := Fields[0].AsString
+    else nStr := sFlag_No; 
+
+    if nStr = sFlag_Yes then //–Ë…Û∫À
+    begin
+      nStr := MakeSQLByStr([SF('C_CusID', nCusID),
+              SF('C_Money', nVal, sfVal),
+              SF('C_Man', gSysParam.FUserID),
+              SF('C_Date', FDM.SQLServerNow, sfVal),
+              SF('C_End', DateTime2Str(nEndTime)),
+              SF('C_Memo',nMemo)
+              ], sTable_CusCredit, '', True);
+      FDM.ExecuteSQL(nStr);
+    end else
+    begin
+      nStr := MakeSQLByStr([SF('C_CusID', nCusID),
+              SF('C_Money', nVal, sfVal),
+              SF('C_Man', gSysParam.FUserID),
+              SF('C_Date', FDM.SQLServerNow, sfVal),
+              SF('C_End', DateTime2Str(nEndTime)),
+              SF('C_Verify', sFlag_Yes),
+              SF('C_VerMan', gSysParam.FUserID),
+              SF('C_VerDate', FDM.SQLServerNow, sfVal),
+              SF('C_Memo',nMemo)
+              ], sTable_CusCredit, '', True);
+      FDM.ExecuteSQL(nStr);
+
+      nStr := 'Update %s Set A_CreditLimit=A_CreditLimit+%.2f ' +
+              'Where A_CID=''%s''';
+      nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
+      FDM.ExecuteSQL(nStr);
+    end;
 
     if not nBool then
       FDM.ADOConn.CommitTrans;

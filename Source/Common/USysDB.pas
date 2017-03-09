@@ -168,6 +168,7 @@ ResourceString
   sFlag_PrintBill     = 'PrintStockBill';            //需打印订单
   sFlag_ViaBillCard   = 'ViaBillCard';               //直接制卡
   sFlag_PayCredit     = 'Pay_Credit';                //回款冲信用
+  sFlag_CreditVerify  = 'CreditVerify';              //信用审核
   sFlag_HYValue       = 'HYMaxValue';                //化验批次量
   sFlag_SaleManDept   = 'SaleManDepartment';         //业务员部门编号
   sFlag_VerifyFQValue = 'VerifyFQValue';             //禁止封签号超发
@@ -580,8 +581,9 @@ ResourceString
   -----------------------------------------------------------------------------}
 
   sSQL_NewCusCredit = 'Create Table $Table(R_ID $Inc ,C_CusID varChar(15),' +
-       'C_Money Decimal(15,5), C_Man varChar(32),' +
-       'C_Date DateTime, C_End DateTime, C_Memo varChar(50))';
+       'C_Money Decimal(15,5), C_Man varChar(32), C_Date DateTime, ' +
+       'C_End DateTime, C_Verify Char(1) Default ''N'', C_VerMan varChar(32),' +
+       'C_VerDate DateTime, C_Memo varChar(50))';
   {-----------------------------------------------------------------------------
    信用明细:CustomerCredit
    *.R_ID:编号
@@ -590,6 +592,8 @@ ResourceString
    *.C_Man:操作人
    *.C_Date:日期
    *.C_End: 有效期
+   *.C_Verify: 已审核(Y/N)
+   *.C_VerMan,C_VerDate: 审核
    *.C_Memo:备注
   -----------------------------------------------------------------------------}
 

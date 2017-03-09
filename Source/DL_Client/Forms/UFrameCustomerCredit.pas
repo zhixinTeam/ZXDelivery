@@ -10,7 +10,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   IniFiles, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter, cxData,
-  cxDataStorage, cxEdit, DB, cxDBData, cxContainer, dxLayoutControl,
+  cxDataStorage, cxEdit, DB, cxDBData, cxContainer, Menus, dxLayoutControl,
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
@@ -36,6 +36,8 @@ type
     cxLevel2: TcxGridLevel;
     dxLayout1Item6: TdxLayoutItem;
     EditDate: TcxButtonEdit;
+    PMenu1: TPopupMenu;
+    N1: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnRefreshClick(Sender: TObject);
@@ -46,6 +48,8 @@ type
     procedure cxView1DblClick(Sender: TObject);
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
+    procedure N1Click(Sender: TObject);
+    procedure cxView2DblClick(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -70,7 +74,7 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, UMgrControl, UFormBase, USysConst, USysDB, USysGrid, USysDataDict,
-  UDataModule, UFormDateFilter;
+  UDataModule, UFormDateFilter, UFormCtrl;
 
 class function TfFrameCustomerCredit.FrameID: integer;
 begin
@@ -227,6 +231,75 @@ procedure TfFrameCustomerCredit.EditDatePropertiesButtonClick(
   Sender: TObject; AButtonIndex: Integer);
 begin
   if ShowDateFilterForm(FStart, FEnd) then QueryDetail('');
+end;
+
+//Desc: 授信审核
+procedure TfFrameCustomerCredit.N1Click(Sender: TObject);
+var nStr,nCID: string;
+    nVal: Double;
+begin
+  if cxView2.DataController.GetSelectedCount < 1 then Exit;
+  //no item
+  
+  nStr := 'Select C_Verify,C_CusID,C_Money From %s Where R_ID=%s';
+  nStr := Format(nStr, [sTable_CusCredit,
+          QueryDtl.FieldByName('R_ID').AsString]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := Fields[0].AsString;
+    nCID := Fields[1].AsString;
+
+    nVal := Fields[2].AsFloat;
+    nVal := Float2Float(nVal, cPrecision, False);
+    //money
+  end else
+  begin
+    nVal := 0;
+    nStr := sFlag_Yes;
+  end;
+
+  if nStr = sFlag_Yes then
+  begin
+    ShowMsg('审核完毕', sHint);
+    Exit;
+  end;
+
+  nStr := '信用变更明细如下: ' + StringOfChar(#32, 16) + #13#10#13#10 +
+          '※.客户名称: %s' + #13#10 +
+          '※.授信金额: %.2f元' + #13#10#13#10 +
+          '继续授信请点击"是".';
+  nStr := Format(nStr, [QueryDtl.FieldByName('C_Name').AsString, nVal]);
+  if not QueryDlg(nStr, sAsk) then Exit;
+
+  FDM.ADOConn.BeginTrans;
+  try
+    nStr := SF('R_ID', QueryDtl.FieldByName('R_ID').AsString);
+    nStr := MakeSQLByStr([
+            SF('C_Verify', sFlag_Yes),
+            SF('C_VerMan', gSysParam.FUserID),
+            SF('C_VerDate', FDM.SQLServerNow, sfVal)
+            ], sTable_CusCredit, nStr, False);
+    FDM.ExecuteSQL(nStr);
+
+    nStr := 'Update %s Set A_CreditLimit=A_CreditLimit+%.2f ' +
+            'Where A_CID=''%s''';
+    nStr := Format(nStr, [sTable_CusAccount, nVal, nCID]);
+    FDM.ExecuteSQL(nStr);
+
+    FDM.ADOConn.CommitTrans;
+    InitFormData;
+  except
+    FDM.ADOConn.RollbackTrans;
+    ShowMsg('审核失败', sError);
+  end;
+end;
+
+procedure TfFrameCustomerCredit.cxView2DblClick(Sender: TObject);
+begin
+  N1Click(nil);
 end;
 
 initialization
