@@ -57,6 +57,7 @@ type
     //查询条件
     procedure OnCreateFrame; override;
     procedure OnDestroyFrame; override;
+    procedure OnLoadPopedom; override;
     procedure OnLoadGridConfig(const nIni: TIniFile); override;
     procedure OnSaveGridConfig(const nIni: TIniFile); override;
     //基类方法
@@ -92,6 +93,12 @@ procedure TfFrameCustomerCredit.OnDestroyFrame;
 begin
   SaveDateRange(Name, FStart, FEnd);
   inherited;
+end;
+
+procedure TfFrameCustomerCredit.OnLoadPopedom;
+begin
+  inherited;
+  N1.Enabled := BtnAdd.Enabled;
 end;
 
 procedure TfFrameCustomerCredit.OnLoadGridConfig(const nIni: TIniFile);
@@ -299,7 +306,9 @@ end;
 
 procedure TfFrameCustomerCredit.cxView2DblClick(Sender: TObject);
 begin
-  N1Click(nil);
+  if N1.Enabled then
+    N1Click(nil);
+  //xxxxx
 end;
 
 initialization
