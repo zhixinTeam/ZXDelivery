@@ -218,6 +218,7 @@ ResourceString
   sFlag_DelayQueue    = 'DelayQueue';                //延迟排队(厂内)
   sFlag_PoundQueue    = 'PoundQueue';                //延迟排队(厂内依据过皮时间)
   sFlag_NetPlayVoice  = 'NetPlayVoice';              //使用网络语音播发
+  sFlag_BatchAuto     = 'BatchAuto';                 //使用自动批次号
 
   sFlag_BusGroup      = 'BusFunction';               //业务编码组
   sFlag_BillNo        = 'Bus_Bill';                  //交货单号
@@ -274,6 +275,7 @@ ResourceString
   sTable_StockParamExt= 'S_StockParamExt';           //参数扩展
   sTable_StockRecord  = 'S_StockRecord';             //检验记录
   sTable_StockHuaYan  = 'S_StockHuaYan';             //开化验单
+  sTable_StockBatcode = 'S_Batcode';                 //批次号
 
   sTable_Truck        = 'S_Truck';                   //车辆表
   sTable_ZTLines      = 'S_ZTLines';                 //装车道
@@ -1286,6 +1288,32 @@ ResourceString
    *.H_Reporter:报告人
   -----------------------------------------------------------------------------}
 
+  sSQL_NewStockBatcode = 'Create Table $Table(R_ID $Inc, B_Stock varChar(32),' +
+       'B_Name varChar(80), B_Prefix varChar(5), B_Base Integer,' +
+       'B_Incement Integer, B_Length Integer, ' +
+       'B_Value $Float, B_Low $Float, B_High $Float, B_Interval Integer,' +
+       'B_AutoNew Char(1), B_UseDate Char(1), B_FirstDate DateTime,' +
+       'B_LastDate DateTime, B_HasUse $Float Default 0, B_Batcode varChar(32))';
+  {-----------------------------------------------------------------------------
+   批次编码表: Batcode
+   *.R_ID: 编号
+   *.B_Stock: 物料号
+   *.B_Name: 物料名
+   *.B_Prefix: 前缀
+   *.B_Base: 起始编码(基数)
+   *.B_Incement: 编号增量
+   *.B_Length: 编号长度
+   *.B_Value:检测量
+   *.B_Low,B_High:上下限(%)
+   *.B_Interval: 编号周期(天)
+   *.B_AutoNew: 元旦重置(Y/N)
+   *.B_UseDate: 使用日期编码
+   *.B_FirstDate: 首次使用时间
+   *.B_LastDate: 上次基数更新时间
+   *.B_HasUse: 已使用
+   *.B_Batcode: 当前批次号
+  -----------------------------------------------------------------------------}
+
   sSQL_NewK3SalePlan = 'Create Table $Table(R_ID $Inc, S_InterID Integer,' +
        'S_EntryID Integer, S_Truck varChar(15), S_Date DateTime)';
   {-----------------------------------------------------------------------------
@@ -1436,8 +1464,9 @@ begin
   AddSysTableItem(sTable_StockParam, sSQL_NewStockParam);
   AddSysTableItem(sTable_StockParamExt, sSQL_NewStockRecord);
   AddSysTableItem(sTable_StockRecord, sSQL_NewStockRecord);
-  AddSysTableItem(sTable_StockHuaYan, sSQL_NewStockHuaYan);  
-  
+  AddSysTableItem(sTable_StockHuaYan, sSQL_NewStockHuaYan);
+  AddSysTableItem(sTable_StockBatcode, sSQL_NewStockBatcode);
+
   AddSysTableItem(sTable_Order, sSQL_NewOrder);
   AddSysTableItem(sTable_OrderBak, sSQL_NewOrder);
   AddSysTableItem(sTable_OrderDtl, sSQL_NewOrderDtl);

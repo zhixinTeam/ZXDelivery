@@ -65,6 +65,7 @@ const
   cBC_PrintCode               = $0056;
   cBC_PrintFixCode            = $0057;   //喷码
   cBC_PrinterEnable           = $0058;   //喷码机启停
+  cBC_GetStockBatcode         = $0059;   //获取批次编号
 
   cBC_JSStart                 = $0060;
   cBC_JSStop                  = $0061;
@@ -76,6 +77,7 @@ const
   cBC_IsTunnelOK              = $0075;
   cBC_TunnelOC                = $0076;
   cBC_PlayVoice               = $0077;
+  cBC_OpenDoorByReader        = $0078;
 
   cBC_SyncCustomer            = $0080;   //远程同步客户
   cBC_SyncSaleMan             = $0081;   //远程同步业务员

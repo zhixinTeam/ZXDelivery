@@ -78,6 +78,7 @@ inherited fFormTodo: TfFormTodo
       Top = 317
       ParentFont = False
       Properties.ReadOnly = True
+      Properties.ScrollBars = ssVertical
       Style.Edges = []
       TabOrder = 4
       Height = 50

@@ -282,6 +282,10 @@ begin
     nStr := SQLQuery.FieldByName('L_ID').AsString;
     if ChangeLadingTruckNo(nStr, nTruck) then
     begin
+      nStr := '修改车牌号[ %s -> %s ].';
+      nStr := Format(nStr, [SQLQuery.FieldByName('L_Truck').AsString, nTruck]);
+      FDM.WriteSysLog(sFlag_BillItem, SQLQuery.FieldByName('L_ID').AsString, nStr, False);
+
       InitFormData(FWhere);
       ShowMsg('车牌号修改成功', sHint);
     end;

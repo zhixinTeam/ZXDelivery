@@ -51,6 +51,7 @@ const
   cFI_FrameStockRecord  = $0043;                     //检验记录
   cFI_FrameStockHuaYan  = $0045;                     //开化验单
   cFI_FrameStockHY_Each = $0046;                     //随车开单
+  cFI_FrameBatch        = $0047;                     //批次管理
 
   cFI_FrameTruckQuery   = $0050;                     //车辆查询
   cFI_FrameCusAccountQuery = $0051;                  //客户账户
@@ -137,6 +138,7 @@ const
   cFI_FormGetPOrderBase  = $1056;                    //采购订单
   cFI_FormOrderDtl      = $1057;                     //采购明细
 
+  cFI_FormBatch         = $1064;                     //批次管理
   cFI_FormStockParam    = $1065;                     //品种管理
   cFI_FormStockHuaYan   = $1066;                     //开化验单
   cFI_FormStockHY_Each  = $1067;                     //随车开单
@@ -349,6 +351,8 @@ begin
   AddMenuModuleItem('MAIN_K04', cFI_FormStockHuaYan, mtForm);
   AddMenuModuleItem('MAIN_K05', cFI_FormStockHY_Each, mtForm);
   AddMenuModuleItem('MAIN_K06', cFI_FrameStockHY_Each);
+  AddMenuModuleItem('MAIN_K07', cFI_FrameBatch);
+  AddMenuModuleItem('MAIN_K08', cFI_FormBatch, mtForm);
 
   AddMenuModuleItem('MAIN_L01', cFI_FrameTruckQuery);
   AddMenuModuleItem('MAIN_L02', cFI_FrameCusAccountQuery);

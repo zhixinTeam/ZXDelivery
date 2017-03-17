@@ -628,10 +628,9 @@ end;
 
 //Desc: 由读头指定交货单
 procedure TfFrameManualPoundItem.BtnReadCardClick(Sender: TObject);
-var nStr: string;
+var nStr, nReader, nCard: string;
     nInit: Int64;
     nChar: Char;
-    nCard: string;
 begin
   nCard := '';
   try
@@ -641,7 +640,7 @@ begin
     while GetTickCount - nInit < 5 * 1000 do
     begin
       ShowWaitForm(ParentForm, '正在读卡', False);
-      nStr := ReadPoundCard(FPoundTunnel.FID);
+      nStr := ReadPoundCard(FPoundTunnel.FID, nReader);
 
       if nStr <> '' then
       begin

@@ -673,7 +673,7 @@ begin
 end;
 
 procedure TBlueReader.DoReadEvent(const nContext: TIdContext; const nBuff: string);
-var nPeerIP, nTmp: string;
+var nPeerIP, nStr: string;
     nReader: PBlueReaderHost;
     nIdx, nInt, nPos: Integer;
 begin
@@ -713,78 +713,73 @@ begin
     if Length(nReader.FRecvData) < 10 then Exit;
     //最小长度大于10
 
-    if Length(nReader.FReaderID) > 0 then //有读卡器编号(先读卡号,后读编号)
+    while Length(nReader.FRecvData)>10 do
     begin
-      nPos := Pos(cBlueReader_Flag_Record, nReader.FRecvData);
+      nPos := Pos(cBlueReader_Flag_End, nReader.FRecvData);
+      if nPos < 1 then Exit;
+      //有完整的数据包,每个数据包都已#13#10结束
+
+      nStr := Copy(nReader.FRecvData, 1, nPos-1);
+      Delete(nReader.FRecvData, 1, nPos + 1);
+      if Length(nStr) < 1 then Continue;
+      //NULL 报文
+
+      FCardInfo.Clear;
+      //清空卡号信息
+
+      nPos := Pos(cBlueReader_Flag_Record, nStr);
       if nPos > 0 then
       begin
-        Delete(nReader.FRecvData, 1, nPos - 1);
-        //清除卡号前的无效数据
-
-        nPos := Pos(cBlueReader_Flag_End, nReader.FRecvData);
-        nTmp := Copy(nReader.FRecvData, 1, nPos - 1);
-        Delete(nReader.FRecvData, 1, nPos - 1);
-        //获取卡号信息
-
-        SplitStr(nTmp, FCardInfo, 0, ' ', False);
+        SplitStr(nStr, FCardInfo, 0, ' ', False);
         SeTBlueReaderCard(nReader.FReaderID, FCardInfo[2]);
         //解析卡号
 
         {$IFDEF DEBUG}
         WriteLog('读卡器:' + nReader.FReaderID + ' 收到卡号:' + FCardInfo[2]);
         {$ENDIF}
+        Continue;
       end;
       //卡号
 
-      nPos := Pos(cBlueReader_Flag_CardNO, nReader.FRecvData);
+      nPos := Pos(cBlueReader_Flag_CardNO, nStr);
       if nPos > 0 then
       begin
-        nTmp := Copy(nReader.FRecvData, nPos, cBlueReader_Card_Length);
-        SplitStr(nTmp, FCardInfo, 0, ' ', False);
+        SplitStr(nStr, FCardInfo, 0, ' ', False);
         SeTBlueReaderCard(nReader.FReaderID, FCardInfo[2]);
         
         {$IFDEF DEBUG}
         WriteLog('读卡器:' + nReader.FReaderID + ' 收到卡号:' + FCardInfo[2]);
         {$ENDIF}
+        Continue;
       end;
       //卡号
+
+      nPos := Pos(cBlueReader_Flag_ReaderID, nStr);
+      if nPos > 0 then
+      begin
+        nReader.FReaderID := Copy(nStr, 10, 10);
+        //获取到读卡器编号
+
+        {$IFDEF DEBUG}
+        WriteLog(nReader.FReaderID);
+        {$ENDIF}
+        Continue;
+      end;
+      //读卡器编号
+
+      nPos := Pos(cBlueReader_Flag_Bumac, nStr);
+      if nPos > 0 then
+      begin
+        nReader.FReaderID := Copy(nStr, 7, 10);
+        //获取到读卡器编号
+
+        {$IFDEF DEBUG}
+        WriteLog(nReader.FReaderID);
+        {$ENDIF}
+        Continue;
+      end;
+      //读卡器编号
     end;
-
-    nPos := Pos(cBlueReader_Flag_ReaderID, nReader.FRecvData);
-    if nPos > 0 then
-    begin
-      Delete(nReader.FRecvData, 1, nPos - 1);
-      //清除读卡器编号前的无效数据
-
-      nReader.FReaderID := Copy(nReader.FRecvData, 10, 10);
-      Delete(nReader.FRecvData, 1, 19);
-      //获取到读卡器编号
-
-      {$IFDEF DEBUG}
-      WriteLog(nReader.FReaderID);
-      {$ENDIF}
-    end;
-    //读卡器编号
-
-    nPos := Pos(cBlueReader_Flag_Bumac, nReader.FRecvData);
-    if nPos > 0 then
-    begin
-      Delete(nReader.FRecvData, 1, nPos - 1);
-      //清除卡号前的无效数据
-
-      nReader.FReaderID := Copy(nReader.FRecvData, 7, 10);
-      Delete(nReader.FRecvData, 1, 16);
-      //获取到读卡器编号
-
-      {$IFDEF DEBUG}
-      WriteLog(nReader.FReaderID);
-      {$ENDIF}
-    end;
-    //读卡器编号
-
-    {$IFDEF DEBUG}
-    WriteLog(nReader.FRecvData);
-    {$ENDIF}
 
     if Length(nReader.FRecvData) > cBlueReader_Recv_Length then
       nReader.FRecvData := '';

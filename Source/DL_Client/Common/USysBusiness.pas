@@ -162,7 +162,7 @@ function GetTruckPoundItem(const nTruck: string;
 function SaveTruckPoundItem(const nTunnel: PPTTunnelItem;
  const nData: TLadingBillItems): Boolean;
 //保存车辆过磅记录
-function ReadPoundCard(const nTunnel: string): string;
+function ReadPoundCard(const nTunnel: string; var nReader: string): string;
 //读取指定磅站读头上的卡号
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
@@ -209,6 +209,8 @@ procedure PrinterEnable(const nTunnel: string; const nEnable: Boolean);
 //启停喷码机
 function ChangeDispatchMode(const nMode: Byte): Boolean;
 //切换调度模式
+function OpenDoorByReader(const nReader: string; nType: string = 'Y'): Boolean;
+//读卡器打开道闸
 
 function GetHYMaxValue: Double;
 function GetHYValueByStockNo(const nNo: string): Double;
@@ -1101,12 +1103,18 @@ end;
 //Date: 2014-10-02
 //Parm: 通道号
 //Desc: 读取nTunnel读头上的卡号
-function ReadPoundCard(const nTunnel: string): string;
+function ReadPoundCard(const nTunnel: string; var nReader: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
+  Result := '';
+  nReader:= '';
+  //卡号
+
   if CallBusinessHardware(cBC_GetPoundCard, nTunnel, '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
+  begin
+    Result := Trim(nOut.FData);
+    nReader:= Trim(nOut.FExtParam);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -2468,6 +2476,13 @@ begin
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then
     Result := Fields[0].AsString = sFlag_Yes;
+end;
+
+function OpenDoorByReader(const nReader: string; nType: string = 'Y'): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessHardware(cBC_OpenDoorByReader, nReader, nType,
+            @nOut, False);
 end;  
 
 end.

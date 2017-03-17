@@ -10,7 +10,7 @@ interface
 uses
   Windows, Classes, Controls, DB, SysUtils, UBusinessWorker, UBusinessPacker,
   UBusinessConst, UMgrDBConn, UMgrParam, ZnMD5, ULibFun, UFormCtrl, USysLoger,
-  USysDB, UMITConst;
+  USysDB, UMITConst, UMgrRFID102;
 
 type
   THardwareDBWorker = class(TBusinessWorkerBase)
@@ -70,6 +70,8 @@ type
     function TruckProbe_IsTunnelOK(var nData: string): Boolean;
     function TruckProbe_TunnelOC(var nData: string): Boolean;
     //车辆检测控制器业务
+    function OpenDoorByReader(var nData: string): Boolean;
+    //通过读卡器打开道闸
   public
     constructor Create; override;
     destructor destroy; override;
@@ -244,6 +246,9 @@ begin
 
    cBC_IsTunnelOK           : Result := TruckProbe_IsTunnelOK(nData);
    cBC_TunnelOC             : Result := TruckProbe_TunnelOC(nData);
+
+   cBC_OpenDoorByReader     : Result := OpenDoorByReader(nData);
+   //xxxxxx
    else
     begin
       Result := False;
@@ -294,10 +299,10 @@ end;
 //Parm: 磅站号[FIn.FData]
 //Desc: 获取指定磅站读卡器上的磁卡号
 function THardwareCommander.PoundCardNo(var nData: string): Boolean;
-var nStr: string;
+var nStr, nReader: string;
 begin
   Result := True;
-  FOut.FData := gHardwareHelper.GetPoundCard(FIn.FData);
+  FOut.FData := gHardwareHelper.GetPoundCard(FIn.FData, nReader);
   if FOut.FData = '' then Exit;
 
   nStr := 'Select C_Card From $TB Where C_Card=''$CD'' or ' +
@@ -307,6 +312,7 @@ begin
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   if RecordCount > 0 then
   begin
+    FOut.FExtParam := nReader;
     FOut.FData := Fields[0].AsString;
     gHardwareHelper.SetPoundCardExt(FIn.FData, FOut.FData);
     //将远距离卡号对应的近距离卡号绑定
@@ -633,6 +639,51 @@ begin
 
   nData := Format('TunnelOC -> %s:%s', [FIn.FData, FIn.FExtParam]);
   WriteLog(nData);
+end;
+
+//Date: 2017/2/8
+//Parm: 读卡器编号[FIn.FData];读卡器类型[FIn.FExtParam]
+//Desc: 读卡器打开道闸
+function THardwareCommander.OpenDoorByReader(var nData: string): Boolean;
+var nReader,nIn: string;
+    nIdx, nInt: Integer;
+    nRItem: PHYReaderItem;
+begin
+  Result := True;
+  {$IFNDEF HYRFID201}
+  Exit;
+  //未启用电子标签读卡器
+  {$ENDIF}
+
+  nIn := StringReplace(FIn.FData, 'V', 'H', [rfReplaceAll]);
+  //如果是虚拟读卡器，则替换成对应的真实读卡器
+
+  nInt := -1;
+  for nIdx:=gHYReaderManager.Readers.Count-1 downto 0 do
+  begin
+    nRItem :=  gHYReaderManager.Readers[nIdx];
+
+    if CompareText(nRItem.FID, nIn) = 0 then
+    begin
+      nInt := nIdx;
+      Break;
+    end;
+  end;
+
+  if nInt < 0 then Exit;
+  //reader not exits
+
+  nReader:= '';
+  nRItem := gHYReaderManager.Readers[nInt];
+  if FIn.FExtParam = sFlag_No then
+  begin
+    if Assigned(nRItem.FOptions) then
+       nReader := nRItem.FOptions.Values['ExtReader'];
+  end
+  else nReader := nIn;
+
+  if Trim(nReader) <> '' then
+    gHYReaderManager.OpenDoor(Trim(nReader));
 end;
 
 initialization

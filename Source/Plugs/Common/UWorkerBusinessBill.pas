@@ -411,11 +411,11 @@ end;
 function TWorkerBusinessBills.SaveBills(var nData: string): Boolean;
 var nIdx: Integer;
     nVal,nMoney: Double;
-    nOut: TWorkerBusinessCommand;
     nStr,nSQL,nFixMoney: string;
     {$IFDEF TruckInNow}
     nStatus, nNextStatus: string;
     {$ENDIF}
+    nOut, nTmp: TWorkerBusinessCommand;
 begin
   Result := False;
   FListA.Text := PackerDecodeStr(FIn.FData);
@@ -506,6 +506,18 @@ begin
       FListC.Text := PackerDecodeStr(FListB[nIdx]);
       //get bill info
 
+      if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
+         FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then
+         raise Exception.Create(nTmp.FData);
+         
+      FListC.Values['HYDan'] := nTmp.FData; 
+      if nOut.FBase.FErrCode = sFlag_ForceHint then
+      begin
+        FOut.FBase.FErrCode := sFlag_ForceHint;
+        FOut.FBase.FErrDesc := FOut.FBase.FErrDesc + nOut.FBase.FErrDesc;
+      end;
+      //获取批次号信息
+
       nStr := MakeSQLByStr([SF('L_ID', nOut.FData),
               SF('L_ZhiKa', FListA.Values['ZhiKa']),
               SF('L_Project', FListA.Values['Project']),
@@ -532,6 +544,7 @@ begin
               SF('L_Lading', FListA.Values['Lading']),
               SF('L_IsVIP', FListA.Values['IsVIP']),
               SF('L_Seal', FListC.Values['Seal']),
+              SF('L_HYDan', FListC.Values['HYDan']),
               SF('L_Man', FIn.FBase.FFrom.FUser),
               SF('L_Date', sField_SQLServer_Now, sfVal)
               ], sTable_Bill,SF('L_ID', nOut.FData),FListA.Values['Card']='');
@@ -549,6 +562,12 @@ begin
                 ], sTable_PoundLog, SF('P_Bill', nOut.FData), False);
       gDBConnManager.WorkerExec(FDBConn, nStr);
       //更新磅单基本信息
+
+      nStr := 'Update %s Set B_HasUse=B_HasUse+%s Where B_Batcode=''%s''';
+      nStr := Format(nStr, [sTable_StockBatcode, FListC.Values['Value'],
+              FListC.Values['HYDan']]);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+      //更新批次号使用量
 
       if FListA.Values['Card'] = '' then
       begin
@@ -1036,13 +1055,13 @@ function TWorkerBusinessBills.DeleteBill(var nData: string): Boolean;
 var nIdx: Integer;
     nHasOut: Boolean;
     nVal,nMoney: Double;
-    nStr,nP,nFix,nRID,nCus,nBill,nZK: string;
+    nStr,nP,nFix,nRID,nCus,nBill,nZK,nHY: string;
 begin
   Result := False;
   //init
 
-  nStr := 'Select L_ZhiKa,L_Value,L_Price,L_CusID,L_OutFact,L_ZKMoney From %s ' +
-          'Where L_ID=''%s''';
+  nStr := 'Select L_ZhiKa,L_Value,L_Price,L_CusID,L_OutFact,L_ZKMoney,L_HYDan ' +
+          'From %s Where L_ID=''%s''';
   nStr := Format(nStr, [sTable_Bill, FIn.FData]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
@@ -1065,6 +1084,7 @@ begin
     end;
     }
     nCus := FieldByName('L_CusID').AsString;
+    nHY  := FieldByName('L_HYDan').AsString;
     nZK  := FieldByName('L_ZhiKa').AsString;
     nFix := FieldByName('L_ZKMoney').AsString;
 
@@ -1147,6 +1167,11 @@ begin
       gDBConnManager.WorkerExec(FDBConn, nStr);
       //释放限提金额
     end;
+
+    nStr := 'Update %s Set B_HasUse=B_HasUse-%.2f Where B_Batcode=''%s''';
+    nStr := Format(nStr, [sTable_StockBatcode, nVal, nHY]);
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+    //释放使用的批次号
 
     //--------------------------------------------------------------------------
     nStr := Format('Select * From %s Where 1<>1', [sTable_Bill]);
@@ -1911,6 +1936,12 @@ begin
         nSQL := Format(nSQL, [sTable_ZhiKa, m, FZhiKa]);
         FListA.Add(nSQL); //更新纸卡限提金额
       end;
+
+      nSQL := 'Update %s Set B_HasUse=B_HasUse+(%.2f - %.2f) ' +
+              'Where B_Stock=''%s''';
+      nSQL := Format(nSQL, [sTable_StockBatcode, FValue, nVal, FStockNo]);
+      FListA.Add(nSQL);        
+      //更新批次号使用量
     end;
 
     nVal := 0;

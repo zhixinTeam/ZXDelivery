@@ -63,6 +63,7 @@ type
     procedure Timer_ReadCardTimer(Sender: TObject);
     procedure TimerDelayTimer(Sender: TObject);
     procedure Timer_SaveFailTimer(Sender: TObject);
+    procedure EditBillKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     FCardUsed: string;
@@ -77,14 +78,16 @@ type
     FUIData,FInnerData: TLadingBillItem;
     //称重数据
     FLastCardDone: Int64;
-    FLastCard, FCardTmp: string;
-    //上次卡号
-    FListA: TStrings;
+    FLastCard, FCardTmp, FLastReader: string;
+    //上次卡号, 临时卡号, 读卡器编号
     FSampleIndex: Integer;
     FValueSamples: array of Double;
     //数据采样
-    FEmptyPoundInit: Int64;
-    //空磅计时
+    FBarrierGate: Boolean;
+    //是否采用道闸
+    FEmptyPoundInit, FDoneEmptyPoundInit: Int64;
+    //空磅计时,过磅保存后空磅
+    FEmptyPoundIdleLong, FEmptyPoundIdleShort: Int64;
     procedure SetUIData(const nReset: Boolean; const nOnlyData: Boolean = False);
     //界面数据
     procedure SetImageStatus(const nImage: TImage; const nOff: Boolean);
@@ -142,14 +145,12 @@ begin
   FIsWeighting := False;
   
   FEmptyPoundInit := 0;
-  FListA := TStringList.Create;
 end;
 
 procedure TfFrameAutoPoundItem.OnDestroyFrame;
 begin
   gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
   //关闭表头端口
-  FListA.Free;
   inherited;
 end;
 
@@ -228,8 +229,20 @@ end;
 //Desc: 设置通道
 procedure TfFrameAutoPoundItem.SetTunnel(const nTunnel: PPTTunnelItem);
 begin
+  FBarrierGate := False;
+  FEmptyPoundIdleLong := -1;
+  FEmptyPoundIdleShort:= -1;
+
   FPoundTunnel := nTunnel;
   SetUIData(True);
+
+  if Assigned(FPoundTunnel.FOptions) then
+  with FPoundTunnel.FOptions do
+  begin
+    FBarrierGate := Values['BarrierGate'] = sFlag_Yes;
+    FEmptyPoundIdleLong := StrToInt64Def(Values['EmptyIdleLong'], 60);
+    FEmptyPoundIdleShort:= StrToInt64Def(Values['EmptyIdleShort'], 5);
+  end;
 end;
 
 //Desc: 重置界面数据
@@ -259,11 +272,16 @@ begin
     EditBill.Properties.Items.Clear;
 
     FIsSaving    := False;
-    FIsWeighting := False;
     FEmptyPoundInit := 0;
-    
-    gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
-    //关闭表头端口
+
+    if not FIsWeighting then
+    begin
+      gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
+      //关闭表头端口
+
+      Timer_ReadCard.Enabled := True;
+      //启动读卡
+    end;
   end;
 
   with FUIData do
@@ -353,9 +371,9 @@ end;
 //Desc: 读取nCard对应的交货单
 procedure TfFrameAutoPoundItem.LoadBillItems(const nCard: string);
 var nRet: Boolean;
-    nStr,nHint: string;
     nIdx,nInt: Integer;
     nBills: TLadingBillItems;
+    nStr,nHint, nVoice: string;
 begin
   nStr := Format('读取到卡号[ %s ],开始执行业务.', [nCard]);
   WriteLog(nStr);
@@ -368,6 +386,9 @@ begin
   if (not nRet) or (Length(nBills) < 1)
   then
   begin
+    nVoice := '读取磁卡信息失败,请联系管理员';
+    PlayVoice(nVoice);
+    WriteLog(nVoice);
     SetUIData(True);
     Exit;
   end;
@@ -399,15 +420,18 @@ begin
             TruckStatusToStr(FStatus), TruckStatusToStr(FNextStatus)]);
     nHint := nHint + nStr;
 
-    nStr := '车辆 %s 不能过磅,应该去 %s ';
-    nStr := Format(nStr, [FTruck, TruckStatusToStr(FNextStatus)]);
-    PlayVoice(nStr);
+    nVoice := '车辆 %s 不能过磅,应该去 %s ';
+    nVoice := Format(nVoice, [FTruck, TruckStatusToStr(FNextStatus)]);
   end;
 
   if nInt = 0 then
   begin
+    PlayVoice(nVoice);
+    //车辆状态异常
+
     nHint := '该车辆当前不能过磅,详情如下: ' + #13#10#13#10 + nHint;
     WriteSysLog(nStr);
+    SetUIData(True);
     Exit;
   end;
 
@@ -441,32 +465,57 @@ begin
   nInt := GetTruckLastTime(FUIData.FTruck);
   if (nInt > 0) and (nInt < FPoundTunnel.FCardInterval) then
   begin
-    nStr := '车辆[ %s ]需等待 %d 秒后才能过磅';
-    nStr := Format(nStr, [FUIData.FTruck, FPoundTunnel.FCardInterval - nInt]);
-
-    WriteLog(nStr);
-    //PlayVoice(nStr);
-
-    nStr := Format('磅站[ %s.%s ]: ',[FPoundTunnel.FID,
-            FPoundTunnel.FName]) + nStr;
+    nStr := '磅站[ %s.%s ]: 车辆[ %s ]需等待 %d 秒后才能过磅';
+    nStr := Format(nStr, [FPoundTunnel.FID, FPoundTunnel.FName,
+            FUIData.FTruck, FPoundTunnel.FCardInterval - nInt]);
     WriteSysLog(nStr);
     SetUIData(True);
     Exit;
   end;
+  //指定时间内车辆禁止过磅
 
   InitSamples;
   //初始化样本
-  
+
   if not FPoundTunnel.FUserInput then
-    gPoundTunnelManager.ActivePort(FPoundTunnel.FID, OnPoundDataEvent, True);
+  if not gPoundTunnelManager.ActivePort(FPoundTunnel.FID,
+         OnPoundDataEvent, True) then
+  begin
+    nHint := '连接地磅表头失败，请联系管理员检查硬件连接';
+    WriteSysLog(nHint);
+
+    nVoice := nHint;
+    PlayVoice(nVoice);
+    
+    SetUIData(True);
+    Exit;
+  end;
+
+  Timer_ReadCard.Enabled := False;
+  FDoneEmptyPoundInit := 0;
   FIsWeighting := True;
+  //停止读卡,开始称重
+
+  if FBarrierGate then
+  begin
+    nStr := '[n1]%s刷卡成功请上磅,并熄火停车';
+    nStr := Format(nStr, [FUIData.FTruck]);
+    PlayVoice(nStr);
+    //读卡成功，语音提示
+
+    {$IFNDEF DEBUG}
+    OpenDoorByReader(FLastReader);
+    //打开主道闸
+    {$ENDIF}
+  end;
+  //车辆上磅
 end;
 
 //------------------------------------------------------------------------------
 //Desc: 由定时读取交货单
 procedure TfFrameAutoPoundItem.Timer_ReadCardTimer(Sender: TObject);
 var nStr,nCard: string;
-    nLast: Int64;
+    nLast, nDoneTmp: Int64;
 begin
   if gSysParam.FIsManual then Exit;
   Timer_ReadCard.Tag := Timer_ReadCard.Tag + 1;
@@ -477,24 +526,29 @@ begin
 
   try
     WriteLog('正在读取磁卡号.');
-    nCard := Trim(ReadPoundCard(FPoundTunnel.FID));
+    {$IFNDEF DEBUG}
+    nCard := Trim(ReadPoundCard(FPoundTunnel.FID, FLastReader));
+    {$ENDIF}
     if nCard = '' then Exit;
 
     if nCard <> FLastCard then
-      FLastCardDone := 0;
+         nDoneTmp := 0
+    else nDoneTmp := FLastCardDone;
     //新卡时重置
 
-    nLast := Trunc((GetTickCount - FLastCardDone) / 1000);
-    if nLast < FPoundTunnel.FCardInterval then
+    {$IFDEF DEBUG}
+    nStr := '磅站[ %s.%s ]: 读取到新卡号::: %s =>旧卡号::: %s';
+    nStr := Format(nStr, [FPoundTunnel.FID, FPoundTunnel.FName,
+            nCard, FLastCard]);
+    WriteSysLog(nStr);
+    {$ENDIF}
+
+    nLast := Trunc((GetTickCount - nDoneTmp) / 1000);
+    if (nDoneTmp <> 0) and (nLast < FPoundTunnel.FCardInterval)  then
     begin
-      nStr := '磁卡[ %s ]需等待 %d 秒后才能过磅';
-      nStr := Format(nStr, [nCard, FPoundTunnel.FCardInterval - nLast]);
-
-      WriteLog(nStr);
-      //PlayVoice(nStr);
-
-      nStr := Format('磅站[ %s.%s ]: ',[FPoundTunnel.FID,
-              FPoundTunnel.FName]) + nStr;
+      nStr := '磅站[ %s.%s ]: 磁卡[ %s ]需等待 %d 秒后才能过磅';
+      nStr := Format(nStr, [FPoundTunnel.FID, FPoundTunnel.FName,
+              nCard, FPoundTunnel.FCardInterval - nLast]);
       WriteSysLog(nStr);
       Exit;
     end;
@@ -657,12 +711,6 @@ begin
   Result := False;
   //init
 
-  if (FUIData.FPData.FValue <= 0) and (FUIData.FMData.FValue <= 0) then
-  begin
-    WriteLog('请先称重');
-    Exit;
-  end;
-
   if (FUIData.FPData.FValue > 0) and (FUIData.FMData.FValue > 0) then
   begin
     if FUIData.FPData.FValue > FUIData.FMData.FValue then
@@ -672,8 +720,8 @@ begin
     end;
   end;
 
-  if (Length(FBillItems)>0) and (FCardUsed = sFlag_Provide) then
-    nNextStatus := FBillItems[0].FNextStatus;
+  nNextStatus := FBillItems[0].FNextStatus;
+  //暂存过磅状态
 
   SetLength(FBillItems, 1);
   FBillItems[0] := FUIData;
@@ -689,9 +737,7 @@ begin
     else FMData.FStation := FPoundTunnel.FID;
   end;
 
-  if FCardUsed = sFlag_Provide then
-       Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel)
-  else Result := SaveTruckPoundItem(FPoundTunnel, FBillItems);
+  Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel)
   //保存称重
 end;
 
@@ -716,6 +762,7 @@ end;
 //Desc: 处理表头数据
 procedure TfFrameAutoPoundItem.OnPoundData(const nValue: Double);
 var nRet: Boolean;
+    nInt: Int64;
 begin
   FLastBT := GetTickCount;
   EditValue.Text := Format('%.2f', [nValue]);
@@ -725,17 +772,48 @@ begin
   if gSysParam.FIsManual then Exit;
   //手动时无效
 
-  if nValue < 0.02 then //空磅
+  if nValue < FPoundTunnel.FPort.FMinValue then //空磅
   begin
     if FEmptyPoundInit = 0 then
       FEmptyPoundInit := GetTickCount;
-    if GetTickCount - FEmptyPoundInit < 10 * 1000 then Exit;
-    //延迟重置
+    nInt := GetTickCount - FEmptyPoundInit;
 
-    FEmptyPoundInit := 0;
-    Timer_SaveFail.Enabled := True;
+    if (nInt > FEmptyPoundIdleLong * 1000) then
+    begin
+      FIsWeighting :=False;
+      Timer_SaveFail.Enabled := True;
+
+      WriteSysLog('刷卡后司机无响应,退出称重.');
+      Exit;
+    end;
+    //上磅时间,延迟重置
+
+    if (nInt > FEmptyPoundIdleShort * 1000) and   //保证空磅
+       (FDoneEmptyPoundInit>0) and (GetTickCount-FDoneEmptyPoundInit>nInt) then
+    begin
+      FIsWeighting :=False;
+      Timer_SaveFail.Enabled := True;
+
+      WriteSysLog('司机已下磅,退出称重.');
+      Exit;
+    end;
+    //上次保存成功后,空磅超时,认为车辆下磅
+
     Exit;
-  end else FEmptyPoundInit := 0;
+  end else
+  begin
+    FEmptyPoundInit := 0;
+    if FDoneEmptyPoundInit > 0 then
+      FDoneEmptyPoundInit := GetTickCount;
+    //车辆称重完毕后，未下磅
+  end;
+
+  AddSample(nValue);
+  if not IsValidSamaple then Exit;
+  //样本验证不通过
+
+  if Length(FBillItems) < 1 then Exit;
+  //无称重数据
 
   if FCardUsed = sFlag_Provide then
   begin
@@ -765,9 +843,7 @@ begin
   else FUIData.FMData.FValue := nValue;
 
   SetUIData(False);
-  AddSample(nValue);
-  if not IsValidSamaple then Exit;
-  //样本验证不通过
+  //更新界面
 
   {$IFDEF MITTruckProber}
     if not IsTunnelOK(FPoundTunnel.FID) then
@@ -790,24 +866,30 @@ begin
   else nRet := SavePoundSale;
 
   if nRet then
-  begin
-    FIsWeighting := False;
-    TimerDelay.Enabled := True;
-  end else Timer_SaveFail.Enabled := True;
+       TimerDelay.Enabled := True
+  else Timer_SaveFail.Enabled := True;
+
+  if FBarrierGate then
+    OpenDoorByReader(FLastReader, sFlag_No);
+  //打开副道闸
 end;
 
 procedure TfFrameAutoPoundItem.TimerDelayTimer(Sender: TObject);
 begin
   try
     TimerDelay.Enabled := False;
-    FLastCardDone := GetTickCount;
-    FLastCard     := FCardTmp;
     WriteSysLog(Format('对车辆[ %s ]称重完毕.', [FUIData.FTruck]));
-
     PlayVoice(#9 + FUIData.FTruck);
     //播放语音
-      
-    Timer2.Enabled := True;
+
+    FLastCard     := FCardTmp;
+    FLastCardDone := GetTickCount;
+    FDoneEmptyPoundInit := GetTickCount;
+    //保存状态
+
+    if not FBarrierGate then
+      FIsWeighting := False;
+    //磅上无道闸时，即时过磅完毕
 
     {$IFDEF MITTruckProber}
         TunnelOC(FPoundTunnel.FID, True);
@@ -818,9 +900,8 @@ begin
       gProberManager.TunnelOC(FPoundTunnel.FID, True);
       {$ENDIF}
     {$ENDIF} //开红绿灯
-    
-    gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
-    //关闭表头
+
+    Timer2.Enabled := True;
     SetUIData(True);
   except
     on E: Exception do
@@ -878,21 +959,20 @@ end;
 
 procedure TfFrameAutoPoundItem.PlayVoice(const nStrtext: string);
 begin
+  {$IFNDEF DEBUG}
   if (Assigned(FPoundTunnel.FOptions)) and
      (CompareText('NET', FPoundTunnel.FOptions.Values['Voice']) = 0) then
        gNetVoiceHelper.PlayVoice(nStrtext, FPoundTunnel.FID, 'pound')
   else gVoiceHelper.PlayVoice(nStrtext);
+  {$ENDIF}
 end;
 
 procedure TfFrameAutoPoundItem.Timer_SaveFailTimer(Sender: TObject);
 begin
   inherited;
   try
+    FDoneEmptyPoundInit := GetTickCount;
     Timer_SaveFail.Enabled := False;
-    FLastCardDone := GetTickCount;
-
-    gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
-    //关闭表头
     SetUIData(True);
   except
     on E: Exception do
@@ -901,6 +981,31 @@ begin
                                                FPoundTunnel.FName, E.Message]));
       //loged
     end;
+  end;
+end;
+
+procedure TfFrameAutoPoundItem.EditBillKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  inherited;
+  if Key = #13 then
+  try
+    Key := #0;
+    EditBill.Text := Trim(EditBill.Text);
+
+    if FIsWeighting or EditBill.Properties.ReadOnly or
+       (EditBill.Text = '') then
+    begin
+      SwitchFocusCtrl(ParentForm, True);
+      Exit;
+    end;
+
+    {$IFDEF DEBUG}
+    FCardTmp := EditBill.Text;
+    LoadBillItems(EditBill.Text);
+    {$ENDIF}
+  finally
+    EditBill.Enabled := True;
   end;
 end;
 
