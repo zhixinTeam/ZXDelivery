@@ -459,6 +459,18 @@ begin
   try
     if FIn.FData <> '' then
     begin
+      nSQL := 'Update %s Set O_Card=Null Where O_Card=''%s''';
+      nSQL := Format(nSQL, [sTable_Order, FIn.FExtParam]);
+      gDBConnManager.WorkerExec(FDBConn, nSQL);
+
+      nSQL := 'Update %s Set D_Card=Null Where D_Card=''%s''';
+      nSQL := Format(nSQL, [sTable_OrderDtl, FIn.FExtParam]);
+      gDBConnManager.WorkerExec(FDBConn, nSQL);
+
+      nSQL := 'Update %s Set C_Status=''%s'', C_Used=Null Where C_Card=''%s''';
+      nSQL := Format(nSQL, [sTable_Card, sFlag_CardInvalid, FIn.FExtParam]);
+      gDBConnManager.WorkerExec(FDBConn, nSQL);
+
       nStr := AdjustListStrFormat(FIn.FData, '''', True, ',', False);
       //重新计算列表
 
