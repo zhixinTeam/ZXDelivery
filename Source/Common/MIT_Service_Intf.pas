@@ -15,8 +15,8 @@ interface
 
 uses
   {vcl:} Classes, TypInfo,
-  {RemObjects:} uROXMLIntf, uROClasses, uROClient, uROTypes, uROClientIntf,
-  {$IFDEF RO_v90}uROProxy{$ENDIF};
+  {RemObjects:} uROXMLIntf, uROClasses, uROClient, uROTypes, uROClientIntf
+  {$IFDEF RO_v90},uROProxy{$ENDIF};
 
 const
   { Library ID }

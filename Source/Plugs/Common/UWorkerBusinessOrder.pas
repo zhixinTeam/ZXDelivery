@@ -453,66 +453,8 @@ end;
 //Parm: 采购订单[FIn.FData];磁卡号[FIn.FExtParam]
 //Desc: 为采购单绑定磁卡
 function TWorkerBusinessOrders.SaveOrderCard(var nData: string): Boolean;
-var nStr,nSQL,nTruck: string;
+var nStr,nSQL: string;
 begin
-  Result := False;
-  nTruck := '';
-
-  FListB.Text := FIn.FExtParam;
-  //磁卡列表
-  nStr := AdjustListStrFormat(FIn.FData, '''', True, ',', False);
-  //采购单列表
-
-  nSQL := 'Select O_ID,O_Card,O_Truck From %s Where O_ID In (%s)';
-  nSQL := Format(nSQL, [sTable_Order, nStr]);
-
-  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
-  begin
-    if RecordCount < 1 then
-    begin
-      nData := Format('采购订单[ %s ]已丢失.', [FIn.FData]);
-      Exit;
-    end;
-
-    First;
-    while not Eof do
-    begin
-      nStr := FieldByName('O_Truck').AsString;
-      if (nTruck <> '') and (nStr <> nTruck) then
-      begin
-        nData := '采购单[ %s ]的车牌号不一致,不能并单.' + #13#10#13#10 +
-                 '*.本单车牌: %s' + #13#10 +
-                 '*.其它车牌: %s' + #13#10#13#10 +
-                 '相同牌号才能并单,请修改车牌号,或者单独办卡.';
-        nData := Format(nData, [FieldByName('O_ID').AsString, nStr, nTruck]);
-        Exit;
-      end;
-
-      if nTruck = '' then
-        nTruck := nStr;
-      //xxxxx
-
-      nStr := FieldByName('O_Card').AsString;
-      //正在使用的磁卡
-        
-      if (nStr <> '') and (FListB.IndexOf(nStr) < 0) then
-        FListB.Add(nStr);
-      Next;
-    end;
-  end;
-
-  //----------------------------------------------------------------------------
-  nSQL := 'Select O_ID,O_Truck From %s Where O_Card=''%s''';
-  nSQL := Format(nSQL, [sTable_Order, FIn.FExtParam]);
-
-  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
-  if RecordCount > 0 then
-  begin
-    nData := '车辆[ %s ]正在使用该卡,无法并单.';
-    nData := Format(nData, [FieldByName('O_Truck').AsString]);
-    Exit;
-  end;
-
   FDBConn.FConn.BeginTrans;
   try
     if FIn.FData <> '' then
