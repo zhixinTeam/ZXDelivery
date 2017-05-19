@@ -40,6 +40,7 @@ object fFormMain: TfFormMain
       EditLabel.Width = 30
       EditLabel.Height = 12
       EditLabel.Caption = #31471#21475':'
+      ImeName = #35895#27468#25340#38899#36755#20837#27861' 2'
       LabelPosition = lpLeft
       ReadOnly = True
       TabOrder = 1
@@ -77,6 +78,7 @@ object fFormMain: TfFormMain
     Width = 549
     Height = 278
     Align = alClient
+    ImeName = #35895#27468#25340#38899#36755#20837#27861' 2'
     ScrollBars = ssBoth
     TabOrder = 1
   end

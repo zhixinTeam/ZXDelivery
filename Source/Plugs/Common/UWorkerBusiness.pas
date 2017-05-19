@@ -596,8 +596,22 @@ end;
 //Desc: 获取指定客户的可用金额
 function TWorkerBusinessCommander.GetCustomerValidMoney(var nData: string): Boolean;
 var nStr: string;
+    nUseCredit: Boolean;
     nVal,nCredit: Double;
 begin
+  nUseCredit := False;
+  if FIn.FExtParam = sFlag_Yes then
+  begin
+    nStr := 'Select MAX(C_End) From %s ' +
+            'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
+    nStr := Format(nStr, [sTable_CusCredit, FIn.FData, sFlag_Yes]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      nUseCredit := (Fields[0].AsDateTime > Str2Date('2000-01-01')) and
+                    (Fields[0].AsDateTime > Now());
+    //信用未过期
+  end;
+
   nStr := 'Select * From %s Where A_CID=''%s''';
   nStr := Format(nStr, [sTable_CusAccount, FIn.FData]);
 
@@ -618,13 +632,14 @@ begin
             FieldByName('A_FreezeMoney').AsFloat;
     //xxxxx
 
-    nCredit := FieldByName('A_CreditLimit').AsFloat;
-    nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
-
-    if FIn.FExtParam = sFlag_Yes then
+    if nUseCredit then
+    begin
+      nCredit := FieldByName('A_CreditLimit').AsFloat;
+      nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
       nVal := nVal + nCredit;
-    nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
+    end;
 
+    nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
     FOut.FData := FloatToStr(nVal);
     FOut.FExtParam := FloatToStr(nCredit);
     Result := True;
@@ -637,7 +652,7 @@ end;
 //Desc: 获取指定纸卡的可用金额
 function TWorkerBusinessCommander.GetZhiKaValidMoney(var nData: string): Boolean;
 var nStr: string;
-    nVal,nMoney: Double;
+    nVal,nMoney,nCredit: Double;
 begin
   nStr := 'Select ca.*,Z_OnlyMoney,Z_FixedMoney From $ZK,$CA ca ' +
           'Where Z_ID=''$ZID'' and A_CID=Z_Customer';
@@ -662,9 +677,28 @@ begin
     nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
             FieldByName('A_OutMoney').AsFloat -
             FieldByName('A_Compensation').AsFloat -
-            FieldByName('A_FreezeMoney').AsFloat +
-            FieldByName('A_CreditLimit').AsFloat;
+            FieldByName('A_FreezeMoney').AsFloat;
+    //xxxxx
+
+    nCredit := FieldByName('A_CreditLimit').AsFloat;
+    nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
+
+    nStr := 'Select MAX(C_End) From %s ' +
+            'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
+    nStr := Format(nStr, [sTable_CusCredit, FieldByName('A_CID').AsString,
+            sFlag_Yes]);
+    //xxxxx
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    if (Fields[0].AsDateTime > Str2Date('2000-01-01')) and
+       (Fields[0].AsDateTime > Now()) then
+    begin
+      nVal := nVal + nCredit;
+      //信用未过期
+    end;
+
     nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
+    //total money
 
     if FOut.FExtParam = sFlag_Yes then
     begin
@@ -711,12 +745,13 @@ begin
     Exit;
   end;
 
-  nStr := 'Select MAX(C_End) From %s Where C_CusID=''%s'' and C_Money>=0';
-  nStr := Format(nStr, [sTable_CusCredit, FIn.FData]);
+  nStr := 'Select MAX(C_End) From %s ' +
+          'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
+  nStr := Format(nStr, [sTable_CusCredit, FIn.FData, sFlag_Yes]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   if (Fields[0].AsDateTime > Str2Date('2000-01-01')) and
-     (Fields[0].AsDateTime < Date()) then
+     (Fields[0].AsDateTime <= Now()) then
   begin
     nData := Format('客户[ %s ]的信用已过期.', [nName]);
     Result := False;
@@ -1377,10 +1412,25 @@ end;
 //Desc: 获取指定客户的可用金额
 function TWorkerBusinessCommander.GetCustomerValidMoney(var nData: string): Boolean;
 var nStr,nCusID: string;
+    nUseCredit: Boolean;
     nVal,nCredit: Double;
     nDBWorker: PDBWorker;
 begin
-  Result := False; 
+  Result := False;
+  nUseCredit := False;
+  
+  if FIn.FExtParam = sFlag_Yes then
+  begin
+    nStr := 'Select MAX(C_End) From %s ' +
+            'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
+    nStr := Format(nStr, [sTable_CusCredit, FIn.FData, sFlag_Yes]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      nUseCredit := (Fields[0].AsDateTime > Str2Date('2000-01-01')) and
+                    (Fields[0].AsDateTime > Now());
+    //信用未过期
+  end;
+
   nStr := 'Select A_FreezeMoney,A_CreditLimit,C_Param From %s,%s ' +
           'Where A_CID=''%s'' And A_CID=C_ID';
   nStr := Format(nStr, [sTable_Customer, sTable_CusAccount, FIn.FData]);
@@ -1418,13 +1468,14 @@ begin
       end;
 
       nVal := -(FieldByName('Balance').AsFloat) - nVal;
-      nCredit := FieldByName('Credit').AsFloat + nCredit;
-      nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
-
-      if FIn.FExtParam = sFlag_Yes then
+      if nUseCredit then
+      begin
+        nCredit := FieldByName('Credit').AsFloat + nCredit;
+        nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
         nVal := nVal + nCredit;
-      nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
+      end;
 
+      nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
       FOut.FData := FloatToStr(nVal);
       FOut.FExtParam := FloatToStr(nCredit);
       Result := True;

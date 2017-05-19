@@ -4,7 +4,7 @@
 *******************************************************************************}
 unit UFormMain;
 
-{$DEFINE PrintGLF}
+{$I Link.Inc}
 interface
 
 uses
