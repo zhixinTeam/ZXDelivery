@@ -1544,7 +1544,7 @@ begin
   nStr := AdjustListStrFormat(FIn.FData , '''' , True , ',' , True);
 
   nSQL := 'select L_ID,L_Truck,L_SaleID,L_CusID,L_StockNo,L_Value,' +
-          'L_Seal,L_Price,L_OutFact From $BL ' +
+          'L_Seal,L_HYDan,L_Price,L_OutFact From $BL ' +
           'where L_ID In ($IN)';
   nSQL := MacroValue(nSQL, [MI('$BL', sTable_Bill) , MI('$IN', nStr)]);
 
@@ -1737,7 +1737,11 @@ begin
           SF('Fqtymust', nVal, sfVal),
           SF('Fauxqtymust', nVal, sfVal),
 
+          {$IFDEF PrintHYDan}
+          SF('FEntrySelfB0155', FieldByName('L_HYDan').AsString),
+          {$ELSE}
           SF('FEntrySelfB0155', FieldByName('L_Seal').AsString),
+          {$ENDIF}
           //Ë®Äà³ö³§±àºÅ
 
           SF('Fconsignprice', FieldByName('L_Price').AsFloat , sfVal),

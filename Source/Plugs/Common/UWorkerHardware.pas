@@ -411,7 +411,7 @@ end;
 //Parm: 交货单[FIn.FData];通道号[FIn.FExtParam]
 //Desc: 在指定通道上喷码
 function THardwareCommander.PrintCode(var nData: string): Boolean;
-var nStr,nCode: string;
+var nStr,nCode,nPrint: string;
 begin
   Result := True;
   if not gCodePrinterManager.EnablePrinter then Exit;
@@ -426,8 +426,14 @@ begin
     //固定喷码
   end else
   begin
-    nStr := 'Select L_ID,L_Seal From %s Where L_ID=''%s''';
-    nStr := Format(nStr, [sTable_Bill, FIn.FData]);
+    {$IFDEF PrintHYDan}
+    nPrint := 'L_HYDan';
+    {$ELSE}
+    nPrint := 'L_Seal';
+    {$ENDIF}
+    
+    nStr := 'Select L_ID,%s From %s Where L_ID=''%s''';
+    nStr := Format(nStr, [nPrint, sTable_Bill, FIn.FData]);
 
     with gDBConnManager.WorkerQuery(FDBConn, nStr) do
     begin

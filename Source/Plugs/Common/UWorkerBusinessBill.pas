@@ -511,10 +511,10 @@ begin
          raise Exception.Create(nTmp.FData);
          
       FListC.Values['HYDan'] := nTmp.FData; 
-      if nOut.FBase.FErrCode = sFlag_ForceHint then
+      if PBWDataBase(@nTmp).FErrCode = sFlag_ForceHint then
       begin
         FOut.FBase.FErrCode := sFlag_ForceHint;
-        FOut.FBase.FErrDesc := FOut.FBase.FErrDesc + nOut.FBase.FErrDesc;
+        FOut.FBase.FErrDesc := PBWDataBase(@nTmp).FErrDesc;
       end;
       //获取批次号信息
 

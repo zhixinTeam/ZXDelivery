@@ -128,5 +128,7 @@
   //计数器应答模式
   {$DEFINE NoShowPriceChange}
   //不显示价格调整提示
+  {$DEFINE PrintHYDan}
+  //批次保存在化验单字段
 {$ENDIF}
 
