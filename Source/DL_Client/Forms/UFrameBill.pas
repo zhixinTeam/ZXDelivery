@@ -294,11 +294,17 @@ end;
 
 //Desc: ÐÞ¸Ä·âÇ©ºÅ
 procedure TfFrameBill.N7Click(Sender: TObject);
-var nStr,nID,nSeal: string;
+var nStr,nID,nSeal,nSave: string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
-    nStr := SQLQuery.FieldByName('L_Seal').AsString;
+    {$IFDEF PrintHYDan}
+    nSave := 'L_HYDan';
+    {$ELSE}
+    nSave := 'L_Seal';
+    {$ENDIF}
+
+    nStr := SQLQuery.FieldByName(nSave).AsString;
     nSeal := nStr;
     if not ShowInputBox('ÇëÊäÈëÐÂµÄ·âÇ©±àºÅ:', 'ÐÞ¸Ä', nSeal, 100) then Exit;
 
@@ -310,12 +316,12 @@ begin
     nStr := Format(nStr, [nID, nSeal]);
     if not QueryDlg(nStr, sAsk) then Exit;
 
-    nStr := 'Update %s Set L_Seal=''%s'' Where L_ID=''%s''';
-    nStr := Format(nStr, [sTable_Bill, nSeal, nID]);
+    nStr := 'Update %s Set %s=''%s'' Where L_ID=''%s''';
+    nStr := Format(nStr, [sTable_Bill, nSave, nSeal, nID]);
     FDM.ExecuteSQL(nStr);
 
     nStr := 'ÐÞ¸Ä·âÇ©ºÅ[ %s -> %s ].';
-    nStr := Format(nStr, [SQLQuery.FieldByName('L_Seal').AsString, nSeal]);
+    nStr := Format(nStr, [SQLQuery.FieldByName(nSave).AsString, nSeal]);
     FDM.WriteSysLog(sFlag_BillItem, nID, nStr, False);
 
     InitFormData(FWhere);
