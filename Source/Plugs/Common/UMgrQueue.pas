@@ -475,7 +475,10 @@ var nStr: string;
 begin
   if nLocked then SyncLock.Enter;
   try
-    nStr := #9 + GetVoiceTruck(#9, False) + #9;
+    nStr := GetVoiceTruck(#9, False);
+    if nStr = '' then Exit;
+    
+    nStr := #9 + nStr + #9;
     //truck flag
 
     if nStr <> FLastQueueVoice then
@@ -850,13 +853,13 @@ begin
     Result := (nTruck.FStockGroup <> '') and
               (nTruck.FStockGroup = nLine.FStockGroup);
     //xxxxx
-  end;
 
-  if not Result then
-  begin
-    Result := (nLine.FStockGroup <> '') and
-      (nLine.FStockGroup = GetStockMatchGroup(nTruck.FStockNo, nLine.FLineID));
-    //xxxxx
+    if not Result then
+    begin
+      Result := (nLine.FStockGroup <> '') and
+        (nLine.FStockGroup = GetStockMatchGroup(nTruck.FStockNo, nLine.FLineID));
+      //xxxxx
+    end;
   end;
 end;
 
