@@ -26,11 +26,14 @@ type
     dxLayout1Item4: TdxLayoutItem;
     cxTextEdit3: TcxTextEdit;
     dxLayout1Item3: TdxLayoutItem;
+    PopupMenu1: TPopupMenu;
+    N1: TMenuItem;
     procedure EditNamePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
+    procedure N1Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -119,6 +122,33 @@ begin
 
     FWhere := Format('B_Name Like ''%%%s%%''', [EditName.Text]);
     InitFormData(FWhere);
+  end;
+end;
+
+//Desc: 校正当前批次使用量
+procedure TfFrameBatcode.N1Click(Sender: TObject);
+var nSQL, nCode: string;
+    nVal: Double;
+begin
+  inherited;
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nCode := SQLQuery.FieldByName('B_Batcode').AsString;
+
+    nSQL := 'Select Sum(L_Value) From %s Where L_HYDan=''%s''';
+    nSQL := Format(nSQL, [sTable_Bill, nCode]);
+    with FDM.QuerySQL(nSQL) do
+    if RecordCount > 0 then
+    begin
+      nVal := Fields[0].AsFloat;
+
+      nSQL := 'Update %s Set B_HasUse=%.2f Where B_Batcode=''%s''';
+      nSQL := Format(nSQL, [sTable_StockBatcode, nVal, nCode]);
+      FDM.ExecuteSQL(nSQL);
+    end;
+    //校正为当前正在使用的批次量        
+
+    InitFormData('');
   end;
 end;
 

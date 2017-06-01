@@ -987,6 +987,14 @@ var nStr,nP: string;
         if nInt > 0 then
              Result := nP + StringOfChar('0', nInt) + nStr
         else Result := nP + nStr;
+
+        nStr := '物料[ %s.%s ]将立即使用批次号[ %s ],请通知化验室确认已采样.';
+        nStr := Format(nStr, [FieldByName('B_Stock').AsString,
+                              FieldByName('B_Name').AsString, Result]);
+        //xxxxx
+
+        FOut.FBase.FErrCode := sFlag_ForceHint;
+        FOut.FBase.FErrDesc := nStr;
       end;
 
       nStr := MakeSQLByStr([SF('B_Batcode', Result),

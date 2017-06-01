@@ -16,6 +16,9 @@ inherited fFrameBatcode: TfFrameBatcode
     Top = 202
     Width = 686
     Height = 165
+    inherited cxView1: TcxGridDBTableView
+      PopupMenu = PopupMenu1
+    end
   end
   inherited dxLayout1: TdxLayoutControl
     Width = 686
@@ -104,5 +107,13 @@ inherited fFrameBatcode: TfFrameBatcode
   end
   inherited DataSource1: TDataSource
     Top = 234
+  end
+  object PopupMenu1: TPopupMenu
+    Left = 62
+    Top = 234
+    object N1: TMenuItem
+      Caption = #25209#27425#21495#26657#27491
+      OnClick = N1Click
+    end
   end
 end

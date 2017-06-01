@@ -1937,10 +1937,17 @@ begin
         FListA.Add(nSQL); //更新纸卡限提金额
       end;
 
-      nSQL := 'Update %s Set B_HasUse=B_HasUse+(%.2f - %.2f) ' +
-              'Where B_Stock=''%s''';
-      nSQL := Format(nSQL, [sTable_StockBatcode, FValue, nVal, FStockNo]);
-      FListA.Add(nSQL);        
+      nSQL := 'Select L_HYDan From %s Where L_ID=''%s''';
+      nSQL := Format(nSQL, [sTable_Bill, FID]);
+      with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+      if RecordCount > 0 then
+      begin
+        nSQL := 'Update %s Set B_HasUse=B_HasUse+(%.2f - %.2f) ' +
+                'Where B_Batcode=''%s''';
+        nSQL := Format(nSQL, [sTable_StockBatcode, FValue, nVal,
+                Fields[0].AsString]);
+        FListA.Add(nSQL);
+      end;
       //更新批次号使用量
     end;
 
