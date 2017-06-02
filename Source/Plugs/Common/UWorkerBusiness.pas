@@ -632,12 +632,11 @@ begin
             FieldByName('A_FreezeMoney').AsFloat;
     //xxxxx
 
+    nCredit := FieldByName('A_CreditLimit').AsFloat;
+    nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
+
     if nUseCredit then
-    begin
-      nCredit := FieldByName('A_CreditLimit').AsFloat;
-      nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
       nVal := nVal + nCredit;
-    end;
 
     nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
     FOut.FData := FloatToStr(nVal);

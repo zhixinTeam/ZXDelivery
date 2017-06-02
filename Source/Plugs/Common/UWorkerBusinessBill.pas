@@ -787,13 +787,14 @@ begin
       Exit;
     end;
 
+    {$IFNDEF TruckInNow}
     if Fields[1].AsString <> '' then
     begin
       nData := '交货单[ %s ]已提货,无法修改车牌号.';
       nData := Format(nData, [FIn.FData]);
       Exit;
     end;
-
+    {$ENDIF}
 
     nTruck := Fields[0].AsString;
   end;
@@ -835,6 +836,12 @@ begin
 
         gDBConnManager.WorkerExec(FDBConn, nStr);
         //同步合单车牌号
+
+        nStr := 'Update %s Set P_Truck=''%s'' Where P_Bill=''%s''';
+        nStr := Format(nStr, [sTable_PoundLog, FIn.FExtParam, FListA[nIdx]]);
+
+        gDBConnManager.WorkerExec(FDBConn, nStr);
+        //同步合单磅单记录车牌号
       end;
     end;
 
