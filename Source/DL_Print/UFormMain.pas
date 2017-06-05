@@ -38,6 +38,7 @@ type
     { Private declarations }
     FTrayIcon: TTrayIcon;
     {*状态栏图标*}
+    FIsBusy: Boolean;
     FBillList: TStrings;
     FSyncLock: TCriticalSection;
     //同步锁
@@ -90,7 +91,8 @@ begin
   FTrayIcon := TTrayIcon.Create(Self);
   FTrayIcon.Hint := Caption;
   FTrayIcon.Visible := True;
-  
+
+  FIsBusy := False;
   FBillList := TStringList.Create;
   FSyncLock := TCriticalSection.Create;
   //new item 
@@ -357,7 +359,7 @@ procedure TfFormMain.Timer2Timer(Sender: TObject);
 var nPos: Integer;
     nBill,nHint,nPrinter,nMoney, nType: string;
 begin
-  while True do
+  if not FIsBusy then
   begin
     FSyncLock.Enter;
     try
@@ -398,9 +400,20 @@ begin
     end else nPrinter := '';
 
     WriteLog('开始打印: ' + nBill);
-    if nType = 'P' then
-         PrintOrderReport(nBill, nHint, nPrinter)
-    else PrintBillReport(nBill, nHint, nPrinter, nMoney);
+    try
+      FIsBusy := True;
+      //set flag
+      
+      if nType = 'P' then
+           PrintOrderReport(nBill, nHint, nPrinter)
+      else PrintBillReport(nBill, nHint, nPrinter, nMoney);
+    except
+      on E: Exception do
+        WriteLog(E.Message);
+      //xxxxx
+    end;
+
+    FIsBusy := False;
     WriteLog('打印结束.' + nHint);
   end;
 end;
