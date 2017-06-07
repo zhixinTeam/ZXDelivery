@@ -58,7 +58,9 @@ implementation
 constructor TfFrameCounter.Create(AOwner: TComponent);
 begin
   inherited;
+  FBill := '';
   BtnPause.Enabled := True;
+  
   {$IFDEF USE_MIT}
   EditTruck.ReadOnly := True;
   {$ELSE}
@@ -87,6 +89,7 @@ end;
 
 procedure TfFrameCounter.BtnClearClick(Sender: TObject);
 begin
+  BtnClear.Enabled := False;
   try
     if Assigned(Sender) then
     begin
@@ -99,20 +102,22 @@ begin
       //正常计数
       {$ENDIF}
 
+      Sleep(500);
+      //for delay
       FBill := '' ;
       LabelHint.Caption := '0';
 
       EditTruck.Text := '';
       EditDai.Text := '';
       EditTon.Text := '';
-        
+
       EditDai.Enabled := True;
       EditTon.Enabled := True;
       BtnStart.Enabled := True;
       BtnPause.Enabled := True;
     end;
-  finally
-
+  finally 
+    BtnClear.Enabled := True;
   end;
 end;
 
@@ -137,8 +142,9 @@ begin
   //disabled
   ShowWaitForm(Application.MainForm, '连接喷码机', True);
   try
-    Sleep(1000);
-
+    Sleep(200);
+    //for delay
+    
     {$IFDEF USE_MIT}
     if not PrintBillCode(FTunnel.FID, FBill, nHint) then
     begin
@@ -230,6 +236,9 @@ begin
   {$ELSE}
   gMultiJSManager.PauseJS(FTunnel.FID);
   {$ENDIF}
+
+  Sleep(500);
+  //for delay
   //BtnStart.Enabled := True;
 end;
 
