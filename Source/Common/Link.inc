@@ -50,8 +50,21 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE YNHT}
+{$DEFINE ZZSJ}
 //特定系统
+
+//郑州上街
+{$IFDEF ZZSJ}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+{$ENDIF}
 
 //辽宁营口
 {$IFDEF LNYK}

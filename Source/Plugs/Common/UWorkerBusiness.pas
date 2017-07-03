@@ -1007,18 +1007,16 @@ begin
   Result := True;
   nStr := 'Select D_Value From %s Where D_Name=''%s''';
   nStr := Format(nStr, [sTable_SysDict, sFlag_BatchAuto]);
+  
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   if RecordCount > 0 then
   begin
     nStr := Fields[0].AsString;
-
     if nStr <> sFlag_Yes then Exit;
   end  else Exit;
   //默认不使用批次号
 
-  Result := False;
-  //Init
-
+  Result := False; //Init
   nStr := 'Select *,%s as ServerNow From %s Where B_Stock=''%s''';
   nStr := Format(nStr, [sField_SQLServer_Now, sTable_StockBatcode, FIn.FData]);
 

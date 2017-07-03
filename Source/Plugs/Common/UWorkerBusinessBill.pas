@@ -67,6 +67,8 @@ type
     //绑定磁卡
     function LogoffCard(var nData: string): Boolean;
     //注销磁卡
+    function MakeSanPreHK(var nData: string): Boolean;
+    //执行散装预合卡
     function GetPostBillItems(var nData: string): Boolean;
     //获取岗位交货单
     function SavePostBillItems(var nData: string): Boolean;
@@ -80,6 +82,9 @@ type
     //base function
     class function VerifyTruckNO(nTruck: string; var nData: string): Boolean;
     //验证车牌是否有效
+    class function CallMe(const nCmd: Integer; const nData,nExt: string;
+      const nOut: PWorkerBusinessCommand): Boolean;
+    //local call
   end;
 
 implementation
@@ -122,6 +127,41 @@ begin
 end;
 
 //Date: 2014-09-15
+//Parm: 命令;数据;参数;输出
+//Desc: 本地调用业务对象
+class function TWorkerBusinessBills.CallMe(const nCmd: Integer;
+  const nData, nExt: string; const nOut: PWorkerBusinessCommand): Boolean;
+var nStr: string;
+    nIn: TWorkerBusinessCommand;
+    nPacker: TBusinessPackerBase;
+    nWorker: TBusinessWorkerBase;
+begin
+  nPacker := nil;
+  nWorker := nil;
+  try
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+
+    nPacker := gBusinessPackerManager.LockPacker(sBus_BusinessCommand);
+    nPacker.InitData(@nIn, True, False);
+    //init
+    
+    nStr := nPacker.PackIn(@nIn);
+    nWorker := gBusinessWorkerManager.LockWorker(FunctionName);
+    //get worker
+
+    Result := nWorker.WorkActive(nStr);
+    if Result then
+         nPacker.UnPackOut(nStr, nOut)
+    else nOut.FData := nStr;
+  finally
+    gBusinessPackerManager.RelasePacker(nPacker);
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
+//Date: 2014-09-15
 //Parm: 输入数据
 //Desc: 执行nData业务指令
 function TWorkerBusinessBills.DoDBWork(var nData: string): Boolean;
@@ -143,6 +183,7 @@ begin
    cBC_LogoffCard          : Result := LogoffCard(nData);
    cBC_GetPostBills        : Result := GetPostBillItems(nData);
    cBC_SavePostBills       : Result := SavePostBillItems(nData);
+   cBC_MakeSanPreHK        : Result := MakeSanPreHK(nData);
    else
     begin
       Result := False;
@@ -266,8 +307,11 @@ begin
   SetLength(FMatchItems, 0);
   //init
 
+  {$IFDEF SanPreHK}
+  FSanMultiBill := True;
+  {$ELSE}
   FSanMultiBill := AllowedSanMultiBill;
-  //散装允许开多单
+  {$ENDIF}//散装允许开多单
 
   nStr := 'Select M_ID,M_Group From %s Where M_Status=''%s'' ';
   nStr := Format(nStr, [sTable_StockMatch, sFlag_Yes]);
@@ -536,8 +580,11 @@ begin
 
               {$IFDEF PrintGLF}
               SF('L_PrintGLF', FListC.Values['PrintGLF']),
-              //自动打印过路费
-              {$ENDIF}
+              {$ENDIF} //自动打印过路费
+
+              {$IFDEF PrintHYEach}
+              SF('L_PrintHY', FListC.Values['PrintHY']),
+              {$ENDIF} //随车打印化验单
 
               SF('L_ZKMoney', nFixMoney),
               SF('L_Truck', FListA.Values['Truck']),
@@ -1519,6 +1566,143 @@ begin
   end;
 end;
 
+//Date: 2017-07-04
+//Parm: 提货单号[FIn.FData];合卡量[FIn.FExtParam]
+//Desc: 从预先关联的纸卡中扣除超发量
+function TWorkerBusinessBills.MakeSanPreHK(var nData: string): Boolean;
+var nStr: string;
+    nListA,nListB: TStrings;
+    nOut: TWorkerBusinessCommand;
+begin
+  nListA := TStringList.Create;
+  nListB := TStringList.Create;
+
+  Result := False;
+  try
+    nStr := 'Select * From %s Where L_ID=''%s''';
+    nStr := Format(nStr, [sTable_Bill, FIn.FData]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount < 1 then
+      begin
+        nData := '提货单[ %s ]丢失,合卡失败';
+        nData := Format(nData, [FIn.FData]);
+        Exit;
+      end;
+
+      with nListA do
+      begin
+        Clear;
+        Values['BillID']   := FIn.FData;
+        Values['BillCard'] := FieldByName('L_Card').AsString;
+        //原单据
+
+        Values['Truck']    := FieldByName('L_Truck').AsString;
+        Values['Lading']   := FieldByName('L_Lading').AsString;
+        Values['IsVIP']    := FieldByName('L_IsVIP').AsString;
+        Values['BuDan']    := sFlag_No;
+      end;
+
+      with nListB do
+      begin
+        Clear;
+        Values['Type']      := FieldByName('L_Type').AsString;
+        Values['StockNO']   := FieldByName('L_StockNo').AsString;
+        Values['StockName'] := FieldByName('L_StockName').AsString;
+
+        Values['Seal']      := FieldByName('L_Seal').AsString;
+        Values['PrintGLF']  := FieldByName('L_PrintGLF').AsString;
+        Values['PrintHY']   := FieldByName('L_PrintHY').AsString;
+      end;
+    end;
+
+    nStr := 'Select H_ZhiKa,D_StockNo,D_Price From %s hk ' +
+            ' Left Join %s zd on zd.D_ZID=hk.H_ZhiKa ' +
+            'Where H_Bill=''%s''';
+    nStr := Format(nStr, [sTable_BillHK, sTable_ZhiKaDtl, FIn.FData]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount < 1 then
+      begin
+        nData := '车辆[ %s ]超发[ %s ]吨,请关联纸卡';
+        nData := Format(nData, [nListA.Values['Truck'], FIn.FExtParam]);
+        Exit;
+      end;
+
+      First;
+      nListA.Values['ZhiKa'] := FieldByName('H_ZhiKa').AsString;
+    
+      while not Eof do
+      begin
+        if FieldByName('D_StockNo').AsString = nListB.Values['StockNO'] then
+        begin
+          nListB.Values['Price'] := FieldByName('D_Price').AsString;
+          nListB.Values['Value'] := FIn.FExtParam;
+
+          nListA.Values['Bills'] := PackerEncodeStr(PackerEncodeStr(nListB.Text));
+          Break;
+        end;
+
+        Next;
+      end;
+
+      if nListB.Values['Price'] = '' then
+      begin
+        nData := '车辆[ %s ]超发[ %s ]吨,待合单纸卡中没有[ %s ]品种.';
+        nData := Format(nData, [nListA.Values['Truck'], FIn.FExtParam,
+                 nListB.Values['StockName']]);
+        Exit;
+      end;
+    end;
+
+    //--------------------------------------------------------------------------
+    nStr := PackerEncodeStr(nListA.Text);
+    if not TWorkerBusinessBills.CallMe(cBC_SaveBills, nStr, '', @nOut) then
+    begin
+      nData := nOut.FData;
+      Exit;
+    end;
+
+    FDBConn.FConn.BeginTrans;
+    try
+      nListA.Values['HKBill'] := nOut.FData;
+      //合卡生成的单据
+
+      nStr := MakeSQLByStr([SF('L_Card', nListA.Values['BillCard']),
+              SF('L_Status', sFlag_TruckBFM),
+              SF('L_NextStatus', sFlag_TruckOut),
+              SF('L_PValue', '0', sfVal),
+              SF('L_MValue', FIn.FExtParam, sfVal),
+              SF('L_Man', FIn.FData + '-合单')
+              ], sTable_Bill, SF('L_ID', nListA.Values['HKBill']), False);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr := 'Update %s Set H_HKBill=''%s'' Where H_Bill=''%s''';
+      nStr := Format(nStr, [sTable_BillHK, nListA.Values['HKBill'],
+              nListA.Values['BillID']]);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      FDBConn.FConn.CommitTrans;
+      Result := True;
+    except
+      on E: Exception do
+      begin
+        nData := '车辆[ %s ]合单失败,描述: %s';
+        nData := Format(nData, [nListA.Values['Truck'], E.Message]);
+        FDBConn.FConn.RollbackTrans;
+
+        TWorkerBusinessBills.CallMe(cBC_DeleteBill, nOut.FData, '', @nOut);
+        //删除提货单
+      end;
+    end;
+  finally
+    nListA.Free;
+    nListB.Free;
+  end;
+end;
+
 //Date: 2014-09-17
 //Parm: 磁卡号[FIn.FData];岗位[FIn.FExtParam]
 //Desc: 获取特定岗位所需要的交货单列表
@@ -1667,12 +1851,14 @@ begin
     Exit;
   end;
 
+  {$IFNDEF SanPreHK}
   if (nBills[0].FType = sFlag_San) and (nInt > 1) then
   begin
     nData := '岗位[ %s ]提交了散装合单,该业务系统暂时不支持.';
     nData := Format(nData, [PostTypeToStr(FIn.FExtParam)]);
     Exit;
   end;
+  {$ENDIF}
 
   FListA.Clear;
   //用于存储SQL列表
@@ -1914,6 +2100,23 @@ begin
 
       if f > 0 then
       begin
+        {$IFDEF SanPreHK}
+        f := Float2Float(f / FPrice, cPrecision, True);
+        //纸卡超发吨数
+
+        FValue := FValue - f;
+        //纸卡最大可发量
+        nMVal := nMVal - f;
+        FMData.FValue := nMVal;
+        //调整毛重,使过磅数据一致
+
+        if not TWorkerBusinessBills.CallMe(cBC_MakeSanPreHK,
+               nBills[0].FID, FloatToStr(f), @nOut) then
+        begin
+          nData := nOut.FData;
+          Exit;
+        end;
+        {$ELSE}
         nData := '客户[ %s.%s ]资金余额不足,详情如下:' + #13#10#13#10 +
                  '※.可用金额: %.2f元' + #13#10 +
                  '※.提货金额: %.2f元' + #13#10 +
@@ -1921,6 +2124,7 @@ begin
                  '请到财务室办理"补交货款"手续,然后再次称重.';
         nData := Format(nData, [FCusID, FCusName, m, FPrice * FValue, f]);
         Exit;
+        {$ENDIF}
       end;
 
       m := Float2Float(FPrice * FValue, cPrecision, True);

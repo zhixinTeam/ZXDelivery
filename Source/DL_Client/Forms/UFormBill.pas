@@ -44,6 +44,8 @@ type
     dxLayout1Group3: TdxLayoutGroup;
     PrintGLF: TcxCheckBox;
     dxLayout1Item13: TdxLayoutItem;
+    dxLayout1Item14: TdxLayoutItem;
+    PrintHY: TcxCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -202,6 +204,9 @@ begin
       dxLayout1Item5.Caption := nStr;
     //xxxxx
 
+    PrintHY.Checked := nIni.ReadBool(Name, 'PrintHY', False);
+    //Ëæ³µ¿ªµ¥
+
     LoadMCListBoxConfig(Name, ListInfo, nIni);
     LoadcxListViewConfig(Name, ListBill, nIni);
   finally
@@ -210,6 +215,16 @@ begin
 
   {$IFDEF PrintGLF}
   dxLayout1Item13.Visible := True;
+  {$ELSE}
+  dxLayout1Item13.Visible := False;
+  PrintGLF.Checked := False;
+  {$ENDIF}
+
+  {$IFDEF PrintHYEach}
+  dxLayout1Item14.Visible := True;
+  {$ELSE}
+  dxLayout1Item14.Visible := False;
+  PrintHY.Checked := False;
   {$ENDIF}
 
   AdjustCtrlData(Self);
@@ -220,6 +235,7 @@ var nIni: TIniFile;
 begin
   nIni := TIniFile.Create(gPath + sFormConfig);
   try
+    nIni.WriteBool(Name, 'PrintHY', PrintHY.Checked);
     SaveMCListBoxConfig(Name, ListInfo, nIni);
     SavecxListViewConfig(Name, ListBill, nIni);
   finally
@@ -611,9 +627,13 @@ begin
       Values['Price'] := FloatToStr(FPrice);
       Values['Value'] := FloatToStr(FValue);
 
-      if not PrintGLF.Checked  then
-           Values['PrintGLF'] := sFlag_No
-      else Values['PrintGLF'] := sFlag_Yes;
+      if PrintGLF.Checked  then
+           Values['PrintGLF'] := sFlag_Yes
+      else Values['PrintGLF'] := sFlag_No;
+
+      if PrintHY.Checked  then
+           Values['PrintHY'] := sFlag_Yes
+      else Values['PrintHY'] := sFlag_No;
 
       if Integer(gInfo.FPlan) > 0 then
       begin

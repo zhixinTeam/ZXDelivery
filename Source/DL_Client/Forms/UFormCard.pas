@@ -78,16 +78,25 @@ begin
   with TfFormCard.Create(Application) do
   try
     FParam := nParam;
-
-    if FParam.FParamC=sFlag_Provide then
-         dxLayout1Item3.Caption := '采购单号'
-    else dxLayout1Item3.Caption := '交货单号';
+    if FParam.FCommand = cCmd_GetData then
+    begin
+      dxLayout1Item3.Visible := False;
+      dxLayout1Item4.Visible := False;
+      dxLayout1Item5.Visible := False; 
+    end else
+    begin
+      if FParam.FParamC=sFlag_Provide then
+           dxLayout1Item3.Caption := '采购单号'
+      else dxLayout1Item3.Caption := '交货单号';
+    end;
 
     InitFormData;
     ActionComPort(False);
-
-    FParam.FCommand := cCmd_ModalResult;
     FParam.FParamA := ShowModal;
+
+    if FParam.FCommand = cCmd_GetData then
+      FParam.FParamB := EditCard.Text;
+    FParam.FCommand := cCmd_ModalResult;
   finally
     Free;
   end;
@@ -206,9 +215,16 @@ begin
     Exit;
   end;
 
+  if FParam.FCommand = cCmd_GetData then
+  begin
+    ModalResult := mrOk;
+    Exit;
+  end;
+
   if FParam.FParamC = sFlag_Provide then
        nRet := SaveOrderCard(EditBill.Text, EditCard.Text)
   else nRet := SaveBillCard(EditBill.Text, EditCard.Text);
+
   if nRet then
     ModalResult := mrOk;
   //done

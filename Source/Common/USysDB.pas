@@ -269,6 +269,7 @@ ResourceString
   sTable_Card         = 'S_Card';                    //销售磁卡
   sTable_Bill         = 'S_Bill';                    //提货单
   sTable_BillBak      = 'S_BillBak';                 //已删交货单
+  sTable_BillHK       = 'S_BillPreHK';               //开单预合卡
 
   sTable_StockMatch   = 'S_StockMatch';              //品种映射
   sTable_StockParam   = 'S_StockParam';              //品种参数
@@ -317,7 +318,8 @@ ResourceString
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
        'D_Desc varChar(30), D_Value varChar(50), D_Memo varChar(20),' +
-       'D_ParamA $Float, D_ParamB varChar(50), D_ParamC varChar(50), D_Index Integer Default 0)';
+       'D_ParamA $Float, D_ParamB varChar(50), D_ParamC varChar(50),' +
+       'D_Index Integer Default 0)';
   {-----------------------------------------------------------------------------
    系统字典: SysDict
    *.D_ID: 编号
@@ -704,7 +706,8 @@ ResourceString
        'L_DaiTotal Integer , L_DaiNormal Integer, L_DaiBuCha Integer,' +
        'L_OutFact DateTime, L_OutMan varChar(32), L_PrintGLF Char(1),' +
        'L_Lading Char(1), L_IsVIP varChar(1), L_Seal varChar(100),' +
-       'L_HYDan varChar(15), L_Man varChar(32), L_Date DateTime,' +
+       'L_HYDan varChar(15), L_PrintHY Char(1),' +
+       'L_Man varChar(32), L_Date DateTime,' +
        'L_DelMan varChar(32), L_DelDate DateTime)';
   {-----------------------------------------------------------------------------
    交货单表: Bill
@@ -735,11 +738,25 @@ ResourceString
    *.L_PrintGLF:是否自动打印过路费
    *.L_Seal: 封签号
    *.L_HYDan: 化验单
+   *.L_PrintHY:自动打印化验单
    *.L_Man:操作人
    *.L_Date:创建时间
    *.L_DelMan: 交货单删除人员
    *.L_DelDate: 交货单删除时间
    *.L_Memo: 动作备注
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +
+       'H_ZhiKa varChar(15), H_HKBill varChar(20),' +
+       'H_Man varChar(32), H_Date DateTime)';
+  {-----------------------------------------------------------------------------
+   交货单预合卡: BillPreHK
+   *.R_ID: 编号
+   *.H_Bill: 提单号
+   *.H_ZhiKa: 纸卡号
+   *.H_HKBill: 合卡生成的单号
+   *.H_Man:操作人
+   *.H_Date:创建时间
   -----------------------------------------------------------------------------}
 
   sSQL_NewOrderBase = 'Create Table $Table(R_ID $Inc, B_ID varChar(20),' +
@@ -1451,6 +1468,7 @@ begin
   AddSysTableItem(sTable_Card, sSQL_NewCard);
   AddSysTableItem(sTable_Bill, sSQL_NewBill);
   AddSysTableItem(sTable_BillBak, sSQL_NewBill);
+  AddSysTableItem(sTable_BillHK, sSQL_NewBillHK);
 
   AddSysTableItem(sTable_Truck, sSQL_NewTruck);
   AddSysTableItem(sTable_ZTLines, sSQL_NewZTLines);
