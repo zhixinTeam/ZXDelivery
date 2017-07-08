@@ -450,9 +450,10 @@ begin
 end;
 
 //Date: 2012-4-22
-//Parm: 卡号;读头;打印机
+//Parm: 卡号;读头;打印机;化验单打印机
 //Desc: 对nCard放行出厂
-procedure MakeTruckOut(const nCard,nReader,nPrinter: string);
+procedure MakeTruckOut(const nCard,nReader,nPrinter: string;
+ const nHYPrinter: string = '');
 var nStr,nCardType: string;
     nIdx: Integer;
     nRet: Boolean;
@@ -526,6 +527,9 @@ begin
 
     nStr := nStr + #7 + nCardType;
     //磁卡类型
+    if nHYPrinter <> '' then
+      nStr := nStr + #6 + nHYPrinter;
+    //化验单打印机
 
     if nPrinter = '' then
          gRemotePrinter.PrintBill(nTrucks[nIdx].FID + nStr)
@@ -630,7 +634,10 @@ begin
 
       if nReader.FType = rtOut then
       begin
-        MakeTruckOut(nStr, nReader.FID, nReader.FPrinter);
+        if Assigned(nReader.FOptions) then
+             nStr := nReader.FOptions.Values['HYPrinter']
+        else nStr := '';
+        MakeTruckOut(nStr, nReader.FID, nReader.FPrinter, nStr);
       end else
 
       if nReader.FType = rtGate then
@@ -1128,12 +1135,17 @@ end;
 //Parm: 主机;卡号
 //Desc: 对nHost.nCard新到卡号作出动作
 procedure WhenReaderCardIn(const nCard: string; const nHost: PReaderHost);
+var nStr: string;
 begin 
   if nHost.FType = rtOnce then
   begin
     if nHost.FFun = rfOut then
-         MakeTruckOut(nCard, '', nHost.FPrinter)
-    else MakeTruckLadingDai(nCard, nHost.FTunnel);
+    begin
+      if Assigned(nHost.FOptions) then
+           nStr := nHost.FOptions.Values['HYPrinter']
+      else nStr := '';
+      MakeTruckOut(nCard, '', nHost.FPrinter, nStr);
+    end else MakeTruckLadingDai(nCard, nHost.FTunnel);
   end else
 
   if nHost.FType = rtKeep then

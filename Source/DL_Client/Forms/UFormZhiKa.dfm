@@ -1,29 +1,30 @@
 inherited fFormZhiKa: TfFormZhiKa
   Left = 629
   Top = 200
-  ClientHeight = 450
-  ClientWidth = 430
+  Width = 461
+  Height = 499
+  BorderStyle = bsSizeable
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 430
-    Height = 450
+    Width = 453
+    Height = 472
     AutoControlAlignment = False
     inherited BtnOK: TButton
-      Left = 284
-      Top = 417
+      Left = 307
+      Top = 439
       TabOrder = 15
     end
     inherited BtnExit: TButton
-      Left = 354
-      Top = 417
+      Left = 377
+      Top = 439
       TabOrder = 16
     end
     object ListDetail: TcxListView [2]
       Left = 23
-      Top = 224
+      Top = 218
       Width = 400
       Height = 149
       Checkboxes = True
@@ -52,23 +53,23 @@ inherited fFormZhiKa: TfFormZhiKa
     end
     object EditStock: TcxTextEdit [3]
       Left = 57
-      Top = 385
+      Top = 407
       ParentFont = False
       Properties.ReadOnly = True
       TabOrder = 11
       Width = 123
     end
     object EditPrice: TcxTextEdit [4]
-      Left = 200
-      Top = 385
+      Left = 223
+      Top = 407
       ParentFont = False
       Properties.OnEditValueChanged = EditPricePropertiesEditValueChanged
       TabOrder = 12
       Width = 79
     end
     object EditValue: TcxTextEdit [5]
-      Left = 330
-      Top = 385
+      Left = 353
+      Top = 407
       ParentFont = False
       Properties.OnEditValueChanged = EditPricePropertiesEditValueChanged
       TabOrder = 13
@@ -155,7 +156,7 @@ inherited fFormZhiKa: TfFormZhiKa
       Width = 121
     end
     object cxLabel2: TcxLabel [13]
-      Left = 387
+      Left = 410
       Top = 161
       AutoSize = False
       Caption = #20803
@@ -168,7 +169,7 @@ inherited fFormZhiKa: TfFormZhiKa
     end
     object Check1: TcxCheckBox [14]
       Left = 11
-      Top = 417
+      Top = 439
       Caption = #23436#25104#21518#25171#24320#38480#25552#31383#21475
       ParentFont = False
       TabOrder = 14

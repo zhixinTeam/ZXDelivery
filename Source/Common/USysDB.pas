@@ -1306,8 +1306,8 @@ ResourceString
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockBatcode = 'Create Table $Table(R_ID $Inc, B_Stock varChar(32),' +
-       'B_Name varChar(80), B_Prefix varChar(5), B_Base Integer,' +
-       'B_Incement Integer, B_Length Integer, ' +
+       'B_Name varChar(80), B_Prefix varChar(5), B_UseYear Char(1),' +
+       'B_Base Integer, B_Incement Integer, B_Length Integer, ' +
        'B_Value $Float, B_Low $Float, B_High $Float, B_Interval Integer,' +
        'B_AutoNew Char(1), B_UseDate Char(1), B_FirstDate DateTime,' +
        'B_LastDate DateTime, B_HasUse $Float Default 0, B_Batcode varChar(32))';
@@ -1317,6 +1317,7 @@ ResourceString
    *.B_Stock: 物料号
    *.B_Name: 物料名
    *.B_Prefix: 前缀
+   *.B_UseYear: 前缀后加两位年
    *.B_Base: 起始编码(基数)
    *.B_Incement: 编号增量
    *.B_Length: 编号长度

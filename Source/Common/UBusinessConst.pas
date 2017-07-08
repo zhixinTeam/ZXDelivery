@@ -140,6 +140,8 @@ type
 
     FYSValid    : string;          //验收结果，Y验收成功；N拒收；
     FKZValue    : Double;          //供应扣除
+    FPrintHY    : Boolean;         //打印化验单
+    FHYDan      : string;          //化验单号
     FMemo       : string;          //动作备注
   end;
 
@@ -267,8 +269,10 @@ begin
              FKZValue := StrToFloat(nStr)
         else FKZValue := 0;
 
-        FYSValid:= Values['YSValid'];
-        FMemo := Values['Memo'];
+        FYSValid := Values['YSValid'];
+        FPrintHY := Values['PrintHY'] = sFlag_Yes;
+        FHYDan   := Values['HYDan'];
+        FMemo    := Values['Memo'];
       end;
 
       Inc(nInt);
@@ -346,6 +350,11 @@ begin
         Values['KZValue']    := FloatToStr(FKZValue);
         Values['YSValid']    := FYSValid;
         Values['Memo']       := FMemo;
+
+        if FPrintHY then
+             Values['PrintHY'] := sFlag_Yes
+        else Values['PrintHY'] := sFlag_No;
+        Values['HYDan']    := FHYDan;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));

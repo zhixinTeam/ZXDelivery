@@ -96,15 +96,15 @@ begin
 
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  Result := 'Select h.*,h.R_ID as H_ID,c.L_Value as H_HKValue,' +
-            'c.L_Date as H_HKDate,cus.C_Name as Z_CusName,sm.S_Name as Z_SMName,' +
+  Result := 'Select h.*,h.R_ID as H_ID,' +
+            '(Select L_Value from $Bill where L_ID=h.H_HKBill) as H_HKValue,' +
+            '(select L_Date from $Bill where L_ID=h.H_HKBill) as H_HKDate,' +
+            'cus.C_Name as Z_CusName,sm.S_Name as Z_SMName,' +
             'b.*,z.* From $HK h ' +
             ' Left Join $ZK z on z.Z_ID=h.H_ZhiKa ' +
             ' Left Join $Cus cus on cus.C_ID=z.Z_Customer ' +
             ' Left Join $SM sm on sm.S_ID=z.Z_SaleMan ' +
-
-            ' Left Join $Bill b on b.L_ID=h.H_Bill ' +
-            ' Left Join $Bill c on b.L_ID=h.H_HKBill ';
+            ' Left Join $Bill b on b.L_ID=h.H_Bill ';
   //xxxxx
 
   if (nWhere = '') or FUseDate then

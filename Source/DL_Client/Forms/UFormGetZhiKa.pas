@@ -92,6 +92,9 @@ end;
 
 procedure TfFormGetZhiKa.FormCreate(Sender: TObject);
 begin
+  dxGroup1.AlignVert := avTop;
+  dxGroup2.AlignVert := avClient;
+  
   LoadMCListBoxConfig(Name, ListInfo);
   LoadcxListViewConfig(Name, ListDetail);
 end;

@@ -1759,7 +1759,8 @@ begin
 
   nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
           'L_StockName,L_Truck,L_Value,L_Price,L_ZKMoney,L_Status,' +
-          'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue From $Bill b ';
+          'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue,L_PrintHY,' +
+          'L_HYDan From $Bill b ';
   //xxxxx
 
   if nIsBill then
@@ -1804,6 +1805,9 @@ begin
       FIsVIP      := FieldByName('L_IsVIP').AsString;
       FStatus     := FieldByName('L_Status').AsString;
       FNextStatus := FieldByName('L_NextStatus').AsString;
+
+      FHYDan      := FieldByName('L_HYDan').AsString;
+      FPrintHY    := FieldByName('L_PrintHY').AsString = sFlag_Yes;
 
       if FIsVIP = sFlag_TypeShip then
       begin
@@ -2296,6 +2300,32 @@ begin
               'A_FreezeMoney=A_FreezeMoney-(%.2f) Where A_CID=''%s''';
       nSQL := Format(nSQL, [sTable_CusAccount, nVal, nVal, FCusID]);
       FListA.Add(nSQL); //更新客户资金(可能不同客户)
+
+      {$IFDEF PrintHYEach}
+      if FPrintHY then
+      begin
+        FListC.Values['Group'] :=sFlag_BusGroup;
+        FListC.Values['Object'] := sFlag_HYDan;
+        //to get serial no
+
+        if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+            FListC.Text, sFlag_Yes, @nOut) then
+          raise Exception.Create(nOut.FData);
+        //xxxxx
+
+        nSQL := MakeSQLByStr([SF('H_No', nOut.FData),
+                SF('H_Custom', FCusID),
+                SF('H_CusName', FCusName),
+                SF('H_SerialNo', FHYDan),
+                SF('H_Truck', FTruck),
+                SF('H_Value', FValue, sfVal),
+                SF('H_BillDate', sField_SQLServer_Now, sfVal),
+                SF('H_ReportDate', sField_SQLServer_Now, sfVal),
+                //SF('H_EachTruck', sFlag_Yes),
+                SF('H_Reporter', FID)], sTable_StockHuaYan, '', True);
+        FListA.Add(nSQL); //自动生成化验单
+      end;
+      {$ENDIF}
     end;
 
     {$IFDEF UseERP_K3}

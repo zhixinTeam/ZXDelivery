@@ -979,10 +979,19 @@ var nStr,nP: string;
       with gDBConnManager.WorkerQuery(FDBConn, nStr) do
       begin
         nP := FieldByName('B_Prefix').AsString;
+        nStr := FieldByName('B_UseYear').AsString;
+
+        if nStr = sFlag_Yes then
+        begin
+          nStr := Copy(Date2Str(Now()), 3, 2);
+          nP := nP + nStr;
+          //前缀后两位年份
+        end;
+
         nStr := FieldByName('B_Base').AsString;
         nInt := FieldByName('B_Length').AsInteger;
-
         nInt := nInt - Length(nP + nStr);
+
         if nInt > 0 then
              Result := nP + StringOfChar('0', nInt) + nStr
         else Result := nP + nStr;

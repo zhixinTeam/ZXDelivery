@@ -1,8 +1,9 @@
 inherited fFormGetZhiKa: TfFormGetZhiKa
   Left = 351
   Top = 280
-  ClientHeight = 440
-  ClientWidth = 423
+  Width = 431
+  Height = 467
+  BorderStyle = bsSizeable
   Position = poDesktopCenter
   OnClose = FormClose
   OnCreate = FormCreate

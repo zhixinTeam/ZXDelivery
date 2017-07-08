@@ -56,6 +56,9 @@ type
     dxLayout1Item19: TdxLayoutItem;
     dxLayout1Group11: TdxLayoutGroup;
     dxLayout1Group6: TdxLayoutGroup;
+    dxLayout1Item3: TdxLayoutItem;
+    Check3: TcxCheckBox;
+    dxLayout1Group4: TdxLayoutGroup;
     procedure BtnOKClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesEditValueChanged(Sender: TObject);
@@ -147,6 +150,8 @@ begin
       EditLen.Text := FieldByName('B_Length').AsString;
 
       EditPrefix.Text := FieldByName('B_Prefix').AsString;
+      Check3.Checked := FieldByName('B_UseYear').AsString = sFlag_Yes;
+
       EditInc.Text := FieldByName('B_Incement').AsString;
       Check1.Checked := FieldByName('B_UseDate').AsString = sFlag_Yes;
 
@@ -238,7 +243,7 @@ end;
 
 //Desc: 保存
 procedure TfFormBatcode.BtnOKClick(Sender: TObject);
-var nStr,nU,nN: string;
+var nStr,nU,nN,nY: string;
 begin
   if not IsDataValid then Exit;
   //验证不通过
@@ -251,6 +256,10 @@ begin
        nN := sFlag_Yes
   else nN := sFlag_No;
 
+  if Check3.Checked then
+       nY := sFlag_Yes
+  else nY := sFlag_No;
+
   if FRecordID = '' then
        nStr := ''
   else nStr := SF('R_ID', FRecordID, sfVal);
@@ -258,6 +267,7 @@ begin
   nStr := MakeSQLByStr([SF('B_Stock', GetCtrlData(EditStock)),
           SF('B_Name', EditName.Text),
           SF('B_Prefix', EditPrefix.Text),
+          SF('B_UseYear', nY),
           SF('B_Base', EditBase.Text, sfVal),
           SF('B_Length', EditLen.Text, sfVal),
           SF('B_Incement', EditInc.Text, sfVal),

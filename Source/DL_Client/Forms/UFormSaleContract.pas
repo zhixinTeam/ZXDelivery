@@ -316,8 +316,11 @@ begin
 
   if StockList1.Items.Count < 1 then
   begin
-    nStr := MacroValue(sQuery_SysDict, [MI('$Table', sTable_SysDict),
-                                        MI('$Name', sFlag_StockItem)]);
+    nStr := 'Select * From $Table Where D_Name=''$Name'' Order By D_Index DESC';
+    nStr := MacroValue(nStr, [MI('$Table', sTable_SysDict),
+                              MI('$Name', sFlag_StockItem)]);
+    //xxxxx
+    
     with FDM.QueryTemp(nStr) do
     if RecordCount > 0 then
     begin

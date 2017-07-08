@@ -195,6 +195,9 @@ end;
 procedure TfFormZhiKa.FormCreate(Sender: TObject);
 var nIni: TIniFile;
 begin
+  dxGroup1.AlignVert := avTop;
+  dxGroup2.AlignVert := avClient;
+  
   nIni := TIniFile.Create(gPath + sFormConfig);
   try
     LoadFormConfig(Self, nIni);

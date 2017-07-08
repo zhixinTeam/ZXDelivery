@@ -8,7 +8,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UFrameNormal, cxGraphics, cxControls, cxLookAndFeels,
+  UFrameNormal, IniFiles, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter, cxData,
   cxDataStorage, cxEdit, DB, cxDBData, cxContainer, Menus, dxLayoutControl,
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
@@ -48,12 +48,18 @@ type
     FTimeS,FTimeE: TDate;
     //时间区间
     FJBWhere: string;
-    //交班条件 
+    //交班条件
+    FValue,FMoney: Double;
+    //均价参数
     procedure OnCreateFrame; override;
     procedure OnDestroyFrame; override;
+    procedure OnLoadGridConfig(const nIni: TIniFile); override;
     function FilterColumnField: string; override;
     function InitFormDataSQL(const nWhere: string): string; override;
     //查询SQL
+    procedure SummaryItemsGetText(Sender: TcxDataSummaryItem;
+      const AValue: Variant; AIsFooter: Boolean; var AText: String);
+    //处理摘要
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -63,7 +69,7 @@ implementation
 
 {$R *.dfm}
 uses
-  IniFiles, ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness,
+  ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness,
   UBusinessConst, USysConst, USysDB;
 
 class function TfFrameSaleDetailQuery.FrameID: integer;
@@ -84,6 +90,25 @@ end;
 procedure TfFrameSaleDetailQuery.OnDestroyFrame;
 begin
   SaveDateRange(Name, FStart, FEnd);
+  inherited;
+end;
+
+procedure TfFrameSaleDetailQuery.OnLoadGridConfig(const nIni: TIniFile);
+var i,nCount: Integer;
+begin
+  with cxView1.DataController.Summary do
+  begin
+    nCount := FooterSummaryItems.Count - 1;
+    for i:=0 to nCount do
+      FooterSummaryItems[i].OnGetText := SummaryItemsGetText;
+    //绑定事件
+
+    nCount := DefaultGroupSummaryItems.Count - 1;
+    for i:=0 to nCount do
+      DefaultGroupSummaryItems[i].OnGetText := SummaryItemsGetText;
+    //绑定事件
+  end;
+
   inherited;
 end;
 
@@ -171,6 +196,28 @@ begin
     InitFormData('');
   finally
     FJBWhere := '';
+  end;
+end;
+
+//Desc: 处理均价
+procedure TfFrameSaleDetailQuery.SummaryItemsGetText(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+var nStr: string;
+begin
+  nStr := TcxGridDBColumn(TcxGridTableSummaryItem(Sender).Column).DataBinding.FieldName;
+  try
+    if CompareText(nStr, 'L_Value') = 0 then FValue := SplitFloatValue(AText);
+    if CompareText(nStr, 'L_Money') = 0 then FMoney := SplitFloatValue(AText);
+
+    if CompareText(nStr, 'L_Price') = 0 then
+    begin
+      if FValue = 0 then
+           AText := '均价: 0.00元'
+      else AText := Format('均价: %.2f元', [Round(FMoney / FValue * cPrecision) / cPrecision]);
+    end;
+  except
+    //ignor any error
   end;
 end;
 

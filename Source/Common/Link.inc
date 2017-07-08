@@ -60,10 +60,16 @@
   //华益读头
   {$DEFINE MITTruckProber}
   //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
   {$DEFINE PrintHYEach}
   //随车开化验单
+  {.$DEFINE HeGeZhengOnly}
+  //随车开单时只打合格证
   {$DEFINE SanPreHK}
   //散装开单时预合卡
+  {$DEFINE ManualEvent}
+  //人工干预事件
 {$ENDIF}
 
 //辽宁营口
