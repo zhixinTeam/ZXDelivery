@@ -86,6 +86,7 @@ const
   cFI_FormRestore       = $1002;                     //数据恢复
   cFI_FormIncInfo       = $1003;                     //公司信息
   cFI_FormChangePwd     = $1005;                     //修改密码
+  cFI_FormOptions       = $1102;                     //参数选项
 
   cFI_FormBaseInfo      = $1006;                     //基本信息
   cFI_FormCustomer      = $1007;                     //客户资料
@@ -308,6 +309,7 @@ begin
   AddMenuModuleItem('MAIN_A03', cFI_FormBackup, mtForm);
   AddMenuModuleItem('MAIN_A04', cFI_FormRestore, mtForm);
   AddMenuModuleItem('MAIN_A05', cFI_FormChangePwd, mtForm);
+  AddMenuModuleItem('MAIN_A06', cFI_FormOptions, mtForm);
   AddMenuModuleItem('MAIN_A07', cFI_FrameAuthorize);
   AddMenuModuleItem('MAIN_A08', cFI_FormTodo, mtForm);
   AddMenuModuleItem('MAIN_A09', cFI_FormTodoSend, mtForm);
@@ -364,7 +366,8 @@ begin
   AddMenuModuleItem('MAIN_L06', cFI_FrameSaleDetailQuery);
   AddMenuModuleItem('MAIN_L07', cFI_FrameSaleTotalQuery);
   AddMenuModuleItem('MAIN_L08', cFI_FrameZhiKaDetail);
-  AddMenuModuleItem('MAIN_L09', cFI_FrameOrderDetailQuery); 
+  AddMenuModuleItem('MAIN_L09', cFI_FrameSaleJS);
+  AddMenuModuleItem('MAIN_L10', cFI_FrameOrderDetailQuery);
 
   AddMenuModuleItem('MAIN_H01', cFI_FormTruckIn, mtForm);
   AddMenuModuleItem('MAIN_H02', cFI_FormTruckOut, mtForm);

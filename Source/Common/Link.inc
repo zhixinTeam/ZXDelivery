@@ -70,6 +70,8 @@
   //散装开单时预合卡
   {$DEFINE ManualEvent}
   //人工干预事件
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
 {$ENDIF}
 
 //辽宁营口

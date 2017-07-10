@@ -166,6 +166,9 @@ function ReadPoundCard(const nTunnel: string; var nReader: string): string;
 //读取指定磅站读头上的卡号
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
+procedure GetPoundAutoWuCha(var nWCValZ,nWCValF: Double; const nVal: Double;
+ const nStation: string = '');
+//获取误差范围
 
 function IsTunnelOK(const nTunnel: string): Boolean;
 //查询通道光栅是否正常
@@ -679,6 +682,41 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+//Date: 2017-07-09
+//Parm: 包装正负误差;票重;磅站号
+//Desc: 计算nVal的误差范围
+procedure GetPoundAutoWuCha(var nWCValZ,nWCValF: Double; const nVal: Double;
+ const nStation: string);
+var nStr: string;
+begin
+  nWCValZ := 0;
+  nWCValF := 0;
+  if nVal <= 0 then Exit;
+
+  nStr := 'Select * From %s Where P_Start<=%.2f and P_End>%.2f';
+  nStr := Format(nStr, [sTable_PoundDaiWC, nVal, nVal]);
+
+  if Length(nStation) > 0 then
+    nStr := nStr + ' And P_Station=''' + nStation + '''';
+  //xxxxx
+
+  with FDM.QuerySQL(nStr) do
+  if RecordCount > 0 then
+  begin
+    if FieldByName('P_Percent').AsString = sFlag_Yes then 
+    begin
+      nWCValZ := nVal * 1000 * FieldByName('P_DaiWuChaZ').AsFloat;
+      nWCValF := nVal * 1000 * FieldByName('P_DaiWuChaF').AsFloat;
+      //按比例计算误差
+    end else
+    begin     
+      nWCValZ := FieldByName('P_DaiWuChaZ').AsFloat;
+      nWCValF := FieldByName('P_DaiWuChaF').AsFloat;
+      //按固定值计算误差
+    end;
+  end;
+end;
+
 //Date: 2014-07-03
 //Parm: 通道号
 //Desc: 查询nTunnel的光栅状态是否正常
