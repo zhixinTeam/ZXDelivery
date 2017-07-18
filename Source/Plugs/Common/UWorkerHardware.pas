@@ -426,7 +426,7 @@ begin
     //固定喷码
   end else
   begin
-    {$IFDEF PrintHYDan}
+    {$IFDEF BatchInHYOfBill}
     nPrint := 'L_HYDan';
     {$ELSE}
     nPrint := 'L_Seal';
@@ -452,6 +452,13 @@ begin
       {$IFDEF RDHX}
       nCode := Trim(Fields[1].AsString);
       nCode := nCode + Date2Str(Now, False);;
+      {$ENDIF}
+
+      {$IFDEF ZZSJ}
+      nCode := Fields[0].AsString;
+      System.Delete(nCode, 1, Length('TH170707'));
+      nCode := Date2Str(Now) + Fields[1].AsString + nCode;
+      //上街: 年月日 + 水泥批次号 + 流水号
       {$ENDIF}
     end;
   end;

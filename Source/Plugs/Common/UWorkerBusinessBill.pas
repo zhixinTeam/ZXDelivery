@@ -553,8 +553,15 @@ begin
       if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
          FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then
          raise Exception.Create(nTmp.FData);
-         
-      FListC.Values['HYDan'] := nTmp.FData; 
+
+      {$IFDEF BatchInHYOfBill}
+      FListC.Values['HYDan'] := nTmp.FData;
+      {$ELSE}
+      if nTmp.FData <> '' then
+        FListC.Values['Seal'] := nTmp.FData;
+      //auto batcode
+      {$ENDIF}
+      
       if PBWDataBase(@nTmp).FErrCode = sFlag_ForceHint then
       begin
         FOut.FBase.FErrCode := sFlag_ForceHint;

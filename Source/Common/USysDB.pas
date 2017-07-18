@@ -58,7 +58,6 @@ const
   //日期相关
   sField_SQLServer_Now           = 'getDate()';
 
-ResourceString     
   {*权限项*}
   sPopedom_Read       = 'A';                         //浏览
   sPopedom_Add        = 'B';                         //添加
@@ -237,6 +236,9 @@ ResourceString
   sFlag_DepDaTing     = '大厅';                      //服务大厅
   sFlag_DepJianZhuang = '监装';                      //监装
   sFlag_DepBangFang   = '磅房';                      //磅房
+
+  sFlag_Solution_YN   = 'Y=通过;N=禁止';
+  sFlag_Solution_YNI  = 'Y=通过;N=禁止;I=忽略';
   
   sFlag_LSStock       = 'ls-sn-00';                  //零售水泥编号(预开)
   sFlag_LSCustomer    = 'ls-kh-00';                  //零售客户编号(预开)

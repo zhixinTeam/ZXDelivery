@@ -298,7 +298,7 @@ var nStr,nID,nSeal,nSave: string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
-    {$IFDEF PrintHYDan}
+    {$IFDEF BatchInHYOfBill}
     nSave := 'L_HYDan';
     {$ELSE}
     nSave := 'L_Seal';

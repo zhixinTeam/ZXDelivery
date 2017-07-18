@@ -1014,6 +1014,8 @@ var nStr,nP: string;
     end;
 begin
   Result := True;
+  FOut.FData := '';
+  
   nStr := 'Select D_Value From %s Where D_Name=''%s''';
   nStr := Format(nStr, [sTable_SysDict, sFlag_BatchAuto]);
   
@@ -1751,7 +1753,7 @@ begin
           SF('Fqtymust', nVal, sfVal),
           SF('Fauxqtymust', nVal, sfVal),
 
-          {$IFDEF PrintHYDan}
+          {$IFDEF BatchInHYOfBill}
           SF('FEntrySelfB0155', FieldByName('L_HYDan').AsString),
           {$ELSE}
           SF('FEntrySelfB0155', FieldByName('L_Seal').AsString),

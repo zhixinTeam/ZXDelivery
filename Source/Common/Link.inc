@@ -66,6 +66,8 @@
   //随车开化验单
   {.$DEFINE HeGeZhengOnly}
   //随车开单时只打合格证
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
   {$DEFINE SanPreHK}
   //散装开单时预合卡
   {$DEFINE ManualEvent}
@@ -149,7 +151,7 @@
   //计数器应答模式
   {$DEFINE NoShowPriceChange}
   //不显示价格调整提示
-  {$DEFINE PrintHYDan}
+  {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
 {$ENDIF}
 
