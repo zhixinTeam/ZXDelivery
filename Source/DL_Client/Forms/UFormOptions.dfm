@@ -181,6 +181,7 @@ inherited fFormOptions: TfFormOptions
           Top = 184
           Caption = #36215#22987#21544#20301':'
           ParentFont = False
+          Style.Edges = []
         end
         object EditEnd: TcxTextEdit
           Left = 264
@@ -194,12 +195,14 @@ inherited fFormOptions: TfFormOptions
           Top = 184
           Caption = #32467#26463#21544#20301':'
           ParentFont = False
+          Style.Edges = []
         end
         object cxLabel3: TcxLabel
           Left = 8
           Top = 208
           Caption = #27491' '#35823' '#24046':'
           ParentFont = False
+          Style.Edges = []
         end
         object EditZWC: TcxTextEdit
           Left = 72
@@ -213,6 +216,7 @@ inherited fFormOptions: TfFormOptions
           Top = 208
           Caption = #36127' '#35823' '#24046':'
           ParentFont = False
+          Style.Edges = []
         end
         object EditFWC: TcxTextEdit
           Left = 264

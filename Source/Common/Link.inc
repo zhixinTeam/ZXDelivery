@@ -74,6 +74,8 @@
   //人工干预事件
   {$DEFINE DaiStepWuCha}
   //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
 {$ENDIF}
 
 //辽宁营口

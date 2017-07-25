@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormZhiKaPrice;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -140,7 +141,7 @@ begin
 end;
 
 procedure TfFormZKPrice.BtnOKClick(Sender: TObject);
-var nStr: string;
+var nStr,nStatus: string;
     nVal: Double;
     nIdx: Integer;
     nList: TStrings;
@@ -183,8 +184,14 @@ begin
       FDM.WriteSysLog(sFlag_ZhiKaItem, nList[2], nStr, False);
 
       if not Check1.Checked then Continue;
-      nStr := 'Update %s Set Z_TJStatus=''%s'' Where Z_ID=''%s''';
-      nStr := Format(nStr, [sTable_ZhiKa, sFlag_TJOver, nList[2]]);
+      {$IFDEF NoShowPriceChange}
+      nStatus := 'Null';
+      {$ELSE}
+      nStatus := '''' + sFlag_TJOver + '''';
+      {$ENDIF}
+      
+      nStr := 'Update %s Set Z_TJStatus=%s Where Z_ID=''%s''';
+      nStr := Format(nStr, [sTable_ZhiKa, nStatus, nList[2]]);
       FDM.ExecuteSQL(nStr);
     end;
 
