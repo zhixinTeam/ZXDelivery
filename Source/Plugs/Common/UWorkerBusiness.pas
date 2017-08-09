@@ -1745,7 +1745,7 @@ begin
           //¶©µ¥±àºÅ
 
           SF('Fsourcebillno', '0'),
-          SF('Fsourcetrantype', 83, sfVal),
+          SF('Fsourcetrantype', 0, sfVal),
           SF('Fsourceinterid', '0', sfVal),
 
           SF('Fqty',  nVal, sfVal),

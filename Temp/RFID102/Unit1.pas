@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, USysLoger, UMgrRFID102, StdCtrls, ExtCtrls;
+  Dialogs, USysLoger, UMgrRFID102, StdCtrls, ExtCtrls, IdBaseComponent,
+  IdComponent, IdTCPConnection, IdTCPClient;
 
 type
   TForm1 = class(TForm)
@@ -12,9 +13,13 @@ type
     Panel1: TPanel;
     Button1: TButton;
     Button2: TButton;
+    IdTCPClient1: TIdTCPClient;
+    Edit1: TEdit;
+    Button3: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -63,6 +68,11 @@ end;
 procedure TForm1.OnCard(const nItem: PHYReaderItem);
 begin
   gSysLoger.AddLog(nItem.FCard);
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+begin
+  gHYReaderManager.OpenDoor(Edit1.Text);
 end;
 
 end.

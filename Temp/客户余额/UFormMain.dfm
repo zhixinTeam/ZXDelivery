@@ -17,13 +17,13 @@ object Form1: TForm1
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 686
+    Width = 694
     Height = 41
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 0
     object Button1: TButton
-      Left = 100
+      Left = 12
       Top = 8
       Width = 75
       Height = 25
@@ -32,7 +32,7 @@ object Form1: TForm1
       OnClick = Button1Click
     end
     object Button2: TButton
-      Left = 184
+      Left = 96
       Top = 8
       Width = 75
       Height = 25
@@ -41,7 +41,7 @@ object Form1: TForm1
       OnClick = Button2Click
     end
     object Button3: TButton
-      Left = 270
+      Left = 182
       Top = 8
       Width = 75
       Height = 25
@@ -50,7 +50,7 @@ object Form1: TForm1
       OnClick = Button3Click
     end
     object Button4: TButton
-      Left = 356
+      Left = 268
       Top = 8
       Width = 75
       Height = 25
@@ -58,29 +58,11 @@ object Form1: TForm1
       TabOrder = 3
       OnClick = Button4Click
     end
-    object Button5: TButton
-      Left = 16
-      Top = 8
-      Width = 75
-      Height = 25
-      Caption = #23458#25143#23548#20837
-      TabOrder = 4
-      OnClick = Button5Click
-    end
-    object Button6: TButton
-      Left = 472
-      Top = 8
-      Width = 105
-      Height = 25
-      Caption = #20445#23384#21040#25991#20214
-      TabOrder = 5
-      OnClick = Button6Click
-    end
   end
   object Memo1: TMemo
     Left = 0
     Top = 41
-    Width = 686
+    Width = 694
     Height = 216
     Align = alTop
     ScrollBars = ssBoth
@@ -89,8 +71,8 @@ object Form1: TForm1
   object Memo2: TMemo
     Left = 0
     Top = 257
-    Width = 686
-    Height = 181
+    Width = 694
+    Height = 192
     Align = alClient
     ScrollBars = ssBoth
     TabOrder = 2

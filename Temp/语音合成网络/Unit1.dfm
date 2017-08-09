@@ -22,7 +22,7 @@ object Form1: TForm1
     Width = 465
     Height = 171
     Lines.Strings = (
-      'Memo1')
+      #24744#28857#20987#20102#35821#38899#21512#25104#27979#35797#25353#38062'.')
     TabOrder = 0
   end
   object Btn1: TButton
@@ -30,7 +30,7 @@ object Form1: TForm1
     Top = 190
     Width = 75
     Height = 25
-    Caption = #21457#36865
+    Caption = #27979#35797
     TabOrder = 1
     OnClick = Btn1Click
   end
@@ -42,5 +42,14 @@ object Form1: TForm1
     Caption = #21551#21160#26381#21153
     TabOrder = 2
     OnClick = CheckBox1Click
+  end
+  object Button1: TButton
+    Left = 328
+    Top = 196
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
+    TabOrder = 3
+    OnClick = Button1Click
   end
 end

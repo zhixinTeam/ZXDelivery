@@ -70,6 +70,7 @@ const
   cFI_FrameSaleJS       = $0069;                     //销售结算
 
   cFI_FrameTrucks       = $0070;                     //车辆档案
+  cFI_FrameTodo         = $0071;                     //待处理事件
 
   cFI_FrameProvider     = $0102;                     //供应
   cFI_FrameProvideLog   = $0105;                     //供应日志
@@ -312,7 +313,7 @@ begin
   AddMenuModuleItem('MAIN_A06', cFI_FormOptions, mtForm);
   AddMenuModuleItem('MAIN_A07', cFI_FrameAuthorize);
   AddMenuModuleItem('MAIN_A08', cFI_FormTodo, mtForm);
-  AddMenuModuleItem('MAIN_A09', cFI_FormTodoSend, mtForm);
+  AddMenuModuleItem('MAIN_A09', cFI_FrameTodo);
 
   AddMenuModuleItem('MAIN_B01', cFI_FormBaseInfo, mtForm);
   AddMenuModuleItem('MAIN_B02', cFI_FrameCustomer);

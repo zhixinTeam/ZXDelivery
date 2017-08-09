@@ -29,7 +29,7 @@ uses
   UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,
   UFrameQuerySaleTotal, UFrameZTDispatch, UFrameTrucks, UFormTruck,
   UFormRFIDCard, UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
-  UFormTodo, UFormTodoSend, UFrameBatcodeJ, UFormBatcodeJ,
+  UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
   UFrameBillHK, UFormBillHK,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
