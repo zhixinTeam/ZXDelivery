@@ -166,9 +166,19 @@ function ReadPoundCard(const nTunnel: string; var nReader: string): string;
 //读取指定磅站读头上的卡号
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
+
 procedure GetPoundAutoWuCha(var nWCValZ,nWCValF: Double; const nVal: Double;
  const nStation: string = '');
 //获取误差范围
+function AddManualEventRecord(const nEID,nKey,nEvent:string;
+ const nFrom: string = sFlag_DepBangFang ;
+ const nSolution: string = sFlag_Solution_YN;
+ const nDepartmen: string = sFlag_DepDaTing;
+ const nReset: Boolean = False; const nMemo: string = ''): Boolean;
+//添加待处理事项记录
+function VerifyManualEventRecord(const nEID: string; var nHint: string;
+ const nWant: string = sFlag_Yes): Boolean;
+//检查事件是否通过处理
 
 function IsTunnelOK(const nTunnel: string): Boolean;
 //查询通道光栅是否正常
@@ -717,6 +727,86 @@ begin
   end;
 end;
 
+//Date: 2017-07-09
+//Parm: 参数描述
+//Desc: 添加异常事件处理
+function AddManualEventRecord(const nEID,nKey,nEvent:string;
+ const nFrom,nSolution,nDepartmen: string;
+ const nReset: Boolean; const nMemo: string): Boolean;
+var nStr: string;
+    nUpdate: Boolean;
+begin
+  Result := False;
+  if Trim(nSolution) = '' then
+  begin
+    WriteLog('请选择处理方案.');
+    Exit;
+  end;
+
+  nStr := 'Select * From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nEID]);
+  
+  with FDM.QuerySQL(nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := '事件记录:[ %s ]已存在';
+    WriteLog(Format(nStr, [nEID]));
+
+    if not nReset then Exit;
+    nUpdate := True;
+  end else nUpdate := False;
+
+  nStr := SF('E_ID', nEID);
+  nStr := MakeSQLByStr([
+          SF('E_ID', nEID),
+          SF('E_Key', nKey),
+          SF('E_From', nFrom),
+          SF('E_Memo', nMemo),
+          SF('E_Result', 'Null', sfVal),
+          
+          SF('E_Event', nEvent),
+          SF('E_Solution', nSolution),
+          SF('E_Departmen', nDepartmen),
+          SF('E_Date', sField_SQLServer_Now, sfVal)
+          ], sTable_ManualEvent, nStr, (not nUpdate));
+  //xxxxx
+
+  FDM.ExecuteSQL(nStr);
+  Result := True;
+end;
+
+//Date: 2017-07-09
+//Parm: 事件ID;预期结果;错误返回
+//Desc: 判断事件是否处理
+function VerifyManualEventRecord(const nEID: string; var nHint: string;
+ const nWant: string): Boolean;
+var nStr: string;
+begin
+  Result := False;
+  nStr := 'Select E_Result, E_Event From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nEID]);
+
+  with FDM.QuerySQL(nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := Trim(FieldByName('E_Result').AsString);
+    if nStr = '' then
+    begin
+      nHint := FieldByName('E_Event').AsString;
+      Exit;
+    end;
+
+    if nStr <> nWant then
+    begin
+      nHint := '请联系管理员，做换票处理';
+      Exit;
+    end;
+
+    Result := True;
+  end;
+end;
+
+//------------------------------------------------------------------------------
 //Date: 2014-07-03
 //Parm: 通道号
 //Desc: 查询nTunnel的光栅状态是否正常
@@ -922,6 +1012,7 @@ begin
   nVal := Float2Float(nMoney, cPrecision, False);
   //adjust float value
 
+  {$IFNDEF NoCheckOnPayment}
   if nVal < 0 then
   begin
     nLimit := GetCustomerValidMoney(nCusID, False);
@@ -937,6 +1028,7 @@ begin
       Exit;
     end;
   end;
+  {$ENDIF}
 
   nLimit := 0;
   //no limit

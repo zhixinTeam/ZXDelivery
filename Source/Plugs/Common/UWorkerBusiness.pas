@@ -383,7 +383,12 @@ begin
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   begin
-    if RecordCount<1 then Exit;
+    if RecordCount<1 then
+    begin
+      nData := '磁卡[ %s ]信息不存在.';
+      nData := Format(nData, [FIn.FData]);
+      Exit;
+    end;
 
     FOut.FData := Fields[0].AsString;
     Result := True;

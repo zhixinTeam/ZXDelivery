@@ -76,6 +76,8 @@
   //包装阶梯误差
   {$DEFINE NoShowPriceChange}
   //不显示价格调整提示
+  {$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
 {$ENDIF}
 
 //辽宁营口
