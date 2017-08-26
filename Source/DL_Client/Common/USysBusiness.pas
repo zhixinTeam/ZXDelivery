@@ -50,6 +50,7 @@ type
 
   PSalePlanItem = ^TSalePlanItem;
   TSalePlanItem = record
+    FOrderNo: string;        //订单号     
     FInterID: string;        //主表编号
     FEntryID: string;        //附表编号
     FStockID: string;        //物料编号
@@ -1585,6 +1586,7 @@ begin
       with nPlans[nIdx] do
       begin
         FSelected := False;
+        FOrderNo := nListB.Values['billno'];
         FInterID := nListB.Values['inter'];
         FEntryID := nListB.Values['entry'];
         

@@ -638,6 +638,7 @@ begin
       if Integer(gInfo.FPlan) > 0 then
       begin
         Values['IsPlan'] := sFlag_Yes;
+        Values['OrderNo']:= gInfo.FPlan.FOrderNo;
         Values['InterID']:= gInfo.FPlan.FInterID;
         Values['EntryID']:= gInfo.FPlan.FEntryID;
       end else Values['IsPlan'] := sFlag_No;

@@ -571,6 +571,7 @@ begin
 
       nStr := MakeSQLByStr([SF('L_ID', nOut.FData),
               SF('L_ZhiKa', FListA.Values['ZhiKa']),
+              SF('L_Order', FListC.Values['OrderNo']),
               SF('L_Project', FListA.Values['Project']),
               SF('L_Area', FListA.Values['Area']),
               SF('L_CusID', FListA.Values['CusID']),
