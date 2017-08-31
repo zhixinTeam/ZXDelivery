@@ -589,7 +589,7 @@ end;
 //Parm: 读头数据
 //Desc: 对nReader读到的卡号做具体动作
 procedure WhenReaderCardArrived(const nReader: THHReaderItem);
-var nStr: string;
+var nStr,nCard: string;
     nErrNum: Integer;
     nDBConn: PDBWorker;
 begin
@@ -618,7 +618,7 @@ begin
     with gDBConnManager.WorkerQuery(nDBConn, nStr) do
     if RecordCount > 0 then
     begin
-      nStr := Fields[0].AsString;
+      nCard := Fields[0].AsString;
     end else
     begin
       nStr := Format('磁卡号[ %s ]匹配失败.', [nReader.FCard]);
@@ -629,7 +629,7 @@ begin
     try
       if nReader.FType = rtIn then
       begin
-        MakeTruckIn(nStr, nReader.FID, nDBConn);
+        MakeTruckIn(nCard, nReader.FID, nDBConn);
       end else
 
       if nReader.FType = rtOut then
@@ -637,7 +637,7 @@ begin
         if Assigned(nReader.FOptions) then
              nStr := nReader.FOptions.Values['HYPrinter']
         else nStr := '';
-        MakeTruckOut(nStr, nReader.FID, nReader.FPrinter, nStr);
+        MakeTruckOut(nCard, nReader.FID, nReader.FPrinter, nStr);
       end else
 
       if nReader.FType = rtGate then
@@ -650,7 +650,7 @@ begin
       if nReader.FType = rtQueueGate then
       begin
         if nReader.FID <> '' then
-          MakeTruckPassGate(nStr, nReader.FID, nDBConn);
+          MakeTruckPassGate(nCard, nReader.FID, nDBConn);
         //抬杆
       end;
     except
