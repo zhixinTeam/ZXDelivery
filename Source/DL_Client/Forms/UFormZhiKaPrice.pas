@@ -25,6 +25,8 @@ type
     dxLayout1Item6: TdxLayoutItem;
     Check2: TcxCheckBox;
     dxLayout1Item7: TdxLayoutItem;
+    dxLayout1Item8: TdxLayoutItem;
+    Check3: TcxCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
@@ -32,6 +34,8 @@ type
     { Private declarations }
     FZKList: TStrings;
     //纸卡列表
+    FMainZK,FMainStock: string;
+    //主纸卡号,品种
     procedure InitFormData;
     //载入数据
   public
@@ -113,6 +117,10 @@ var nIdx: Integer;
 begin
   nList := TStringList.Create;
   try
+    Check3.Enabled := False;
+    FMainZK := '';
+    FMainStock := '';
+
     nMin := MaxInt;
     nMax := 0;
     nStock := '';
@@ -126,11 +134,20 @@ begin
       nVal := StrToFloat(nList[1]);
       if nVal < nMin then nMin := nVal;
       if nVal > nMax then nMax := nVal;
+
       if nStock = '' then nStock := nList[4];
+      if FMainStock = '' then FMainStock := nList[3];
+
+      if FMainZK = '' then FMainZK := nList[2] else
+      if FMainZK <> nList[2] then FMainZK := sFlag_No;
     end;
 
     ActiveControl := EditNew;
     EditStock.Text := nStock;
+
+    {$IFDEF ChangeBillWhenPriceAdjust}
+    Check3.Enabled := (FMainZK <> '') and (FMainZK <> sFlag_No);
+    {$ENDIF}
     
     if nMin = nMax then
          EditPrice.Text := Format('%.2f 元/吨', [nMax])
@@ -142,7 +159,7 @@ end;
 
 procedure TfFormZKPrice.BtnOKClick(Sender: TObject);
 var nStr,nStatus: string;
-    nVal: Double;
+    nVal,nVal2: Double;
     nIdx: Integer;
     nList: TStrings;
 begin
@@ -181,6 +198,8 @@ begin
 
       nStr := '水泥品种[ %s ]单价调整[ %s -> %.2f ]';
       nStr := Format(nStr, [nList[4], nList[1], nVal]);
+      if Check3.Checked then
+        nStr := nStr + ',并更新已发货单据.';
       FDM.WriteSysLog(sFlag_ZhiKaItem, nList[2], nStr, False);
 
       if not Check1.Checked then Continue;
@@ -193,6 +212,52 @@ begin
       nStr := 'Update %s Set Z_TJStatus=%s Where Z_ID=''%s''';
       nStr := Format(nStr, [sTable_ZhiKa, nStatus, nList[2]]);
       FDM.ExecuteSQL(nStr);
+    end;
+
+    //--------------------------------------------------------------------------
+    if Check3.Checked then
+    begin
+      nStr := 'Select D_Price,Z_Customer From %s ' +
+              ' Left Join %s On D_ZID=Z_ID ' +
+              'Where D_ZID=''%s'' And D_StockNo=''%s''';
+      nStr := Format(nStr, [sTable_ZhiKaDtl, sTable_ZhiKa, FMainZK, FMainStock]);
+
+      with FDM.QueryTemp(nStr) do
+      if RecordCount > 0 then
+      begin
+        nVal := Fields[0].AsFloat;
+        nStatus := Fields[1].AsString;
+
+        nStr := 'Update %s Set L_Price=%.2f ' +
+                'Where L_ZhiKa=''%s'' And L_StockNo=''%s''';
+        nStr := Format(nStr, [sTable_Bill, nVal, FMainZK, FMainStock]);
+        
+        FDM.ExecuteSQL(nStr);
+        //更新已开提货单价格
+
+        nStr := 'Select Sum(L_Price*L_Value) From $Bill ' +
+                'Where L_CusID=''$Cus'' And L_OutFact Is Not Null ' +
+                'Union All ' +
+                'Select Sum(L_Price*L_Value) From $Bill ' +
+                'Where L_CusID=''$Cus'' And L_OutFact Is Null';
+        nStr := MacroValue(nStr, [MI('$Bill', sTable_Bill), MI('$Cus', nStatus)]);
+
+        with FDM.QueryTemp(nStr) do
+        begin
+          First;
+          nVal := Fields[0].AsFloat;
+
+          Next;
+          nVal2 := Fields[0].AsFloat;
+
+          nStr := 'Update %s Set A_OutMoney=%.2f,A_FreezeMoney=%.2f ' +
+                  'Where A_CID=''%s''';
+          nStr := Format(nStr, [sTable_CusAccount, nVal, nVal2, nStatus]);
+          
+          FDM.ExecuteSQL(nStr);
+          //更新出金和冻结金
+        end;
+      end;
     end;
 
     FDM.ADOConn.CommitTrans;

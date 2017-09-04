@@ -50,7 +50,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE ZZSJ}
+{$DEFINE DYGL}
 //特定系统
 
 //郑州上街
@@ -94,6 +94,10 @@
   //打印过路费
   {$DEFINE TruckInNow}
   //开单立即进厂,需要采用厂内排队模式
+  {$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
 {$ENDIF}
 
 //如东海鑫

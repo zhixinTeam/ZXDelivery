@@ -1,25 +1,25 @@
 inherited fFormZKPrice: TfFormZKPrice
   Left = 296
   Top = 302
-  ClientHeight = 218
-  ClientWidth = 366
+  ClientHeight = 240
+  ClientWidth = 387
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 366
-    Height = 218
+    Width = 387
+    Height = 240
     inherited BtnOK: TButton
-      Left = 220
-      Top = 185
+      Left = 241
+      Top = 207
       Caption = #30830#23450
-      TabOrder = 5
+      TabOrder = 6
     end
     inherited BtnExit: TButton
-      Left = 290
-      Top = 185
-      TabOrder = 6
+      Left = 311
+      Top = 207
+      TabOrder = 7
     end
     object EditStock: TcxTextEdit [2]
       Left = 81
@@ -64,6 +64,15 @@ inherited fFormZKPrice: TfFormZKPrice
       Transparent = True
       Width = 121
     end
+    object Check3: TcxCheckBox [7]
+      Left = 23
+      Top = 163
+      Caption = #22312#24050#21457#36135'('#20986#21378#25110#26032#24320#21333')'#25552#36135#21333#19978#24212#29992#26032#21333#20215'.'
+      ParentFont = False
+      TabOrder = 5
+      Transparent = True
+      Width = 341
+    end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         Caption = #36873#39033
@@ -94,6 +103,11 @@ inherited fFormZKPrice: TfFormZKPrice
           Caption = 'cxCheckBox1'
           ShowCaption = False
           Control = Check2
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item8: TdxLayoutItem
+          ShowCaption = False
+          Control = Check3
           ControlOptions.ShowBorder = False
         end
       end
