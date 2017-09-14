@@ -11,7 +11,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxCheckBox, cxTextEdit,
-  dxLayoutControl, StdCtrls;
+  dxLayoutControl, StdCtrls, cxMaskEdit, cxDropDownEdit, cxCalendar,
+  cxLabel;
 
 type
   TfFormZKPrice = class(TfFormNormal)
@@ -27,9 +28,18 @@ type
     dxLayout1Item7: TdxLayoutItem;
     dxLayout1Item8: TdxLayoutItem;
     Check3: TcxCheckBox;
+    cxLabel1: TcxLabel;
+    dxLayout1Item9: TdxLayoutItem;
+    EditStart: TcxDateEdit;
+    dxLayout1Item10: TdxLayoutItem;
+    EditEnd: TcxDateEdit;
+    dxLayout1Item11: TdxLayoutItem;
+    cxLabel2: TcxLabel;
+    dxLayout1Item12: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
+    procedure Check3PropertiesEditValueChanged(Sender: TObject);
   private
     { Private declarations }
     FZKList: TStrings;
@@ -118,6 +128,9 @@ begin
   nList := TStringList.Create;
   try
     Check3.Enabled := False;
+    EditStart.Date := Date();
+    EditEnd.Date := Date() + 1;
+
     FMainZK := '';
     FMainStock := '';
 
@@ -157,6 +170,12 @@ begin
   end;
 end;
 
+procedure TfFormZKPrice.Check3PropertiesEditValueChanged(Sender: TObject);
+begin
+  EditStart.Enabled := Check3.Checked;
+  EditEnd.Enabled := Check3.Checked;
+end;
+
 procedure TfFormZKPrice.BtnOKClick(Sender: TObject);
 var nStr,nStatus: string;
     nVal,nVal2: Double;
@@ -168,6 +187,12 @@ begin
   begin
     EditNew.SetFocus;
     ShowMsg('请输入正确的单价', sHint); Exit;
+  end;
+
+  if Check3.Checked and (EditStart.Date >= EditEnd.Date) then
+  begin
+    EditStart.SetFocus;
+    ShowMsg('开始应小于结束时间', sHint); Exit;
   end;
 
   nStr := '注意: 该操作不可以撤销,请您慎重!' + #13#10#13#10 +
@@ -228,9 +253,13 @@ begin
         nVal := Fields[0].AsFloat;
         nStatus := Fields[1].AsString;
 
-        nStr := 'Update %s Set L_Price=%.2f ' +
-                'Where L_ZhiKa=''%s'' And L_StockNo=''%s''';
-        nStr := Format(nStr, [sTable_Bill, nVal, FMainZK, FMainStock]);
+        nStr := 'Update %s Set L_Price=%.2f Where (' +
+          '(Case When L_OutFact Is Null Then L_Date Else L_OutFact End)>=''%s'' And ' +
+          '(Case When L_OutFact Is Null Then L_Date Else L_OutFact End)<=''%s''' +
+          ') And L_ZhiKa=''%s'' And L_StockNo=''%s''';
+        nStr := Format(nStr, [sTable_Bill, nVal, DateTime2Str(EditStart.Date),
+                DateTime2Str(EditEnd.Date), FMainZK, FMainStock]);
+        //xxxxx
         
         FDM.ExecuteSQL(nStr);
         //更新已开提货单价格

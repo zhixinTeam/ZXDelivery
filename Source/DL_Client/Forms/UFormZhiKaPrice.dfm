@@ -1,25 +1,25 @@
 inherited fFormZKPrice: TfFormZKPrice
   Left = 296
   Top = 302
-  ClientHeight = 240
-  ClientWidth = 387
+  ClientHeight = 322
+  ClientWidth = 465
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 387
-    Height = 240
+    Width = 465
+    Height = 322
     inherited BtnOK: TButton
-      Left = 241
-      Top = 207
+      Left = 319
+      Top = 289
       Caption = #30830#23450
-      TabOrder = 6
+      TabOrder = 10
     end
     inherited BtnExit: TButton
-      Left = 311
-      Top = 207
-      TabOrder = 7
+      Left = 389
+      Top = 289
+      TabOrder = 11
     end
     object EditStock: TcxTextEdit [2]
       Left = 81
@@ -66,12 +66,46 @@ inherited fFormZKPrice: TfFormZKPrice
     end
     object Check3: TcxCheckBox [7]
       Left = 23
-      Top = 163
+      Top = 173
       Caption = #22312#24050#21457#36135'('#20986#21378#25110#26032#24320#21333')'#25552#36135#21333#19978#24212#29992#26032#21333#20215'.'
       ParentFont = False
-      TabOrder = 5
+      Properties.OnEditValueChanged = Check3PropertiesEditValueChanged
+      TabOrder = 6
       Transparent = True
       Width = 341
+    end
+    object cxLabel1: TcxLabel [8]
+      Left = 23
+      Top = 163
+      AutoSize = False
+      ParentFont = False
+      Properties.LineOptions.Alignment = cxllaBottom
+      Transparent = True
+      Height = 5
+      Width = 346
+    end
+    object EditStart: TcxDateEdit [9]
+      Left = 81
+      Top = 199
+      Enabled = False
+      Properties.Kind = ckDateTime
+      TabOrder = 7
+      Width = 121
+    end
+    object EditEnd: TcxDateEdit [10]
+      Left = 81
+      Top = 224
+      Enabled = False
+      Properties.Kind = ckDateTime
+      TabOrder = 8
+      Width = 121
+    end
+    object cxLabel2: TcxLabel [11]
+      Left = 23
+      Top = 249
+      Caption = #27880': '#35843#39640#25351#23450#26102#38388#27573#30340#24050#20986#21378#21333#25454','#21487#33021#23548#33268#23458#25143#36164#37329#19981#36275'('#36229#21457').'
+      ParentFont = False
+      Transparent = True
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -105,9 +139,31 @@ inherited fFormZKPrice: TfFormZKPrice
           Control = Check2
           ControlOptions.ShowBorder = False
         end
+        object dxLayout1Item9: TdxLayoutItem
+          Caption = 'cxLabel1'
+          ShowCaption = False
+          Control = cxLabel1
+          ControlOptions.ShowBorder = False
+        end
         object dxLayout1Item8: TdxLayoutItem
           ShowCaption = False
           Control = Check3
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item10: TdxLayoutItem
+          Caption = #24320#22987#26102#38388':'
+          Control = EditStart
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item11: TdxLayoutItem
+          Caption = #32467#26463#26102#38388':'
+          Control = EditEnd
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item12: TdxLayoutItem
+          Caption = 'cxLabel2'
+          ShowCaption = False
+          Control = cxLabel2
           ControlOptions.ShowBorder = False
         end
       end

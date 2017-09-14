@@ -161,5 +161,9 @@
   //不显示价格调整提示
   {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {$DEFINE HeGeZhengOnly}
+  //随车开单时只打合格证
 {$ENDIF}
 
