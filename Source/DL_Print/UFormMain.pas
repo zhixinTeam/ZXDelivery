@@ -416,7 +416,13 @@ var nStr,nSR: string;
 begin
   nHint := '';
   Result := False;
-  
+
+  {$IFDEF HeGeZhengSimpleData}
+  nSR := 'Select * from %s b ' +
+          ' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
+          'Where b.L_ID=''%s''';
+  nStr := Format(nSR, [sTable_Bill, sTable_StockParam]);
+  {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
@@ -430,6 +436,7 @@ begin
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
           MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nBill)]);
   //xxxxx
+  {$ENDIF}
 
   if FDM.SQLQuery(nStr, FDM.SqlTemp).RecordCount < 1 then
   begin

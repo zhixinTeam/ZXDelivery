@@ -165,5 +165,7 @@
   //随车开化验单
   {$DEFINE HeGeZhengOnly}
   //随车开单时只打合格证
+  {$DEFINE HeGeZhengSimpleData}
+  //使用简单合格证数据(无检验结果)
 {$ENDIF}
 
