@@ -421,7 +421,7 @@ begin
   nSR := 'Select * from %s b ' +
           ' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
           'Where b.L_ID=''%s''';
-  nStr := Format(nSR, [sTable_Bill, sTable_StockParam]);
+  nStr := Format(nSR, [sTable_Bill, sTable_StockParam, nBill]);
   {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';

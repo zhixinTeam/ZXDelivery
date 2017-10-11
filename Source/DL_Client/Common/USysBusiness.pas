@@ -2395,6 +2395,13 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end else Result := False;
 
+  {$IFDEF HeGeZhengSimpleData}
+  nSR := 'Select * From %s hy ' +
+         '  Left Join %s b On b.L_ID=hy.H_Reporter ' +
+         '  Left Join %s sp On sp.P_Stock=b.L_StockName ' +
+         'Where hy.H_ID in (%s)';
+  nStr := Format(nSR, [sTable_StockHuaYan, sTable_Bill, sTable_StockParam, nHID]);
+  {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
@@ -2408,6 +2415,7 @@ begin
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
           MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
   //xxxxx
+  {$ENDIF}
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
