@@ -413,6 +413,7 @@ end;
 function PrintHeGeReport(const nBill: string; var nHint: string;
  const nPrinter: string = ''): Boolean;
 var nStr,nSR: string;
+    nField: TField;
 begin
   nHint := '';
   Result := False;
@@ -443,6 +444,17 @@ begin
     nHint := '提货单[ %s ]没有对应的合格证';
     nHint := Format(nHint, [nBill]);
     Exit;
+  end;
+
+  with FDM.SqlTemp do
+  begin
+    nField := FindField('L_PrintHY');
+    if Assigned(nField) and (nField.AsString <> sFlag_Yes) then
+    begin
+      nHint := '交货单[ %s ]无需打印合格证.';
+      nHint := Format(nHint, [nBill]);
+      Exit;
+    end;
   end;
 
   nStr := gPath + 'Report\HeGeZheng.fr3';
