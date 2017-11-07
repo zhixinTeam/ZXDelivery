@@ -662,10 +662,12 @@ begin
       Values['Card'] := gInfo.FCard;
     end;
 
-    ShowWaitForm(Self, '正在保存订单', True);
+    BtnOK.Enabled := False;
     try
+      ShowWaitForm(Self, '正在保存', True);
       gInfo.FIDList := SaveBill(PackerEncodeStr(nList.Text));
     finally
+      BtnOK.Enabled := True;
       CloseWaitForm;
     end;
     //call mit bus
