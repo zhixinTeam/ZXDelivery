@@ -241,6 +241,12 @@ begin
     InitFormData(FWhere);
     ShowMsg('提货单已删除', sHint);
   end;
+
+  try
+    SaveWebOrderDelMsg(SQLQuery.FieldByName('L_ID').AsString,sFlag_Sale);
+  except
+  end;
+  //插入删除推送
 end;
 
 //Desc: 打印提货单

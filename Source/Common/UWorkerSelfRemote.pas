@@ -2,7 +2,7 @@
   作者: dmzn@163.com 2011-10-22
   描述: 客户端业务处理工作对象
 *******************************************************************************}
-unit UClientWorker;
+unit UWorkerSelfRemote;
 
 interface
 
@@ -11,8 +11,10 @@ uses
   UBusinessConst, UBusinessPacker, ULibFun;
 
 type
-  TClient2MITWorker = class(TBusinessWorkerBase)
+  TRemote2MITWorker = class(TBusinessWorkerBase)
   protected
+    FRemoteMITUL: String;
+    //工厂服务器UL
     FListA,FListB: TStrings;
     //字符列表
     procedure WriteLog(const nEvent: string);
@@ -32,65 +34,90 @@ type
     //执行业务
   end;
 
-  TClientWorkerQueryField = class(TClient2MITWorker)
+  TClientWorkerQueryField = class(TRemote2MITWorker)
   public
     function GetFlagStr(const nFlag: Integer): string; override;
     class function FunctionName: string; override;
   end;
 
-  TClientBusinessCommand = class(TClient2MITWorker)
+  TClientBusinessCommand = class(TRemote2MITWorker)
+  public
+    function GetFlagStr(const nFlag: Integer): string; override;
+    class function FunctionName: string; override;
+    function GetFixedServiceURL:string;override;
+  end;
+
+  TClientBusinessSaleBill = class(TRemote2MITWorker)
+  public
+    function GetFlagStr(const nFlag: Integer): string; override;
+    class function FunctionName: string; override;
+    function GetFixedServiceURL:string;override;
+  end;
+
+  TClientBusinessHardware = class(TRemote2MITWorker)
   public
     function GetFlagStr(const nFlag: Integer): string; override;
     class function FunctionName: string; override;
   end;
 
-  TClientBusinessSaleBill = class(TClient2MITWorker)
-  public
-    function GetFlagStr(const nFlag: Integer): string; override;
-    class function FunctionName: string; override;
-  end;
-
-  TClientBusinessPurchaseOrder = class(TClient2MITWorker)
-  public
-    function GetFlagStr(const nFlag: Integer): string; override;
-    class function FunctionName: string; override;
-  end;
-
-  TClientBusinessHardware = class(TClient2MITWorker)
+  TClientBusinessWechat = class(TRemote2MITWorker)
   public
     function GetFlagStr(const nFlag: Integer): string; override;
     class function FunctionName: string; override;
     function GetFixedServiceURL: string; override;
   end;
 
-  TClientBusinessWechat = class(TClient2MITWorker)
-  public
-    function GetFlagStr(const nFlag: Integer): string; override;
-    class function FunctionName: string; override;
-    function GetFixedServiceURL: string; override;
-  end;
+function CallRemoteWorker(const nCLIWorkerName: string; const nData,nExt: string;
+ const nOut: PWorkerBusinessCommand; const nCmd: Integer;const nRemoteUL: string=''): Boolean;
+//访问有效服务 
 
 implementation
 
 uses
-  UFormWait, Forms, USysLoger, USysConst, USysDB, MIT_Service_Intf;
+  UFormWait, Forms, USysLoger, UMITConst, USysDB, MIT_Service_Intf,
+  UMgrParam,UDataModule;
 
+//Date: 2014-09-15
+//Parm: 对象;命令;数据;参数;输出
+//Desc: 本地调用业务对象
+function CallRemoteWorker(const nCLIWorkerName: string; const nData,nExt: string;
+ const nOut: PWorkerBusinessCommand; const nCmd: Integer;const nRemoteUL: string=''): Boolean;
+var nIn: TWorkerBusinessCommand;
+    nWorker: TBusinessWorkerBase;
+begin
+  nWorker := nil;
+  try
+    nIn.FBase.FParam := nRemoteUL;
+
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+
+    nWorker := gBusinessWorkerManager.LockWorker(nCLIWorkerName);
+    //get worker
+    Result := nWorker.WorkActive(@nIn, nOut);
+  finally
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
+//------------------------------------------------------------------------------
 //Date: 2012-3-11
 //Parm: 日志内容
 //Desc: 记录日志
-procedure TClient2MITWorker.WriteLog(const nEvent: string);
+procedure TRemote2MITWorker.WriteLog(const nEvent: string);
 begin
-  gSysLoger.AddLog(ClassType, '客户业务对象', nEvent);
+  gSysLoger.AddLog(ClassType, 'MIT服务互访业务对象', nEvent);
 end;
 
-constructor TClient2MITWorker.Create;
+constructor TRemote2MITWorker.Create;
 begin
   FListA := TStringList.Create;
   FListB := TStringList.Create;
   inherited;
 end;
 
-destructor TClient2MITWorker.destroy;
+destructor TRemote2MITWorker.destroy;
 begin
   FreeAndNil(FListA);
   FreeAndNil(FListB);
@@ -100,23 +127,22 @@ end;
 //Date: 2012-3-11
 //Parm: 入参;出参
 //Desc: 执行业务并对异常做处理
-function TClient2MITWorker.DoWork(const nIn, nOut: Pointer): Boolean;
+function TRemote2MITWorker.DoWork(const nIn, nOut: Pointer): Boolean;
 var nStr: string;
-    nParam: string;
     nArray: TDynamicStrArray;
 begin
-  with PBWDataBase(nIn)^,gSysParam do
+  with PBWDataBase(nIn)^ do
   begin
-    nParam := FParam;
+    FRemoteMITUL := FParam;
     FPacker.InitData(nIn, True, False);
-
+    
     with FFrom do
     begin
-      FUser   := FUserID;
-      FIP     := FLocalIP;
-      FMAC    := FLocalMAC;
-      FTime   := Now;
-      FKpLong := GetTickCount;
+      FUser   := gSysParam.FAppFlag;
+      FIP     := gSysParam.FLocalIP;
+      FMAC    := gSysParam.FLocalMAC;
+      FTime   := FWorkTime;
+      FKpLong := FWorkTimeInit;
     end;
   end;
 
@@ -125,23 +151,17 @@ begin
 
   if not Result then
   begin
-    if Pos(sParam_NoHintOnError, nParam) < 1 then
-    begin
-      CloseWaitForm;
-      Application.ProcessMessages;
-      ShowDlg(nStr, sHint, Screen.ActiveForm.Handle);
-    end else PBWDataBase(nOut)^.FErrDesc := nStr;
-    
+    PWorkerBusinessCommand(nOut).FData := nStr;
+    WriteLog(nStr);
     Exit;
-  end;
+  end;  
 
   FPacker.UnPackOut(nStr, nOut);
   with PBWDataBase(nOut)^ do
   begin
     nStr := 'User:[ %s ] FUN:[ %s ] TO:[ %s ] KP:[ %d ]';
-    nStr := Format(nStr, [gSysParam.FUserID, FunctionName, FVia.FIP,
+    nStr := Format(nStr, [gSysParam.FAppFlag, FunctionName, FVia.FIP,
             GetTickCount - FWorkTimeInit]);
-    WriteLog(nStr);
 
     Result := FResult;
     if Result then
@@ -149,32 +169,26 @@ begin
       if FErrCode = sFlag_ForceHint then
       begin
         nStr := '业务执行成功,提示信息如下: ' + #13#10#13#10 + FErrDesc;
-        ShowDlg(nStr, sWarn, Screen.ActiveForm.Handle);
+        WriteLog(nStr);
       end;
 
       Exit;
     end;
 
-    if Pos(sParam_NoHintOnError, nParam) < 1 then
-    begin
-      CloseWaitForm;
-      Application.ProcessMessages;
-      SetLength(nArray, 0);
+    SetLength(nArray, 0);
+    nStr := '业务执行异常,描述如下: ' + #13#10#13#10 +
 
-      nStr := '业务执行异常,描述如下: ' + #13#10#13#10 +
+            ErrDescription(FErrCode, FErrDesc, nArray) +
 
-              ErrDescription(FErrCode, FErrDesc, nArray) +
-
-              '请检查输入参数、操作是否有效,或联系管理员!' + #32#32#32;
-      ShowDlg(nStr, sWarn, Screen.ActiveForm.Handle);
-    end;
+            '请检查输入参数、操作是否有效,或联系管理员!' + #32#32#32;
+    WriteLog(nStr);
   end;
 end;
 
 //Date: 2012-3-20
 //Parm: 代码;描述
 //Desc: 格式化错误描述
-function TClient2MITWorker.ErrDescription(const nCode, nDesc: string;
+function TRemote2MITWorker.ErrDescription(const nCode, nDesc: string;
   const nInclude: TDynamicStrArray): string;
 var nIdx: Integer;
 begin
@@ -196,15 +210,15 @@ begin
 end;
 
 //Desc: 强制指定服务地址
-function TClient2MITWorker.GetFixedServiceURL: string;
+function TRemote2MITWorker.GetFixedServiceURL: string;
 begin
-  Result := '';
+  Result := FRemoteMITUL;
 end;
 
 //Date: 2012-3-9
 //Parm: 入参数据
 //Desc: 连接MIT执行具体业务
-function TClient2MITWorker.MITWork(var nData: string): Boolean;
+function TRemote2MITWorker.MITWork(var nData: string): Boolean;
 var nChannel: PChannelItem;
 begin
   Result := False;
@@ -225,7 +239,10 @@ begin
       //xxxxx
 
       if GetFixedServiceURL = '' then
-           FHttp.TargetURL := gChannelChoolser.ActiveURL
+      begin
+        nData := '未制定工厂MIT服务地址.';
+        Exit;
+      end
       else FHttp.TargetURL := GetFixedServiceURL;
 
       Result := ISrvBusiness(FChannel).Action(GetFlagStr(cWorker_GetMITName),
@@ -281,6 +298,22 @@ begin
   end;
 end;
 
+function TClientBusinessCommand.GetFixedServiceURL:string;
+var
+  nStr:string;
+begin
+  Result := '';
+  nStr := 'select d_value from %s where d_name=''%s''';
+  nStr := Format(nStr,[sTable_SysDict,sFlag_MITSrvURL]);
+  with FDM.QuerySQL(nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      Result := FieldByName('d_value').AsString;
+    end;
+  end;
+end;
+
 //------------------------------------------------------------------------------
 class function TClientBusinessSaleBill.FunctionName: string;
 begin
@@ -297,19 +330,19 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
-class function TClientBusinessPurchaseOrder.FunctionName: string;
+function TClientBusinessSaleBill.GetFixedServiceURL:string;
+var
+  nStr:string;
 begin
-  Result := sCLI_BusinessPurchaseOrder;
-end;
-
-function TClientBusinessPurchaseOrder.GetFlagStr(const nFlag: Integer): string;
-begin
-  Result := inherited GetFlagStr(nFlag);
-
-  case nFlag of
-   cWorker_GetPackerName : Result := sBus_BusinessCommand;
-   cWorker_GetMITName    : Result := sBus_BusinessPurchaseOrder;
+  Result := '';
+  nStr := 'select d_value from %s where d_name=''%s''';
+  nStr := Format(nStr,[sTable_SysDict,sFlag_MITSrvURL]);
+  with FDM.QuerySQL(nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      Result := FieldByName('d_value').AsString;
+    end;
   end;
 end;
 
@@ -329,11 +362,6 @@ begin
   end;
 end;
 
-function TClientBusinessHardware.GetFixedServiceURL: string;
-begin
-  Result := gSysParam.FHardMonURL;
-end;
-
 //------------------------------------------------------------------------------
 class function TClientBusinessWechat.FunctionName: string;
 begin
@@ -351,15 +379,25 @@ begin
 end;
 
 function TClientBusinessWechat.GetFixedServiceURL: string;
+var
+  nStr:string;
 begin
-  Result := gSysParam.FWechatURL;
+  Result := '';
+  nStr := 'select d_value from %s where d_name=''%s''';
+  nStr := Format(nStr,[sTable_SysDict,sFlag_WXServiceMIT]);
+  with FDM.QuerySQL(nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      Result := FieldByName('d_value').AsString;
+    end;
+  end;
 end;
 
 initialization
-  gBusinessWorkerManager.RegisteWorker(TClientWorkerQueryField);
-  gBusinessWorkerManager.RegisteWorker(TClientBusinessCommand);
-  gBusinessWorkerManager.RegisteWorker(TClientBusinessSaleBill);
-  gBusinessWorkerManager.RegisteWorker(TClientBusinessHardware);
-  gBusinessWorkerManager.RegisteWorker(TClientBusinessPurchaseOrder);
-  gBusinessWorkerManager.RegisteWorker(TClientBusinessWechat);
+  gBusinessWorkerManager.RegisteWorker(TClientWorkerQueryField, sPlug_ModuleRemote);
+  gBusinessWorkerManager.RegisteWorker(TClientBusinessCommand, sPlug_ModuleRemote);
+  gBusinessWorkerManager.RegisteWorker(TClientBusinessSaleBill, sPlug_ModuleRemote);
+  gBusinessWorkerManager.RegisteWorker(TClientBusinessHardware, sPlug_ModuleRemote);
+  gBusinessWorkerManager.RegisteWorker(TClientBusinessWechat, sPlug_ModuleRemote);
 end.

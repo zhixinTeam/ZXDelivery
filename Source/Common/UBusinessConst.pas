@@ -88,6 +88,27 @@ const
   cBC_SyncProvider            = $0085;   //远程同步供应商
   cBC_SyncMaterails           = $0086;   //远程同步原材料
 
+  cBC_WX_VerifPrintCode       = $0501;   //微信：验证喷码信息
+  cBC_WX_WaitingForloading    = $0502;   //微信：工厂待装查询
+  cBC_WX_BillSurplusTonnage   = $0503;   //微信：网上订单可下单数量查询
+  cBC_WX_GetOrderInfo         = $0504;   //微信：获取订单信息
+  cBC_WX_GetOrderList         = $0505;   //微信：获取订单列表
+  cBC_WX_GetPurchaseContract  = $0506;   //微信：获取采购合同列表
+
+  cBC_WX_getCustomerInfo      = $0507;   //微信：获取客户注册信息
+  cBC_WX_get_Bindfunc         = $0508;   //微信：客户与微信账号绑定
+  cBC_WX_send_event_msg       = $0509;   //微信：发送消息
+  cBC_WX_edit_shopclients     = $0510;   //微信：新增商城用户
+  cBC_WX_edit_shopgoods       = $0511;   //微信：添加商品
+  cBC_WX_get_shoporders       = $0512;   //微信：获取订单信息
+  cBC_WX_complete_shoporders  = $0513;   //微信：修改订单状态
+  cBC_WX_get_shoporderbyNO    = $0514;   //微信：根据订单号获取订单信息
+  cBC_WX_get_shopPurchasebyNO = $0515;   //微信：根据订单号获取订单信息
+  cBC_WX_ModifyWebOrderStatus = $0516;   //微信：修改网上订单状态
+  cBC_WX_CreatLadingOrder     = $0517;   //微信：创建交货单
+  cBC_WX_GetCusMoney          = $0518;   //微信：获取客户资金
+  cBC_WX_GetInOutFactoryTotal = $0519;   //微信：获取进出厂统计
+
 type
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
   TWorkerQueryFieldData = record
@@ -148,6 +169,15 @@ type
   TLadingBillItems = array of TLadingBillItem;
   //交货单列表
 
+  PWorkerWebChatData = ^TWorkerWebChatData;
+  TWorkerWebChatData = record
+    FBase     : TBWDataBase;
+    FCommand  : Integer;           //类型
+    FData     : string;            //数据
+    FExtParam : string;            //参数
+    FRemoteUL : string;            //工厂服务器UL
+  end;
+
 procedure AnalyseBillItems(const nData: string; var nItems: TLadingBillItems);
 //解析由业务对象返回的交货单数据
 function CombineBillItmes(const nItems: TLadingBillItems): string;
@@ -162,7 +192,8 @@ resourcestring
                                                         //业务模块
   sPlug_ModuleHD              = '{B584DCD6-40E5-413C-B9F3-6DD75AEF1C62}';
                                                         //硬件守护
-                                                                                                   
+  sPlug_ModuleRemote          = '{B584DCD7-40E5-413C-B9F3-6DD75AEF1C63}';
+                                                        //MIT互相访问                                                                                                   
   {*common function*}  
   sSys_BasePacker             = 'Sys_BasePacker';       //基本封包器
 
@@ -173,6 +204,7 @@ resourcestring
   sBus_BusinessSaleBill       = 'Bus_BusinessSaleBill'; //交货单相关
   sBus_BusinessCommand        = 'Bus_BusinessCommand';  //业务指令
   sBus_HardwareCommand        = 'Bus_HardwareCommand';  //硬件指令
+  sBus_BusinessWebchat        = 'Bus_BusinessWebchat';  //Web平台服务
   sBus_BusinessPurchaseOrder  = 'Bus_BusinessPurchaseOrder'; //采购单相关
 
   {*client function name*}
@@ -182,6 +214,7 @@ resourcestring
   sCLI_BusinessSaleBill       = 'CLI_BusinessSaleBill'; //交货单业务
   sCLI_BusinessCommand        = 'CLI_BusinessCommand';  //业务指令
   sCLI_HardwareCommand        = 'CLI_HardwareCommand';  //硬件指令
+  sCLI_BusinessWebchat        = 'CLI_BusinessWebchat';  //Web平台服务
   sCLI_BusinessPurchaseOrder  = 'CLI_BusinessPurchaseOrder'; //采购单相关
 
 implementation

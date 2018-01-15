@@ -141,6 +141,7 @@ const
   cFI_FormPurchase      = $1055;                     //采购验收
   cFI_FormGetPOrderBase  = $1056;                    //采购订单
   cFI_FormOrderDtl      = $1057;                     //采购明细
+  cFI_FormGetWXAccount  = $1058;                     //获取商城注册信息
 
   cFI_FormBatch         = $1064;                     //批次管理
   cFI_FormStockParam    = $1065;                     //品种管理
@@ -181,6 +182,15 @@ const
   cCmd_ViewData         = $1006;                     //查看数据
   cCmd_GetData          = $1007;                     //选择数据
 
+  cSendWeChatMsgType_AddBill=1; //开提货单
+  cSendWeChatMsgType_OutFactory=2; //车辆出厂
+  cSendWeChatMsgType_Report=3; //报表
+  cSendWeChatMsgType_DelBill=4; //删提货单
+
+  c_WeChatStatusCreateCard=0;  //订单已办卡
+  c_WeChatStatusFinished=1;  //订单已完成
+  c_WeChatStatusDeleted=2;  //订单已删除
+
 type
   TSysParam = record
     FProgID     : string;                            //程序标识
@@ -205,7 +215,8 @@ type
     FLocalName  : string;                            //本机名称
     FMITServURL : string;                            //业务服务
     FHardMonURL : string;                            //硬件守护
-
+    FWechatURL  : string;                            //微信服务
+    
     FFactNum    : string;                            //工厂编号
     FSerialID   : string;                            //电脑编号
     FDepartment : string;                            //所属部门

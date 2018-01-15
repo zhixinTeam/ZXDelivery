@@ -36,6 +36,9 @@ type
     N2: TMenuItem;
     N3: TMenuItem;
     N4: TMenuItem;
+    N5: TMenuItem;
+    N6: TMenuItem;
+    N7: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -46,11 +49,17 @@ type
     procedure N2Click(Sender: TObject);
     procedure PMenu1Popup(Sender: TObject);
     procedure N4Click(Sender: TObject);
+    procedure N6Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
   private
     { Private declarations }
+    FListA: TStrings;
   protected
     function InitFormDataSQL(const nWhere: string): string; override;
     {*查询SQL*}
+    procedure OnCreateFrame; override;
+    procedure OnDestroyFrame; override;
+    //创建释放
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -61,11 +70,23 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, UMgrControl, UDataModule, UFormBase, UFormWait, USysBusiness,
-  USysConst, USysDB;
+  UBusinessPacker, USysConst, USysDB, USysLoger;
 
 class function TfFrameCustomer.FrameID: integer;
 begin
   Result := cFI_FrameCustomer;
+end;
+
+procedure TfFrameCustomer.OnCreateFrame;
+begin
+  inherited;
+  FListA := TStringList.Create;
+end;
+
+procedure TfFrameCustomer.OnDestroyFrame;
+begin
+  FListA.Free;
+  inherited;
 end;
 
 //Desc: 数据查询SQL
@@ -137,16 +158,6 @@ begin
     ShowMsg('请选择要删除的记录', sHint); Exit;
   end;
 
-  nStr := SQLQuery.FieldByName('C_ID').AsString;
-  nSQL := 'Select Count(*) From %s Where Z_Customer=''%s''';
-  nSQL := Format(nSQL, [sTable_ZhiKa, nStr]);
-
-  with FDM.QueryTemp(nSQL) do
-  if Fields[0].AsInteger > 0 then
-  begin
-    ShowMsg('该客户不能删除', '已办纸卡'); Exit;
-  end;
-
   nStr := SQLQuery.FieldByName('C_Name').AsString;
   if not QueryDlg('确定要删除名称为[ ' + nStr + ' ]的客户吗', sAsk) then Exit;
 
@@ -159,14 +170,6 @@ begin
 
     nSQL := 'Delete From %s Where I_Group=''%s'' and I_ItemID=''%s''';
     nSQL := Format(nSQL, [sTable_ExtInfo, sFlag_CustomerItem, nStr]);
-    FDM.ExecuteSQL(nSQL);
-
-    nSQL := 'Delete From %s Where A_CID=''%s''';
-    nSQL := Format(nSQL, [sTable_CusAccount, nStr]);
-    FDM.ExecuteSQL(nSQL);
-
-    nSQL := 'Delete From %s Where C_CusID=''%s''';
-    nSQL := Format(nSQL, [sTable_CusCredit, nStr]);
     FDM.ExecuteSQL(nSQL);
 
     FDM.ADOConn.CommitTrans;
@@ -225,6 +228,14 @@ begin
   N3.Visible := False;
   N4.Visible := False;
   {$ENDIF}
+
+  {$IFDEF MicroMsg}
+  N6.Enabled := BtnEdit.Enabled;
+  N7.Enabled := BtnEdit.Enabled;
+  {$ELSE}
+  N6.Visible := False;
+  N7.Visible := False;
+  {$ENDIF}
 end;
 
 
@@ -243,10 +254,97 @@ procedure TfFrameCustomer.N4Click(Sender: TObject);
 begin
   ShowWaitForm(ParentForm, '正在同步,请稍后');
   try
-    if SyncRemoteCustomer then InitFormData(FWhere);
+    //if SyncRemoteCustomer then InitFormData(FWhere);
   finally
     CloseWaitForm;
   end;   
+end;
+
+//------------------------------------------------------------------------------
+//Desc: 关联商城账户
+procedure TfFrameCustomer.N6Click(Sender: TObject);
+var nStr:string;
+    nP: TFormCommandParam;
+    nID,nName,nBindID,nAccount:string;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then
+  begin
+    ShowMsg('请选择要开通的记录', sHint);
+    Exit;
+  end;
+
+  nAccount := SQLQuery.FieldByName('C_WeiXin').AsString;
+  if nAccount <> '' then
+  begin
+    ShowMsg('商城账户[' + nAccount + ']已存在',sHint);
+    Exit;
+  end;
+
+  nP.FCommand := cCmd_AddData;
+  CreateBaseFormItem(cFI_FormGetWXAccount, PopedomItem, @nP);
+  if (nP.FCommand <> cCmd_ModalResult) or (nP.FParamA <> mrOK) then Exit;
+
+  nBindID  := nP.FParamB;
+  nAccount := nP.FParamC;
+  nID      := SQLQuery.FieldByName('C_ID').AsString;
+  nName    := SQLQuery.FieldByName('C_Name').AsString;
+
+  with FListA do
+  begin
+    Clear;
+    Values['Action']   := 'add';
+    Values['BindID']   := nBindID;
+    Values['Account']  := nAccount;
+    Values['CusID']    := nID;
+    Values['CusName']  := nName;
+    Values['Memo']     := sFlag_Sale;
+  end;
+
+  if edit_shopclients(PackerEncodeStr(FListA.Text)) <> sFlag_Yes then Exit;
+  //call remote
+
+  nStr := 'update %s set C_WeiXin=''%s'' where C_ID=''%s''';
+  nStr := Format(nStr,[sTable_Customer, nAccount, nID]);
+  FDM.ExecuteSQL(nStr);
+
+  ShowMsg('关联商城账户成功',sHint);
+  InitFormData(FWhere);
+end;
+
+//Desc: 取消关联商城账户
+procedure TfFrameCustomer.N7Click(Sender: TObject);
+var nStr:string;
+    nID,nName,nAccount:string;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then
+  begin
+    ShowMsg('请选择要取消的记录', sHint);
+    Exit;
+  end;
+
+  nAccount := SQLQuery.FieldByName('C_WeiXin').AsString;
+  nID := SQLQuery.FieldByName('C_ID').AsString;
+  nName := SQLQuery.FieldByName('C_Name').AsString;
+
+  with FListA do
+  begin
+    Clear;
+    Values['Action']   := 'del';
+    Values['Account']  := nAccount;
+    Values['CusID']    := nID;
+    Values['CusName']  := nName;
+    Values['Memo']     := sFlag_Sale;
+  end;
+
+  if edit_shopclients(PackerEncodeStr(FListA.Text)) <> sFlag_Yes then Exit;
+  //call remote
+
+  nStr := 'update %s set C_WeiXin=Null where C_ID=''%s''';
+  nStr := Format(nStr,[sTable_Customer, nID]);
+  FDM.ExecuteSQL(nStr);
+
+  InitFormData(FWhere);
+  ShowMsg('取消商城关联成功！', sHint);
 end;
 
 initialization

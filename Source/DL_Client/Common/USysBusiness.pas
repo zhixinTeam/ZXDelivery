@@ -274,6 +274,23 @@ function GetFQValueByStockNo(const nStock: string): Double;
 function VerifyFQSumValue: Boolean;
 //是否校验封签号
 
+function getCustomerInfo(const nData: string): string;
+//获取客户注册信息
+function get_Bindfunc(const nData: string): string;
+//客户与微信账号绑定
+function send_event_msg(const nData: string): string;
+//发送消息
+function edit_shopclients(const nData: string): string;
+//新增商城用户
+function edit_shopgoods(const nData: string): string;
+//添加商品
+function get_shoporders(const nData: string): string;
+//获取订单信息
+function complete_shoporders(const nData: string): string;
+//更新订单状态
+procedure SaveWebOrderDelMsg(const nLID, nBillType: string);
+//插入推送消息
+
 implementation
 
 //Desc: 记录日志
@@ -459,6 +476,42 @@ begin
     //自动称重时不提示
     
     nWorker := gBusinessWorkerManager.LockWorker(sCLI_HardwareCommand);
+    //get worker
+    Result := nWorker.WorkActive(@nIn, nOut);
+
+    if not Result then
+      WriteLog(nOut.FBase.FErrDesc);
+    //xxxxx
+  finally
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
+
+//Date: 2017-10-26
+//Parm: 命令;数据;参数;服务地址;输出
+//Desc: 调用中间件上的销售单据对象
+function CallBusinessWechat(const nCmd: Integer; const nData,nExt,nSrvURL: string;
+  const nOut: PWorkerWebChatData; const nWarn: Boolean = True): Boolean;
+var nIn: TWorkerWebChatData;
+    nWorker: TBusinessWorkerBase;
+begin
+  nWorker := nil;
+  try
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+    nIn.FRemoteUL := nSrvURL;
+
+    if nWarn then
+         nIn.FBase.FParam := ''
+    else nIn.FBase.FParam := sParam_NoHintOnError;
+
+    if gSysParam.FAutoPound and (not gSysParam.FIsManual) then
+      nIn.FBase.FParam := sParam_NoHintOnError;
+    //close hint param
+    
+    nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessWebchat);
     //get worker
     Result := nWorker.WorkActive(@nIn, nOut);
 
@@ -2623,6 +2676,105 @@ var nOut: TWorkerBusinessCommand;
 begin
   Result := CallBusinessHardware(cBC_OpenDoorByReader, nReader, nType,
             @nOut, False);
-end;  
+end;
+
+//------------------------------------------------------------------------------
+//获取客户注册信息
+function getCustomerInfo(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_getCustomerInfo, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//客户与微信账号绑定
+function get_Bindfunc(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_get_Bindfunc, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//发送消息
+function send_event_msg(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_send_event_msg, nData, '', '', @nOut,false) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//新增商城用户
+function edit_shopclients(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_edit_shopclients, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//添加商品
+function edit_shopgoods(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_edit_shopgoods, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//获取订单信息
+function get_shoporders(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_get_shoporders, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//更新订单状态
+function complete_shoporders(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_complete_shoporders, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//Date: 2017-11-22
+//Parm: 交货单号,商城申请单
+//Desc: 插入删除推送消息
+procedure SaveWebOrderDelMsg(const nLID, nBillType: string);
+var nStr, nWebOrderID: string;
+    nBool: Boolean;
+begin
+  nStr := 'Select WOM_WebOrderID From %s Where WOM_LID=''%s'' ';
+  nStr := Format(nStr, [sTable_WebOrderMatch, nLID]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount <= 0 then
+      Exit;
+    //手工单
+    nWebOrderID := Fields[0].AsString;
+  end;
+
+  nBool := FDM.ADOConn.InTransaction;
+  if not nBool then FDM.ADOConn.BeginTrans;
+  try
+    nStr := 'Insert Into %s(WOM_WebOrderID,WOM_LID,WOM_StatusType,' +
+            'WOM_MsgType,WOM_BillType) Values(''%s'',''%s'',%d,' +
+            '%d,''%s'')';
+    nStr := Format(nStr, [sTable_WebOrderMatch, nWebOrderID, nLID, c_WeChatStatusDeleted,
+            cSendWeChatMsgType_DelBill, nBillType]);
+    FDM.ExecuteSQL(nStr);
+
+    if not nBool then
+      FDM.ADOConn.CommitTrans;
+  except
+    if not nBool then FDM.ADOConn.RollbackTrans;
+  end;
+end;
 
 end.

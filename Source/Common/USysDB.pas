@@ -159,6 +159,7 @@ const
   sFlag_InvRequst     = 'R';                         //申请开出
   sFlag_InvDaily      = 'D';                         //日常开出
 
+  sFlag_FactoryID     = 'FactoryID';                 //工厂编号
   sFlag_SysParam      = 'SysParam';                  //系统参数
   sFlag_EnableBakdb   = 'Uses_BackDB';               //备用库
   sFlag_ValidDate     = 'SysValidDate';              //有效期
@@ -172,6 +173,10 @@ const
   sFlag_SaleManDept   = 'SaleManDepartment';         //业务员部门编号
   sFlag_VerifyFQValue = 'VerifyFQValue';             //禁止封签号超发
   sFlag_VerifyTruckP  = 'VerifyTruckP';              //校验预置皮重
+
+  sFlag_WXFactory     = 'WXFactoryID';               //微信标识
+  sFlag_WXServiceMIT  = 'WXServiceMIT';              //微信工厂服务
+  sFlag_WXSrvRemote   = 'WXServiceRemote';           //微信远程服务
   
   sFlag_PDaiWuChaZ    = 'PoundDaiWuChaZ';            //袋装正误差
   sFlag_PDaiWuChaF    = 'PoundDaiWuChaF';            //袋装负误差
@@ -308,6 +313,7 @@ const
   sTable_WeixinLog    = 'Sys_WeixinLog';             //微信日志
   sTable_WeixinMatch  = 'Sys_WeixinMatch';           //账号匹配
   sTable_WeixinTemp   = 'Sys_WeixinTemplate';        //信息模板
+  sTable_WebOrderMatch   = 'S_WebOrderMatch';        //商城订单映射
 
   sTable_PoundLog     = 'Sys_PoundLog';              //过磅数据
   sTable_PoundBak     = 'Sys_PoundBak';              //过磅作废
@@ -1177,13 +1183,14 @@ const
 
   sSQL_NewProvider = 'Create Table $Table(R_ID $Inc, P_ID varChar(32),' +
        'P_Name varChar(80),P_PY varChar(80), P_Phone varChar(20),' +
-       'P_Saler varChar(32),P_Memo varChar(50))';
+       'P_Saler varChar(32),p_WechartAccount varchar(32),P_Memo varChar(50))';
   {-----------------------------------------------------------------------------
    供应商: Provider
    *.P_ID: 编号
    *.P_Name: 名称
    *.P_PY: 拼音简写
    *.P_Phone: 联系方式
+   *.p_WechartAccount：商城账号
    *.P_Saler: 业务员
    *.P_Memo: 备注
   -----------------------------------------------------------------------------}
@@ -1384,6 +1391,25 @@ const
    *.$ID:信息标识
   -----------------------------------------------------------------------------}
 
+  sSQL_NewWebOrderMatch = 'Create Table $Table(R_ID $Inc,'
+      +'WOM_WebOrderID varchar(32) null,'
+      +'WOM_LID varchar(20) null,'
+      +'WOM_StatusType Integer,'
+      +'WOM_MsgType Integer,'
+      +'WOM_BillType char(1),'
+      +'WOM_SyncNum Integer default 0,'
+      +'WOM_deleted char(1) default ''N'')';
+  {-----------------------------------------------------------------------------
+   商城订单与提货单对照表: WebOrderMatch
+   *.R_ID: 记录编号
+   *.WOM_WebOrderID: 商城订单
+   *.WOM_LID: 提货单
+   *.WOM_StatusType: 订单状态 0.开卡  1.完成
+   *.WOM_MsgType: 消息类型 开单  出厂  报表 删单
+   *.WOM_SyncNum: 发送次数
+   *.WOM_BillType: 业务类型  采购 销售
+  -----------------------------------------------------------------------------}
+
 function CardStatusToStr(const nStatus: string): string;
 //磁卡状态
 function TruckStatusToStr(const nStatus: string): string;
@@ -1516,6 +1542,7 @@ begin
   AddSysTableItem(sTable_OrderBaseBak, sSQL_NewOrderBase);
 
   AddSysTableItem(sTable_K3_SalePlan, sSQL_NewK3SalePlan);
+  AddSysTableItem(sTable_WebOrderMatch,sSQL_NewWebOrderMatch);
 end;
 
 //Desc: 清理系统表

@@ -42,6 +42,7 @@ uses
   UFormGetPOrderBase, UFormOrderDtl,
   {.$ENDIF}
   //----------------------------------------------------------------------------
+  UFormGetWechartAccount,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo,
   UFrameHYStock, UFrameHYData, UFrameHYRecord;
 
@@ -92,10 +93,30 @@ begin
   begin
     FFactNum := Fields[0].AsString;
     FSerialID := Fields[1].AsString;
-    
+
     FDepartment := Fields[2].AsString;
     FHardMonURL := Trim(Fields[3].AsString);
     FMITServURL := Trim(Fields[4].AsString);
+  end;
+
+  //----------------------------------------------------------------------------
+  nStr := 'Select D_Value,D_Memo From %s Where D_Name=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam]);
+
+  with FDM.QueryTemp(nStr),gSysParam do
+  if RecordCount > 0 then
+  begin
+    First;
+    while not Eof do
+    begin
+      nStr := Fields[1].AsString;
+      
+      if nStr = sFlag_WXServiceMIT then
+        FWechatURL := Fields[0].AsString;
+      //xxxxx
+
+      Next;
+    end;
   end;
 
   //----------------------------------------------------------------------------

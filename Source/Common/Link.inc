@@ -50,7 +50,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE DYGL}
+{$DEFINE ZZSJ}
 //特定系统
 
 //郑州上街
@@ -78,6 +78,14 @@
   //不显示价格调整提示
   {$DEFINE NoCheckOnPayment}
   //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE AutoProId}
+  //自动生成供应商编号
+  {$DEFINE PrintHY}
+  //出厂打印化验单
 {$ENDIF}
 
 //辽宁营口
@@ -167,5 +175,9 @@
   //随车开单时只打合格证
   {$DEFINE HeGeZhengSimpleData}
   //使用简单合格证数据(无检验结果)
+  {$DEFINE UseUTFDecode}
+  //使用UTF解包函数
+  {$DEFINE MicroMsg}
+  //使用微信
 {$ENDIF}
 
