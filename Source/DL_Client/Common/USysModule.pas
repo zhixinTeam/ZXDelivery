@@ -42,7 +42,7 @@ uses
   UFormGetPOrderBase, UFormOrderDtl,
   {.$ENDIF}
   //----------------------------------------------------------------------------
-  UFormGetWechartAccount,
+  UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo,
   UFrameHYStock, UFrameHYData, UFrameHYRecord;
 

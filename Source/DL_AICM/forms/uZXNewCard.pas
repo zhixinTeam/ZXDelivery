@@ -341,12 +341,12 @@ begin
   EditCName.Text  := '';
 
   nStr := 'select Z_Customer,D_Price from %s a join %s b on a.Z_ID = b.D_ZID ' +
-          'where Z_ID=''%s''';
+          'where Z_ID=''%s'' and D_StockNo=''%s'' ';
 
-  nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,nOrderItem.FYunTianOrderId]);
+  nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,nOrderItem.FYunTianOrderId,nOrderItem.FGoodsID]);
   with fdm.QueryTemp(nStr) do
   begin
-    if RecordCount>0 then
+    if RecordCount = 1 then
     begin
       EditCus.Text    := Fields[0].AsString;
       EditPrice.Text  := Fields[1].AsString;
@@ -445,6 +445,13 @@ begin
   Result := False;
   nOrderItem := FWebOrderItems[FWebOrderIndex];
   nWebOrderID := editWebOrderNo.Text;
+
+  if Trim(EditValue.Text) = '' then
+  begin
+    ShowMsg('获取物料价格异常！请联系管理员',sHint);
+    Writelog('获取物料价格异常！请联系管理员');
+    Exit;
+  end;
 
   if not VerifyCtrl(EditTruck,nHint) then
   begin

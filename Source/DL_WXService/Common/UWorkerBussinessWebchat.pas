@@ -11,7 +11,7 @@ uses
   Windows, Classes, Controls, SysUtils, DB, ADODB, NativeXml, UBusinessWorker,
   UBusinessPacker, UBusinessConst, UMgrDBConn, UMgrParam, UFormCtrl, USysLoger,
   ZnMD5, ULibFun, USysDB, UMITConst, UMgrChannel,
-  {$IFDEF WXChannelPool}Wechat_Intf{$ELSE}wechat_soap{$ENDIF};
+  {$IFDEF WXChannelPool}Wechat_Intf{$ELSE}wechat_soap{$ENDIF},IdHTTP,Graphics;
 
 type
   TMITDBWorker = class(TBusinessWorkerBase)
@@ -57,9 +57,12 @@ type
     //base funciton
     function UnPackIn(var nData: string): Boolean;
     procedure BuildDefaultXML;
+    procedure SaveAuditTruck(nList: TStrings;nStatus:string);
     function ParseDefault(var nData: string): Boolean;
-    function GetTruckByLine(nStockName:string):string;
+    function GetTruckByLine(nStockNo:string):string;
     //根据水泥品种获取工厂当前装车数量
+    function GetStockName(nStockNo:string):string;
+    //获取物料名称
     function GetCusName(nCusID:string):string;
     //获取客户名称
     function GetCustomerValidMoney(nCustomer: string): Double;
@@ -68,6 +71,8 @@ type
     //获取客户可用金(K3)
     function GetInOutValue(nBegin,nEnd,nType: string): string;
     //获取进出厂分类统计量及总量
+    function SaveDBImage(const nDS: TDataSet; const nFieldName: string;
+             const nStream: TMemoryStream): Boolean;
     function LoadSysDictItem(const nItem: string; const nList: TStrings): TDataSet;
     //读取系统字典项
 
@@ -99,6 +104,14 @@ type
     //获取客户资金
     function GetInOutFactoryTotal(var nData:string):Boolean;
     //进出厂量查询（采购进厂量、销售出厂量）
+    function getDeclareCar(var nData:string):Boolean;
+    //下载车辆审核信息
+    function UpdateDeclareCar(var nData: string): Boolean;
+    //车辆审核结果上传及绑定或解除长期卡关联
+    function DownLoadPic(var nData: string): Boolean;
+    //下载图片
+    function get_shoporderByTruck(var nData:string):boolean;
+    //根据车牌号获取订单信息
   public
     constructor Create; override;
     destructor destroy; override;
@@ -424,6 +437,26 @@ begin
                                 end;
    cBC_WX_GetCusMoney          : Result := GetCusMoney(nData);
    cBC_WX_GetInOutFactoryTotal : Result := GetInOutFactoryTotal(nData);
+   cBC_WX_GetAuditTruck        :
+                                begin
+                                  FPackOut := True;
+                                  Result := getDeclareCar(nData);
+                                end;
+   cBC_WX_UpLoadAuditTruck     :
+                                begin
+                                  FPackOut := True;
+                                  Result := UpdateDeclareCar(nData);
+                                end;
+   cBC_WX_DownLoadPic          :
+                                begin
+                                  FPackOut := True;
+                                  Result := DownLoadPic(nData);
+                                end;
+   cBC_WX_get_shoporderbyTruck :
+                                begin
+                                  FPackOut := True;
+                                  Result := get_shoporderByTruck(nData);
+                                end;
    else
     begin
       Result := False;
@@ -1164,7 +1197,7 @@ begin
 
   BuildDefaultXML;
 
-  nStr := 'Select Z_Stock, COUNT(*) as Num From %s Where Z_Valid=''%s'' group by Z_Stock';
+  nStr := 'Select Z_StockNo, COUNT(*) as Num From %s Where Z_Valid=''%s'' group by Z_StockNo';
   nStr := Format(nStr, [sTable_ZTLines, sFlag_Yes]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr),FPacker.XMLBuilder do
@@ -1191,10 +1224,11 @@ begin
     begin
       with nNode.NodeNew('Item') do
       begin
-        NodeNew('StockName').ValueAsString  := FieldByName('Z_Stock').AsString;
+        NodeNew('StockName').ValueAsString  := GetStockName(
+                                               FieldByName('Z_StockNo').AsString);
         NodeNew('LineCount').ValueAsString  := FieldByName('Num').AsString;
         NodeNew('TruckCount').ValueAsString := GetTruckByLine(
-                                               FieldByName('Z_Stock').AsString);
+                                               FieldByName('Z_StockNo').AsString);
       end;
 
       Next;
@@ -1217,24 +1251,86 @@ end;
 //Parm: 水泥名称
 //Desc: 获取当前该品种水泥名称装车数量
 function TBusWorkerBusinessWebchat.GetTruckByLine(
-  nStockName: string): string;
-var nStr: string;
+  nStockNo: string): string;
+var nStr, nGroup, nSQL, nGroupID: string;
     nDBWorker: PDBWorker;
+    nCount : Integer;
 begin
   Result := '0';
+  nCount := 0 ;
 
   nDBWorker := nil;
   try
-    nStr := 'Select * From %s Where T_Valid=''%s'' And T_Stock=''%s''';
-    nStr := Format(nStr, [sTable_ZTTrucks, sFlag_Yes, nStockName]);
+    nStr := 'Select * From %s Where T_Valid=''%s'' And T_StockNo=''%s''';
+    nStr := Format(nStr, [sTable_ZTTrucks, sFlag_Yes, nStockNo]);
 
     with gDBConnManager.SQLQuery(nStr, nDBWorker) do
     begin
-      Result := IntToStr(RecordCount);
+      nCount := RecordCount;
     end;
   finally
     gDBConnManager.ReleaseConnection(nDBWorker);
   end;
+
+    if nCount <= 0 then//可能存在物料映射
+    begin
+      nGroup := '';
+      nGroupID := '';
+
+      nDBWorker := nil;
+      try
+        nStr := 'Select M_Group From %s Where M_Status=''%s'' And M_ID=''%s''';
+        nStr := Format(nStr, [sTable_StockMatch, sFlag_Yes, nStockNo]);
+
+        with gDBConnManager.SQLQuery(nStr, nDBWorker) do
+        begin
+          if RecordCount > 0 then
+            nGroupID := Fields[0].AsString;
+        end;
+      finally
+        gDBConnManager.ReleaseConnection(nDBWorker);
+      end;
+
+      if Length(nGroupID) > 0 then
+      begin
+        nDBWorker := nil;
+        try
+          nStr := 'Select M_ID From %s Where M_Status=''%s'' And M_Group=''%s''';
+          nStr := Format(nStr, [sTable_StockMatch, sFlag_Yes, nGroupID]);
+
+          with gDBConnManager.SQLQuery(nStr, nDBWorker) do
+          begin
+
+            First;
+            while not Eof do
+            begin
+              nGroup := nGroup + Fields[0].AsString + ',';
+              Next;
+            end;
+            if Copy(nGroup, Length(nGroup), 1) = ',' then
+              System.Delete(nGroup, Length(nGroup), 1);
+          end;
+          nSQL := AdjustListStrFormat(nGroup, '''', True, ',', False);
+        finally
+          gDBConnManager.ReleaseConnection(nDBWorker);
+        end;
+
+        nDBWorker := nil;
+        try
+          nStr := 'Select * From %s Where T_Valid=''%s'' And T_StockNo In (%s)';
+          nStr := Format(nStr, [sTable_ZTTrucks, sFlag_Yes, nSQL]);
+
+          WriteLog('查询工厂待装SQL:'+ nStr);
+          with gDBConnManager.SQLQuery(nStr, nDBWorker) do
+          begin
+            nCount := RecordCount;
+          end;
+        finally
+          gDBConnManager.ReleaseConnection(nDBWorker);
+        end;
+      end;
+    end;
+    Result := IntToStr(nCount);
 end;
 
 //Date: 2017-10-01
@@ -1670,6 +1766,344 @@ begin
   finally
     gDBConnManager.ReleaseConnection(nDBWorker);
   end;
+end;
+
+function TBusWorkerBusinessWebchat.GetStockName(nStockNo: string): string;
+var nStr: string;
+    nDBWorker: PDBWorker;
+begin
+  Result := '';
+
+  nDBWorker := nil;
+  try
+    nStr := 'Select Z_Stock From %s Where Z_StockNo=''%s'' ';
+    nStr := Format(nStr, [sTable_ZTLines, nStockNo]);
+
+    with gDBConnManager.SQLQuery(nStr, nDBWorker) do
+    begin
+      Result := Fields[0].AsString;
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nDBWorker);
+  end;
+end;
+
+//Date: 2018-01-17
+//Desc: 获取手机端提报车辆信息
+function TBusWorkerBusinessWebchat.getDeclareCar(
+  var nData: string): Boolean;
+var nStr, nStatus: string;
+    nIdx: Integer;
+    nNode,nRoot: TXmlNode;
+    nInit: Int64;
+begin
+  Result := False;
+  nStatus := PackerDecodeStr(FIn.FData);
+
+  nStr := '<?xml version="1.0" encoding="UTF-8"?>'
+      +'<DATA>'
+      +'<head><Factory>%s</Factory>'
+      +'<Status>%s</Status>'
+      +'</head>'
+      +'</DATA>';
+  nStr := Format(nStr,[gSysParam.FFactID,nStatus]);
+  WriteLog('获取提报车辆信息入参:'+nStr);
+
+  Result := False;
+  FWXChannel := GetReviceWS(gSysParam.FSrvRemote);
+  nStr := FWXChannel.mainfuncs('getDeclareCar', nStr);
+
+  WriteLog('获取提报车辆信息出参:'+nStr);
+
+  with FPacker.XMLBuilder do
+  begin
+    ReadFromString(nStr);
+    if not ParseDefault(nData) then Exit;
+    nRoot := Root.FindNode('items');
+
+    if not Assigned(nRoot) then
+    begin
+      nData := '无效参数节点(WebService-Response.items Is Null).';
+      Exit;
+    end;
+
+    nInit := GetTickCount;
+    FListA.Clear;
+    FListB.Clear;
+    for nIdx:=0 to nRoot.NodeCount-1 do
+    begin
+      nNode := nRoot.Nodes[nIdx];
+      if CompareText('item', nNode.Name) <> 0 then Continue;
+
+      with FListB,nNode do
+      begin
+        Values['uniqueIdentifier']   := NodeByName('uniqueIdentifier').ValueAsString;
+        Values['serialNo']  := NodeByName('serialNo').ValueAsString;
+        Values['carNumber']    := NodeByName('carNumber').ValueAsString;
+        Values['drivingLicensePath']   := NodeByName('drivingLicensePath').ValueAsString;
+        Values['custName']  := NodeByName('custName').ValueAsString;
+        Values['custPhone']    := NodeByName('custPhone').ValueAsString;
+        Values['tare']    := NodeByName('tare').ValueAsString;
+      end;
+      SaveAuditTruck(FlistB,nStatus);
+      FListA.Add(PackerEncodeStr(FListB.Text));
+      //new item
+    end;
+  end;
+  WriteLog('保存车辆审核数据耗时: ' + IntToStr(GetTickCount - nInit) + 'ms');
+  Result := True;
+  FOut.FData := FListA.Text;
+  FOut.FBase.FResult := True;
+end;
+
+procedure TBusWorkerBusinessWebchat.SaveAuditTruck(nList: TStrings;
+  nStatus: string);
+var nStr: string;
+begin
+  FDBConn.FConn.BeginTrans;
+  try
+    nStr := 'Delete From %s Where A_ID=''%s'' ';
+    nStr := Format(nStr, [sTable_AuditTruck, nList.Values['uniqueIdentifier']]);
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+
+    nStr := MakeSQLByStr([
+              SF('A_ID', nList.Values['uniqueIdentifier']),
+              SF('A_Serial', nList.Values['serialNo']),
+              SF('A_Truck', nList.Values['carNumber']),
+              SF('A_WeiXin', nList.Values['custName']),
+              SF('A_Phone', nList.Values['custPhone']),
+              SF('A_LicensePath', nList.Values['drivingLicensePath']),
+              SF('A_Status', nStatus),
+              SF('A_Date', sField_SQLServer_Now, sfVal),
+              SF('A_PValue', nList.Values['tare'])
+              ], sTable_AuditTruck, '', True);
+    //xxxxx
+
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+
+    FDBConn.FConn.CommitTrans;
+  except
+    FDBConn.FConn.RollbackTrans;
+    raise;
+  end;
+end;
+
+//Date: 2009-7-4
+//Parm: 数据集;字段名;图像数据
+//Desc: 将nImage图像存入nDS.nField字段
+function TBusWorkerBusinessWebchat.SaveDBImage(const nDS: TDataSet; const nFieldName: string;
+  const nStream: TMemoryStream): Boolean;
+var nField: TField;
+    nBuf: array[1..MAX_PATH] of Char;
+begin
+  Result := False;
+  nField := nDS.FindField(nFieldName);
+  if not (Assigned(nField) and (nField is TBlobField)) then Exit;
+
+  try
+    if not Assigned(nStream) then
+    begin
+      nDS.Edit;
+      TBlobField(nField).Clear;
+      nDS.Post; Result := True; Exit;
+    end;
+
+    nDS.Edit;
+    nStream.Position := 0;
+    TBlobField(nField).LoadFromStream(nStream);
+
+    nDS.Post;
+    Result := True;
+  except
+    if nDS.State = dsEdit then nDS.Cancel;
+  end;
+end;
+
+//Date: 2018-01-22
+//Desc: 车辆审核结果上传及绑定or解除长期卡关联
+function TBusWorkerBusinessWebchat.UpdateDeclareCar(var nData: string): Boolean;
+var nStr: string;
+begin
+  Result := False;
+  FListA.Text := PackerDecodeStr(FIn.FData);
+
+  nStr := '<?xml version="1.0" encoding="UTF-8"?>' +
+          '<DATA>' +
+          '<head>' +
+          '<UniqueIdentifier>%s</UniqueIdentifier>' +
+          '<AuditStatus>%s</AuditStatus>' +
+          '<AuditRemark>%s</AuditRemark>' +
+          '<AuditUserName>%s</AuditUserName>' +
+          '<IsLongTermCar>%s</IsLongTermCar>' +
+          '</head>' +
+          '</DATA>';
+  nStr := Format(nStr, [FListA.Values['ID'], FListA.Values['Status'],
+          FListA.Values['Memo'], FListA.Values['Man'], FListA.Values['Type']]);
+  //xxxxx
+
+  WriteLog('审核结果入参'+nStr);
+
+  FWXChannel := GetReviceWS(gSysParam.FSrvRemote);
+  nStr := FWXChannel.mainfuncs('updateDeclareCar', nStr);
+
+  WriteLog('审核结果出参'+nStr);
+
+  with FPacker.XMLBuilder do
+  begin
+    ReadFromString(nStr);
+    if not ParseDefault(nData) then Exit;
+  end;
+
+  Result := True;
+  FOut.FData := sFlag_Yes;
+  FOut.FBase.FResult := True;
+end;
+
+//Date: 2018-01-22
+//Desc: 下载图片
+function TBusWorkerBusinessWebchat.DownLoadPic(var nData: string): Boolean;
+var nID,nStr: string;
+    nIdx: Int64;
+    nDS: TDataSet;
+    nIdHTTP: TIdHTTP;
+    nStream: TMemoryStream;
+begin
+  Result := False;
+  nID := PackerDecodeStr(FIn.FData);
+
+  nStr := 'Select * From %s Where A_ID=''%s'' ';
+  nStr := Format(nStr, [sTable_AuditTruck, nID]);
+
+  nDS := gDBConnManager.WorkerQuery(FDBConn, nStr);
+
+  if nDS.RecordCount < 1 then
+  begin
+    nStr := Format('未查询到车辆%s审核信息!', [nID]);
+    WriteLog(nStr);
+    Exit;
+  end;
+
+  if nDS.FieldByName('A_LicensePath').AsString = '' then
+  begin
+    nStr := Format('车辆%s照片路径为空!', [nID]);
+    WriteLog(nStr);
+    Exit;
+  end;
+
+  nIdx := GetTickCount;
+
+  nIdHTTP := nil;
+  nStream := nil;
+  try
+    nIdHTTP := TIdHTTP.Create;
+    nStream := TMemoryStream.Create;
+
+    nIdHTTP.Get(nDS.FieldByName('A_LicensePath').AsString, nStream);
+    nStream.Position:=0;
+
+    SaveDBImage(nDS, 'A_License', nStream);
+
+    nIdHTTP.Free;
+    nStream.Free;
+  except
+    if Assigned(nIdHTTP) then nIdHTTP.Free;
+    if Assigned(nStream) then nStream.Free;
+    Exit;
+  end;
+  WriteLog('下载车辆图片耗时: ' + IntToStr(GetTickCount - nIdx) + 'ms');
+
+  Result := True;
+  FOut.FData := sFlag_Yes;
+  FOut.FBase.FResult := True;
+end;
+
+//Date: 2018-01-22
+//Desc: 通过车牌号获取订单
+function TBusWorkerBusinessWebchat.Get_ShoporderByTruck(
+  var nData: string): boolean;
+var nStr, nTruck: string;
+    nNode, nTmp: TXmlNode;
+    nInt : Integer;
+begin
+  Result := False;
+  nTruck := PackerDecodeStr(FIn.FData);
+
+  nStr := '<?xml version="1.0" encoding="UTF-8"?>'
+      +'<DATA>'
+      +'<head><Factory>%s</Factory>'
+      +'<CarNumber>%s</CarNumber>'
+      +'</head>'
+      +'</DATA>';
+  nStr := Format(nStr,[gSysParam.FFactID,nTruck]);
+  WriteLog('获取订单信息入参:'+nStr);
+
+  FWXChannel := GetReviceWS(gSysParam.FSrvRemote);
+  nStr := FWXChannel.mainfuncs('getShopOrderByDriverNumber', nStr);
+  WriteLog('获取订单信息出参解码前:'+nStr);
+
+  with FPacker.XMLBuilder do
+  begin
+    ReadFromString(nStr);
+    if not ParseDefault(nData) then Exit;
+
+    nNode := Root.FindNode('Items');
+    if not (Assigned(nNode)) then
+    begin
+      nData := '无效参数节点(Items Null).';
+      Exit;
+    end;
+
+    FListA.Clear;
+    FListB.Clear;
+    for nInt := 0 to nNode.NodeCount - 1 do
+    begin
+      nTmp := nNode.Nodes[nInt];
+
+      if not (Assigned(nTmp)) then
+        Continue;
+
+      if Assigned(nTmp.NodeByName('order_id')) then
+        FListB.Values['order_id'] := nTmp.NodeByName('order_id').ValueAsString;
+
+      if Assigned(nTmp.NodeByName('order_type')) then
+        FListB.Values['order_type'] := nTmp.NodeByName('order_type').ValueAsString;
+
+      if Assigned(nTmp.NodeByName('fac_order_no')) then
+        FListB.Values['fac_order_no'] := nTmp.NodeByName('fac_order_no').ValueAsString;
+
+      if Assigned(nTmp.NodeByName('ordernumber')) then
+        FListB.Values['ordernumber'] := nTmp.NodeByName('ordernumber').ValueAsString;
+
+      if Assigned(nTmp.NodeByName('goodsID')) then
+        FListB.Values['goodsID'] := nTmp.NodeByName('goodsID').ValueAsString;
+
+      if Assigned(nTmp.NodeByName('goodstype')) then
+        FListB.Values['goodstype'] := nTmp.NodeByName('goodstype').ValueAsString;
+
+      if Assigned(nTmp.NodeByName('goodsname')) then
+        FListB.Values['goodsname'] := nTmp.NodeByName('goodsname').ValueAsString;
+
+      if Assigned(nTmp.NodeByName('tracknumber')) then
+        FListB.Values['tracknumber'] := nTmp.NodeByName('tracknumber').ValueAsString;
+
+      if Assigned(nTmp.NodeByName('data')) then
+        FListB.Values['data'] := nTmp.NodeByName('data').ValueAsString;
+
+      nStr := StringReplace(FListB.Text, '\n', #13#10, [rfReplaceAll]);
+
+      {$IFDEF UseUTFDecode}
+      nStr := UTF8Decode(nStr);
+      {$ENDIF}
+      WriteLog('获取订单信息出参解码后:'+nStr);
+
+      FListA.Add(nStr);
+    end;
+    nData := PackerEncodeStr(FListA.Text);
+  end;
+
+  Result := True;
+  FOut.FData := nData;
+  FOut.FBase.FResult := True;
 end;
 
 initialization

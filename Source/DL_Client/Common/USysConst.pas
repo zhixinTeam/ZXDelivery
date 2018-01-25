@@ -34,6 +34,7 @@ const
   cFI_FrameMakeOCard    = $0015;                     //办理采购磁卡
   cFI_FrameMakeLSCard   = $0016;                     //厂内零售磁卡
   cFI_FrameSanPreHK     = $0017;                     //散装提货前预合单
+  cFI_FrameAuditTruck   = $0018;                     //审核车辆
 
   cFI_FrameShouJu       = $0020;                     //收据查询
   cFI_FrameZhiKaVerify  = $0021;                     //纸卡审核
@@ -168,6 +169,7 @@ const
   cFI_FormWXSendlog     = $1092;                     //微信日志
   cFI_FormTodo          = $1093;                     //需干预事件
   cFI_FormTodoSend      = $1094;                     //推送事件
+  cFI_FormAuditTruck    = $1095;                     //车辆审核
 
   cFI_Form_HT_SalePlan  = $1100;                     //销售计划(红塔)
 
@@ -349,6 +351,7 @@ begin
   AddMenuModuleItem('MAIN_D08', cFI_FormTruckEmpty, mtForm);
   AddMenuModuleItem('MAIN_D09', cFI_FrameMakeLSCard);
   AddMenuModuleItem('MAIN_D10', cFI_FrameSanPreHK);
+  AddMenuModuleItem('MAIN_D11', cFI_FrameAuditTruck);
 
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);

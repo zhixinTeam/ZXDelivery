@@ -288,6 +288,14 @@ function get_shoporders(const nData: string): string;
 //获取订单信息
 function complete_shoporders(const nData: string): string;
 //更新订单状态
+function getAuditTruck(const nData: string): string;
+//获取审核车辆
+function UploadAuditTruck(const nData: string): string;
+//审核车辆结果上传
+function DownLoadPic(const nData: string): string;
+//下载照片
+function GetshoporderbyTruck(const nData: string): string;
+//根据车牌号获取订单
 procedure SaveWebOrderDelMsg(const nLID, nBillType: string);
 //插入推送消息
 
@@ -2738,6 +2746,46 @@ function complete_shoporders(const nData: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
   if CallBusinessWechat(cBC_WX_complete_shoporders, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//------------------------------------------------------------------------------
+//获取车辆审核信息
+function getAuditTruck(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_GetAuditTruck, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//------------------------------------------------------------------------------
+//车辆审核结果上传
+function UpLoadAuditTruck(const nData: string): string;
+var nOut: TWorkerWebChatData;
+begin
+  if CallBusinessWechat(cBC_WX_UpLoadAuditTruck, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//------------------------------------------------------------------------------
+//下载图片
+function DownLoadPic(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_DownLoadPic, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//------------------------------------------------------------------------------
+//根据车牌号获取订单
+function GetshoporderbyTruck(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessWechat(cBC_WX_get_shoporderbyTruck, nData, '', '', @nOut) then
        Result := nOut.FData
   else Result := '';
 end;

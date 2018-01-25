@@ -288,6 +288,7 @@ const
   sTable_Truck        = 'S_Truck';                   //车辆表
   sTable_ZTLines      = 'S_ZTLines';                 //装车道
   sTable_ZTTrucks     = 'S_ZTTrucks';                //车辆队列
+  sTable_AuditTruck   = 'S_AuditTruck';                //车辆审核
 
   sTable_Provider     = 'P_Provider';                //客户表
   sTable_Materails    = 'P_Materails';               //物料表
@@ -1047,12 +1048,34 @@ const
    *.T_HKBills: 合卡交货单列表
   -----------------------------------------------------------------------------}
 
+  sSQL_NewAuditTruck = 'Create Table $Table(R_ID $Inc, A_ID varChar(50),' +
+       'A_Serial varChar(50), A_Truck varChar(20), A_License Image,' +
+       'A_WeiXin varChar(20), A_Phone varChar(20), A_LicensePath varChar(150), ' +
+       'A_Date DateTime, A_Status Char(1), ' +
+       'A_PValue $Float, A_Man varChar(20), A_Memo varChar(200))';
+  {-----------------------------------------------------------------------------
+   车辆审核: AuditTruck
+   *.R_ID: 记录号
+   *.A_ID: 车辆唯一识别码
+   *.A_Serial: 车辆类型
+   *.A_Truck: 车牌号
+   *.A_License: 驾驶证图片
+   *.A_WeiXin: 提交信息的商城账户
+   *.A_Phone: 商城账户电话
+   *.A_LicensePath: 照片路径
+   *.A_Date: 审核时间
+   *.A_Status: 审核结果(0:申请中.1:通过.2:驳回)
+   *.A_PValue: 车辆皮重
+   *.A_Man: 审核人
+   *.A_Memo: 动作备注
+  -----------------------------------------------------------------------------}
+
   sSQL_NewDataTemp = 'Create Table $Table(T_SysID varChar(15))';
   {-----------------------------------------------------------------------------
    临时数据表: DataTemp
    *.T_SysID: 系统编号
   -----------------------------------------------------------------------------}
-  
+
   sSQL_NewInvoiceWeek = 'Create Table $Table(W_ID $Inc, W_NO varChar(15),' +
        'W_Name varChar(50), W_Begin DateTime, W_End DateTime,' +
        'W_Man varChar(32), W_Date DateTime, W_Memo varChar(50))';
@@ -1543,6 +1566,7 @@ begin
 
   AddSysTableItem(sTable_K3_SalePlan, sSQL_NewK3SalePlan);
   AddSysTableItem(sTable_WebOrderMatch,sSQL_NewWebOrderMatch);
+  AddSysTableItem(sTable_AuditTruck, sSQL_NewAuditTruck);
 end;
 
 //Desc: 清理系统表
