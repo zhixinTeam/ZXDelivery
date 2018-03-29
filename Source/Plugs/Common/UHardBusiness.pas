@@ -527,9 +527,12 @@ begin
 
     nStr := nStr + #7 + nCardType;
     //磁卡类型
-    if nHYPrinter <> '' then
-      nStr := nStr + #6 + nHYPrinter;
-    //化验单打印机
+    if nTrucks[nIdx].FYSValid <> sFlag_Yes then//空车出厂不打印化验单
+    begin
+      if nHYPrinter <> '' then
+        nStr := nStr + #6 + nHYPrinter;
+      //化验单打印机
+    end;
 
     if nPrinter = '' then
          gRemotePrinter.PrintBill(nTrucks[nIdx].FID + nStr)

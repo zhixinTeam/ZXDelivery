@@ -171,15 +171,10 @@ procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 procedure GetPoundAutoWuCha(var nWCValZ,nWCValF: Double; const nVal: Double;
  const nStation: string = '');
 //获取误差范围
-function AddManualEventRecord(const nEID,nKey,nEvent:string;
- const nFrom: string = sFlag_DepBangFang ;
- const nSolution: string = sFlag_Solution_YN;
- const nDepartmen: string = sFlag_DepDaTing;
- const nReset: Boolean = False; const nMemo: string = ''): Boolean;
-//添加待处理事项记录
-function VerifyManualEventRecord(const nEID: string; var nHint: string;
- const nWant: string = sFlag_Yes): Boolean;
-//检查事件是否通过处理
+
+function GetTruckNO(const nTruck: WideString; const nLong: Integer=12): string;
+function GetValue(const nValue: Double): string;
+//显示格式化
 
 function IsTunnelOK(const nTunnel: string): Boolean;
 //查询通道光栅是否正常
@@ -273,6 +268,15 @@ function GetFQValueByStockNo(const nStock: string): Double;
 //获取封签号已发量
 function VerifyFQSumValue: Boolean;
 //是否校验封签号
+function AddManualEventRecord(const nEID,nKey,nEvent:string;
+ const nFrom: string = sFlag_DepBangFang ;
+ const nSolution: string = sFlag_Solution_YN;
+ const nDepartmen: string = sFlag_DepDaTing;
+ const nReset: Boolean = False; const nMemo: string = ''): Boolean;
+//添加待处理事项记录
+function VerifyManualEventRecord(const nEID: string; var nHint: string;
+ const nWant: string = sFlag_Yes): Boolean;
+//检查事件是否通过处理
 
 function getCustomerInfo(const nData: string): string;
 //获取客户注册信息
@@ -807,7 +811,7 @@ begin
 
   nStr := 'Select * From %s Where E_ID=''%s''';
   nStr := Format(nStr, [sTable_ManualEvent, nEID]);
-  
+
   with FDM.QuerySQL(nStr) do
   if RecordCount > 0 then
   begin
@@ -825,7 +829,7 @@ begin
           SF('E_From', nFrom),
           SF('E_Memo', nMemo),
           SF('E_Result', 'Null', sfVal),
-          
+
           SF('E_Event', nEvent),
           SF('E_Solution', nSolution),
           SF('E_Departmen', nDepartmen),
@@ -2823,6 +2827,38 @@ begin
   except
     if not nBool then FDM.ADOConn.RollbackTrans;
   end;
+end;
+
+//------------------------------------------------------------------------------
+//Date: 2017-10-17
+//Parm: 车牌号;保留长度
+//Desc: 将nTruck整合为长度为nLen的字符串
+function GetTruckNO(const nTruck: WideString; const nLong: Integer): string;
+var nStr: string;
+    nIdx,nLen,nPos: Integer;
+begin
+  nPos := 0;
+  nLen := 0;
+
+  for nIdx:=Length(nTruck) downto 1 do
+  begin
+    nStr := nTruck[nIdx];
+    nLen := nLen + Length(nStr);
+
+    if nLen >= nLong then Break;
+    nPos := nIdx;
+  end;
+
+  Result := Copy(nTruck, nPos, Length(nTruck));
+  nIdx := nLong - Length(Result);
+  Result := Result + StringOfChar(' ', nIdx);
+end;
+
+function GetValue(const nValue: Double): string;
+var nStr: string;
+begin
+  nStr := Format('      %.2f', [nValue]);
+  Result := Copy(nStr, Length(nStr) - 6 + 1, 6);
 end;
 
 end.

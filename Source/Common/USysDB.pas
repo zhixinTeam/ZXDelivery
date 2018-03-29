@@ -141,13 +141,13 @@ const
   sFlag_TJNone        = 'N';                         //未调价
   sFlag_TJing         = 'T';                         //调价中
   sFlag_TJOver        = 'O';                         //调价完成
-  
+
   sFlag_PoundBZ       = 'B';                         //标准
   sFlag_PoundPZ       = 'Z';                         //皮重
   sFlag_PoundPD       = 'P';                         //配对
   sFlag_PoundCC       = 'C';                         //出厂(过磅模式)
   sFlag_PoundLS       = 'L';                         //临时
-  
+
   sFlag_MoneyHuiKuan  = 'R';                         //回款入金
   sFlag_MoneyJiaCha   = 'C';                         //补缴价差
   sFlag_MoneyZhiKa    = 'Z';                         //纸卡回款
@@ -158,6 +158,12 @@ const
   sFlag_InvInvalid    = 'V';                         //作废发票
   sFlag_InvRequst     = 'R';                         //申请开出
   sFlag_InvDaily      = 'D';                         //日常开出
+
+  sFlag_ManualA       = 'A';                         //皮重预警(错误事件类型)
+  sFlag_ManualB       = 'B';                         //皮重超出范围
+  sFlag_ManualC       = 'C';                         //净重超出误差范围
+  sFlag_ManualD       = 'D';                         //空车出厂
+  sFlag_ManualE       = 'E';                         //车牌识别
 
   sFlag_FactoryID     = 'FactoryID';                 //工厂编号
   sFlag_SysParam      = 'SysParam';                  //系统参数
@@ -187,6 +193,7 @@ const
   sFlag_PoundIfDai    = 'PoundIFDai';                //袋装是否过磅
   sFlag_NFStock       = 'NoFaHuoStock';              //现场无需发货
   sFlag_StrictSanVal  = 'StrictSanVal';              //严格控制散装超发
+  sFlag_PEmpTWuCha    = 'EmpTruckWuCha';             //空车出厂误差
 
   sFlag_CommonItem    = 'CommonItem';                //公共信息
   sFlag_CardItem      = 'CardItem';                  //磁卡信息项
@@ -720,8 +727,8 @@ const
        'L_DaiTotal Integer , L_DaiNormal Integer, L_DaiBuCha Integer,' +
        'L_OutFact DateTime, L_OutMan varChar(32), L_PrintGLF Char(1),' +
        'L_Lading Char(1), L_IsVIP varChar(1), L_Seal varChar(100),' +
-       'L_HYDan varChar(15), L_PrintHY Char(1),' +
-       'L_Man varChar(32), L_Date DateTime,' +
+       'L_HYDan varChar(15), L_PrintHY Char(1),L_Audit char(1) not null default(''N''),' +
+       'L_Man varChar(32), L_Date DateTime,L_EmptyOut char(1) not null default(''N''),' +
        'L_DelMan varChar(32), L_DelDate DateTime)';
   {-----------------------------------------------------------------------------
    交货单表: Bill
@@ -735,7 +742,7 @@ const
    *.L_SaleID,L_SaleMan:业务员
    *.L_Type: 类型(袋,散)
    *.L_StockNo: 物料编号
-   *.L_StockName: 物料描述 
+   *.L_StockName: 物料描述
    *.L_Value: 提货量
    *.L_Price: 提货单价
    *.L_ZKMoney: 占用纸卡限提(Y/N)
@@ -759,6 +766,8 @@ const
    *.L_DelMan: 交货单删除人员
    *.L_DelDate: 交货单删除时间
    *.L_Memo: 动作备注
+   *.L_EmptyOut: 空车出厂标记
+   *.L_Audit: 补单审核状态Y待审核N已审核
   -----------------------------------------------------------------------------}
 
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +

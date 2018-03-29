@@ -561,7 +561,7 @@ begin
         FListC.Values['Seal'] := nTmp.FData;
       //auto batcode
       {$ENDIF}
-      
+
       if PBWDataBase(@nTmp).FErrCode = sFlag_ForceHint then
       begin
         FOut.FBase.FErrCode := sFlag_ForceHint;
@@ -643,7 +643,7 @@ begin
           gDBConnManager.WorkerExec(FDBConn, nStr);
         end;
         //保存已使用的销售计划
-      end;  
+      end;
 
       if FListA.Values['BuDan'] = sFlag_Yes then //补单
       begin
@@ -749,11 +749,15 @@ begin
 
     if FListA.Values['BuDan'] = sFlag_Yes then //补单
     begin
+      {$IFDEF BDAUDIT}
+      WriteLog('补单审核功能启用,出金未增加,等待二次审核...');
+      {$ELSE}
       nStr := 'Update %s Set A_OutMoney=A_OutMoney+%s Where A_CID=''%s''';
       nStr := Format(nStr, [sTable_CusAccount, FloatToStr(nVal),
               FListA.Values['CusID']]);
       gDBConnManager.WorkerExec(FDBConn, nStr);
       //freeze money from account
+      {$ENDIF}
     end else
     begin
       nStr := 'Update %s Set A_FreezeMoney=A_FreezeMoney+%s Where A_CID=''%s''';
@@ -778,7 +782,7 @@ begin
     if Copy(FOut.FData, nIdx, 1) = ',' then
       System.Delete(FOut.FData, nIdx, 1);
     //xxxxx
-    
+
     FDBConn.FConn.CommitTrans;
     Result := True;
   except
@@ -1150,10 +1154,10 @@ begin
     nZK  := FieldByName('L_ZhiKa').AsString;
     nFix := FieldByName('L_ZKMoney').AsString;
 
-    nVal := FieldByName('L_Value').AsFloat; 
+    nVal := FieldByName('L_Value').AsFloat;
     nMoney := Float2Float(nVal*FieldByName('L_Price').AsFloat, cPrecision, True);
   end;
-                   
+
   nStr := 'Select R_ID,T_HKBills,T_Bill From %s ' +
           'Where T_HKBills Like ''%%%s%%''';
   nStr := Format(nStr, [sTable_ZTTrucks, FIn.FData]);
@@ -1262,7 +1266,7 @@ begin
     nStr := 'Delete From %s Where L_ID=''%s''';
     nStr := Format(nStr, [sTable_Bill, FIn.FData]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
-    
+
     FDBConn.FConn.CommitTrans;
     Result := True;
   except
@@ -1768,7 +1772,7 @@ begin
   nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
           'L_StockName,L_Truck,L_Value,L_Price,L_ZKMoney,L_Status,' +
           'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue,L_PrintHY,' +
-          'L_HYDan From $Bill b ';
+          'L_HYDan, L_EmptyOut From $Bill b ';
   //xxxxx
 
   if nIsBill then
@@ -1831,6 +1835,7 @@ begin
 
       FPData.FValue := FieldByName('L_PValue').AsFloat;
       FMData.FValue := FieldByName('L_MValue').AsFloat;
+      FYSValid      := FieldByName('L_EmptyOut').AsString;
       FSelected := True;
 
       Inc(nIdx);
@@ -1846,7 +1851,7 @@ end;
 //Parm: 交货单[FIn.FData];岗位[FIn.FExtParam]
 //Desc: 保存指定岗位提交的交货单列表
 function TWorkerBusinessBills.SavePostBillItems(var nData: string): Boolean;
-var nStr,nSQL,nTmp: string;
+var nStr,nSQL,nTmp,nFixMoney: string;
     f,m,nVal,nMVal: Double;
     i,nIdx,nInt: Integer;
     nBills: TLadingBillItems;
@@ -2039,6 +2044,7 @@ begin
       nSQL := MakeSQLByStr([SF('L_Status', FStatus),
               SF('L_NextStatus', FNextStatus),
               SF('L_LadeTime', sField_SQLServer_Now, sfVal),
+              SF('L_EmptyOut', FYSValid),
               SF('L_LadeMan', FIn.FBase.FFrom.FUser)
               ], sTable_Bill, SF('L_ID', FID), False);
       FListA.Add(nSQL);
@@ -2058,6 +2064,7 @@ begin
       nSQL := MakeSQLByStr([SF('L_Status', sFlag_TruckFH),
               SF('L_NextStatus', sFlag_TruckBFM),
               SF('L_LadeTime', sField_SQLServer_Now, sfVal),
+              SF('L_EmptyOut', FYSValid),
               SF('L_LadeMan', FIn.FBase.FFrom.FUser)
               ], sTable_Bill, SF('L_ID', FID), False);
       FListA.Add(nSQL);
@@ -2074,7 +2081,7 @@ begin
   begin
     nInt := -1;
     nMVal := 0;
-    
+
     for nIdx:=Low(nBills) to High(nBills) do
     if nBills[nIdx].FPoundID = sFlag_Yes then
     begin
@@ -2091,87 +2098,126 @@ begin
     end;
 
     with nBills[0] do
-    if FType = sFlag_San then //散装需交验资金额
     begin
-      if not TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
-             nBills[0].FZhiKa, '', @nOut) then
+      if FYSValid <> sFlag_Yes then
       begin
-        nData := nOut.FData;
-        Exit;
-      end;
+        if FType = sFlag_San then //散装需交验资金额
+        begin
+          if not TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
+                 nBills[0].FZhiKa, '', @nOut) then
+          begin
+            nData := nOut.FData;
+            Exit;
+          end;
 
-      m := StrToFloat(nOut.FData);
-      m := m + Float2Float(FPrice * FValue, cPrecision, False);
-      //纸卡可用金
+          m := StrToFloat(nOut.FData);
+          m := m + Float2Float(FPrice * FValue, cPrecision, False);
+          //纸卡可用金
 
-      nVal := FValue;
-      FValue := nMVal - FPData.FValue;
-      //新净重,实际提货量
-      f := Float2Float(FPrice * FValue, cPrecision, True) - m;
-      //实际所需金额与可用金差额
+          nVal := FValue;
+          FValue := nMVal - FPData.FValue;
+          //新净重,实际提货量
+          f := Float2Float(FPrice * FValue, cPrecision, True) - m;
+          //实际所需金额与可用金差额
 
-      if f > 0 then
+          if f > 0 then
+          begin
+            {$IFDEF SanPreHK}
+            f := Float2Float(f / FPrice, cPrecision, True);
+            //纸卡超发吨数
+
+            FValue := FValue - f;
+            //纸卡最大可发量
+            nMVal := nMVal - f;
+            FMData.FValue := nMVal;
+            //调整毛重,使过磅数据一致
+
+            if not TWorkerBusinessBills.CallMe(cBC_MakeSanPreHK,
+                   nBills[0].FID, FloatToStr(f), @nOut) then
+            begin
+              nData := nOut.FData;
+              Exit;
+            end;
+            {$ELSE}
+            nData := '客户[ %s.%s ]资金余额不足,详情如下:' + #13#10#13#10 +
+                     '※.可用金额: %.2f元' + #13#10 +
+                     '※.提货金额: %.2f元' + #13#10 +
+                     '※.需 补 交: %.2f元' + #13#10+#13#10 +
+                     '请到财务室办理"补交货款"手续,然后再次称重.';
+            nData := Format(nData, [FCusID, FCusName, m, FPrice * FValue, f]);
+            Exit;
+            {$ENDIF}
+          end;
+
+          m := Float2Float(FPrice * FValue, cPrecision, True);
+          m := m - Float2Float(FPrice * nVal, cPrecision, True);
+          //新增冻结金额
+
+          nSQL := 'Update %s Set A_FreezeMoney=A_FreezeMoney+(%.2f) ' +
+                  'Where A_CID=''%s''';
+          nSQL := Format(nSQL, [sTable_CusAccount, m, FCusID]);
+          FListA.Add(nSQL); //更新账户
+
+          nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal)
+                  ], sTable_Bill, SF('L_ID', FID), False);
+          FListA.Add(nSQL); //更新提货量
+
+          if nOut.FExtParam = sFlag_Yes then
+          begin
+            nSQL := 'Update %s Set Z_FixedMoney=Z_FixedMoney-(%.2f) ' +
+                    'Where Z_ID=''%s''';
+            nSQL := Format(nSQL, [sTable_ZhiKa, m, FZhiKa]);
+            FListA.Add(nSQL); //更新纸卡限提金额
+          end;
+
+          nSQL := 'Select L_HYDan From %s Where L_ID=''%s''';
+          nSQL := Format(nSQL, [sTable_Bill, FID]);
+          with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+          if RecordCount > 0 then
+          begin
+            nSQL := 'Update %s Set B_HasUse=B_HasUse+(%.2f - %.2f) ' +
+                    'Where B_Batcode=''%s''';
+            nSQL := Format(nSQL, [sTable_StockBatcode, FValue, nVal,
+                    Fields[0].AsString]);
+            FListA.Add(nSQL);
+          end;
+          //更新批次号使用量
+        end;
+      end
+      else
       begin
-        {$IFDEF SanPreHK}
-        f := Float2Float(f / FPrice, cPrecision, True);
-        //纸卡超发吨数
-
-        FValue := FValue - f;
-        //纸卡最大可发量
-        nMVal := nMVal - f;
-        FMData.FValue := nMVal;
-        //调整毛重,使过磅数据一致
-
-        if not TWorkerBusinessBills.CallMe(cBC_MakeSanPreHK,
-               nBills[0].FID, FloatToStr(f), @nOut) then
+        if not TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
+               nBills[0].FZhiKa, '', @nOut) then
         begin
           nData := nOut.FData;
           Exit;
         end;
-        {$ELSE}
-        nData := '客户[ %s.%s ]资金余额不足,详情如下:' + #13#10#13#10 +
-                 '※.可用金额: %.2f元' + #13#10 +
-                 '※.提货金额: %.2f元' + #13#10 +
-                 '※.需 补 交: %.2f元' + #13#10+#13#10 +
-                 '请到财务室办理"补交货款"手续,然后再次称重.';
-        nData := Format(nData, [FCusID, FCusName, m, FPrice * FValue, f]);
-        Exit;
-        {$ENDIF}
-      end;
+        nFixMoney := nOut.FExtParam;
 
-      m := Float2Float(FPrice * FValue, cPrecision, True);
-      m := m - Float2Float(FPrice * nVal, cPrecision, True);
-      //新增冻结金额
+        if nFixMoney = sFlag_Yes then
+        begin
+          nSQL := 'Update %s Set Z_FixedMoney=Z_FixedMoney-%s Where Z_ID=''%s''';
+          nSQL := Format(nSQL, [sTable_ZhiKa, FloatToStr(nVal),
+                  nBills[0].FZhiKa]);
+          //xxxxx
 
-      nSQL := 'Update %s Set A_FreezeMoney=A_FreezeMoney+(%.2f) ' +
-              'Where A_CID=''%s''';
-      nSQL := Format(nSQL, [sTable_CusAccount, m, FCusID]);
-      FListA.Add(nSQL); //更新账户
+          FListA.Add(nSQL);
+        end;
+        //释放限提金额
 
-      nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal)
-              ], sTable_Bill, SF('L_ID', FID), False);
-      FListA.Add(nSQL); //更新提货量        
+        nVal := Float2Float(FPrice * FValue, cPrecision, False);
 
-      if nOut.FExtParam = sFlag_Yes then
-      begin
-        nSQL := 'Update %s Set Z_FixedMoney=Z_FixedMoney-(%.2f) ' +
-                'Where Z_ID=''%s''';
-        nSQL := Format(nSQL, [sTable_ZhiKa, m, FZhiKa]);
-        FListA.Add(nSQL); //更新纸卡限提金额
-      end;
-
-      nSQL := 'Select L_HYDan From %s Where L_ID=''%s''';
-      nSQL := Format(nSQL, [sTable_Bill, FID]);
-      with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
-      if RecordCount > 0 then
-      begin
-        nSQL := 'Update %s Set B_HasUse=B_HasUse+(%.2f - %.2f) ' +
-                'Where B_Batcode=''%s''';
-        nSQL := Format(nSQL, [sTable_StockBatcode, FValue, nVal,
-                Fields[0].AsString]);
+        nSQL := 'Update %s Set A_FreezeMoney=A_FreezeMoney-%s Where A_CID=''%s''';
+        nSQL := Format(nSQL, [sTable_CusAccount, FloatToStr(nVal),
+                FCusID]);
         FListA.Add(nSQL);
+        //释放冻结金
+
+        nSQL := 'Update %s Set B_HasUse=B_HasUse-%.2f Where B_Batcode=''%s''';
+        nSQL := Format(nSQL, [sTable_StockBatcode, FValue, FHYDan]);
+        FListA.Add(nSQL);
+        //释放使用的批次号
       end;
-      //更新批次号使用量
     end;
 
     nVal := 0;
@@ -2237,14 +2283,27 @@ begin
         FListB.Delete(i);
       //排除本次称重
 
-      nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal),
-              SF('L_Status', sFlag_TruckBFM),
-              SF('L_NextStatus', sFlag_TruckOut),
-              SF('L_MValue', FMData.FValue , sfVal),
-              SF('L_MDate', sField_SQLServer_Now, sfVal),
-              SF('L_MMan', FIn.FBase.FFrom.FUser)
-              ], sTable_Bill, SF('L_ID', FID), False);
-      FListA.Add(nSQL);
+      if FYSValid <> sFlag_Yes then   //判断是否空车出厂
+      begin
+        nSQL := MakeSQLByStr([SF('L_Value', FValue, sfVal),
+                SF('L_Status', sFlag_TruckBFM),
+                SF('L_NextStatus', sFlag_TruckOut),
+                SF('L_MValue', FMData.FValue , sfVal),
+                SF('L_MDate', sField_SQLServer_Now, sfVal),
+                SF('L_MMan', FIn.FBase.FFrom.FUser)
+                ], sTable_Bill, SF('L_ID', FID), False);
+        FListA.Add(nSQL);
+      end else
+      begin
+        nSQL := MakeSQLByStr([SF('L_Value', 0.00, sfVal),
+                SF('L_Status', sFlag_TruckBFM),
+                SF('L_NextStatus', sFlag_TruckOut),
+                SF('L_MValue', FMData.FValue , sfVal),
+                SF('L_MDate', sField_SQLServer_Now, sfVal),
+                SF('L_MMan', FIn.FBase.FFrom.FUser)
+                ], sTable_Bill, SF('L_ID', FID), False);
+        FListA.Add(nSQL);
+      end;
     end;
 
     if FListB.Count > 0 then
@@ -2292,7 +2351,7 @@ begin
     begin
       FListB.Add(FID);
       //交货单列表
-      
+
       nSQL := MakeSQLByStr([SF('L_Status', sFlag_TruckOut),
               SF('L_NextStatus', ''),
               SF('L_Card', ''),
@@ -2301,14 +2360,16 @@ begin
               ], sTable_Bill, SF('L_ID', FID), False);
       FListA.Add(nSQL); //更新交货单
 
-      nVal := Float2Float(FPrice * FValue, cPrecision, True);
-      //提货金额
-      
-      nSQL := 'Update %s Set A_OutMoney=A_OutMoney+(%.2f),' +
-              'A_FreezeMoney=A_FreezeMoney-(%.2f) Where A_CID=''%s''';
-      nSQL := Format(nSQL, [sTable_CusAccount, nVal, nVal, FCusID]);
-      FListA.Add(nSQL); //更新客户资金(可能不同客户)
+      if FYSValid <> sFlag_Yes then
+      begin
+        nVal := Float2Float(FPrice * FValue, cPrecision, True);
+        //提货金额
 
+        nSQL := 'Update %s Set A_OutMoney=A_OutMoney+(%.2f),' +
+                'A_FreezeMoney=A_FreezeMoney-(%.2f) Where A_CID=''%s''';
+        nSQL := Format(nSQL, [sTable_CusAccount, nVal, nVal, FCusID]);
+        FListA.Add(nSQL); //更新客户资金(可能不同客户)
+      end;
       {$IFDEF PrintHYEach}
       if FPrintHY then
       begin

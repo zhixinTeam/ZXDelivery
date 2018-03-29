@@ -152,6 +152,10 @@
   //自动生成供应商编号
   {$DEFINE PrintHY}
   //出厂打印化验单
+  {$DEFINE BFLED}
+  //磅房小屏
+  {$DEFINE BDAUDIT}
+  //补单审核
 {$ENDIF}
 
 //辽宁营口
@@ -241,9 +245,11 @@
   //随车开单时只打合格证
   {$DEFINE HeGeZhengSimpleData}
   //使用简单合格证数据(无检验结果)
-  {$DEFINE UseUTFDecode}
+  {.$DEFINE UseUTFDecode}
   //使用UTF解包函数
   {$DEFINE MicroMsg}
   //使用微信
+  {$DEFINE PrintHY}
+  //出厂打印化验单
 {$ENDIF}
 

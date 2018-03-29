@@ -35,6 +35,7 @@ const
   cFI_FrameMakeLSCard   = $0016;                     //厂内零售磁卡
   cFI_FrameSanPreHK     = $0017;                     //散装提货前预合单
   cFI_FrameAuditTruck   = $0018;                     //审核车辆
+  cFI_FrameBillBuDanAudit = $0019;                     //补单审核
 
   cFI_FrameShouJu       = $0020;                     //收据查询
   cFI_FrameZhiKaVerify  = $0021;                     //纸卡审核
@@ -235,7 +236,8 @@ type
     FPicBase    : Integer;                           //图片索引
     FPicPath    : string;                            //图片目录
     FVoiceUser  : Integer;                           //语音计数
-    FProberUser : Integer;                           //检测器技术 
+    FProberUser : Integer;                           //检测器技术
+    FEmpTruckWc : Double;                            //空车出厂误差
   end;
   //系统参数
 
@@ -352,6 +354,7 @@ begin
   AddMenuModuleItem('MAIN_D09', cFI_FrameMakeLSCard);
   AddMenuModuleItem('MAIN_D10', cFI_FrameSanPreHK);
   AddMenuModuleItem('MAIN_D11', cFI_FrameAuditTruck);
+  AddMenuModuleItem('MAIN_D12', cFI_FrameBillBuDanAudit);
 
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);

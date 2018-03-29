@@ -42,7 +42,7 @@ uses
   UFormGetPOrderBase, UFormOrderDtl,
   {.$ENDIF}
   //----------------------------------------------------------------------------
-  UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck,
+  UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo,
   UFrameHYStock, UFrameHYData, UFrameHYRecord;
 
@@ -54,7 +54,7 @@ implementation
 
 uses
   UMgrChannel, UChannelChooser, UDataModule, USysDB, USysMAC, SysUtils,
-  USysLoger, USysConst, UMemDataPool;
+  USysLoger, USysConst, UMemDataPool, UMgrLEDDisp;
 
 //Desc: 初始化系统对象
 procedure InitSystemObject;
@@ -110,7 +110,7 @@ begin
     while not Eof do
     begin
       nStr := Fields[1].AsString;
-      
+
       if nStr = sFlag_WXServiceMIT then
         FWechatURL := Fields[0].AsString;
       //xxxxx
@@ -158,6 +158,10 @@ begin
 
       if nStr = sFlag_PSanWuChaF then
         gSysParam.FPoundSanF := Fields[0].AsFloat;
+
+      if nStr = sFlag_PEmpTWuCha then
+        gSysParam.FEmpTruckWc := Fields[0].AsFloat;
+
       Next;
     end;
 
@@ -209,6 +213,14 @@ begin
 
   CreateBaseFormItem(cFI_FormTodo);
   //待处理事项
+
+  {$IFDEF BFLED}
+  if FileExists(gPath + cDisp_Config) then
+  begin
+    gDisplayManager.LoadConfig(gPath + cDisp_Config);
+    gDisplayManager.StartDisplay;
+  end;
+  {$ENDIF}
 end;
 
 //Desc: 释放系统对象
