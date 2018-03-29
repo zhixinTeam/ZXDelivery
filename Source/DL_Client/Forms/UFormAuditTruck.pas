@@ -95,7 +95,6 @@ end;
 //Desc: 初始化界面数据
 procedure TfFormAuditTruck.InitFormData;
 var nStr: string;
-    nPic: TPicture;
     nStream: TMemoryStream;
     nField: TField;
     nJpg: TjpegImage;
@@ -113,7 +112,7 @@ begin
     ShowMsg('下载图片失败', sHint);
     Exit;
   end;
-  nPic := nil;
+
   nStr := 'Select * From %s Where A_ID=''%s''';
   nStr := Format(nStr, [sTable_AuditTruck, FTruckID]);
 

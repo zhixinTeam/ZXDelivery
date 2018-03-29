@@ -154,8 +154,7 @@ end;
 
 //Desc: ∞Ï¿Ì
 procedure TfFrameAuditTruck.BtnAddClick(Sender: TObject);
-var nStr:string;
-    nParam: TFormCommandParam;
+var nParam: TFormCommandParam;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
@@ -253,7 +252,6 @@ end;
 
 procedure TfFrameAuditTruck.N3Click(Sender: TObject);
 var nList: TStrings;
-    nStr: string;
 begin
   nList := TStringList.Create;
 
@@ -279,7 +277,6 @@ end;
 
 procedure TfFrameAuditTruck.N4Click(Sender: TObject);
 var nList: TStrings;
-    nStr: string;
 begin
   nList := TStringList.Create;
 

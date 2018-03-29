@@ -50,8 +50,74 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE ZZSJ}
+{$DEFINE SXSW}
 //特定系统
+
+//山西声威
+{$IFDEF SXSW}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {$DEFINE HeGeZhengOnly}
+  //随车开单时只打合格证
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {$DEFINE ManualEvent}
+  //人工干预事件
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {.$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE PrintHY}
+  //出厂打印化验单
+{$ENDIF}
+
+//新乡春江
+{$IFDEF XXCJ}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {$DEFINE HeGeZhengOnly}
+  //随车开单时只打合格证
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {$DEFINE ManualEvent}
+  //人工干预事件
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {.$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE PrintHY}
+  //出厂打印化验单
+{$ENDIF}
 
 //郑州上街
 {$IFDEF ZZSJ}
