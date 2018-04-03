@@ -275,7 +275,7 @@ function AddManualEventRecord(const nEID,nKey,nEvent:string;
  const nReset: Boolean = False; const nMemo: string = ''): Boolean;
 //添加待处理事项记录
 function VerifyManualEventRecord(const nEID: string; var nHint: string;
- const nWant: string = sFlag_Yes): Boolean;
+ const nWant: string = sFlag_Yes; const nUpdateHint: Boolean = True): Boolean;
 //检查事件是否通过处理
 
 function getCustomerInfo(const nData: string): string;
@@ -845,7 +845,7 @@ end;
 //Parm: 事件ID;预期结果;错误返回
 //Desc: 判断事件是否处理
 function VerifyManualEventRecord(const nEID: string; var nHint: string;
- const nWant: string): Boolean;
+ const nWant: string; const nUpdateHint: Boolean): Boolean;
 var nStr: string;
 begin
   Result := False;
@@ -858,13 +858,15 @@ begin
     nStr := Trim(FieldByName('E_Result').AsString);
     if nStr = '' then
     begin
-      nHint := FieldByName('E_Event').AsString;
+      if nUpdateHint then
+        nHint := FieldByName('E_Event').AsString;
       Exit;
     end;
 
     if nStr <> nWant then
     begin
-      nHint := '请联系管理员，做换票处理';
+      if nUpdateHint then
+        nHint := '请联系管理员，做换票处理';
       Exit;
     end;
 

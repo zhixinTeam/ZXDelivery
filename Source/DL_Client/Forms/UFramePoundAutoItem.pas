@@ -503,12 +503,18 @@ begin
 
   if FBarrierGate then
   begin
+    {$IFDEF ZZSJ}
     if (FUIData.FStatus = sFlag_TruckIn) or
        (FUIData.FStatus = sFlag_TruckBFP) then
-      nStr := '[n1]%s刷卡成功请上磅,并熄火停车,进厂请系好安全带,戴好安全帽'
-    else
-      nStr := '[n1]%s刷卡成功请上磅,并熄火停车';
+    begin
+      nStr := '[n1]%s刷卡成功请上磅,并熄火停车,进厂请系好安全带,戴好安全帽';
+      nStr := Format(nStr, [FUIData.FTruck]);
+    end;
+    {$ELSE}
+    nStr := '[n1]%s刷卡成功请上磅,并熄火停车';
     nStr := Format(nStr, [FUIData.FTruck]);
+    {$ENDIF}
+    
     PlayVoice(nStr);
     //读卡成功，语音提示
 
@@ -621,7 +627,8 @@ begin
       nStr := Format(nStr, [FUIData.FTruck, FUIData.FPData.FValue,
               nNet, nVal]);
 
-      if not VerifyManualEventRecord(FUIData.FID + sFlag_ManualB, nStr) then
+      if not VerifyManualEventRecord(FUIData.FID + sFlag_ManualB, nStr,
+        sFlag_Yes, False) then
       begin
         AddManualEventRecord(FUIData.FID + sFlag_ManualB, FUIData.FTruck, nStr,
             sFlag_DepBangFang, sFlag_Solution_YN, sFlag_DepDaTing, True);

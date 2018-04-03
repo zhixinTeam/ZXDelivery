@@ -50,7 +50,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SXSW}
+{$DEFINE XXCJ}
 //特定系统
 
 //山西声威
@@ -91,6 +91,8 @@
   {$DEFINE COMMON}
   {$DEFINE HYRFID201}
   //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
   {$DEFINE MITTruckProber}
   //车检由中间件控制
   {$DEFINE MultiReplay}
@@ -249,7 +251,5 @@
   //使用UTF解包函数
   {$DEFINE MicroMsg}
   //使用微信
-  {$DEFINE PrintHY}
-  //出厂打印化验单
 {$ENDIF}
 

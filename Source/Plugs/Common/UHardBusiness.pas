@@ -12,12 +12,14 @@ uses
   UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint,
-  UMgrLEDDisp, UMgrRFID102, UBlueReader;
+  UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100;
 
 procedure WhenReaderCardArrived(const nReader: THHReaderItem);
 procedure WhenHYReaderCardArrived(const nReader: PHYReaderItem);
 procedure WhenBlueReaderCardArrived(nHost: TBlueReaderHost; nCard: TBlueReaderCard);
 //有新卡号到达读头
+procedure WhenTTCE_M100_ReadCard(const nItem: PM100ReaderItem);
+//票箱读卡器
 procedure WhenReaderCardIn(const nCard: string; const nHost: PReaderHost);
 //现场读头有新卡号
 procedure WhenReaderCardOut(const nCard: string; const nHost: PReaderHost);
@@ -452,8 +454,8 @@ end;
 //Date: 2012-4-22
 //Parm: 卡号;读头;打印机;化验单打印机
 //Desc: 对nCard放行出厂
-procedure MakeTruckOut(const nCard,nReader,nPrinter: string;
- const nHYPrinter: string = '');
+function MakeTruckOut(const nCard,nReader,nPrinter: string;
+ const nHYPrinter: string = ''): Boolean;
 var nStr,nCardType: string;
     nIdx: Integer;
     nRet: Boolean;
@@ -462,6 +464,7 @@ var nStr,nCardType: string;
     nOut: TWorkerBusinessCommand;
     {$ENDIF}
 begin
+  Result := False;
   nCardType := '';
   if not GetCardUsed(nCard, nCardType) then Exit;
 
@@ -512,8 +515,8 @@ begin
   end;
 
   if nReader <> '' then
-    BlueOpenDoor(nReader);
-  //抬杆
+    BlueOpenDoor(nReader); //抬杆
+  Result := True;
 
   for nIdx:=Low(nTrucks) to High(nTrucks) do
   begin
@@ -527,12 +530,9 @@ begin
 
     nStr := nStr + #7 + nCardType;
     //磁卡类型
-    if nTrucks[nIdx].FYSValid <> sFlag_Yes then//空车出厂不打印化验单
-    begin
-      if nHYPrinter <> '' then
-        nStr := nStr + #6 + nHYPrinter;
-      //化验单打印机
-    end;
+    if nHYPrinter <> '' then
+      nStr := nStr + #6 + nHYPrinter;
+    //化验单打印机
 
     if nPrinter = '' then
          gRemotePrinter.PrintBill(nTrucks[nIdx].FID + nStr)
@@ -692,6 +692,37 @@ begin
   {$ENDIF}
 
   gHardwareHelper.SetReaderCard(nHost.FReaderID, nCard.FCard, False);
+end;
+
+//Date: 2018-01-08
+//Parm: 三合一读卡器
+//Desc: 处理三合一读卡器信息
+procedure WhenTTCE_M100_ReadCard(const nItem: PM100ReaderItem);
+var {$IFDEF DEBUG}nStr: string;{$ENDIF}
+    nRetain: Boolean;
+begin
+  nRetain := False;
+  //init
+
+  {$IFDEF DEBUG}
+  nStr := '三合一读卡器卡号'  + nItem.FID + ' ::: ' + nItem.FCard;
+  WriteHardHelperLog(nStr);
+  {$ENDIF}
+
+  try
+    if not nItem.FVirtual then Exit;
+    if nItem.FVType = rtOutM100 then
+    begin
+      nRetain := MakeTruckOut(nItem.FCard, nItem.FVReader, nItem.FVPrinter,
+                              nItem.FVHYPrinter);
+      //xxxxx
+    end else
+    begin
+      gHardwareHelper.SetReaderCard(nItem.FVReader, nItem.FCard, False);
+    end;
+  finally
+    gM100ReaderManager.DealtWithCard(nItem, nRetain)
+  end;
 end;
 
 //------------------------------------------------------------------------------

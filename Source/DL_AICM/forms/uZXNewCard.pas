@@ -145,7 +145,7 @@ begin
   TimerAutoClose.Enabled := True;
   EditPrice.Properties.Buttons[0].Visible := False;
   dxLayout1Item11.Visible := False;
-  {$IFDEF PrintHY}
+  {$IFDEF PrintHYEach}
   PrintHY.Checked := True;
   {$ELSE}
   PrintHY.Checked := False;

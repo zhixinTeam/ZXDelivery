@@ -36,7 +36,7 @@ uses
   SysUtils, USysLoger, UHardBusiness, UMgrTruckProbe, UMgrParam,
   UMgrQueue, UMgrLEDCard, UMgrHardHelper, UMgrRemotePrint, U02NReader,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
-  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrLEDDisp,
+  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100,
   UMgrRFID102, UMgrVoiceNet, UBlueReader;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
@@ -95,15 +95,21 @@ begin
     nStr := '喷码机';
     gCodePrinterManager.LoadConfig(nCfg + 'CodePrinter.xml');
 
-    nStr := '小屏显示';
-    gDisplayManager.LoadConfig(nCfg + 'LEDDisp.xml');
-
     {$IFDEF HYRFID201}
     nStr := '华益RFID102';
     if not Assigned(gHYReaderManager) then
     begin
       gHYReaderManager := THYReaderManager.Create;
       gHYReaderManager.LoadConfig(nCfg + 'RFID102.xml');
+    end;
+    {$ENDIF}
+
+    {$IFDEF TTCEM100}
+    nStr := '三合一读卡器';
+    if not Assigned(gM100ReaderManager) then
+    begin
+      gM100ReaderManager := TM100ReaderManager.Create;
+      gM100ReaderManager.LoadConfig(nCfg + cTTCE_M100_Config);
     end;
     {$ENDIF}
 
@@ -198,11 +204,18 @@ begin
 
   gCardManager.StartSender;
   //led display
-  gDisplayManager.StartDisplay;
-  //small led
 
+  {$IFDEF MITTruckProber}
   gProberManager.StartProber;
-  //truck
+  {$ENDIF} //truck
+
+  {$IFDEF TTCEM100}
+  if Assigned(gM100ReaderManager) then
+  begin
+    gM100ReaderManager.OnCardProc := WhenTTCE_M100_ReadCard;
+    gM100ReaderManager.StartReader;
+  end; //三合一读卡器
+  {$ENDIF}
 end;
 
 procedure THardwareWorker.AfterStopServer;
@@ -240,13 +253,20 @@ begin
   end;
   {$ENDIF}
 
-  gDisplayManager.StopDisplay;
-  //small led
   gCardManager.StopSender;
   //led
 
+  {$IFDEF MITTruckProber}
   gProberManager.StopProber;
-  //truck
+  {$ENDIF} //truck
+
+  {$IFDEF TTCEM100}
+  if Assigned(gM100ReaderManager) then
+  begin
+    gM100ReaderManager.StopReader;
+    gM100ReaderManager.OnCardProc := nil;
+  end; //三合一读卡器
+  {$ENDIF}
 
   gTruckQueueManager.StopQueue;
   //queue

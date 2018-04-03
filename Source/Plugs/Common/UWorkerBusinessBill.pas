@@ -555,7 +555,9 @@ begin
          raise Exception.Create(nTmp.FData);
 
       {$IFDEF BatchInHYOfBill}
-      FListC.Values['HYDan'] := nTmp.FData;
+      if nTmp.FData = '' then
+           FListC.Values['HYDan'] := FListC.Values['Seal']
+      else FListC.Values['HYDan'] := nTmp.FData;
       {$ELSE}
       if nTmp.FData <> '' then
         FListC.Values['Seal'] := nTmp.FData;
