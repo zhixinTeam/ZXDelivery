@@ -559,14 +559,14 @@ begin
         PrintBillReport(nBill, nHint, nPrinter, nMoney);
         if nHint <> '' then WriteLog(nHint);
 
-        {$IFDEF PrintHYEach}
-          {$IFNDEF HeGeZhengOnly}
-          PrintHuaYanReport(nBill, nHint, nHYPrinter);
-          if nHint <> '' then WriteLog(nHint);
-          {$ENDIF}
+        {$IFDEF PrintHuaYanDan}
+        PrintHuaYanReport(nBill, nHint, nHYPrinter);
+        if nHint <> '' then WriteLog(nHint);
+        {$ENDIF}
 
-          PrintHeGeReport(nBill, nHint, nHYPrinter);
-          if nHint <> '' then WriteLog(nHint);
+        {$IFDEF PrintHeGeZheng}
+        PrintHeGeReport(nBill, nHint, nHYPrinter);
+        if nHint <> '' then WriteLog(nHint);
         {$ENDIF}
       end;
     except

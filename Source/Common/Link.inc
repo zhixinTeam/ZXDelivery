@@ -64,14 +64,15 @@
   //计数器应答模式
   {$DEFINE PrintHYEach}
   //随车开化验单
-  {$DEFINE HeGeZhengOnly}
-  //随车开单时只打合格证
+  {$DEFINE PrintHeGeZheng}
+  {.$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
   {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
   {$DEFINE SanPreHK}
   //散装开单时预合卡
-  {$DEFINE ManualEvent}
-  //人工干预事件
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
   {$DEFINE DaiStepWuCha}
   //包装阶梯误差
   {.$DEFINE NoShowPriceChange}
@@ -99,14 +100,15 @@
   //计数器应答模式
   {$DEFINE PrintHYEach}
   //随车开化验单
-  {$DEFINE HeGeZhengOnly}
-  //随车开单时只打合格证
+  {.$DEFINE PrintHeGeZheng}
+  {$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
   {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
   {$DEFINE SanPreHK}
   //散装开单时预合卡
-  {$DEFINE ManualEvent}
-  //人工干预事件
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
   {$DEFINE DaiStepWuCha}
   //包装阶梯误差
   {.$DEFINE NoShowPriceChange}
@@ -132,14 +134,15 @@
   //计数器应答模式
   {$DEFINE PrintHYEach}
   //随车开化验单
-  {.$DEFINE HeGeZhengOnly}
-  //随车开单时只打合格证
+  {$DEFINE PrintHeGeZheng}
+  {$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
   {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
   {$DEFINE SanPreHK}
   //散装开单时预合卡
-  {$DEFINE ManualEvent}
-  //人工干预事件
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
   {$DEFINE DaiStepWuCha}
   //包装阶梯误差
   {$DEFINE NoShowPriceChange}
@@ -241,10 +244,13 @@
   //不显示价格调整提示
   {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
+  {$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
   {$DEFINE PrintHYEach}
   //随车开化验单
-  {$DEFINE HeGeZhengOnly}
-  //随车开单时只打合格证
+  {$DEFINE PrintHeGeZheng}
+  {.$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
   {$DEFINE HeGeZhengSimpleData}
   //使用简单合格证数据(无检验结果)
   {.$DEFINE UseUTFDecode}
