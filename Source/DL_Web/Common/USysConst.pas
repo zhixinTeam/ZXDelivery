@@ -19,6 +19,18 @@ type
   TAdoConnectionType = (ctMain, ctWork);
   //连接类型
 
+  TFactoryItem = record
+    FFactoryID  : string;                            //工厂编号
+    FFactoryName: string;                            //工厂名称
+    FMITServURL : string;                            //业务服务
+    FHardMonURL : string;                            //硬件守护
+    FWechatURL  : string;                            //微信服务
+    FDBWorkOn   : string;                            //工作数据库
+  end;
+
+  TFactoryItems = array of TFactoryItem;
+  //工厂列表
+
   PSysParam = ^TSysParam;
   TSysParam = record
     FProgID     : string;                            //程序标识
@@ -32,18 +44,13 @@ type
     FUserPwd    : string;                            //用户口令
     FGroupID    : string;                            //所在组
     FIsAdmin    : Boolean;                           //是否管理员
-    FIsNormal   : Boolean;                           //帐户是否正常
 
     FLocalIP    : string;                            //本机IP
     FLocalMAC   : string;                            //本机MAC
     FLocalName  : string;                            //本机名称
-    FMITServURL : string;                            //业务服务
-    FHardMonURL : string;                            //硬件守护
-    FWechatURL  : string;                            //微信服务
-    
-    FFactNum    : string;                            //工厂编号
-    FSerialID   : string;                            //电脑编号
-    FDepartment : string;                            //所属部门
+    FOSUser     : string;                            //操作系统
+    FUserAgent  : string;                            //浏览器类型
+    FFactory    : Integer;                           //所属工厂索引
   end;
   //系统参数
 
@@ -52,8 +59,42 @@ type
     FExtJS      : string;                            //ext脚本目录
     FUniJS      : string;                            //uni脚本目录
     FDBMain     : string;                            //主数据库连接
-    FDBWorkOn   : string;                            //工作数据库
   end;
+
+  PMenuItemData = ^TMenuItemData;
+  TMenuItemData = record
+    FProgID: string;                                 //程序标识
+    FEntity: string;                                 //实体标识
+    FMenuID: string;                                 //菜单标识
+    FPMenu: string;                                  //上级菜单
+    FTitle: string;                                  //菜单标题
+    FImgIndex: integer;                              //图标索引
+    FFlag: string;                                   //附加参数(下划线..)
+    FAction: string;                                 //菜单动作
+    FFilter: string;                                 //过滤条件
+    FNewOrder: Single;                               //创建序列
+    FLangID: string;                                 //语言标识
+  end;
+
+  TMenuItems = array of TMenuItemData;
+  //菜单列表
+
+  TPopedomItemData = record
+    FItem: string;                                   //对象
+    FPopedom: string;                                //权限
+  end;
+  TPopedomItems = array of TPopedomItemData;
+
+  TPopedomGroupItem = record
+    FID: string;                                     //组标识
+    FName: string;                                   //组名称
+    FDesc: string;                                   //组描述
+    FUser: TStrings;                                 //所属用户
+    FPopedom: TPopedomItems;                         //权限列表
+  end;
+
+  TPopedomGroupItems = array of TPopedomGroupItem;
+  //权限列表
 
   TModuleItemType = (mtFrame, mtForm);
   //模块类型
@@ -61,7 +102,7 @@ type
   PMenuModuleItem = ^TMenuModuleItem;
   TMenuModuleItem = record
     FMenuID: string;                                 //菜单名称
-    FModule: integer;                                //模块标识
+    FModule: string;                                 //模块类型
     FItemType: TModuleItemType;                      //模块类型
   end;
 
@@ -71,7 +112,11 @@ var
   gSysParam:TSysParam;                               //程序环境参数
   gServerParam: TServerParam;                        //服务器参数
 
-  gUserList: TThreadList;                            //登录用户列表
+  gAllFactorys: TFactoryItems;                       //系统有效工厂列表
+  gAllPopedoms: TPopedomGroupItems;                  //权限列表
+
+  gAllUsers: TList;                                  //已登录用户列表
+  gAllMenus: TMenuItems;                             //系统有效菜单
   gMenuModule: TList = nil;                          //菜单模块映射表
 
 //------------------------------------------------------------------------------
@@ -119,7 +164,7 @@ implementation
 
 //------------------------------------------------------------------------------
 //Desc: 添加菜单模块映射项
-procedure AddMenuModuleItem(const nMenu: string; const nModule: Integer;
+procedure AddMenuModuleItem(const nMenu,nModule: string;
  const nType: TModuleItemType = mtFrame);
 var nItem: PMenuModuleItem;
 begin
@@ -136,8 +181,8 @@ procedure InitMenuModuleList;
 begin
   gMenuModule := TList.Create;
 
-  //AddMenuModuleItem('MAIN_A01', cFI_FormIncInfo, mtForm);
-  //AddMenuModuleItem('MAIN_A02', cFI_FrameSysLog);
+  AddMenuModuleItem('MAIN_A05', 'TfFormChangePwd', mtForm);
+  AddMenuModuleItem('MAIN_SYSCLOSE', 'TfFormExit', mtForm);
 end;
 
 //Desc: 清理模块列表
@@ -154,10 +199,14 @@ begin
 end;
 
 initialization
+  SetLength(gAllFactorys, 0);
+  SetLength(gAllMenus, 0);
+  SetLength(gAllPopedoms, 0);
+
   InitMenuModuleList;
-  gUserList := TThreadList.Create;
+  gAllUsers := TList.Create;
 finalization
-  FreeAndNil(gUserList);
+  FreeAndNil(gAllUsers);
   ClearMenuModuleList;
 end.
 

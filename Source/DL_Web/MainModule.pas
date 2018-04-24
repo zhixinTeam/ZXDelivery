@@ -8,34 +8,32 @@ interface
 
 uses
   uniGUIMainModule, SysUtils, Classes, uniGUIBaseClasses, uniGUIClasses,
-  uniImageList, USysConst, Data.DB, Data.Win.ADODB, System.SyncObjs;
+  uniImageList, System.SyncObjs, USysConst;
 
 type
   TUniMainModule = class(TUniGUIMainModule)
-    ImageListSmall: TUniImageList;
+    ImageListSmall: TUniNativeImageList;
     procedure UniGUIMainModuleCreate(Sender: TObject);
     procedure UniGUIMainModuleDestroy(Sender: TObject);
+    procedure UniGUIMainModuleBeforeLogin(Sender: TObject;
+      var Handled: Boolean);
   private
     { Private declarations }
-    FSyncLock: TCriticalSection;
-    //同步锁定
   public
     { Public declarations }
     FUserConfig: TSysParam;
     //系统参数
-    procedure SyncLock;
-    procedure SyncUnlock;
-    //同步锁定
   end;
 
 function UniMainModule: TUniMainModule;
+//入口函数
 
 implementation
 
 {$R *.dfm}
 
 uses
-  UniGUIVars, ServerModule, uniGUIApplication;
+  UniGUIVars, ServerModule, uniGUIApplication, USysBusiness;
 
 function UniMainModule: TUniMainModule;
 begin
@@ -43,44 +41,49 @@ begin
 end;
 
 procedure TUniMainModule.UniGUIMainModuleCreate(Sender: TObject);
+//var nIdx: Integer;
 begin
-  FSyncLock := TCriticalSection.Create;
   FUserConfig := gSysParam;
   //复制全局参数
+  with FUserConfig do
+  begin
+    FLocalIP   := UniSession.RemoteIP;
+    FLocalName := UniSession.RemoteHost;
+    FUserAgent := UniSession.UserAgent;
+    FOSUser    := UniSession.SystemUser;
+  end;
 
-  with gUserList.LockList do
+  GlobalSyncLock;
   try
-    Add(@FUserConfig);
+    //for nIdx := gAllUsers.Count-1 downto 0 do
+    // if PSysParam(gAllUsers[nIdx]).FLocalIP = FUserConfig.FLocalIP then
+    //  FUserConfig := PSysParam(gAllUsers[nIdx])^;
+    //restore
+
+    gAllUsers.Add(@FUserConfig);
   finally
-    gUserList.UnlockList;
+    GlobalSyncRelease;
   end;
 end;
 
 procedure TUniMainModule.UniGUIMainModuleDestroy(Sender: TObject);
 var nIdx: Integer;
 begin
-  FSyncLock.Free;
-  //xxxxx
-
-  with gUserList.LockList do
+  GlobalSyncLock;
   try
-    nIdx := IndexOf(@FUserConfig);
+    nIdx := gAllUsers.IndexOf(@FUserConfig);
     if nIdx >= 0 then
-      Delete(nIdx);
+      gAllUsers.Delete(nIdx);
     //xxxxx
   finally
-    gUserList.UnlockList;
+    GlobalSyncRelease;
   end;
 end;
 
-procedure TUniMainModule.SyncLock;
+procedure TUniMainModule.UniGUIMainModuleBeforeLogin(Sender: TObject;
+  var Handled: Boolean);
 begin
-  FSyncLock.Enter;
-end;
-
-procedure TUniMainModule.SyncUnlock;
-begin
-  FSyncLock.Leave;
+  Handled := FUserConfig.FUserID <> '';
 end;
 
 initialization

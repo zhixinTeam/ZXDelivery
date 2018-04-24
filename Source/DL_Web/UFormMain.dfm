@@ -12,7 +12,7 @@ object fFormMain: TfFormMain
   OnCreate = UniFormCreate
   PixelsPerInch = 96
   TextHeight = 12
-  object UniStatusBar1: TUniStatusBar
+  object StatusBar1: TUniStatusBar
     Left = 0
     Top = 572
     Width = 804
@@ -102,10 +102,6 @@ object fFormMain: TfFormMain
     object SheetMemory: TUniTabSheet
       Hint = ''
       Caption = #20869#23384#29366#24577
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 542
-      ExplicitHeight = 492
       object MemoMemory: TUniMemo
         Left = 0
         Top = 42
@@ -116,10 +112,6 @@ object fFormMain: TfFormMain
         Align = alClient
         Anchors = [akLeft, akTop, akRight, akBottom]
         TabOrder = 0
-        ExplicitLeft = 2
-        ExplicitTop = 39
-        ExplicitWidth = 533
-        ExplicitHeight = 423
       end
       object UniSimplePanel1: TUniSimplePanel
         Left = 0
@@ -131,25 +123,40 @@ object fFormMain: TfFormMain
         Align = alTop
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
+        DesignSize = (
+          534
+          42)
         object BtnFresh: TUniButton
-          Left = 12
+          Left = 444
           Top = 8
           Width = 75
           Height = 25
           Hint = ''
           Caption = #21047#26032
+          Anchors = [akTop, akRight]
           TabOrder = 1
           OnClick = BtnFreshClick
         end
         object CheckFriendly: TUniCheckBox
-          Left = 93
+          Left = 338
           Top = 12
-          Width = 108
+          Width = 100
           Height = 17
           Hint = ''
           Checked = True
           Caption = #21451#22909#26684#24335#26174#31034
+          Anchors = [akTop, akRight]
           TabOrder = 2
+        end
+        object BtnUpdateMemory: TUniButton
+          Left = 8
+          Top = 8
+          Width = 75
+          Height = 25
+          Hint = ''
+          Caption = #26356#26032#32531#23384
+          TabOrder = 3
+          OnClick = BtnUpdateMemoryClick
         end
       end
     end
@@ -184,8 +191,8 @@ object fFormMain: TfFormMain
         256
         65)
       object ComboFactory: TUniComboBox
-        Left = 7
-        Top = 31
+        Left = 3
+        Top = 30
         Width = 237
         Hint = ''
         Style = csDropDownList
@@ -236,11 +243,12 @@ object fFormMain: TfFormMain
       Items.FontData = {
         0103000000FFFFFFFF02000000FFFFFFFF00000000FFFFFFFF00000000FFFFFF
         FF00000000FFFFFFFF00000000}
-      Images = UniMainModule.ImageListSmall
       Align = alClient
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 2
       Color = clWindow
+      OnClick = TreeMenuClick
+      OnMouseDown = TreeMenuMouseDown
     end
   end
   object UniSplitter1: TUniSplitter
@@ -252,5 +260,20 @@ object fFormMain: TfFormMain
     Align = alLeft
     ParentColor = False
     Color = clBtnFace
+  end
+  object PMenu1: TUniPopupMenu
+    Left = 48
+    Top = 248
+    object N1: TUniMenuItem
+      Caption = #20840#37096#23637#24320
+      OnClick = N1Click
+    end
+    object N2: TUniMenuItem
+      Caption = '-'
+    end
+    object N3: TUniMenuItem
+      Caption = #20840#37096#25910#36215
+      OnClick = N3Click
+    end
   end
 end

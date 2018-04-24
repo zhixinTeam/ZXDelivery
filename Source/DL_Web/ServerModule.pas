@@ -8,7 +8,7 @@ interface
 
 uses
   Classes, SysUtils, uniGUIServer, uniGUIMainModule, uniGUIApplication,
-  uIdCustomHTTPServer, uniGUITypes, UManagerGroup, ULibFun;
+  uIdCustomHTTPServer, uniGUITypes, Data.Win.ADODB, UManagerGroup, ULibFun;
 
 type
   TUniServerModule = class(TUniGUIServerModule)
@@ -22,13 +22,14 @@ type
   end;
 
 function UniServerModule: TUniServerModule;
+//入口函数
 
 implementation
 
 {$R *.dfm}
 
 uses
-  UniGUIVars, USysFun, USysConst;
+  UniGUIVars, USysFun, USysConst, USysBusiness;
 
 function UniServerModule: TUniServerModule;
 begin
@@ -78,6 +79,12 @@ begin
   //自动初始化COM对象
   RegObjectPoolTypes;
   //注册对象池对象
+  LoadFactoryList(True);
+  //载入工厂列表
+  LoadPopedomList(True);
+  //加载权限列表
+  LoadMenuItems(True);
+  //载入菜单项
 end;
 
 initialization

@@ -182,6 +182,11 @@
             <FormType>dfm</FormType>
             <DesignClass>TUniLoginForm</DesignClass>
         </DCCReference>
+        <DCCReference Include="UFormBase.pas">
+            <Form>fFormBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TUniForm</DesignClass>
+        </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

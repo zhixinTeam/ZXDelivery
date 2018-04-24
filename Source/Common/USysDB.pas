@@ -271,6 +271,7 @@ const
   sTable_SerialBase   = 'Sys_SerialBase';            //编码种子
   sTable_SerialStatus = 'Sys_SerialStatus';          //编号状态
   sTable_WorkePC      = 'Sys_WorkePC';               //验证授权
+  sTable_Factorys     = 'Sys_Factorys';              //工厂列表
   sTable_ManualEvent  = 'Sys_ManualEvent';           //人工干预
   
   sTable_Customer     = 'S_Customer';                //客户信息
@@ -441,6 +442,23 @@ const
    *.W_MITUrl:业务服务
    *.W_HardUrl:硬件服务
    *.W_Valid: 有效(Y/N)
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewFactorys = 'Create Table $Table(R_ID $Inc, F_ID varChar(32),' +
+       'F_Name varChar(100), F_MITUrl varChar(128), F_HardUrl varChar(128),' +
+       'F_WechatUrl varChar(128), F_DBConn varChar(500),' +
+       'F_Valid Char(1), F_Index Integer)';
+  {-----------------------------------------------------------------------------
+   工厂列表: Factorys
+   *.R_ID: 编号
+   *.F_ID: 工厂编号
+   *.F_Name: 工厂名称
+   *.F_MITUrl: 中间件地址
+   *.F_HardUrl: 硬件守护地址
+   *.F_WechatUrl: 微信服务地址
+   *.F_DBConn: 数据库连接配置
+   *.F_Valid: 有效(Y/N)
+   *.F_Index: 加载顺序
   -----------------------------------------------------------------------------}
 
   sSQL_NewManualEvent = 'Create Table $Table(R_ID $Inc, E_ID varChar(32),' +
@@ -1520,6 +1538,7 @@ begin
   AddSysTableItem(sTable_SerialStatus, sSQL_NewSerialStatus);
   AddSysTableItem(sTable_StockMatch, sSQL_NewStockMatch);
   AddSysTableItem(sTable_WorkePC, sSQL_NewWorkePC);
+  AddSysTableItem(sTable_Factorys, sSQL_NewFactorys);
   AddSysTableItem(sTable_ManualEvent, sSQL_NewManualEvent);
 
   AddSysTableItem(sTable_Customer, sSQL_NewCustomer);

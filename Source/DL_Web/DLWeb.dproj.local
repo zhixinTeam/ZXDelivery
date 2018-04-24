@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899-12-30 00:00:00.000.154,D:\MyWork\ZXDelivery\Source\DL_Web\UFormMain.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Main.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.787,D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.pas=D:\MyWork\ZXDelivery\Source\DL_Web\UFormBase.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.910,D:\MyWork\ZXDelivery\Source\DL_Web\UFormLogin.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.787,D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\UFormBase.dfm</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="ServerModule.pas"/>
+    <File Path="ServerModule.dfm"/>
+    <File Path="MainModule.pas"/>
+    <File Path="MainModule.dfm"/>
+    <File Path="UFormMain.pas"/>
+    <File Path="UFormMain.dfm"/>
+    <File Path="UFormLogin.pas"/>
+    <File Path="UFormLogin.dfm"/>
+    <File Path="UFormBase.pas"/>
+    <File Path="UFormBase.dfm"/>
+  </ProjectSortOrder>
+</BorlandProject>

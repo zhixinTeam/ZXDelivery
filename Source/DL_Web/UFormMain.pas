@@ -16,7 +16,7 @@ uses
 
 type
   TfFormMain = class(TUniForm)
-    UniStatusBar1: TUniStatusBar;
+    StatusBar1: TUniStatusBar;
     PanelTop: TUniSimplePanel;
     ImageRight: TUniImage;
     ImageLeft: TUniImage;
@@ -35,14 +35,24 @@ type
     UniSimplePanel1: TUniSimplePanel;
     BtnFresh: TUniButton;
     CheckFriendly: TUniCheckBox;
+    PMenu1: TUniPopupMenu;
+    N1: TUniMenuItem;
+    N2: TUniMenuItem;
+    N3: TUniMenuItem;
+    BtnUpdateMemory: TUniButton;
     procedure UniFormCreate(Sender: TObject);
     procedure BtnFreshClick(Sender: TObject);
+    procedure TreeMenuMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure N1Click(Sender: TObject);
+    procedure N3Click(Sender: TObject);
+    procedure BtnUpdateMemoryClick(Sender: TObject);
+    procedure TreeMenuClick(Sender: TObject);
   private
     { Private declarations }
     procedure LoadFormConfig;
     //窗体配置
-    procedure BuildMenuTree;
-    //构建菜单树
+    procedure CallBack_UpdateMemory(Sender: TComponent; Res: Integer);
   public
     { Public declarations }
   end;
@@ -54,8 +64,8 @@ implementation
 {$R *.dfm}
 
 uses
-  uniGUIVars, MainModule, uniGUIApplication, Data.Win.ADODB, ULibFun,
-  UManagerGroup, USysDB, USysFun, USysConst;
+  uniGUIVars, MainModule, uniGUIApplication, ULibFun, UManagerGroup,
+  USysDB, USysFun, USysBusiness, USysConst;
 
 function fFormMain: TfFormMain;
 begin
@@ -65,56 +75,105 @@ end;
 //Date: 2018-04-19
 //Desc: 初始化窗体配置
 procedure TfFormMain.LoadFormConfig;
+var nStr: string;
 begin
+  ImageLeft.Url := sImageDir + 'top_left.bmp';
+  ImageRight.Url := sImageDir + 'top_right.bmp';
+
   with UniMainModule.FUserConfig do
   begin
     Caption := FMainTitle;
     LabelHint.Caption := FHintText;
+
+    nStr := '用户:【%s】 来自:【%s】 系统:【%s】 浏览器:【%s】';
+    nStr := Format(nStr, [FUserID, FLocalIP, FOSUser, FUserAgent]);
+    StatusBar1.SimpleText := nStr;
   end;
 
   PageWork.ActivePage := SheetWelcome;
   SheetMemory.Visible := UniMainModule.FUserConfig.FIsAdmin;
-
-  ImageLeft.Url := sImageDir + 'top_left.bmp';
-  ImageRight.Url := sImageDir + 'top_right.bmp';
-end;
-
-procedure TfFormMain.BtnFreshClick(Sender: TObject);
-var nList: TStrings;
-begin
-  nList := TStringList.Create;
-  try
-    gMG.FObjectPool.GetStatus(nList, CheckFriendly.Checked);
-    gMG.FObjectManager.GetStatus(nList, CheckFriendly.Checked);
-    MemoMemory.Text := nList.Text;
-  finally
-    nList.Free;
-  end;
 end;
 
 procedure TfFormMain.UniFormCreate(Sender: TObject);
 begin
   LoadFormConfig;
-  BuildMenuTree;
+  BuidMenuTree(TreeMenu);
+  GetFactoryList(ComboFactory.Items);
+end;
+
+//Desc: 刷新内存
+procedure TfFormMain.BtnFreshClick(Sender: TObject);
+begin
+  LoadSystemMemoryStatus(MemoMemory.Lines, CheckFriendly.Checked);
+end;
+
+//Desc: 更新内存
+procedure TfFormMain.BtnUpdateMemoryClick(Sender: TObject);
+var nStr: string;
+begin
+  nStr := '服务器将重新加载配置数据,并断开所有连接.' + #13#10 +
+          '继续操作请点"是"按钮.';
+  MessageDlg(nStr, mtConfirmation, mbYesNo, CallBack_UpdateMemory);
+end;
+
+procedure TfFormMain.CallBack_UpdateMemory(Sender: TComponent; Res: Integer);
+begin
+  if Res = mrYes then ReloadSystemMemory;
 end;
 
 //------------------------------------------------------------------------------
-//Desc: 构建菜单树
-procedure TfFormMain.BuildMenuTree;
-var nStr: string;
-    nQuery: TADOQuery;
+procedure TfFormMain.TreeMenuMouseDown(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
 begin
-  TreeMenu.Items.Clear;
-  nQuery := nil;
-  try
-    nQuery := LockDBQuery(ctMain);
+  if Button = mbRight then PMenu1.Popup(X, Y, TreeMenu);
+end;
 
-  finally
-    RelaseDBQuery(nQuery);
+procedure TfFormMain.N1Click(Sender: TObject);
+begin
+  TreeMenu.FullExpand;
+end;
+
+procedure TfFormMain.N3Click(Sender: TObject);
+begin
+  TreeMenu.FullCollapse;
+end;
+
+procedure TfFormMain.TreeMenuClick(Sender: TObject);
+var nStr: string;
+    nIdx: Integer;
+    nForm: TUniForm;
+    nMenu: PMenuModuleItem;
+begin
+  if (not Assigned(TreeMenu.Selected)) or
+     (TreeMenu.Selected.HasChildren) then Exit;
+  nIdx := Integer(TreeMenu.Selected.Data);
+
+  nStr := GetMenuItemID(nIdx);
+  if nStr = '' then Exit;
+  //invalid menu
+
+  for nIdx := gMenuModule.Count-1 downto 0 do
+  begin
+    nMenu := gMenuModule[nIdx];
+    if CompareText(nMenu.FMenuID, nStr) <> 0 then Continue;
+    //not match
+
+    if nMenu.FItemType = mtForm then
+    begin
+      nForm := SystemGetForm(nMenu.FModule);
+      if not Assigned(nForm) then
+      begin
+        nStr := '窗体类[ %s ]无效.';
+        ShowMessage(Format(nStr, [nMenu.FModule]));
+        Exit;
+      end;
+
+      nForm.ShowModalN;
+      //show form
+    end;
   end;
 end;
 
 initialization
   RegisterAppFormClass(TfFormMain);
-
 end.

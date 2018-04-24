@@ -8,20 +8,17 @@ interface
 
 uses
   Windows, Classes, ComCtrls, Controls, Messages, Forms, SysUtils, IniFiles,
-  UManagerGroup, ULibFun, USysConst, Registry, Data.DB, Data.Win.ADODB,
-  uniStatusBar;
-
-procedure ShowMsgOnLastPanelOfStatusBar(const nStatusBar: TUniStatusBar;
-  const nMsg: string);
-//在状态栏显示信息
+  ULibFun, USysConst, Registry;
 
 procedure InitSystemEnvironment;
 //初始化系统运行环境的变量
 procedure LoadSysParameter(const nIni: TIniFile = nil);
 //载入系统配置参数
+
+function MakeMenuID(const nEntity,nMenu: string): string;
+//菜单标识
 function MakeFrameName(const nFrameID: integer): string;
 //创建Frame名称
-
 function ReplaceGlobalPath(const nStr: string): string;
 //替换nStr中的全局路径
 
@@ -32,20 +29,6 @@ function MakeListViewColumnInfo(const nLv: TListView): string;
 procedure CombinListViewData(const nList: TStrings; nLv: TListView;
  const nAll: Boolean);
 //组合选中的项的数据
-
-function ParseCardNO(const nCard: string; const nHex: Boolean): string;
-//格式化磁卡编号
-
-procedure RegObjectPoolTypes;
-//注册对象池
-function LockDBConn(const nType: TAdoConnectionType): TADOConnection;
-procedure RelaseDBconn(const nConn: TADOConnection);
-function LockDBQuery(const nType: TAdoConnectionType): TADOQuery;
-procedure RelaseDBQuery(const nQuery: TADOQuery);
-//数据库链路
-function DBQuery(const nStr: string; const nQuery: TADOQuery): TDataSet;
-function DBExecute(const nStr: string; const nCmd: TADOQuery): Integer;
-//数据库操作
 
 implementation
 
@@ -70,9 +53,12 @@ begin
   try
     with gSysParam, nTmp do
     begin
+      FillChar(gSysParam, SizeOf(TSysParam), #0);
+      FFactory := -1;
+      //初始化全局参数
+
       FProgID := ReadString(sConfigSec, 'ProgID', sProgID);
       //程序标识决定以下所有参数
-
       FAppTitle := ReadString(FProgID, 'AppTitle', sAppTitle);
       FMainTitle := ReadString(FProgID, 'MainTitle', sMainCaption);
       FHintText := ReadString(FProgID, 'HintText', '');
@@ -84,13 +70,17 @@ begin
       FPort := ReadInteger('Server', 'Port', 8077);
       FExtJS := ReadString('Server', 'JS_Ext', '');
       FUniJS := ReadString('Server', 'JS_Uni', '');
-
       FDBMain := ReadString('Database', 'Main', '');
-      FDBWorkOn := ReadString('Database', 'WorkOn', '');
     end;
   finally
     if not Assigned(nIni) then nTmp.Free;
   end;
+end;
+
+//Desc: 菜单标识
+function MakeMenuID(const nEntity,nMenu: string): string;
+begin
+  Result := nEntity + '_' + nMenu;
 end;
 
 //Desc: 依据FrameID生成组件名
@@ -110,17 +100,6 @@ begin
 end;
 
 //------------------------------------------------------------------------------
-//Desc: 在全局状态栏最后一个Panel上显示nMsg消息
-procedure ShowMsgOnLastPanelOfStatusBar(const nStatusBar: TUniStatusBar;
-  const nMsg: string);
-begin
-  if Assigned(nStatusBar) and (nStatusBar.Panels.Count > 0) then
-  begin
-    nStatusBar.Panels[nStatusBar.Panels.Count - 1].Text := nMsg;
-    //Application.ProcessMessages;
-  end;
-end;
-
 //Date: 2007-11-30
 //Parm: 宽度信息;列表
 //Desc: 载入nList的表头宽度
@@ -197,111 +176,6 @@ begin
   nInt := StrToInt64('$' + Result);
   Result := IntToStr(nInt);
   Result := StringOfChar('0', 12 - Length(Result)) + Result;
-end;
-
-//------------------------------------------------------------------------------
-//Date: 2018-04-20
-//Desc: 注册对象池
-procedure RegObjectPoolTypes;
-begin
-  with gMG.FObjectPool do
-  begin
-    NewClass(TADOConnection,
-      function():TObject begin Result := TADOConnection.Create(nil); end);
-    //ado conn
-
-    NewClass(TADOQuery,
-      function():TObject begin Result := TADOQuery.Create(nil); end);
-    //ado query
-  end;
-end;
-
-//Date: 2018-04-20
-//Parm: 连接类型
-//Desc: 获取数据库链路
-function LockDBConn(const nType: TAdoConnectionType): TADOConnection;
-var nStr: string;
-begin
-  Result := gMG.FObjectPool.Lock(TADOConnection) as TADOConnection;
-  with Result do
-  begin
-    if nType = ctMain then
-         nStr := gServerParam.FDBMain
-    else nStr := gServerParam.FDBWorkOn;
-
-    if Result.ConnectionString <> nStr then
-    begin
-      Connected := False;
-      ConnectionString := nStr;
-      LoginPrompt := False;
-    end;
-  end;
-end;
-
-//Date: 2018-04-20
-//Parm: 连接对象
-//Desc: 释放链路
-procedure RelaseDBconn(const nConn: TADOConnection);
-begin
-  gMG.FObjectPool.Release(nConn);
-end;
-
-//Date: 2018-04-20
-//Parm: 连接类型
-//Desc: 获取查询对象
-function LockDBQuery(const nType: TAdoConnectionType): TADOQuery;
-var nStr: string;
-begin
-  Result := gMG.FObjectPool.Lock(TADOQuery) as TADOQuery;
-  with Result do
-  begin
-    if nType = ctMain then
-         nStr := gServerParam.FDBMain
-    else nStr := gServerParam.FDBWorkOn;
-
-    Close;
-    Connection := gMG.FObjectPool.Lock(TADOConnection) as TADOConnection;
-
-    if Connection.ConnectionString <> nStr then
-    with Connection do
-    begin
-      Connected := False;
-      ConnectionString := nStr;
-      LoginPrompt := False;
-    end;
-  end;
-end;
-
-//Date: 2018-04-20
-//Parm: 查询对象
-//Desc: 释放查询对象
-procedure RelaseDBQuery(const nQuery: TADOQuery);
-begin
-  gMG.FObjectPool.Release(nQuery.Connection);
-  gMG.FObjectPool.Release(nQuery);
-end;
-
-//Date: 2018-04-20
-//Parm: SQL;查询对象
-//Desc: 在nQuery上执行查询
-function DBQuery(const nStr: string; const nQuery: TADOQuery): TDataSet;
-begin
-  nQuery.Close;
-  nQuery.SQL.Text := nStr;
-  nQuery.Open;
-
-  Result := nQuery;
-  //result
-end;
-
-//Date: 2018-04-20
-//Parm: SQL;操作对象
-//Desc: 在nCmd上执行写入操作
-function DBExecute(const nStr: string; const nCmd: TADOQuery): Integer;
-begin
-  nCmd.Close;
-  nCmd.SQL.Text := nStr;
-  Result := nCmd.ExecSQL;
 end;
 
 end.

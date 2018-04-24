@@ -5,7 +5,8 @@ uses
   ServerModule in 'ServerModule.pas' {UniServerModule: TUniGUIServerModule},
   MainModule in 'MainModule.pas' {UniMainModule: TUniGUIMainModule},
   UFormMain in 'UFormMain.pas' {fFormMain: TUniForm},
-  UFormLogin in 'UFormLogin.pas' {fFormLogin: TUniLoginForm};
+  UFormLogin in 'UFormLogin.pas' {fFormLogin: TUniLoginForm},
+  UFormBase in 'UFormBase.pas' {fFormBase: TUniForm};
 
 {$R *.res}
 

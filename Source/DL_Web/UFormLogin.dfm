@@ -30,7 +30,7 @@ object fFormLogin: TfFormLogin
     TabOrder = 1
     object UniLabel1: TUniLabel
       Left = 12
-      Top = 18
+      Top = 20
       Width = 54
       Height = 12
       Hint = ''
@@ -42,7 +42,7 @@ object fFormLogin: TfFormLogin
       TabOrder = 1
     end
     object EditUser: TUniEdit
-      Left = 70
+      Left = 72
       Top = 15
       Width = 192
       Hint = ''
@@ -55,7 +55,7 @@ object fFormLogin: TfFormLogin
     end
     object UniLabel2: TUniLabel
       Left = 12
-      Top = 48
+      Top = 53
       Width = 54
       Height = 12
       Hint = ''
@@ -67,8 +67,8 @@ object fFormLogin: TfFormLogin
       TabOrder = 3
     end
     object EditPwd: TUniEdit
-      Left = 70
-      Top = 45
+      Left = 72
+      Top = 48
       Width = 192
       Hint = ''
       PasswordChar = '*'
@@ -78,6 +78,13 @@ object fFormLogin: TfFormLogin
       Font.Height = -12
       Font.Name = #23435#20307
       TabOrder = 4
+    end
+    object ImageKey: TUniImage
+      Left = 272
+      Top = 15
+      Width = 55
+      Height = 55
+      Hint = ''
     end
   end
   object BtnOK: TUniButton

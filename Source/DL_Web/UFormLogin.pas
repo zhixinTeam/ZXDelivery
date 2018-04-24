@@ -22,6 +22,7 @@ type
     EditPwd: TUniEdit;
     BtnOK: TUniButton;
     BtnExit: TUniButton;
+    ImageKey: TUniImage;
     procedure UniLoginFormCreate(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
   private
@@ -38,7 +39,7 @@ implementation
 
 uses
   uniGUIVars, MainModule, uniGUIApplication, ULibFun, Data.Win.ADODB,
-  USysFun, USysConst, USysDB;
+  USysBusiness, USysFun, USysConst, USysDB;
 
 function fFormLogin: TfFormLogin;
 begin
@@ -48,6 +49,7 @@ end;
 procedure TfFormLogin.UniLoginFormCreate(Sender: TObject);
 begin
   ImageLogo.Url := sImageDir + 'logo.bmp';
+  ImageKey.Url := sImageDir + 'key.png';
 end;
 
 //Desc: 登录
@@ -85,14 +87,14 @@ begin
     with UniMainModule.FUserConfig do
     begin
       FUserID := EditUser.Text;
-      FUserName := nQuery.FieldByName('U_PASSWORD').AsString;
+      FUserName := nQuery.FieldByName('U_NAME').AsString;
       FUserPwd := EditPwd.Text;
       FGroupID := nQuery.FieldByName('U_GROUP').AsString;
       FIsAdmin := nQuery.FieldByName('U_Identity').AsString = '0';
     end;
 
     //--------------------------------------------------------------------------
-    nStr := 'Select D_Value,D_Memo From %s Where D_Name=''%s''';
+    {nStr := 'Select D_Value,D_Memo From %s Where D_Name=''%s''';
     nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam]);
 
     with DBQuery(nStr, nQuery),UniMainModule.FUserConfig do
@@ -107,34 +109,14 @@ begin
         //xxxxx
         Next;
       end;
-    end;
+    end;}
 
     //--------------------------------------------------------------------------
-    if gSysParam.FMITServURL = '' then  //使用默认URL
-    begin
-      nStr := 'Select D_Value From %s Where D_Name=''%s''';
-      nStr := Format(nStr, [sTable_SysDict, sFlag_MITSrvURL]);
-
-      with DBQuery(nStr, nQuery),UniMainModule.FUserConfig do
-       if RecordCount > 0 then
-        FMITServURL := Fields[0].AsString;
-      //xxxxx
-    end;
-
-    if gSysParam.FHardMonURL = '' then //采用系统默认硬件守护
-    begin
-      nStr := 'Select D_Value From %s Where D_Name=''%s''';
-      nStr := Format(nStr, [sTable_SysDict, sFlag_HardSrvURL]);
-
-      with DBQuery(nStr, nQuery),UniMainModule.FUserConfig do
-       if RecordCount > 0 then
-        FHardMonURL := Fields[0].AsString;
-      //xxxxx
-    end;
+    
 
     ModalResult := mrOk;
   finally
-    RelaseDBQuery(nQuery);
+    ReleaseDBQuery(nQuery);
   end;
 end;
 
