@@ -13,6 +13,7 @@ uses
 type
   TUniMainModule = class(TUniGUIMainModule)
     ImageListSmall: TUniNativeImageList;
+    ImageListBar: TUniNativeImageList;
     procedure UniGUIMainModuleCreate(Sender: TObject);
     procedure UniGUIMainModuleDestroy(Sender: TObject);
     procedure UniGUIMainModuleBeforeLogin(Sender: TObject;

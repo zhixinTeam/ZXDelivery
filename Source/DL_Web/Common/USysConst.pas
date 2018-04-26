@@ -7,7 +7,7 @@ unit USysConst;
 interface
 
 uses
-  SysUtils, Classes;
+  SysUtils, Classes, uniPageControl;
 
 const
   cSBar_Date            = 0;                         //日期面板索引
@@ -103,6 +103,7 @@ type
   TMenuModuleItem = record
     FMenuID: string;                                 //菜单名称
     FModule: string;                                 //模块类型
+    FTabSheet: TUniTabSheet;                         //所在页面
     FItemType: TModuleItemType;                      //模块类型
   end;
 
@@ -173,6 +174,7 @@ begin
 
   nItem.FMenuID := nMenu;
   nItem.FModule := nModule;
+  nItem.FTabSheet := nil;
   nItem.FItemType := nType;
 end;
 
@@ -183,6 +185,11 @@ begin
 
   AddMenuModuleItem('MAIN_A05', 'TfFormChangePwd', mtForm);
   AddMenuModuleItem('MAIN_SYSCLOSE', 'TfFormExit', mtForm);
+
+  AddMenuModuleItem('MAIN_B01', '');
+  AddMenuModuleItem('MAIN_B02', 'TfFrameCustomer');
+  AddMenuModuleItem('MAIN_B03', '');
+  AddMenuModuleItem('MAIN_B04', '');
 end;
 
 //Desc: 清理模块列表

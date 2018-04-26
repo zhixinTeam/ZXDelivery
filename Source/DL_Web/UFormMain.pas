@@ -10,9 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, Dialogs,
   uniGUITypes, uniGUIAbstractClasses, uniGUIClasses, uniGUIRegClasses,
   uniGUIForm, uniLabel, uniMultiItem, uniComboBox, uniTreeView, uniImage,
-  uniPanel, uniGUIBaseClasses, uniTimer, Vcl.Controls, uniStatusBar,
-  uniPageControl, Vcl.Menus, uniMainMenu, uniSplitter, uniButton, uniMemo,
-  uniCheckBox;
+  uniPanel, uniGUIBaseClasses, uniGUIFrame, Vcl.Menus, uniMainMenu, uniSplitter,
+  uniCheckBox, uniButton, uniMemo, uniPageControl, Vcl.Controls, uniStatusBar;
 
 type
   TfFormMain = class(TUniForm)
@@ -53,6 +52,9 @@ type
     procedure LoadFormConfig;
     //窗体配置
     procedure CallBack_UpdateMemory(Sender: TComponent; Res: Integer);
+    //对话框回调
+    procedure TabSheetClose(Sender: TObject; var AllowClose: Boolean);
+    //分页关闭
   public
     { Public declarations }
   end;
@@ -143,6 +145,8 @@ var nStr: string;
     nIdx: Integer;
     nForm: TUniForm;
     nMenu: PMenuModuleItem;
+    nFrame: TUniFrame;
+    nFrameClass: TUniFrameClass;
 begin
   if (not Assigned(TreeMenu.Selected)) or
      (TreeMenu.Selected.HasChildren) then Exit;
@@ -170,7 +174,49 @@ begin
 
       nForm.ShowModalN;
       //show form
+    end else
+
+    if nMenu.FItemType = mtFrame then
+    begin
+      if not Assigned(nMenu.FTabSheet) then
+      begin
+        nFrameClass := TUniFrameClass(GetClass(nMenu.FModule));
+        if not Assigned(nFrameClass) then
+        begin
+          nStr := 'Frame类[ %s ]无效.';
+          ShowMessage(Format(nStr, [nMenu.FModule]));
+          Exit;
+        end;
+
+        nMenu.FTabSheet := TUniTabSheet.Create(Self);
+        with nMenu.FTabSheet do
+        begin
+          Pagecontrol := PageWork;
+          Caption := TreeMenu.Selected.Text;
+
+          Closable := True;
+          OnClose := TabSheetClose;
+          Tag := NativeInt(TreeMenu.Selected);
+        end;
+
+        nFrame := nFrameClass.Create(Self);
+        nFrame.Parent := nMenu.FTabSheet;
+        nFrame.Align := alClient;
+      end;
+
+      PageWork.ActivePage := nMenu.FTabSheet;
+      //active
     end;
+  end;
+end;
+
+procedure TfFormMain.TabSheetClose(Sender: TObject; var AllowClose: Boolean);
+var nNode: TUniTreeNode;
+begin
+  nNode := Pointer((Sender as TUniTabSheet).Tag);
+  if TreeMenu.Selected = nNode then
+  begin
+    TreeMenu.Selected := nil;
   end;
 end;
 

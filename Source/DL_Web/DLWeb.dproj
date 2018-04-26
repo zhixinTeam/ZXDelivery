@@ -89,7 +89,7 @@
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <VerInfo_Locale>2052</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
-        <DCC_UnitSearchPath>Common;..\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>Common;..\Common;Forms;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>DLWeb</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Android)'!=''">
@@ -116,7 +116,6 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
@@ -177,15 +176,29 @@
             <FormType>dfm</FormType>
             <DesignClass>TUniForm</DesignClass>
         </DCCReference>
-        <DCCReference Include="UFormLogin.pas">
+        <DCCReference Include="Forms\UFormBase.pas">
+            <Form>fFormBase</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TUniForm</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Forms\UFormChangePwd.pas">
+            <Form>fFormChangePwd</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TUniForm</DesignClass>
+        </DCCReference>
+        <DCCReference Include="Forms\UFormLogin.pas">
             <Form>fFormLogin</Form>
             <FormType>dfm</FormType>
             <DesignClass>TUniLoginForm</DesignClass>
         </DCCReference>
-        <DCCReference Include="UFormBase.pas">
-            <Form>fFormBase</Form>
+        <DCCReference Include="Common\USysModule.pas"/>
+        <DCCReference Include="Common\USysBusiness.pas"/>
+        <DCCReference Include="Common\USysConst.pas"/>
+        <DCCReference Include="Common\USysFun.pas"/>
+        <DCCReference Include="Forms\UFrameBase.pas">
+            <Form>fFrameBase</Form>
             <FormType>dfm</FormType>
-            <DesignClass>TUniForm</DesignClass>
+            <DesignClass>TUniFrame</DesignClass>
         </DCCReference>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
