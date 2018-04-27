@@ -79,12 +79,8 @@ begin
   //自动初始化COM对象
   RegObjectPoolTypes;
   //注册对象池对象
-  LoadFactoryList(True);
-  //载入工厂列表
-  LoadPopedomList(True);
-  //加载权限列表
-  LoadMenuItems(True);
-  //载入菜单项
+  ReloadSystemMemory(False);
+  //初始化缓存数据
 end;
 
 initialization

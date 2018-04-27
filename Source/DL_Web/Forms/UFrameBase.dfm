@@ -3,7 +3,10 @@ object fFrameBase: TfFrameBase
   Top = 0
   Width = 814
   Height = 590
+  OnCreate = UniFrameCreate
+  OnDestroy = UniFrameDestroy
   TabOrder = 0
+  AutoScroll = True
   object PanelWork: TUniContainerPanel
     Left = 0
     Top = 0
@@ -125,7 +128,7 @@ object fFrameBase: TfFrameBase
       Left = 0
       Top = 46
       Width = 814
-      Height = 75
+      Height = 50
       Hint = ''
       ParentColor = False
       Border = True
@@ -135,20 +138,24 @@ object fFrameBase: TfFrameBase
     end
     object DBGridMain: TUniDBGrid
       Left = 0
-      Top = 127
+      Top = 102
       Width = 814
-      Height = 463
+      Height = 488
       Hint = ''
       DataSource = DataSource1
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
       LoadMask.Message = 'Loading data...'
-      BorderStyle = ubsNone
       Align = alClient
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 3
+      Columns = <
+        item
+          Width = 64
+        end>
     end
     object SplitterTop: TUniSplitter
       Left = 0
-      Top = 121
+      Top = 96
       Width = 814
       Height = 6
       Cursor = crVSplit
@@ -156,17 +163,18 @@ object fFrameBase: TfFrameBase
       Align = alTop
       ParentColor = False
       Color = clBtnFace
+      ExplicitTop = 121
     end
   end
   object ClientDS: TClientDataSet
     Aggregates = <>
     Params = <>
-    Left = 64
-    Top = 176
+    Left = 24
+    Top = 232
   end
   object DataSource1: TDataSource
     DataSet = ClientDS
-    Left = 64
+    Left = 80
     Top = 232
   end
 end

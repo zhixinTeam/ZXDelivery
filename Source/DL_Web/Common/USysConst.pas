@@ -7,7 +7,7 @@ unit USysConst;
 interface
 
 uses
-  SysUtils, Classes, uniPageControl;
+  SysUtils, Classes, Data.DB, uniPageControl;
 
 const
   cSBar_Date            = 0;                         //日期面板索引
@@ -61,6 +61,20 @@ type
     FDBMain     : string;                            //主数据库连接
   end;
 
+  TModuleItemType = (mtFrame, mtForm);
+  //模块类型
+
+  PMenuModuleItem = ^TMenuModuleItem;
+  TMenuModuleItem = record
+    FMenuID: string;                                 //菜单名称
+    FModule: string;                                 //模块类型
+    FTabSheet: TUniTabSheet;                         //所在页面
+    FItemType: TModuleItemType;                      //模块类型
+  end;
+
+  TMenuModuleItems = array of TMenuModuleItem;       //模块列表
+
+  //----------------------------------------------------------------------------
   PMenuItemData = ^TMenuItemData;
   TMenuItemData = record
     FProgID: string;                                 //程序标识
@@ -96,16 +110,66 @@ type
   TPopedomGroupItems = array of TPopedomGroupItem;
   //权限列表
 
-  TModuleItemType = (mtFrame, mtForm);
-  //模块类型
+  //----------------------------------------------------------------------------
+  TDictFormatStyle = (fsNone, fsFixed, fsSQL, fsCheckBox);
+  //格式化方式: 固定数据,数据库数据
 
-  PMenuModuleItem = ^TMenuModuleItem;
-  TMenuModuleItem = record
-    FMenuID: string;                                 //菜单名称
-    FModule: string;                                 //模块类型
-    FTabSheet: TUniTabSheet;                         //所在页面
-    FItemType: TModuleItemType;                      //模块类型
+  PDictFormatItem = ^TDictFormatItem;
+  TDictFormatItem = record
+    FStyle: TDictFormatStyle;                        //方式
+    FData: string;                                   //数据
+    FFormat: string;                                 //格式化
+    FExtMemo: string;                                //扩展数据
   end;
+
+  PDictDBItem = ^TDictDBItem;
+  TDictDBItem = record
+    FTable: string;                                  //表名
+    FField: string;                                  //字段
+    FIsKey: Boolean;                                 //主键
+
+    FType: TFieldType;                               //数据类型
+    FWidth: integer;                                 //字段宽度
+    FDecimal: integer;                               //小数位
+  end;
+
+  TDictFooterKind = (fkNone, fkSum, fkMin, fkMax, fkCount, fkAverage);
+  //统计类型: 无,合计,最小,最大,数目,平均值
+  TDictFooterPosition = (fpNone, fpFooter, fpGroup, fpAll);
+  //合计位置: 页脚,分组,两者都有
+
+  PDictGroupFooter = ^TDictGroupFooter;
+  TDictGroupFooter = record
+    FDisplay: string;                               //显示文本
+    FFormat: string;                                //格式化
+    FKind: TDictFooterKind;                         //合计类型
+    FPosition: TDictFooterPosition;                 //合计位置
+  end;
+
+  PDictItemData = ^TDictItemData;
+  TDictItemData = record
+    FItemID: integer;                               //标识
+    FTitle: string;                                 //标题
+    FAlign: TAlignment;                             //对齐
+    FWidth: integer;                                //宽度
+    FIndex: integer;                                //顺序
+    FVisible: Boolean;                              //可见
+    FLangID: string;                                //语言
+    FDBItem: TDictDBItem;                           //数据库
+    FFormat: TDictFormatItem;                       //格式化
+    FFooter: TDictGroupFooter;                      //页脚合计
+  end;
+  TDictItems = array of TDictItemData;
+
+  PEntityItemData = ^TEntityItemData;
+  TEntityItemData = record
+    FEntity: string;                                //实体标记
+    FTitle: string;                                 //实体名称
+    FDictItem: TDictItems;                          //字典数据,一组TDictItemData
+  end;
+
+  TEntityItems = array of TEntityItemData;
+  //实体列表
 
 //------------------------------------------------------------------------------
 var
@@ -115,6 +179,7 @@ var
 
   gAllFactorys: TFactoryItems;                       //系统有效工厂列表
   gAllPopedoms: TPopedomGroupItems;                  //权限列表
+  gAllEntitys: TEntityItems;                         //数据字典实体列表
 
   gAllUsers: TList;                                  //已登录用户列表
   gAllMenus: TMenuItems;                             //系统有效菜单
@@ -209,6 +274,7 @@ initialization
   SetLength(gAllFactorys, 0);
   SetLength(gAllMenus, 0);
   SetLength(gAllPopedoms, 0);
+  SetLength(gAllEntitys, 0);
 
   InitMenuModuleList;
   gAllUsers := TList.Create;

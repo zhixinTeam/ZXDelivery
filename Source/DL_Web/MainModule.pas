@@ -24,6 +24,8 @@ type
     { Public declarations }
     FUserConfig: TSysParam;
     //系统参数
+    FMenuModule: TMenuModuleItems;
+    //菜单模块
   end;
 
 function UniMainModule: TUniMainModule;
@@ -42,16 +44,16 @@ begin
 end;
 
 procedure TUniMainModule.UniGUIMainModuleCreate(Sender: TObject);
-//var nIdx: Integer;
+var nIdx: Integer;
 begin
   FUserConfig := gSysParam;
   //复制全局参数
-  with FUserConfig do
+  with FUserConfig,UniSession do
   begin
-    FLocalIP   := UniSession.RemoteIP;
-    FLocalName := UniSession.RemoteHost;
-    FUserAgent := UniSession.UserAgent;
-    FOSUser    := UniSession.SystemUser;
+    FLocalIP   := RemoteIP;
+    FLocalName := RemoteHost;
+    FUserAgent := UserAgent;
+    FOSUser    := SystemUser;
   end;
 
   GlobalSyncLock;
@@ -65,6 +67,11 @@ begin
   finally
     GlobalSyncRelease;
   end;
+
+  SetLength(FMenuModule, gMenuModule.Count);
+  for nIdx := 0 to gMenuModule.Count-1 do
+    FMenuModule[nIdx] := PMenuModuleItem(gMenuModule[nIdx])^;
+  //准备菜单模块映射
 end;
 
 procedure TUniMainModule.UniGUIMainModuleDestroy(Sender: TObject);

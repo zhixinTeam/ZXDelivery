@@ -120,7 +120,7 @@ end;
 
 procedure TfFormMain.CallBack_UpdateMemory(Sender: TComponent; Res: Integer);
 begin
-  if Res = mrYes then ReloadSystemMemory;
+  if Res = mrYes then ReloadSystemMemory(True);
 end;
 
 //------------------------------------------------------------------------------
@@ -144,31 +144,30 @@ procedure TfFormMain.TreeMenuClick(Sender: TObject);
 var nStr: string;
     nIdx: Integer;
     nForm: TUniForm;
-    nMenu: PMenuModuleItem;
     nFrame: TUniFrame;
     nFrameClass: TUniFrameClass;
 begin
   if (not Assigned(TreeMenu.Selected)) or
      (TreeMenu.Selected.HasChildren) then Exit;
-  nIdx := Integer(TreeMenu.Selected.Data);
+  nIdx := NativeInt(TreeMenu.Selected.Data);
 
   nStr := GetMenuItemID(nIdx);
   if nStr = '' then Exit;
   //invalid menu
 
-  for nIdx := gMenuModule.Count-1 downto 0 do
+  for nIdx := Low(UniMainModule.FMenuModule) to High(UniMainModule.FMenuModule) do
+  with UniMainModule.FMenuModule[nIdx] do
   begin
-    nMenu := gMenuModule[nIdx];
-    if CompareText(nMenu.FMenuID, nStr) <> 0 then Continue;
+    if CompareText(FMenuID, nStr) <> 0 then Continue;
     //not match
 
-    if nMenu.FItemType = mtForm then
+    if FItemType = mtForm then
     begin
-      nForm := SystemGetForm(nMenu.FModule);
+      nForm := SystemGetForm(FModule);
       if not Assigned(nForm) then
       begin
         nStr := '窗体类[ %s ]无效.';
-        ShowMessage(Format(nStr, [nMenu.FModule]));
+        ShowMessage(Format(nStr, [FModule]));
         Exit;
       end;
 
@@ -176,20 +175,20 @@ begin
       //show form
     end else
 
-    if nMenu.FItemType = mtFrame then
+    if FItemType = mtFrame then
     begin
-      if not Assigned(nMenu.FTabSheet) then
+      if not Assigned(FTabSheet) then
       begin
-        nFrameClass := TUniFrameClass(GetClass(nMenu.FModule));
+        nFrameClass := TUniFrameClass(GetClass(FModule));
         if not Assigned(nFrameClass) then
         begin
           nStr := 'Frame类[ %s ]无效.';
-          ShowMessage(Format(nStr, [nMenu.FModule]));
+          ShowMessage(Format(nStr, [FModule]));
           Exit;
         end;
 
-        nMenu.FTabSheet := TUniTabSheet.Create(Self);
-        with nMenu.FTabSheet do
+        FTabSheet := TUniTabSheet.Create(Self);
+        with FTabSheet do
         begin
           Pagecontrol := PageWork;
           Caption := TreeMenu.Selected.Text;
@@ -200,23 +199,40 @@ begin
         end;
 
         nFrame := nFrameClass.Create(Self);
-        nFrame.Parent := nMenu.FTabSheet;
+        nFrame.Parent := FTabSheet;
         nFrame.Align := alClient;
       end;
 
-      PageWork.ActivePage := nMenu.FTabSheet;
+      PageWork.ActivePage := FTabSheet;
       //active
     end;
+
+    Break;
   end;
 end;
 
 procedure TfFormMain.TabSheetClose(Sender: TObject; var AllowClose: Boolean);
-var nNode: TUniTreeNode;
+var nStr: string;
+    nIdx: Integer;
+    nNode: TUniTreeNode;
 begin
   nNode := Pointer((Sender as TUniTabSheet).Tag);
+  if not Assigned(nNode) then Exit;
+
   if TreeMenu.Selected = nNode then
-  begin
     TreeMenu.Selected := nil;
+  //xxxxx
+
+  nIdx := NativeInt(nNode.Data);
+  nStr := GetMenuItemID(nIdx);
+
+  for nIdx := Low(UniMainModule.FMenuModule) to High(UniMainModule.FMenuModule) do
+  with UniMainModule.FMenuModule[nIdx] do
+  begin
+    if CompareText(FMenuID, nStr) <> 0 then Continue;
+    //not match
+
+    FTabSheet := nil;
   end;
 end;
 
