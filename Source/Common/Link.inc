@@ -50,7 +50,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE XXCJ}
+{$DEFINE SXSW}
 //特定系统
 
 //山西声威
@@ -111,7 +111,7 @@
   //自动称重人工干预异常
   {$DEFINE DaiStepWuCha}
   //包装阶梯误差
-  {.$DEFINE NoShowPriceChange}
+  {$DEFINE NoShowPriceChange}
   //不显示价格调整提示
   {.$DEFINE NoCheckOnPayment}
   //退款时不校验资金余额

@@ -4,38 +4,43 @@
 *******************************************************************************}
 unit USysBusiness;
 
+{$I Link.Inc}
 interface
 
 uses
   Windows, Classes, ComCtrls, Controls, Messages, Forms, SysUtils, IniFiles,
-  Data.DB, Data.Win.ADODB, System.SyncObjs,
+  Data.DB, Data.Win.ADODB, Datasnap.Provider, Datasnap.DBClient, System.SyncObjs,
   //----------------------------------------------------------------------------
   uniGUIAbstractClasses, uniGUITypes, uniGUIClasses, uniGUIBaseClasses,
   uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm, uniDBGrid,
   //----------------------------------------------------------------------------
   UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun;
 
-procedure RegObjectPoolTypes;
-//注册缓冲池对象
 procedure GlobalSyncLock;
 procedure GlobalSyncRelease;
 //全局同步锁定
-
-function SystemGetForm(const nClass: string): TUniForm;
-//根据类名称获取窗体对像
-function UserConfigFile: TIniFile;
-//用户自定义配置文件
+procedure RegObjectPoolTypes;
+//注册缓冲池对象
 
 function LockDBConn(const nType: TAdoConnectionType = ctMain): TADOConnection;
 procedure ReleaseDBconn(const nConn: TADOConnection);
 function LockDBQuery(const nType: TAdoConnectionType = ctMain): TADOQuery;
 procedure ReleaseDBQuery(const nQuery: TADOQuery);
 //数据库链路
-function DBQuery(const nStr: string; const nQuery: TADOQuery): TDataSet;
+function DBQuery(const nStr: string; const nQuery: TADOQuery;
+  const nClientDS: TClientDataSet = nil): TDataSet;
 function DBExecute(const nStr: string; const nCmd: TADOQuery = nil;
-  const nType: TAdoConnectionType = ctMain): Integer;
+  const nType: TAdoConnectionType = ctMain): Integer; overload;
+function DBExecute(const nList: TStrings; const nCmd: TADOQuery = nil;
+  const nType: TAdoConnectionType = ctMain): Integer; overload;
 //数据库操作
+procedure DSClientDS(const nDS: TDataSet; const nClientDS: TClientDataSet);
+//数据集转换
 
+function SystemGetForm(const nClass: string): TUniForm;
+//根据类名称获取窗体对像
+function UserConfigFile: TIniFile;
+//用户自定义配置文件
 function ParseCardNO(const nCard: string; const nHex: Boolean): string;
 //格式化磁卡编号
 procedure LoadSystemMemoryStatus(const nList: TStrings; const nFriend: Boolean);
@@ -71,6 +76,9 @@ procedure LoadEntityList(const nForce: Boolean);
 procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
   const nFilter: string = '');
 //构建表格列
+procedure UserDefineGrid(const nForm: string; const nGrid: TUniDBGrid;
+  const nLoad: Boolean; const nIni: TIniFile = nil);
+//用户自定义表格
 
 implementation
 
@@ -82,25 +90,105 @@ var
   //全局用同步锁定
 
 //------------------------------------------------------------------------------
+//Date: 2018-04-23
+//Desc: 全局同步锁定
+procedure GlobalSyncLock;
+begin
+  gSyncLock.Enter;
+end;
+
+//Date: 2018-04-23
+//Desc: 全局同步锁定接触
+procedure GlobalSyncRelease;
+begin
+  gSyncLock.Leave;
+end;
+
+//Date: 2018-04-20
+//Desc: 注册对象池
+procedure RegObjectPoolTypes;
+var nCD: PAdoConnectionData;
+begin
+  with gMG.FObjectPool do
+  begin
+    NewClass(TADOConnection,
+      function(var nData: Pointer):TObject
+      begin
+        Result := TADOConnection.Create(nil);
+        New(nCD);
+        nData := nCD;
+
+        nCD.FConnUser := '';
+        nCD.FConnStr := '';
+      end,
+
+      procedure(const nObj: TObject; const nData: Pointer)
+      begin
+        Dispose(PAdoConnectionData(nData));
+      end);
+    //ado conn
+
+    NewClass(TADOQuery,
+      function(var nData: Pointer):TObject
+      begin
+        Result := TADOQuery.Create(nil);
+      end);
+    //ado query
+
+    NewClass(TDataSetProvider,
+      function(var nData: Pointer):TObject
+      begin
+        Result := TDataSetProvider.Create(nil);
+      end,
+
+      procedure(const nObj: TObject; const nData: Pointer)
+      begin
+        //nothing
+      end);
+    //data provider
+  end;
+end;
+
+//------------------------------------------------------------------------------
 //Date: 2018-04-20
 //Parm: 连接类型
 //Desc: 获取数据库链路
 function LockDBConn(const nType: TAdoConnectionType): TADOConnection;
 var nStr: string;
+    nCD: PAdoConnectionData;
 begin
-  Result := gMG.FObjectPool.Lock(TADOConnection) as TADOConnection;
-  with Result do
-  begin
+  GlobalSyncLock;
+  try
     if nType = ctMain then
          nStr := gServerParam.FDBMain
     else nStr := gAllFactorys[UniMainModule.FUserConfig.FFactory].FDBWorkOn;
+  finally
+    GlobalSyncRelease;
+  end;
 
-    if Result.ConnectionString <> nStr then
+  Result := gMG.FObjectPool.Lock(TADOConnection, nil, @nCD,
+    function(const nObj: TObject; const nData: Pointer): Boolean
     begin
+      Result := (not Assigned(nData)) or
+                (PAdoConnectionData(nData).FConnUser = nStr);
+    end) as TADOConnection;
+  //相同连接优先
+
+  with Result do
+  begin
+    if nCD.FConnUser <> nStr then
+    begin
+      nCD.FConnUser := nStr;
+      //user data
+
       Connected := False;
       ConnectionString := nStr;
       LoginPrompt := False;
     end;
+
+    if not Connected then
+      Connected := True;
+    //xxxxx
   end;
 end;
 
@@ -119,25 +207,12 @@ end;
 //Parm: 连接类型
 //Desc: 获取查询对象
 function LockDBQuery(const nType: TAdoConnectionType): TADOQuery;
-var nStr: string;
 begin
   Result := gMG.FObjectPool.Lock(TADOQuery) as TADOQuery;
   with Result do
   begin
-    if nType = ctMain then
-         nStr := gServerParam.FDBMain
-    else nStr := gAllFactorys[UniMainModule.FUserConfig.FFactory].FDBWorkOn;
-
     Close;
-    Connection := gMG.FObjectPool.Lock(TADOConnection) as TADOConnection;
-
-    if Connection.ConnectionString <> nStr then
-    with Connection do
-    begin
-      Connected := False;
-      ConnectionString := nStr;
-      LoginPrompt := False;
-    end;
+    Connection := LockDBConn(nType);
   end;
 end;
 
@@ -148,6 +223,14 @@ procedure ReleaseDBQuery(const nQuery: TADOQuery);
 begin
   if Assigned(nQuery) then
   begin
+    try
+      if nQuery.Active then
+        nQuery.Close;
+      //xxxxx
+    except
+      //ignor any error
+    end;
+
     gMG.FObjectPool.Release(nQuery.Connection);
     gMG.FObjectPool.Release(nQuery);
   end;
@@ -156,14 +239,51 @@ end;
 //Date: 2018-04-20
 //Parm: SQL;查询对象
 //Desc: 在nQuery上执行查询
-function DBQuery(const nStr: string; const nQuery: TADOQuery): TDataSet;
+function DBQuery(const nStr: string; const nQuery: TADOQuery;
+  const nClientDS: TClientDataSet): TDataSet;
 begin
-  nQuery.Close;
-  nQuery.SQL.Text := nStr;
-  nQuery.Open;
+  try
+    if not nQuery.Connection.Connected then
+      nQuery.Connection.Connected := True;
+    //xxxxx
+    
+    nQuery.Close;
+    nQuery.SQL.Text := nStr;
+    nQuery.Open;
 
-  Result := nQuery;
-  //result
+    Result := nQuery;
+    //result
+
+    if Assigned(nClientDS) then
+      DSClientDS(Result, nClientDS);
+    //xxxxx
+  except
+    nQuery.Connection.Connected := False;
+    raise;
+  end;
+end;
+
+//Date: 2018-04-28
+//Parm: 本地数据集;远程数据集
+//Desc: 将nDS转换为nClientDS
+procedure DSClientDS(const nDS: TDataSet; const nClientDS: TClientDataSet);
+var nProvider: TDataSetProvider;
+begin
+  nProvider := nil;
+  try
+    nProvider := gMG.FObjectPool.Lock(TDataSetProvider) as TDataSetProvider;
+    nProvider.DataSet := nDS;
+
+    if nClientDS.Active then
+      nClientDS.EmptyDataSet;
+    nClientDS.Data := nProvider.Data;
+
+    nClientDS.LogChanges := False;
+    nProvider.DataSet := nil;
+    //xxxxx
+  finally
+    gMG.FObjectPool.Release(nProvider);
+  end;
 end;
 
 //Date: 2018-04-20
@@ -179,11 +299,18 @@ begin
          nC := nCmd
     else nC := LockDBQuery(nType);
 
+    if not nC.Connection.Connected then
+      nC.Connection.Connected := True;
+    //xxxxx
+
     with nC do
-    begin
+    try
       Close;
       SQL.Text := nStr;
       Result := ExecSQL;
+    except
+      nC.Connection.Connected := False;
+      raise;
     end;
   finally
     if not Assigned(nCmd) then
@@ -192,37 +319,53 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
-//Date: 2018-04-20
-//Desc: 注册对象池
-procedure RegObjectPoolTypes;
+function DBExecute(const nList: TStrings; const nCmd: TADOQuery = nil;
+  const nType: TAdoConnectionType = ctMain): Integer;
+var nIdx: Integer;
+    nC: TADOQuery;
 begin
-  with gMG.FObjectPool do
-  begin
-    NewClass(TADOConnection,
-      function():TObject begin Result := TADOConnection.Create(nil); end);
-    //ado conn
+  nC := nil;
+  try
+    if Assigned(nCmd) then
+         nC := nCmd
+    else nC := LockDBQuery(nType);
 
-    NewClass(TADOQuery,
-      function():TObject begin Result := TADOQuery.Create(nil); end);
-    //ado query
+    if not nC.Connection.Connected then
+      nC.Connection.Connected := True;
+    //xxxxx
+
+    Result := 0;
+    try
+      nC.Connection.BeginTrans;
+      //trans start
+
+      for nIdx := 0 to nList.Count-1 do
+      with nC do
+      begin
+        Close;
+        SQL.Text := nList[nIdx];
+        Result := Result + ExecSQL;
+      end;
+
+      nC.Connection.CommitTrans;
+      //commit
+    except
+      on nErr: Exception do
+      begin
+        nC.Connection.RollbackTrans;
+        nC.Connection.Connected := False;
+        raise;
+      end;
+    end;
+
+  finally
+    if not Assigned(nCmd) then
+      ReleaseDBQuery(nC);
+    //xxxxx
   end;
 end;
 
-//Date: 2018-04-23
-//Desc: 全局同步锁定
-procedure GlobalSyncLock;
-begin
-  gSyncLock.Enter;
-end;
-
-//Date: 2018-04-23
-//Desc: 全局同步锁定接触
-procedure GlobalSyncRelease;
-begin
-  gSyncLock.Leave;
-end;
-
+//------------------------------------------------------------------------------
 //Date: 2012-4-22
 //Parm: 16位卡号数据
 //Desc: 格式化nCard为标准卡号
@@ -337,7 +480,7 @@ begin
   //encode
 
   for nIdx := 1 to Length(nFile) do
-   if nFile[nIdx] in ['a'..'z', 'A'..'Z','0'..'9'] then
+   if CharInSet(nFile[nIdx], ['a'..'z', 'A'..'Z','0'..'9']) then
     nStr := nStr + nFile[nIdx];
   //number & charactor
 
@@ -500,6 +643,10 @@ begin
     GlobalSyncRelease;
     nTree.Items.EndUpdate;
   end;
+
+  {$IFDEF DEBUG}
+  nTree.FullExpand;
+  {$ENDIF}
 end;
 
 //Date: 2018-04-24
@@ -929,7 +1076,7 @@ begin
     LoadMask.Message := '加载数据';
 
     Options := [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowSelect,
-                dgRowSelect];
+                dgRowSelect, dgColumnMove];
     //选项控制
 
     ReadOnly := True;
@@ -954,7 +1101,7 @@ begin
 
     if nFilter <> '' then
     begin
-      nList := TStringList.Create;
+      nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
       TStringHelper.Split(nFilter, nList, 0, ';');
     end;
 
@@ -980,13 +1127,109 @@ begin
           Title.Alignment := FAlign;
           Title.Caption := FTitle;
           Width := FWidth;
+          Tag := i;
         end;
       end;
     end;
   finally
     GlobalSyncRelease;
-    nList.Free;
+    gMG.FObjectPool.Release(nList);
     nGrid.Columns.EndUpdate;
+  end;
+end;
+
+//Date: 2018-04-27
+//Parm: 窗体名;表格;读取
+//Desc: 读写nForm.nGrid的用户配置
+procedure UserDefineGrid(const nForm: string; const nGrid: TUniDBGrid;
+  const nLoad: Boolean; const nIni: TIniFile = nil);
+var nStr: string;
+    i,j,nCount: Integer;
+    nTmp: TIniFile;
+    nList: TStrings;
+begin
+  nTmp := nil;
+  nList := nil;
+
+  with TStringHelper do
+  try
+    if Assigned(nIni) then
+         nTmp := nIni
+    else nTmp := UserConfigFile;
+
+    nCount := nGrid.Columns.Count - 1;
+    //column num
+
+    if nLoad then
+    begin
+      nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+      nStr := nTmp.ReadString(nForm, 'GridWidth_' + nGrid.Name, '');
+
+      if Split(nStr, nList, nGrid.Columns.Count) then
+      begin
+        for i := 0 to nCount do
+         if IsNumber(nList[i], False) then
+          nGrid.Columns[i].Width := StrToInt(nList[i]);
+        //apply width
+      end;
+
+      nStr := nTmp.ReadString(nForm, 'GridVisible_' + nGrid.Name, '');
+      if Split(nStr, nList, nGrid.Columns.Count) then
+      begin
+        for i := 0 to nCount do
+          nGrid.Columns[i].Visible := nList[i] = '1';
+        //apply visible
+      end;
+
+      nStr := nTmp.ReadString(nForm, 'GridIndex_' + nGrid.Name, '');
+      if Split(nStr, nList, nGrid.Columns.Count) then
+      begin
+        for i := 0 to nCount do
+        begin
+          if not IsNumber(nList[i], False) then Continue;
+          //not valid
+
+          for j := 0 to nCount do
+          if nGrid.Columns[j].Tag = StrToInt(nList[i]) then
+          begin
+            nGrid.Columns[j].Index := i;
+            Break;
+          end;
+        end;
+      end;
+    end else
+    begin
+      nStr := '';
+      for i := 0 to nCount do
+      begin
+        nStr := nStr + IntToStr(nGrid.Columns[i].Tag);
+        if i <> nCount then nStr := nStr + ';';
+      end;
+      nTmp.WriteString(nForm, 'GridIndex_' + nGrid.Name, nStr);
+
+      nStr := '';
+      for i := 0 to nCount do
+      begin
+        nStr := nStr + IntToStr(nGrid.Columns[i].Width);
+        if i <> nCount then nStr := nStr + ';';
+      end;
+      nTmp.WriteString(nForm, 'GridWidth_' + nGrid.Name, nStr);
+
+      nStr := '';
+      for i := 0 to nCount do
+      begin
+        if nGrid.Columns[i].Visible then
+             nStr := nStr + '1'
+        else nStr := nStr + '0';
+        if i <> nCount then nStr := nStr + ';';
+      end;
+      nTmp.WriteString(nForm, 'GridVisible_' + nGrid.Name, nStr);
+    end;
+  finally
+    gMG.FObjectPool.Release(nList);
+    if not Assigned(nIni) then
+      nTmp.Free;
+    //xxxxx
   end;
 end;
 

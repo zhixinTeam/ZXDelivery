@@ -71,7 +71,11 @@ object fFrameBase: TfFrameBase
         Hint = ''
         ImageIndex = 3
         Caption = #21047#26032
+        ScreenMask.Enabled = True
+        ScreenMask.Message = #27491#22312#35835#21462
+        ScreenMask.Target = PanelWork
         TabOrder = 5
+        OnClick = BtnRefreshClick
       end
       object UniToolButton10: TUniToolButton
         Left = 356
@@ -122,6 +126,7 @@ object fFrameBase: TfFrameBase
         ImageIndex = 7
         Caption = #36864#20986
         TabOrder = 11
+        OnClick = BtnExitClick
       end
     end
     object PanelQuick: TUniSimplePanel
@@ -143,15 +148,11 @@ object fFrameBase: TfFrameBase
       Height = 488
       Hint = ''
       DataSource = DataSource1
-      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
+      Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
       LoadMask.Message = 'Loading data...'
       Align = alClient
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 3
-      Columns = <
-        item
-          Width = 64
-        end>
     end
     object SplitterTop: TUniSplitter
       Left = 0
@@ -163,18 +164,18 @@ object fFrameBase: TfFrameBase
       Align = alTop
       ParentColor = False
       Color = clBtnFace
-      ExplicitTop = 121
     end
   end
   object ClientDS: TClientDataSet
     Aggregates = <>
+    ObjectView = False
     Params = <>
-    Left = 24
+    Left = 40
     Top = 232
   end
   object DataSource1: TDataSource
     DataSet = ClientDS
-    Left = 80
+    Left = 96
     Top = 232
   end
 end

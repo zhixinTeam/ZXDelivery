@@ -47,9 +47,13 @@ type
     procedure N3Click(Sender: TObject);
     procedure BtnUpdateMemoryClick(Sender: TObject);
     procedure TreeMenuClick(Sender: TObject);
+    procedure UniFormDestroy(Sender: TObject);
+    procedure PageWorkChange(Sender: TObject);
+    procedure ComboFactoryChange(Sender: TObject);
   private
     { Private declarations }
     procedure LoadFormConfig;
+    procedure SaveFormConfig;
     //窗体配置
     procedure CallBack_UpdateMemory(Sender: TComponent; Res: Integer);
     //对话框回调
@@ -67,7 +71,7 @@ implementation
 
 uses
   uniGUIVars, MainModule, uniGUIApplication, ULibFun, UManagerGroup,
-  USysDB, USysFun, USysBusiness, USysConst;
+  System.IniFiles, USysDB, USysFun, USysBusiness, USysConst;
 
 function fFormMain: TfFormMain;
 begin
@@ -78,6 +82,8 @@ end;
 //Desc: 初始化窗体配置
 procedure TfFormMain.LoadFormConfig;
 var nStr: string;
+    nInt: Integer;
+    nIni: TIniFile;
 begin
   ImageLeft.Url := sImageDir + 'top_left.bmp';
   ImageRight.Url := sImageDir + 'top_right.bmp';
@@ -94,15 +100,57 @@ begin
 
   PageWork.ActivePage := SheetWelcome;
   SheetMemory.Visible := UniMainModule.FUserConfig.FIsAdmin;
+
+  GetFactoryList(ComboFactory.Items);
+  if ComboFactory.Items.Count > 0 then
+    ComboFactory.ItemIndex := 0;
+  //default factory
+
+  nIni := nil;
+  try
+    nIni := UserConfigFile;
+    //config object
+
+    nInt := nIni.ReadInteger(Name, 'PanelLeft', 200);
+    if nInt < 50 then nInt := 50;
+    PanelLeft.Width := nInt;
+
+    nInt := nIni.ReadInteger(Name, 'FactoryLast', 0);
+    if (ComboFactory.ItemIndex >= 0) and (nInt >= 0) then
+      ComboFactory.ItemIndex := nInt;
+    UniMainModule.FUserConfig.FFactory := ComboFactory.ItemIndex;
+  finally
+    nIni.Free;
+  end;
+end;
+
+//Date: 2018-04-27
+//Desc: 保存配置
+procedure TfFormMain.SaveFormConfig;
+var nIni: TIniFile;
+begin
+  nIni := nil;
+  try
+    nIni := UserConfigFile;
+    nIni.WriteInteger(Name, 'PanelLeft', PanelLeft.Width);
+    nIni.WriteInteger(Name, 'FactoryLast', ComboFactory.ItemIndex);
+  finally
+    nIni.Free;
+  end;
 end;
 
 procedure TfFormMain.UniFormCreate(Sender: TObject);
 begin
   LoadFormConfig;
   BuidMenuTree(TreeMenu);
-  GetFactoryList(ComboFactory.Items);
 end;
 
+procedure TfFormMain.UniFormDestroy(Sender: TObject);
+begin
+  SaveFormConfig;
+end;
+
+//------------------------------------------------------------------------------
 //Desc: 刷新内存
 procedure TfFormMain.BtnFreshClick(Sender: TObject);
 begin
@@ -123,7 +171,6 @@ begin
   if Res = mrYes then ReloadSystemMemory(True);
 end;
 
-//------------------------------------------------------------------------------
 procedure TfFormMain.TreeMenuMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
@@ -138,6 +185,32 @@ end;
 procedure TfFormMain.N3Click(Sender: TObject);
 begin
   TreeMenu.FullCollapse;
+end;
+
+//Desc: 切换工厂
+procedure TfFormMain.ComboFactoryChange(Sender: TObject);
+var nStr: string;
+    nFactory: TFactoryItem;
+begin
+  if GetFactory(ComboFactory.ItemIndex, nFactory) then
+  begin
+    GlobalSyncLock;
+    try
+      UniMainModule.FUserConfig.FFactory := ComboFactory.ItemIndex;
+      //factory index
+    finally
+      GlobalSyncRelease;
+    end;
+
+    with nFactory do
+    begin
+      nStr := '当前所有业务只针对如下工厂:' + #13#10#13#10 +
+              '工厂编号: %s' + #13#10 +
+              '工厂名称: %s';
+      nStr := Format(nStr, [FFactoryID, FFactoryName]);
+      ShowMessage(nStr);
+    end;
+  end;
 end;
 
 procedure TfFormMain.TreeMenuClick(Sender: TObject);
@@ -211,6 +284,7 @@ begin
   end;
 end;
 
+//Desc: 页面关闭
 procedure TfFormMain.TabSheetClose(Sender: TObject; var AllowClose: Boolean);
 var nStr: string;
     nIdx: Integer;
@@ -233,6 +307,23 @@ begin
     //not match
 
     FTabSheet := nil;
+  end;
+
+  if (PageWork.PageCount <= 3) and (not UniMainModule.FUserConfig.FIsAdmin) then
+    PageWork.ActivePage := SheetWelcome;
+  //xxxxx
+end;
+
+//Desc: 页面切换
+procedure TfFormMain.PageWorkChange(Sender: TObject);
+var nNode: TUniTreeNode;
+begin
+  if Assigned(PageWork.ActivePage) then
+  begin
+    nNode := Pointer(PageWork.ActivePage.Tag);
+    if Assigned(nNode) then
+      TreeMenu.Selected := nNode;
+    //xxxxx
   end;
 end;
 

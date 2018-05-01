@@ -8,10 +8,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, MainModule, uniGUITypes, uniGUIAbstractClasses,
+  Controls, Forms, MainModule, USysConst, uniGUITypes, uniGUIAbstractClasses,
   uniGUIClasses, uniGUIFrame, uniToolBar, uniGUIBaseClasses, uniPanel, Data.DB,
   Data.Win.ADODB, Datasnap.DBClient, uniBasicGrid, uniDBGrid, uniSplitter,
-  System.IniFiles, uniTimer;
+  System.IniFiles, uniTimer, uniImage, FireDAC.Stan.Intf, FireDAC.Stan.Option,
+  FireDAC.Stan.Param, FireDAC.Stan.Error, FireDAC.DatS, FireDAC.Phys.Intf,
+  FireDAC.DApt.Intf, FireDAC.Comp.DataSet, FireDAC.Comp.Client;
 
 type
   TfFrameBase = class(TUniFrame)
@@ -35,9 +37,13 @@ type
     SplitterTop: TUniSplitter;
     procedure UniFrameCreate(Sender: TObject);
     procedure UniFrameDestroy(Sender: TObject);
+    procedure BtnExitClick(Sender: TObject);
+    procedure BtnRefreshClick(Sender: TObject);
   private
     { Private declarations }
   protected
+    FDBType: TAdoConnectionType;
+    //数据连接
     FMenuID: string;
     FPopedom: string;
     {*权限项*}
@@ -67,16 +73,15 @@ implementation
 {$R *.dfm}
 
 uses
-  ULibFun, USysBusiness, USysConst, USysDB;
+  ULibFun, USysBusiness, USysDB, uniPageControl;
 
 procedure TfFrameBase.UniFrameCreate(Sender: TObject);
 var nIni: TIniFile;
 begin
+  FDBType := ctWork;
   FMenuID := GetMenuByModule(ClassName);
   FPopedom := GetPopedom(FMenuID);
-
-  OnLoadPopedom;
-  //加载权限
+  OnLoadPopedom; //加载权限
 
   nIni := nil;
   try
@@ -90,6 +95,9 @@ begin
   finally
     nIni.Free;
   end;
+
+  InitFormData;
+  //初始化数据
 end;
 
 procedure TfFrameBase.UniFrameDestroy(Sender: TObject);
@@ -107,6 +115,10 @@ begin
   finally
     nIni.Free;
   end;
+
+  if ClientDS.Active then
+    ClientDS.EmptyDataSet;
+  //清空数据集
 end;
 
 procedure TfFrameBase.OnCreateFrame(const nIni: TIniFile);
@@ -121,7 +133,6 @@ end;
 
 //Desc: 读取权限
 procedure TfFrameBase.OnLoadPopedom;
-var nIni: TIniFile;
 begin
   BtnAdd.Enabled      := HasPopedom2(sPopedom_Add, FPopedom);
   BtnEdit.Enabled     := HasPopedom2(sPopedom_Edit, FPopedom);
@@ -136,12 +147,12 @@ end;
 
 procedure TfFrameBase.OnLoadGridConfig(const nIni: TIniFile);
 begin
-
+  UserDefineGrid(ClassName, DBGridMain, True, nIni);
 end;
 
 procedure TfFrameBase.OnSaveGridConfig(const nIni: TIniFile);
 begin
-
+  UserDefineGrid(ClassName, DBGridMain, False, nIni);
 end;
 
 //Desc: 过滤不显示
@@ -150,26 +161,68 @@ begin
   Result := '';
 end;
 
-procedure TfFrameBase.InitFormData(const nWhere: string;
-  const nQuery: TADOQuery);
-begin
-
-end;
-
+//Desc: 构建数据载入SQL语句
 function TfFrameBase.InitFormDataSQL(const nWhere: string): string;
 begin
-
+  Result := '';
 end;
 
+//Desc: 载入界面数据
+procedure TfFrameBase.InitFormData(const nWhere: string;
+  const nQuery: TADOQuery);
+var nStr: string;
+    nBool: Boolean;
+    nC: TADOQuery;
+begin
+  nC := nil;
+  try
+    if Assigned(nQuery) then
+         nC := nQuery
+    else nC := LockDBQuery(FDBType);
+
+    nBool := True;
+    OnInitFormData(nBool, nWhere, nQuery);
+    if not nBool then Exit;
+
+    nStr := InitFormDataSQL(nWhere);
+    if nStr = '' then Exit;
+
+    DBQuery(nStr, nC, ClientDS);
+    //query data
+  finally
+    if not Assigned(nQuery) then
+      ReleaseDBQuery(nC);
+    AfterInitFormData;
+  end
+end;
+
+//Desc: 数据载入后
 procedure TfFrameBase.AfterInitFormData;
 begin
 
 end;
 
+//Desc: 执行数据查询
 procedure TfFrameBase.OnInitFormData(var nDefault: Boolean;
   const nWhere: string; const nQuery: TADOQuery);
 begin
 
+end;
+
+//------------------------------------------------------------------------------
+//Desc: 关闭
+procedure TfFrameBase.BtnExitClick(Sender: TObject);
+var nSheet: TUniTabSheet;
+begin
+  nSheet := Parent as TUniTabSheet;
+  nSheet.Close;
+end;
+
+//Desc: 刷新
+procedure TfFrameBase.BtnRefreshClick(Sender: TObject);
+begin
+  FWhere := '';
+  InitFormData(FWhere);
 end;
 
 end.

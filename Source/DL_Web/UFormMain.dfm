@@ -10,6 +10,7 @@ object fFormMain: TfFormMain
   Font.Height = -12
   Font.Name = #23435#20307
   OnCreate = UniFormCreate
+  OnDestroy = UniFormDestroy
   PixelsPerInch = 96
   TextHeight = 12
   object StatusBar1: TUniStatusBar
@@ -79,6 +80,7 @@ object fFormMain: TfFormMain
     Align = alClient
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 2
+    OnChange = PageWorkChange
     object SheetWelcome: TUniTabSheet
       Hint = ''
       Caption = #27426#36814#39029#38754
@@ -210,6 +212,7 @@ object fFormMain: TfFormMain
         FieldLabelFont.Height = -12
         FieldLabelFont.Name = #23435#20307
         Images = UniMainModule.ImageListSmall
+        OnChange = ComboFactoryChange
       end
       object LabelFactory: TUniLabel
         Left = 7

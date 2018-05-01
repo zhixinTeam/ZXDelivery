@@ -19,6 +19,13 @@ type
   TAdoConnectionType = (ctMain, ctWork);
   //连接类型
 
+  PAdoConnectionData = ^TAdoConnectionData;
+  TAdoConnectionData = record
+    FConnUser : string;                              //用户设置连接字符串
+    FConnStr  : string;                              //系统有效连接字符串
+  end;
+  //连接对象数据
+
   TFactoryItem = record
     FFactoryID  : string;                            //工厂编号
     FFactoryName: string;                            //工厂名称
@@ -254,7 +261,7 @@ begin
   AddMenuModuleItem('MAIN_B01', '');
   AddMenuModuleItem('MAIN_B02', 'TfFrameCustomer');
   AddMenuModuleItem('MAIN_B03', '');
-  AddMenuModuleItem('MAIN_B04', '');
+  AddMenuModuleItem('MAIN_B04', 'TfFrameContract');
 end;
 
 //Desc: 清理模块列表
