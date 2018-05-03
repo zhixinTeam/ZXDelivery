@@ -55,8 +55,6 @@ type
     procedure LoadFormConfig;
     procedure SaveFormConfig;
     //窗体配置
-    procedure CallBack_UpdateMemory(Sender: TComponent; Res: Integer);
-    //对话框回调
     procedure TabSheetClose(Sender: TObject; var AllowClose: Boolean);
     //分页关闭
   public
@@ -100,6 +98,7 @@ begin
 
   PageWork.ActivePage := SheetWelcome;
   SheetMemory.Visible := UniMainModule.FUserConfig.FIsAdmin;
+  UniMainModule.FMainForm := Self;
 
   GetFactoryList(ComboFactory.Items);
   if ComboFactory.Items.Count > 0 then
@@ -163,12 +162,12 @@ var nStr: string;
 begin
   nStr := '服务器将重新加载配置数据,并断开所有连接.' + #13#10 +
           '继续操作请点"是"按钮.';
-  MessageDlg(nStr, mtConfirmation, mbYesNo, CallBack_UpdateMemory);
-end;
-
-procedure TfFormMain.CallBack_UpdateMemory(Sender: TComponent; Res: Integer);
-begin
-  if Res = mrYes then ReloadSystemMemory(True);
+  MessageDlg(nStr, mtConfirmation, mbYesNo,
+    procedure(Sender: TComponent; Res: Integer)
+    begin
+      if Res = mrYes then ReloadSystemMemory(True);
+    end);
+  //xxxxx
 end;
 
 procedure TfFormMain.TreeMenuMouseDown(Sender: TObject; Button: TMouseButton;

@@ -8,7 +8,7 @@ interface
 
 uses
   uniGUIMainModule, SysUtils, Classes, uniGUIBaseClasses, uniGUIClasses,
-  uniImageList, System.SyncObjs, USysConst;
+  uniImageList, uniGUIForm, System.SyncObjs, USysConst;
 
 type
   TUniMainModule = class(TUniGUIMainModule)
@@ -22,6 +22,8 @@ type
     { Private declarations }
   public
     { Public declarations }
+    FMainForm: TUniForm;
+    //主窗体
     FUserConfig: TSysParam;
     //系统参数
     FMenuModule: TMenuModuleItems;

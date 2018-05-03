@@ -8,6 +8,8 @@ object fFormBase: TfFormBase
   OldCreateOrder = False
   BorderIcons = [biSystemMenu]
   MonitoredKeys.Keys = <>
+  OnCreate = UniFormCreate
+  OnDestroy = UniFormDestroy
   DesignSize = (
     302
     170)
@@ -46,7 +48,5 @@ object fFormBase: TfFormBase
     Border = True
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 2
-    ExplicitWidth = 324
-    ExplicitHeight = 128
   end
 end

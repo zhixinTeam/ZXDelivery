@@ -12,7 +12,8 @@ uses
   Data.DB, Data.Win.ADODB, Datasnap.Provider, Datasnap.DBClient, System.SyncObjs,
   //----------------------------------------------------------------------------
   uniGUIAbstractClasses, uniGUITypes, uniGUIClasses, uniGUIBaseClasses,
-  uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm, uniDBGrid,
+  uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm, uniGUIFrame,
+  uniDBGrid,
   //----------------------------------------------------------------------------
   UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun;
 
@@ -37,7 +38,8 @@ function DBExecute(const nList: TStrings; const nCmd: TADOQuery = nil;
 procedure DSClientDS(const nDS: TDataSet; const nClientDS: TClientDataSet);
 //数据集转换
 
-function SystemGetForm(const nClass: string): TUniForm;
+function SystemGetForm(const nClass: string;
+  const nException: Boolean = False): TUniForm;
 //根据类名称获取窗体对像
 function UserConfigFile: TIniFile;
 //用户自定义配置文件
@@ -47,6 +49,11 @@ procedure LoadSystemMemoryStatus(const nList: TStrings; const nFriend: Boolean);
 //加载系统内存状态
 procedure ReloadSystemMemory(const nResetAllSession: Boolean);
 //重新加载系统缓存数据
+
+procedure LoadSysDictItem(const nItem: string; const nList: TStrings);
+//读取系统字典项
+function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
+//读取业务员列表
 
 procedure LoadMenuItems(const nForce: Boolean);
 //载入菜单数据
@@ -124,6 +131,7 @@ begin
 
       procedure(const nObj: TObject; const nData: Pointer)
       begin
+        nObj.Free;
         Dispose(PAdoConnectionData(nData));
       end);
     //ado conn
@@ -408,6 +416,8 @@ begin
 
     gMG.FObjectPool.GetStatus(nList, nFriend);
     gMG.FObjectManager.GetStatus(nList, nFriend);
+    gMG.FObjectManager.GetStatus(nList, nFriend);
+    gMG.FChannelManager.GetStatus(nList, nFriend);
   finally
     GlobalSyncRelease;
     nList.EndUpdate;
@@ -455,13 +465,17 @@ end;
 //Date: 2018-04-24
 //Parm: 窗体类名
 //Desc: 获取nClass类的对象
-function SystemGetForm(const nClass: string): TUniForm;
+function SystemGetForm(const nClass: string;const nException:Boolean): TUniForm;
 var nCls: TClass;
 begin
   nCls := GetClass(nClass);
   if Assigned(nCls) then
        Result := TUniForm(UniMainModule.GetFormInstance(nCls))
   else Result := nil;
+
+  if (not Assigned(Result)) and nException then
+    UniMainModule.FMainForm.ShowMessage(Format('窗体类[ %s ]无效.', [nClass]));
+  //xxxxx
 end;
 
 //Date: 2018-04-26
@@ -488,6 +502,82 @@ begin
   if not FileExists(nStr) then
   begin
     Result.WriteString('Config', 'User', UniMainModule.FUserConfig.FUserID);
+  end;
+end;
+
+//Date: 2018-05-03
+//Parm: 字典项;列表
+//Desc: 从SysDict中读取nItem项的内容,存入nList中
+procedure LoadSysDictItem(const nItem: string; const nList: TStrings);
+var nStr: string;
+    nQuery: TADOQuery;
+begin
+  nQuery := nil;
+  with TStringHelper do
+  try
+    nList.BeginUpdate;
+    nList.Clear;
+    nQuery := LockDBQuery(ctWork);
+
+    nStr := MacroValue(sQuery_SysDict, [MI('$Table', sTable_SysDict),
+                                        MI('$Name', nItem)]);
+    DBQuery(nStr, nQuery);
+
+    if nQuery.RecordCount > 0 then
+    with nQuery do
+    begin
+      First;
+
+      while not Eof do
+      begin
+        nList.Add(FieldByName('D_Value').AsString);
+        Next;
+      end;
+    end;
+  finally
+    nList.EndUpdate;
+    ReleaseDBQuery(nQuery);
+  end;
+end;
+
+//Date: 2018-05-03
+//Parm: 列表;查询条件
+//Desc: 加载业务员列表到nList中
+function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
+var nStr,nW: string;
+    nQuery: TADOQuery;
+begin
+  nQuery := nil;
+  try
+    nList.BeginUpdate;
+    nList.Clear;
+    nQuery := LockDBQuery(ctWork);
+
+    if nWhere = '' then
+         nW := ''
+    else nW := Format(' And (%s)', [nWhere]);
+
+    nStr := 'Select S_ID,S_Name From %s ' +
+            'Where IsNull(S_InValid, '''')<>''%s'' %s Order By S_PY';
+    nStr := Format(nStr, [sTable_Salesman, sFlag_Yes, nW]);
+
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+    begin
+      First;
+
+      while not Eof do
+      begin
+        nList.Add(FieldByName('S_ID').AsString + '.' +
+                  FieldByName('S_Name').AsString);
+        Next;
+      end;
+    end;
+
+    Result := nList.Count > 0;
+  finally
+    nList.EndUpdate;
+    ReleaseDBQuery(nQuery);
   end;
 end;
 

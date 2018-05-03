@@ -15,6 +15,17 @@ const
   cSBar_User            = 2;                         //用户面板索引
   cRecMenuMax           = 5;                         //最近使用导航区最大条目数
 
+  {*Command*}
+  cCmd_RefreshData      = $0002;                     //刷新数据
+  cCmd_ViewSysLog       = $0003;                     //系统日志
+
+  cCmd_ModalResult      = $1001;                     //Modal窗体
+  cCmd_FormClose        = $1002;                     //关闭窗口
+  cCmd_AddData          = $1003;                     //添加数据
+  cCmd_EditData         = $1005;                     //修改数据
+  cCmd_ViewData         = $1006;                     //查看数据
+  cCmd_GetData          = $1007;                     //选择数据
+
 type
   TAdoConnectionType = (ctMain, ctWork);
   //连接类型

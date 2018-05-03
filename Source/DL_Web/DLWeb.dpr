@@ -12,7 +12,8 @@ uses
   USysBusiness in 'Common\USysBusiness.pas',
   USysConst in 'Common\USysConst.pas',
   USysFun in 'Common\USysFun.pas',
-  UFrameBase in 'Forms\UFrameBase.pas' {fFrameBase: TUniFrame};
+  UFrameBase in 'Forms\UFrameBase.pas' {fFrameBase: TUniFrame},
+  USysRemote in 'Common\USysRemote.pas';
 
 {$R *.res}
 

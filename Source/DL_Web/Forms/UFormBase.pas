@@ -8,22 +8,67 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, uniPanel, uniGUIBaseClasses, uniButton;
+  Controls, Forms, uniGUITypes, uniGUIAbstractClasses, uniGUIClasses,
+  uniGUIForm, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
+  PFormCommandParam = ^TFormCommandParam;
+  TFormCommandParam = record
+    FCommand: integer;
+    FParamA: Variant;
+    FParamB: Variant;
+    FParamC: Variant;
+    FParamD: Variant;
+    FParamE: Variant;
+  end;
+
   TfFormBase = class(TUniForm)
     BtnOK: TUniButton;
     BtnExit: TUniButton;
     PanelWork: TUniSimplePanel;
-  private
-    { Private declarations }
+    procedure UniFormCreate(Sender: TObject);
+    procedure UniFormDestroy(Sender: TObject);
+  protected
+    { Protected declarations }
+    FParam: TFormCommandParam;
+    //命令参数
+    procedure OnCreateForm(Sender: TObject); virtual;
+    procedure OnDestroyForm(Sender: TObject); virtual;
+    {*基类函数*}
   public
     { Public declarations }
+    function SetParam(const nParam: TFormCommandParam): Boolean; virtual;
+    {*设置参数*}
   end;
 
 implementation
 
 {$R *.dfm}
+
+procedure TfFormBase.UniFormCreate(Sender: TObject);
+begin
+  OnCreateForm(Sender);
+end;
+
+procedure TfFormBase.UniFormDestroy(Sender: TObject);
+begin
+  OnDestroyForm(Sender);
+end;
+
+procedure TfFormBase.OnCreateForm(Sender: TObject);
+begin
+
+end;
+
+procedure TfFormBase.OnDestroyForm(Sender: TObject);
+begin
+
+end;
+
+function TfFormBase.SetParam(const nParam: TFormCommandParam): Boolean;
+begin
+  Result := True;
+  FParam := nParam;
+end;
 
 end.

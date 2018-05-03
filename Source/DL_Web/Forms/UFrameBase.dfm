@@ -71,7 +71,6 @@ object fFrameBase: TfFrameBase
         Hint = ''
         ImageIndex = 3
         Caption = #21047#26032
-        ScreenMask.Enabled = True
         ScreenMask.Message = #27491#22312#35835#21462
         ScreenMask.Target = PanelWork
         TabOrder = 5
