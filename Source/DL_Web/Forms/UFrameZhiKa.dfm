@@ -1,4 +1,4 @@
-inherited fFrameContract: TfFrameContract
+inherited fFrameZhiKa: TfFrameZhiKa
   Font.Charset = GB2312_CHARSET
   Font.Height = -12
   Font.Name = #23435#20307
@@ -26,7 +26,7 @@ inherited fFrameContract: TfFrameContract
         Width = 54
         Height = 12
         Hint = ''
-        Caption = #21512#21516#32534#21495':'
+        Caption = #32440#21345#32534#21495':'
         ParentFont = False
         Font.Charset = GB2312_CHARSET
         Font.Height = -12
@@ -36,7 +36,7 @@ inherited fFrameContract: TfFrameContract
       object EditID: TUniEdit
         Left = 72
         Top = 12
-        Width = 145
+        Width = 125
         Hint = ''
         Text = ''
         ParentFont = False
@@ -48,7 +48,7 @@ inherited fFrameContract: TfFrameContract
         OnKeyPress = EditIDKeyPress
       end
       object Label2: TUniLabel
-        Left = 248
+        Left = 224
         Top = 16
         Width = 54
         Height = 12
@@ -61,9 +61,9 @@ inherited fFrameContract: TfFrameContract
         TabOrder = 3
       end
       object EditCus: TUniEdit
-        Left = 306
+        Left = 284
         Top = 12
-        Width = 145
+        Width = 125
         Hint = ''
         Text = ''
         ParentFont = False
@@ -73,6 +73,44 @@ inherited fFrameContract: TfFrameContract
         TabOrder = 4
         EmptyText = #26597#25214
         OnKeyPress = EditIDKeyPress
+      end
+      object Label3: TUniLabel
+        Left = 435
+        Top = 16
+        Width = 54
+        Height = 12
+        Hint = ''
+        Caption = #26085#26399#31579#36873':'
+        ParentFont = False
+        Font.Charset = GB2312_CHARSET
+        Font.Height = -12
+        Font.Name = #23435#20307
+        TabOrder = 5
+      end
+      object EditDate: TUniEdit
+        Left = 495
+        Top = 12
+        Width = 185
+        Hint = ''
+        Text = ''
+        ParentFont = False
+        Font.Charset = GB2312_CHARSET
+        Font.Height = -12
+        Font.Name = #23435#20307
+        TabOrder = 6
+        EmptyText = #26597#25214
+        ReadOnly = True
+        OnKeyPress = EditIDKeyPress
+      end
+      object BtnDateFilter: TUniBitBtn
+        Left = 682
+        Top = 12
+        Width = 25
+        Height = 22
+        Hint = ''
+        Caption = '...'
+        TabOrder = 7
+        OnClick = BtnDateFilterClick
       end
     end
     inherited DBGridMain: TUniDBGrid
@@ -90,27 +128,51 @@ inherited fFrameContract: TfFrameContract
     Left = 42
     Top = 182
     object MenuItem1: TUniMenuItem
-      Caption = #26597#30475#21464#20215#35760#24405
+      Caption = #25171#21360#32440#21345
     end
     object MenuItemN1: TUniMenuItem
       Caption = '-'
     end
-    object MenuItem2: TUniMenuItem
-      Tag = 10
-      Caption = #20923#32467#24403#21069#21512#21516
-      OnClick = MenuItem2Click
+    object MenuItemN5: TUniMenuItem
+      Caption = '**'#32440#21345#25805#20316'**'
+      Enabled = False
     end
     object MenuItem3: TUniMenuItem
-      Tag = 20
-      Caption = #35299#20923#24403#21069#21512#21516
+      Tag = 10
+      Caption = #20923#32467#32440#21345
       OnClick = MenuItem2Click
+    end
+    object MenuItem4: TUniMenuItem
+      Tag = 20
+      Caption = #35299#38500#20923#32467
+      OnClick = MenuItem2Click
+    end
+    object MenuItem5: TUniMenuItem
+      Caption = #38480#21046#25552#36135
     end
     object MenuItemN4: TUniMenuItem
       Caption = '-'
     end
-    object MenuItem4: TUniMenuItem
-      Caption = #26597#30475#20840#37096#21512#21516
+    object MenuItem2: TUniMenuItem
+      Tag = 10
+      Caption = '**'#26597#35810#36873#39033'**'
+      Enabled = False
       OnClick = MenuItem2Click
+    end
+    object MenuItem6: TUniMenuItem
+      Tag = 10
+      Caption = #20923#32467#32440#21345
+      OnClick = MenuItem6Click
+    end
+    object MenuItem7: TUniMenuItem
+      Tag = 20
+      Caption = #26080#25928#32440#21345
+      OnClick = MenuItem6Click
+    end
+    object MenuItem8: TUniMenuItem
+      Tag = 30
+      Caption = #26597#35810#20840#37096
+      OnClick = MenuItem6Click
     end
   end
 end

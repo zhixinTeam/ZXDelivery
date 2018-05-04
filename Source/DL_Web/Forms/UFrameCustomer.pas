@@ -122,7 +122,7 @@ begin
         nSQL := Format(nSQL, [sTable_ExtInfo, sFlag_CustomerItem, nStr]);
         nList.Add(nSQL);
 
-        DBExecute(nList, nil, ctWork);
+        DBExecute(nList, nil, FDBType);
         gMG.FObjectPool.Release(nList);
 
         InitFormData(FWhere);

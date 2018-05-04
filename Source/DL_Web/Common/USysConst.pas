@@ -273,6 +273,9 @@ begin
   AddMenuModuleItem('MAIN_B02', 'TfFrameCustomer');
   AddMenuModuleItem('MAIN_B03', '');
   AddMenuModuleItem('MAIN_B04', 'TfFrameContract');
+
+  AddMenuModuleItem('MAIN_D01', 'TfFormZhiKa', mtForm);
+  AddMenuModuleItem('MAIN_D05', 'TfFrameZhiKa');
 end;
 
 //Desc: 清理模块列表

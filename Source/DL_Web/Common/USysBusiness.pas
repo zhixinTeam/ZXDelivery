@@ -9,11 +9,12 @@ interface
 
 uses
   Windows, Classes, ComCtrls, Controls, Messages, Forms, SysUtils, IniFiles,
-  Data.DB, Data.Win.ADODB, Datasnap.Provider, Datasnap.DBClient, System.SyncObjs,
+  Data.DB, Data.Win.ADODB, Datasnap.Provider, Datasnap.DBClient,
+  System.SyncObjs, Vcl.Grids,
   //----------------------------------------------------------------------------
   uniGUIAbstractClasses, uniGUITypes, uniGUIClasses, uniGUIBaseClasses,
   uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm, uniGUIFrame,
-  uniDBGrid,
+  uniDBGrid, uniBasicGrid, uniStringGrid,
   //----------------------------------------------------------------------------
   UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun;
 
@@ -54,6 +55,8 @@ procedure LoadSysDictItem(const nItem: string; const nList: TStrings);
 //读取系统字典项
 function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取业务员列表
+function LoadCustomer(const nList: TStrings; const nWhere: string = ''): Boolean;
+//读取客户列表
 
 procedure LoadMenuItems(const nForce: Boolean);
 //载入菜单数据
@@ -86,6 +89,10 @@ procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
 procedure UserDefineGrid(const nForm: string; const nGrid: TUniDBGrid;
   const nLoad: Boolean; const nIni: TIniFile = nil);
 //用户自定义表格
+procedure LoadGridColumn(const nWidths: string; const nGrid: TUniStringGrid);
+//载入列表表头宽度
+function MakeGridColumnInfo(const nGrid: TUniStringGrid): string;
+//组合列表表头宽度信息
 
 implementation
 
@@ -570,6 +577,47 @@ begin
       begin
         nList.Add(FieldByName('S_ID').AsString + '.' +
                   FieldByName('S_Name').AsString);
+        Next;
+      end;
+    end;
+
+    Result := nList.Count > 0;
+  finally
+    nList.EndUpdate;
+    ReleaseDBQuery(nQuery);
+  end;
+end;
+
+//Date: 2018-05-03
+//Parm: 列表;查询条件
+//Desc: 读取客户列表到nList中,包含附加数据
+function LoadCustomer(const nList: TStrings; const nWhere: string = ''): Boolean;
+var nStr,nW: string;
+    nQuery: TADOQuery;
+begin
+  nQuery := nil;
+  try
+    nList.BeginUpdate;
+    nList.Clear;
+    nQuery := LockDBQuery(ctWork);
+
+    if nWhere = '' then
+         nW := ''
+    else nW := Format(' And (%s)', [nWhere]);
+
+    nStr := 'Select C_ID,C_Name From %s ' +
+            'Where IsNull(C_XuNi, '''')<>''%s'' %s Order By C_PY';
+    nStr := Format(nStr, [sTable_Customer, sFlag_Yes, nW]);
+
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+    begin
+      First;
+
+      while not Eof do
+      begin
+        nList.Add(FieldByName('C_ID').AsString + '.' +
+                  FieldByName('C_Name').AsString);
         Next;
       end;
     end;
@@ -1321,6 +1369,54 @@ begin
       nTmp.Free;
     //xxxxx
   end;
+end;
+
+//Date: 2018-05-04
+//Parm: 列表宽度;表格
+//Desc: 使用nWideths调整nGrid表头宽度
+procedure LoadGridColumn(const nWidths: string; const nGrid: TUniStringGrid);
+var nList: TStrings;
+    i,nCount: integer;
+begin
+  with nGrid do
+  begin
+    FixedCols := 0;
+    FixedRows := 0;
+    BorderStyle := ubsDefault;
+    Options := [goVertLine,goHorzLine,goColSizing,goRowSelect];
+    //style
+  end;
+
+  if (nWidths <> '') and (nGrid.Columns.Count > 0) then
+  begin
+    nList := TStringList.Create;
+    try
+      if TStringHelper.Split(nWidths, nList, nGrid.Columns.Count, ';') then
+      begin
+        nCount := nList.Count - 1;
+        for i:=0 to nCount do
+         if TStringHelper.IsNumber(nList[i], False) then
+          nGrid.Columns[i].Width := StrToInt(nList[i]);
+      end;
+    finally
+      nList.Free;
+    end;
+  end;
+end;
+
+//Date: 2018-05-04
+//Parm: 表格
+//Desc: 构建nGrid表头宽度字符串
+function MakeGridColumnInfo(const nGrid: TUniStringGrid): string;
+var i,nCount: integer;
+begin
+  Result := '';
+  nCount := nGrid.Columns.Count - 1;
+
+  for i:=0 to nCount do
+  if i = nCount then
+       Result := Result + IntToStr(nGrid.Columns[i].Width)
+  else Result := Result + IntToStr(nGrid.Columns[i].Width) + ';';
 end;
 
 initialization

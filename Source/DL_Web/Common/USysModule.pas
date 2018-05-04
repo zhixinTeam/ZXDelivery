@@ -10,7 +10,8 @@ interface
 
 uses
   UClientWorker, UClientPacker,
-  UFormChangePwd, UFormExit, UFrameCustomer, UFormCustomer, UFrameContract;
+  UFormChangePwd, UFormExit, UFrameCustomer, UFormCustomer, UFrameContract,
+  UFormContract, UFormDateFilter, UFrameZhiKa;
 
 implementation
 

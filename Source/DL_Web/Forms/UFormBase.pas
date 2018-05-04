@@ -9,7 +9,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
   Controls, Forms, uniGUITypes, uniGUIAbstractClasses, uniGUIClasses,
-  uniGUIForm, uniPanel, uniGUIBaseClasses, uniButton;
+  uniGUIForm, uniPanel, uniGUIBaseClasses, uniButton, USysConst;
 
 type
   PFormCommandParam = ^TFormCommandParam;
@@ -30,6 +30,8 @@ type
     procedure UniFormDestroy(Sender: TObject);
   protected
     { Protected declarations }
+    FDBType: TAdoConnectionType;
+    //数据连接
     FParam: TFormCommandParam;
     //命令参数
     procedure OnCreateForm(Sender: TObject); virtual;
@@ -47,6 +49,7 @@ implementation
 
 procedure TfFormBase.UniFormCreate(Sender: TObject);
 begin
+  FDBType := ctWork;
   OnCreateForm(Sender);
 end;
 

@@ -110,11 +110,11 @@ begin
     nIni := UserConfigFile;
     //config object
 
-    nInt := nIni.ReadInteger(Name, 'PanelLeft', 200);
+    nInt := nIni.ReadInteger(ClassName, 'PanelLeft', 200);
     if nInt < 50 then nInt := 50;
     PanelLeft.Width := nInt;
 
-    nInt := nIni.ReadInteger(Name, 'FactoryLast', 0);
+    nInt := nIni.ReadInteger(ClassName, 'FactoryLast', 0);
     if (ComboFactory.ItemIndex >= 0) and (nInt >= 0) then
       ComboFactory.ItemIndex := nInt;
     UniMainModule.FUserConfig.FFactory := ComboFactory.ItemIndex;
@@ -131,8 +131,8 @@ begin
   nIni := nil;
   try
     nIni := UserConfigFile;
-    nIni.WriteInteger(Name, 'PanelLeft', PanelLeft.Width);
-    nIni.WriteInteger(Name, 'FactoryLast', ComboFactory.ItemIndex);
+    nIni.WriteInteger(ClassName, 'PanelLeft', PanelLeft.Width);
+    nIni.WriteInteger(ClassName, 'FactoryLast', ComboFactory.ItemIndex);
   finally
     nIni.Free;
   end;
