@@ -44,6 +44,9 @@ function SystemGetForm(const nClass: string;
 //根据类名称获取窗体对像
 function UserConfigFile: TIniFile;
 //用户自定义配置文件
+procedure LoadFormConfig(const nForm: TUniForm; const nIni: TIniFile = nil);
+procedure SaveFormConfig(const nForm: TUniForm; const nIni: TIniFile = nil);
+//读写窗体配置信息
 function ParseCardNO(const nCard: string; const nHex: Boolean): string;
 //格式化磁卡编号
 procedure LoadSystemMemoryStatus(const nList: TStrings; const nFriend: Boolean);
@@ -57,6 +60,8 @@ function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取业务员列表
 function LoadCustomer(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取客户列表
+function IsZhiKaNeedVerify(const nQuery: TADOQuery): Boolean;
+//Desc: 纸卡是否需要审核
 
 procedure LoadMenuItems(const nForce: Boolean);
 //载入菜单数据
@@ -512,6 +517,45 @@ begin
   end;
 end;
 
+//Desc: 读取窗体配置
+procedure LoadFormConfig(const nForm: TUniForm; const nIni: TIniFile);
+var nC: TIniFile;
+begin
+  nC := nil;
+  try
+    if Assigned(nIni) then
+         nC := nIni
+    else nC := UserConfigFile();
+
+    nForm.Width := nC.ReadInteger(nForm.ClassName, 'Width', nForm.Width);
+    nForm.Height := nC.ReadInteger(nForm.ClassName, 'Height', nForm.Height);
+  finally
+    if not Assigned(nIni) then
+      nC.Free;
+    //xxxxx
+  end;
+end;
+
+//Desc: 保存窗体配置
+procedure SaveFormConfig(const nForm: TUniForm; const nIni: TIniFile);
+var nC: TIniFile;
+begin
+  nC := nil;
+  try
+    if Assigned(nIni) then
+         nC := nIni
+    else nC := UserConfigFile();
+
+    nC.WriteInteger(nForm.ClassName, 'Width', nForm.Width);
+    nC.WriteInteger(nForm.ClassName, 'Height', nForm.Height);
+  finally
+    if not Assigned(nIni) then
+      nC.Free;
+    //xxxxx
+  end;
+end;
+
+//------------------------------------------------------------------------------
 //Date: 2018-05-03
 //Parm: 字典项;列表
 //Desc: 从SysDict中读取nItem项的内容,存入nList中
@@ -627,6 +671,26 @@ begin
     nList.EndUpdate;
     ReleaseDBQuery(nQuery);
   end;
+end;
+
+//Date: 2018-05-05
+//Parm: 查询对象
+//Desc: 纸卡是否需要审核
+function IsZhiKaNeedVerify(const nQuery: TADOQuery): Boolean;
+var nStr: string;
+begin
+  with TStringHelper do
+  begin
+    nStr := 'Select D_Value From $T Where D_Name=''$N'' and D_Memo=''$M''';
+    nStr := MacroValue(nStr, [MI('$T', sTable_SysDict),
+            MI('$N', sFlag_SysParam), MI('$M', sFlag_ZhiKaVerify)]);
+    //xxxxx
+  end;
+
+  with DBQuery(nStr, nQuery) do
+  if RecordCount > 0 then
+       Result := Fields[0].AsString = sFlag_Yes
+  else Result := False;
 end;
 
 //------------------------------------------------------------------------------

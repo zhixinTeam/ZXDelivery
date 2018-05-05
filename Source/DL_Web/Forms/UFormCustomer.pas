@@ -59,11 +59,6 @@ uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, UManagerGroup,
   ULibFun, USysBusiness, USysRemote, USysDB, USysConst;
 
-function fFormCutomer: TfFormCutomer;
-begin
-  Result := TfFormCutomer(UniMainModule.GetFormInstance(TfFormCutomer));
-end;
-
 function TfFormCutomer.SetParam(const nParam: TFormCommandParam): Boolean;
 begin
   Result := inherited SetParam(nParam);

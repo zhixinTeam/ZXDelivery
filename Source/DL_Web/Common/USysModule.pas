@@ -11,7 +11,7 @@ interface
 uses
   UClientWorker, UClientPacker,
   UFormChangePwd, UFormExit, UFrameCustomer, UFormCustomer, UFrameContract,
-  UFormContract, UFormDateFilter, UFrameZhiKa;
+  UFormContract, UFormDateFilter, UFrameZhiKa, UFormZhiKa, UFormGetContract;
 
 implementation
 

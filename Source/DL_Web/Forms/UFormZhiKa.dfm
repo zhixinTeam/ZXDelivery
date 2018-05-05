@@ -1,38 +1,38 @@
-inherited fFormSaleContract: TfFormSaleContract
-  ClientHeight = 601
-  ClientWidth = 544
-  Caption = #21512#21516
-  ExplicitWidth = 550
-  ExplicitHeight = 630
+inherited fFormZhiKa: TfFormZhiKa
+  ClientHeight = 571
+  ClientWidth = 527
+  Caption = #32440#21345
+  ExplicitWidth = 533
+  ExplicitHeight = 600
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
-    Left = 380
-    Top = 565
+    Left = 363
+    Top = 535
     TabOrder = 1
     OnClick = BtnOKClick
-    ExplicitLeft = 380
-    ExplicitTop = 565
+    ExplicitLeft = 363
+    ExplicitTop = 535
   end
   inherited BtnExit: TUniButton
-    Left = 461
-    Top = 567
+    Left = 444
+    Top = 537
     TabOrder = 2
-    ExplicitLeft = 461
-    ExplicitTop = 567
+    ExplicitLeft = 444
+    ExplicitTop = 537
   end
   inherited PanelWork: TUniSimplePanel
-    Width = 528
-    Height = 551
+    Width = 511
+    Height = 521
     TabOrder = 0
-    ExplicitWidth = 528
-    ExplicitHeight = 551
-    object EditID: TUniEdit
+    ExplicitWidth = 511
+    ExplicitHeight = 521
+    object EditName: TUniEdit
       Left = 68
       Top = 15
       Width = 150
       Hint = ''
-      MaxLength = 15
+      MaxLength = 100
       Text = ''
       ParentFont = False
       Font.Charset = GB2312_CHARSET
@@ -46,16 +46,43 @@ inherited fFormSaleContract: TfFormSaleContract
       Width = 54
       Height = 12
       Hint = ''
+      Caption = #32440#21345#21517#31216':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 4
+    end
+    object UniLabel2: TUniLabel
+      Left = 235
+      Top = 20
+      Width = 54
+      Height = 12
+      Hint = ''
       Caption = #21512#21516#32534#21495':'
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 3
+      TabOrder = 5
     end
-    object UniLabel2: TUniLabel
-      Left = 235
-      Top = 20
+    object EditCID: TUniEdit
+      Left = 295
+      Top = 15
+      Width = 185
+      Hint = ''
+      MaxLength = 15
+      Text = ''
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 2
+      OnKeyPress = EditCIDKeyPress
+    end
+    object UniLabel3: TUniLabel
+      Left = 8
+      Top = 56
       Width = 54
       Height = 12
       Hint = ''
@@ -64,12 +91,12 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 4
+      TabOrder = 7
     end
-    object EditName: TUniEdit
-      Left = 296
-      Top = 15
-      Width = 220
+    object EditProject: TUniEdit
+      Left = 68
+      Top = 51
+      Width = 412
       Hint = ''
       MaxLength = 100
       Text = ''
@@ -77,76 +104,25 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 2
-    end
-    object UniLabel3: TUniLabel
-      Left = 8
-      Top = 125
-      Width = 54
-      Height = 12
-      Hint = ''
-      Caption = #25152#23646#21306#22495':'
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 15
-    end
-    object EditArea: TUniEdit
-      Left = 68
-      Top = 121
-      Width = 150
-      Hint = ''
-      MaxLength = 50
-      Text = ''
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 13
-    end
-    object UniLabel4: TUniLabel
-      Left = 235
-      Top = 160
-      Width = 54
-      Height = 12
-      Hint = ''
-      Caption = #25209' '#20934' '#20154':'
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 20
-    end
-    object EditApproval: TUniEdit
-      Left = 296
-      Top = 155
-      Width = 220
-      Hint = ''
-      MaxLength = 30
-      Text = ''
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 18
+      TabOrder = 6
     end
     object EditSaleMan: TUniComboBox
       Left = 68
-      Top = 50
-      Width = 150
+      Top = 87
+      Width = 412
       Hint = ''
+      Style = csDropDownList
       Text = ''
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 5
+      TabOrder = 8
       OnChange = EditSaleManChange
     end
     object UniLabel8: TUniLabel
       Left = 8
-      Top = 55
+      Top = 92
       Width = 54
       Height = 12
       Hint = ''
@@ -155,11 +131,11 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 7
+      TabOrder = 9
     end
     object UniLabel9: TUniLabel
-      Left = 235
-      Top = 55
+      Left = 8
+      Top = 128
       Width = 54
       Height = 12
       Hint = ''
@@ -168,12 +144,12 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 8
+      TabOrder = 11
     end
     object EditCus: TUniComboBox
-      Left = 296
-      Top = 50
-      Width = 220
+      Left = 68
+      Top = 123
+      Width = 412
       Hint = ''
       Style = csDropDownList
       MaxLength = 35
@@ -182,63 +158,11 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 6
-    end
-    object UniLabel10: TUniLabel
-      Left = 235
-      Top = 90
-      Width = 54
-      Height = 12
-      Hint = ''
-      Caption = #31614#35746#22320#28857':'
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 12
-    end
-    object EditQAddr: TUniEdit
-      Left = 296
-      Top = 85
-      Width = 220
-      Hint = ''
-      MaxLength = 50
-      Text = ''
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
       TabOrder = 10
     end
     object UniLabel13: TUniLabel
-      Left = 8
-      Top = 90
-      Width = 54
-      Height = 12
-      Hint = ''
-      Caption = #31614#35746#26102#38388':'
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 11
-    end
-    object UniLabel14: TUniLabel
-      Left = 8
-      Top = 160
-      Width = 54
-      Height = 12
-      Hint = ''
-      Caption = #20184#27454#26041#24335':'
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 19
-    end
-    object UniLabel6: TUniLabel
-      Left = 8
-      Top = 195
+      Left = 235
+      Top = 162
       Width = 54
       Height = 12
       Hint = ''
@@ -247,86 +171,73 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 22
+      TabOrder = 14
     end
-    object UniLabel5: TUniLabel
-      Left = 235
-      Top = 125
+    object UniLabel14: TUniLabel
+      Left = 8
+      Top = 200
       Width = 54
       Height = 12
       Hint = ''
-      Caption = #20132#36135#22320#28857':'
+      Caption = #20184#27454#26041#24335':'
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 16
+      TabOrder = 18
     end
-    object EditDays: TUniEdit
-      Left = 68
-      Top = 192
-      Width = 150
+    object UniLabel6: TUniLabel
+      Left = 235
+      Top = 200
+      Width = 54
+      Height = 12
+      Hint = ''
+      Caption = #39044#20184#37329#39069':'
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 19
+    end
+    object EditMoney: TUniEdit
+      Left = 295
+      Top = 195
+      Width = 185
       Hint = ''
       MaxLength = 6
-      Text = '1'
+      Text = '0'
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 21
+      TabOrder = 17
     end
-    object EditJAddr: TUniEdit
-      Left = 296
-      Top = 120
-      Width = 220
-      Hint = ''
-      MaxLength = 50
-      Text = ''
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 14
-    end
-    object EditQDate: TUniDateTimePicker
-      Left = 68
-      Top = 86
-      Width = 150
+    object EditDays: TUniDateTimePicker
+      Left = 295
+      Top = 158
+      Width = 185
       Hint = ''
       DateTime = 43224.000000000000000000
       DateFormat = 'yyyy-MM-dd'
       TimeFormat = 'HH:mm:ss'
-      TabOrder = 9
+      TabOrder = 12
     end
     object Label1: TUniLabel
-      Left = 235
-      Top = 195
-      Width = 228
+      Left = 486
+      Top = 200
+      Width = 12
       Height = 12
       Hint = ''
-      Caption = #22825'  '#27880':'#29992#25143#38656#35201#22312#25351#23450#26102#38271#20869#23558#27700#27877#25552#23436'.'
+      Caption = #20803
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 23
-    end
-    object Label2: TUniLabel
-      Left = 8
-      Top = 232
-      Width = 54
-      Height = 12
-      Hint = ''
-      Caption = #22791#27880#20449#24687':'
-      ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Height = -12
-      Font.Name = #23435#20307
-      TabOrder = 24
+      TabOrder = 20
     end
     object EditPayment: TUniComboBox
       Left = 68
-      Top = 156
+      Top = 195
       Width = 150
       Hint = ''
       MaxLength = 20
@@ -335,18 +246,20 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 17
+      TabOrder = 16
     end
     object Grid1: TUniStringGrid
       Left = 8
-      Top = 300
-      Width = 508
-      Height = 242
-      Hint = ''
+      Top = 268
+      Width = 491
+      Height = 244
+      Hint = #21452#20987#32534#36753
+      ShowHint = True
+      ParentShowHint = False
       FixedCols = 0
       FixedRows = 0
       ColCount = 6
-      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor]
+      Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick]
       ShowColumnTitles = True
       Columns = <
         item
@@ -358,23 +271,24 @@ inherited fFormSaleContract: TfFormSaleContract
           Width = 145
         end
         item
-          Title.Caption = #25968#37327'('#21544'))'
-          Width = 80
-        end
-        item
           Title.Caption = #21333#20215'('#20803'/'#21544')'
           Width = 80
         end
         item
-          Title.Caption = #37329#39069'('#20803')'
+          Title.Caption = #21150#29702#37327'('#21544')'
           Width = 80
         end
         item
-          Title.Caption = '111'
+          Title.Caption = #21253#35013#31867#22411
           Width = 0
+        end
+        item
+          Title.Caption = #36873#20013
+          Width = 45
         end>
-      Anchors = [akLeft, akTop, akRight, akBottom]
-      TabOrder = 28
+      OnSelectCell = Grid1SelectCell
+      Anchors = [akLeft, akRight, akBottom]
+      TabOrder = 24
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -382,63 +296,86 @@ inherited fFormSaleContract: TfFormSaleContract
     end
     object Label3: TUniLabel
       Left = 8
-      Top = 280
+      Top = 249
       Width = 54
       Height = 12
       Hint = ''
-      Caption = #21512#21516#26126#32454':'
+      Caption = #32440#21345#26126#32454':'
+      Anchors = [akLeft, akRight, akBottom]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 27
+      TabOrder = 23
     end
     object BtnAdd: TUniBitBtn
-      Left = 425
-      Top = 276
-      Width = 45
+      Left = 442
+      Top = 245
+      Width = 28
       Height = 20
       Hint = #28155#21152#21512#21516#26126#32454
       Visible = False
       ShowHint = True
       ParentShowHint = False
       Caption = '+'
-      TabOrder = 25
+      Anchors = [akRight, akBottom]
+      TabOrder = 21
     end
     object BtnDel: TUniBitBtn
       Left = 471
-      Top = 276
-      Width = 45
+      Top = 245
+      Width = 28
       Height = 20
       Hint = #21024#38500#36873#20013#30340#26126#32454
       Visible = False
       ShowHint = True
       ParentShowHint = False
       Caption = '-'
-      TabOrder = 26
+      Anchors = [akLeft, akRight, akBottom]
+      TabOrder = 22
     end
-    object EditMemo: TUniEdit
-      Left = 68
-      Top = 228
-      Width = 448
+    object BtnGetContract: TUniBitBtn
+      Left = 480
+      Top = 15
+      Width = 22
+      Height = 22
+      Hint = #36873#25321#21512#21516
+      ShowHint = True
+      ParentShowHint = False
+      Caption = '...'
+      TabOrder = 3
+      OnClick = BtnGetContractClick
+    end
+    object Label2: TUniLabel
+      Left = 8
+      Top = 164
+      Width = 54
+      Height = 12
       Hint = ''
-      MaxLength = 50
-      Text = ''
+      Caption = #25552#36135#26041#24335':'
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 29
+      TabOrder = 15
     end
-  end
-  object Check1: TUniCheckBox
-    Left = 8
-    Top = 569
-    Width = 300
-    Height = 17
-    Hint = ''
-    Caption = #34394#25311#21512#21516': '#21150#29702#32440#21345#26102#20801#35768#21464#26356#19994#21153#21592#21644#23458#25143#21517#31216'.'
-    Anchors = [akLeft, akBottom]
-    TabOrder = 3
+    object EditLading: TUniComboBox
+      Left = 68
+      Top = 159
+      Width = 150
+      Hint = ''
+      Style = csDropDownList
+      MaxLength = 20
+      Text = ''
+      Items.Strings = (
+        'T.'#33258#25552
+        'S.'#36865#36135
+        'X.'#36816#21368)
+      ParentFont = False
+      Font.Charset = GB2312_CHARSET
+      Font.Height = -12
+      Font.Name = #23435#20307
+      TabOrder = 13
+    end
   end
 end

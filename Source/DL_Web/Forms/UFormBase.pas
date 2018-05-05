@@ -50,6 +50,7 @@ implementation
 procedure TfFormBase.UniFormCreate(Sender: TObject);
 begin
   FDBType := ctWork;
+  FillChar(FParam, SizeOf(FParam), #0);
   OnCreateForm(Sender);
 end;
 

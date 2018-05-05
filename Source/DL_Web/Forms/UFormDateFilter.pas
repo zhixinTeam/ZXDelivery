@@ -123,12 +123,6 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
-function fFormDateFilter: TfFormDateFilter;
-begin
-  Result := TfFormDateFilter(UniMainModule.GetFormInstance(TfFormDateFilter));
-end;
-
 procedure TfFormDateFilter.BtnOKClick(Sender: TObject);
 begin
   if EditEnd.DateTime < EditStart.DateTime then

@@ -37,7 +37,6 @@ type
     EditJAddr: TUniEdit;
     EditQDate: TUniDateTimePicker;
     Label1: TUniLabel;
-    EditMemo: TUniMemo;
     Label2: TUniLabel;
     EditPayment: TUniComboBox;
     Check1: TUniCheckBox;
@@ -45,6 +44,7 @@ type
     Label3: TUniLabel;
     BtnAdd: TUniBitBtn;
     BtnDel: TUniBitBtn;
+    EditMemo: TUniEdit;
     procedure BtnOKClick(Sender: TObject);
     procedure EditSaleManChange(Sender: TObject);
   private
@@ -77,16 +77,12 @@ const
   giType  = 5;
   //grid info:表格列数据描述
 
-function fFormSaleContract: TfFormSaleContract;
-begin
-  Result := TfFormSaleContract(UniMainModule.GetFormInstance(TfFormSaleContract));
-end;
-
 procedure TfFormSaleContract.OnCreateForm(Sender: TObject);
 begin
   with Grid1 do
   begin
     FixedCols := 2;
+    RowCount := 0;
     Options := [goVertLine,goHorzLine,goEditing,goAlwaysShowEditor];
   end;
 end;

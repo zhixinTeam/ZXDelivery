@@ -2,7 +2,6 @@ inherited fFormDateFilter: TfFormDateFilter
   ClientHeight = 150
   ClientWidth = 314
   Caption = #26085#26399#31579#36873
-  ExplicitWidth = 320
   ExplicitHeight = 179
   PixelsPerInch = 96
   TextHeight = 13
