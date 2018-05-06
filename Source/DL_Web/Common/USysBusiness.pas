@@ -44,6 +44,11 @@ function SystemGetForm(const nClass: string;
 //根据类名称获取窗体对像
 function UserConfigFile: TIniFile;
 //用户自定义配置文件
+function WriteSysLog(const nGroup,nItem,nEvent: string;
+  const nType: TAdoConnectionType = ctMain;
+  const nHint: Boolean = True; const nExec: Boolean = True;
+  const nKeyID: string = ''; const nMan: string = ''): string;
+ //记录系统日志
 procedure LoadFormConfig(const nForm: TUniForm; const nIni: TIniFile = nil);
 procedure SaveFormConfig(const nForm: TUniForm; const nIni: TIniFile = nil);
 //读写窗体配置信息
@@ -514,6 +519,41 @@ begin
   if not FileExists(nStr) then
   begin
     Result.WriteString('Config', 'User', UniMainModule.FUserConfig.FUserID);
+  end;
+end;
+
+//Date: 2009-6-8
+//Parm: 信息分组;标识;事件;连接类型;错误提示;执行;辅助标识;操作人
+//Desc: 像系统日志表写入一条日志记录
+function WriteSysLog(const nGroup,nItem,nEvent: string;
+ const nType: TAdoConnectionType; const nHint,nExec: Boolean;
+ const nKeyID,nMan: string): string;
+var nStr,nSQL: string;
+begin
+  with TStringHelper,UniMainModule do
+  begin
+    nSQL := 'Insert Into $T(L_Date,L_Man,L_Group,L_ItemID,L_KeyID,L_Event) ' +
+            'Values($D,''$M'',''$G'',''$I'',''$K'',''$E'')';
+    nSQL := MacroValue(nSQL, [MI('$T', sTable_SysLog),
+            MI('$D', sField_SQLServer_Now), MI('$G', nGroup), MI('$I', nItem),
+            MI('$E', nEvent), MI('$K', nKeyID)]);
+    //xxxxx
+
+    if nMan = '' then
+         nStr := FUserConfig.FUserName
+    else nStr := nMan;
+
+    nSQL := MacroValue(nSQL, [MI('$M', nStr)]);
+    Result := nSQL;
+
+    if nExec then
+    try
+      DBExecute(nSQL, nil, nType);
+    except
+      if nHint then
+        FMainForm.ShowMessage('系统日志写入错误');
+      Result := '';
+    end;
   end;
 end;
 

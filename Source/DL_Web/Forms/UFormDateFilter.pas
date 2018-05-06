@@ -49,6 +49,7 @@ function ShowDateFilterForm(const nStart,nEnd: TDate;
   const nResult: TFormDateFilterResult; nTime: Boolean): Boolean;
 var nForm: TUniForm;
 begin
+  Result := False;
   nForm := SystemGetForm('TfFormDateFilter', True);
   if not Assigned(nForm) then Exit;
 
@@ -74,6 +75,7 @@ begin
           nResult(EditStart.DateTime, EditEnd.DateTime);
         //xxxxx
       end);
+    Result := True;
   end;
 end;
 

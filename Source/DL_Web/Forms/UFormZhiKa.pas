@@ -435,8 +435,10 @@ begin
   try
     nBool := FParam.FCommand <> cCmd_EditData;
     if nBool then
-         nID := GetSerialNo(sFlag_BusGroup, sFlag_ZhiKa, False)
-    else nID := FParam.FParamB;
+    begin
+      nID := GetSerialNo(sFlag_BusGroup, sFlag_ZhiKa, False);
+      if nID = '' then Exit;      
+    end else nID := FParam.FParamB;
     //new id
 
     nVerify := sFlag_Yes;

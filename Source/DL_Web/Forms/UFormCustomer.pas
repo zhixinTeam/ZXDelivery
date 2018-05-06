@@ -145,8 +145,10 @@ begin
   with TSQLBuilder,TStringHelper do
   try
     if FParam.FCommand = cCmd_AddData then
-         nID := GetSerialNo(sFlag_BusGroup, sFlag_Customer, False)
-    else nID := '';
+    begin
+      nID := GetSerialNo(sFlag_BusGroup, sFlag_Customer, False);
+      if nID = '' then Exit;      
+    end else nID := '';
     //new id
 
     nList := gMG.FObjectPool.Lock(TStrings) as TStrings;

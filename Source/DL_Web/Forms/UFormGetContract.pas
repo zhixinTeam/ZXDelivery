@@ -58,6 +58,7 @@ uses
 function ShowGetContractForm(const nResult: TFormGetContractResult): Boolean;
 var nForm: TUniForm;
 begin
+  Result := False;
   nForm := SystemGetForm('TfFormGetContract', True);
   if not Assigned(nForm) then Exit;
 
@@ -70,6 +71,7 @@ begin
           nResult(GetContractID);
         //xxxxx
       end);
+    Result := True;
   end;
 end;
 

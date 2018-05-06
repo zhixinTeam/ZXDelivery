@@ -276,6 +276,8 @@ begin
 
   AddMenuModuleItem('MAIN_D01', 'TfFormZhiKa', mtForm);
   AddMenuModuleItem('MAIN_D05', 'TfFrameZhiKa');
+
+  AddMenuModuleItem('MAIN_L08', 'TfFrameZhiKaDetail');
 end;
 
 //Desc: 清理模块列表
