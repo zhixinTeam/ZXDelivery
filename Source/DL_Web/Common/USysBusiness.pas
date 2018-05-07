@@ -16,7 +16,7 @@ uses
   uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm, uniGUIFrame,
   uniDBGrid, uniBasicGrid, uniStringGrid,
   //----------------------------------------------------------------------------
-  UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun;
+  UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun, USysRemote;
 
 procedure GlobalSyncLock;
 procedure GlobalSyncRelease;
@@ -66,7 +66,16 @@ function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
 function LoadCustomer(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取客户列表
 function IsZhiKaNeedVerify(const nQuery: TADOQuery): Boolean;
-//Desc: 纸卡是否需要审核
+//纸卡是否需要审核
+function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
+ const nType,nPayment,nMemo: string; const nMoney: Double;
+ const nCredit: Boolean = True): Boolean;
+//保存回款记录
+function IsAutoPayCredit(const nQuery: TADOQuery): Boolean;
+//回款时冲信用
+function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
+ const nEndTime: TDateTime): Boolean;
+//保存信用记录
 
 procedure LoadMenuItems(const nForce: Boolean);
 //载入菜单数据
@@ -731,6 +740,218 @@ begin
   if RecordCount > 0 then
        Result := Fields[0].AsString = sFlag_Yes
   else Result := False;
+end;
+
+procedure DoSaveCustomerPayment(const nCusID,nCusName,nSaleMan,nType,nPayment,
+  nMemo: string; const nVal,nLimit: Double;
+  const nList: TStrings; const nQuery: TADOQuery);
+var nStr: string;
+    nTmp: TStrings;
+begin
+  nTmp := nil;
+  try
+    if Assigned(nList) then
+         nTmp := nList
+    else nTmp := gMG.FObjectPool.Lock(TStrings) as TStrings;
+
+    nStr := 'Update %s Set A_InMoney=A_InMoney+%.2f Where A_CID=''%s''';
+    nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
+    nTmp.Add(nStr);
+
+    with TSQLBuilder do
+    nStr := TSQLBuilder.MakeSQLByStr([SF('M_SaleMan', nSaleMan),
+            SF('M_CusID', nCusID),
+            SF('M_CusName', nCusName),
+            SF('M_Type', nType),
+            SF('M_Payment', nPayment),
+            SF('M_Money', nVal, sfVal),
+            SF('M_Date', sField_SQLServer_Now, sfVal),
+            SF('M_Man', UniMainModule.FUserConfig.FUserID),
+            SF('M_Memo', nMemo)
+            ], sTable_InOutMoney);
+    nTmp.Add(nStr);
+
+    DBExecute(nTmp, nQuery, ctWork);
+    //do save
+
+    if (nLimit > 0) and (
+       not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now())) then
+    begin
+      nStr := '发生未知错误,导致冲减客户[ %s ]信用操作失败.' + #13#10 +
+              '请手动调整该客户信用额度.';
+      nStr := Format(nStr, [nCusName]);
+      UniMainModule.FMainForm.ShowMessage(nStr);
+    end;
+  finally
+    if not Assigned(nList) then
+      gMG.FObjectPool.Release(nTmp);
+    //xxxxx
+  end;
+end;
+
+//Desc: 保存nCusID的一次回款记录
+function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
+ const nType,nPayment,nMemo: string; const nMoney: Double;
+ const nCredit: Boolean): Boolean;
+var nStr: string;
+    nVal,nLimit: Double;
+    nList: TStrings;
+    nQuery: TADOQuery;
+begin
+  nList := nil;
+  nQuery := nil;
+  Result := False;
+
+  with TStringHelper,TFloatHelper do
+  try
+    nVal := Float2Float(nMoney, cPrecision, False);
+    //adjust float value
+
+    {$IFNDEF NoCheckOnPayment}
+    if nVal < 0 then
+    begin
+      nLimit := GetCustomerValidMoney(nCusID, False);
+      //get money value
+
+      if (nLimit <= 0) or (nLimit < -nVal) then
+      begin
+        nStr := '客户: %s ' + #13#10#13#10 +
+                '当前余额为[ %.2f ]元,无法支出[ %.2f ]元.';
+        nStr := Format(nStr, [nCusName, nLimit, -nVal]);
+
+        UniMainModule.FMainForm.ShowMessage(nStr);
+        Exit;
+      end;
+    end;
+    {$ENDIF}
+
+    nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+    nQuery := LockDBQuery(ctWork);
+    nLimit := 0;
+    //no limit
+
+    if nCredit and (nVal > 0) and IsAutoPayCredit(nQuery) then
+    begin
+      nStr := 'Select A_CreditLimit From %s Where A_CID=''%s''';
+      nStr := Format(nStr, [sTable_CusAccount, nCusID]);
+
+      with DBQuery(nStr, nQuery) do
+      if (RecordCount > 0) and (Fields[0].AsFloat > 0) then
+      begin
+        if FloatRelation(nVal, Fields[0].AsFloat, rtGreater) then
+             nLimit := Float2Float(Fields[0].AsFloat, cPrecision, False)
+        else nLimit := nVal;
+
+        nStr := '客户[ %s ]当前信用额度为[ %.2f ]元,是否冲减?' +
+                #32#32#13#10#13#10 + '点击"是"将降低[ %.2f ]元的额度.';
+        nStr := Format(nStr, [nCusName, Fields[0].AsFloat, nLimit]);
+
+        UniMainModule.FMainForm.MessageDlg(nStr, mtConfirmation, mbYesNo,
+          procedure(Sender: TComponent; Res: Integer)
+          begin
+            if Res <> mrYes then
+              nLimit := 0;
+            //xxxxx
+
+            DoSaveCustomerPayment(nCusID, nCusName, nSaleMan, nType, nPayment,
+               nMemo, nVal, 0, nil, nil);
+            //匿名函数中不能使用全局的nList,nQuery
+          end);
+        //xxxxx
+      end;
+
+      Exit;
+    end;
+
+    DoSaveCustomerPayment(nCusID, nCusName, nSaleMan, nType, nPayment,
+      nMemo, nVal, 0, nList, nQuery);
+    //xxxxx
+  finally
+    gMG.FObjectPool.Release(nList);
+    ReleaseDBQuery(nQuery);
+  end
+end;
+
+//Desc: 汇款时冲信用额度
+function IsAutoPayCredit(const nQuery: TADOQuery): Boolean;
+var nStr: string;
+begin
+  with TStringHelper do
+  begin
+    nStr := 'Select D_Value From $T Where D_Name=''$N'' and D_Memo=''$M''';
+    nStr := MacroValue(nStr, [MI('$T', sTable_SysDict),
+            MI('$N', sFlag_SysParam), MI('$M', sFlag_PayCredit)]);
+    //xxxxx
+
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+         Result := Fields[0].AsString = sFlag_Yes
+    else Result := False;
+  end;
+end;
+
+//Desc: 保存nCusID的一次授信记录
+function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
+ const nEndTime: TDateTime): Boolean;
+var nStr: string;
+    nVal: Double;
+    nList: TStrings;
+    nQuery: TADOQuery;
+begin
+  nList := nil;
+  nQuery := nil;
+  with TStringHelper,TFloatHelper,TSQLBuilder,TDateTimeHelper do
+  try
+    nVal := Float2Float(nCredit, cPrecision, False);
+    //adjust float value
+
+    nQuery := LockDBQuery(ctWork);
+    nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+
+    nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_CreditVerify]);
+
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+         nStr := Fields[0].AsString
+    else nStr := sFlag_No;
+
+    if nStr = sFlag_Yes then //需审核
+    begin
+      nStr := MakeSQLByStr([SF('C_CusID', nCusID),
+              SF('C_Money', nVal, sfVal),
+              SF('C_Man', UniMainModule.FUserConfig.FUserID),
+              SF('C_Date', sField_SQLServer_Now, sfVal),
+              SF('C_End', DateTime2Str(nEndTime)),
+              SF('C_Memo',nMemo)
+              ], sTable_CusCredit, '', True);
+      nList.Add(nStr);
+    end else
+    begin
+      nStr := MakeSQLByStr([SF('C_CusID', nCusID),
+              SF('C_Money', nVal, sfVal),
+              SF('C_Man', UniMainModule.FUserConfig.FUserID),
+              SF('C_Date', sField_SQLServer_Now, sfVal),
+              SF('C_End', DateTime2Str(nEndTime)),
+              SF('C_Verify', sFlag_Yes),
+              SF('C_VerMan', UniMainModule.FUserConfig.FUserID),
+              SF('C_VerDate', sField_SQLServer_Now, sfVal),
+              SF('C_Memo',nMemo)
+              ], sTable_CusCredit, '', True);
+      nList.Add(nStr);
+
+      nStr := 'Update %s Set A_CreditLimit=A_CreditLimit+%.2f ' +
+              'Where A_CID=''%s''';
+      nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
+      nList.Add(nStr);
+    end;
+
+    DBExecute(nList, nQuery);
+    Result := True;
+  finally
+    gMG.FObjectPool.Release(nList);
+    ReleaseDBQuery(nQuery);
+  end;
 end;
 
 //------------------------------------------------------------------------------

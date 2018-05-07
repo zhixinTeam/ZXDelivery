@@ -274,9 +274,18 @@ begin
   AddMenuModuleItem('MAIN_B03', '');
   AddMenuModuleItem('MAIN_B04', 'TfFrameContract');
 
+  AddMenuModuleItem('MAIN_C03', 'TfFrameCustomerCredit');
+
   AddMenuModuleItem('MAIN_D01', 'TfFormZhiKa', mtForm);
   AddMenuModuleItem('MAIN_D05', 'TfFrameZhiKa');
+  AddMenuModuleItem('MAIN_D06', 'TfFrameBill');
 
+  AddMenuModuleItem('MAIN_L01', 'TfFrameTruckQuery');
+  AddMenuModuleItem('MAIN_L02', 'TfFrameCusAccount');
+  AddMenuModuleItem('MAIN_L03', 'TfFrameCusInOutMoney');
+  AddMenuModuleItem('MAIN_L05', 'TfFrameQueryDiapatch');
+  AddMenuModuleItem('MAIN_L06', 'TfFrameQuerySaleDetail');
+  AddMenuModuleItem('MAIN_L07', 'TfFrameQuerySaleTotal');
   AddMenuModuleItem('MAIN_L08', 'TfFrameZhiKaDetail');
 end;
 

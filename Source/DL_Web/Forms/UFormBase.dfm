@@ -25,6 +25,7 @@ object fFormBase: TfFormBase
     Anchors = [akRight, akBottom]
     TabOrder = 0
     Default = True
+    OnClick = BtnOKClick
   end
   object BtnExit: TUniButton
     Left = 219

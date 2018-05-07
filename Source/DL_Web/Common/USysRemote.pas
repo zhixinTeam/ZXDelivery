@@ -8,11 +8,15 @@ unit USysRemote;
 interface
 
 uses
-  Windows, Classes, UClientWorker, UManagerGroup, UBusinessConst,
-  ULibFun, USysDB, USysConst, USysFun;
+  Windows, Classes, System.SysUtils, UClientWorker, UBusinessConst, ULibFun,
+  UManagerGroup, USysDB, USysConst, USysFun;
 
-function GetSerialNo(const nGroup,nObject: string; nUseDate: Boolean = True): string;
+function GetSerialNo(const nGroup,nObject: string;
+ const nUseDate: Boolean = True): string;
 //获取串行编号
+function GetCustomerValidMoney(nCID: string; const nLimit: Boolean = True;
+ const nCredit: PDouble = nil): Double;
+//客户可用金额
 
 implementation
 
@@ -172,7 +176,8 @@ end;
 //Date: 2018-05-03
 //Parm: 分组;对象;使用日期编码模式
 //Desc: 依据nGroup.nObject生成串行编号
-function GetSerialNo(const nGroup,nObject: string; nUseDate: Boolean): string;
+function GetSerialNo(const nGroup,nObject: string;
+ const nUseDate: Boolean): string;
 var nStr: string;
     nList: TStrings;
     nOut: TWorkerBusinessCommand;
@@ -193,6 +198,33 @@ begin
     //xxxxx
   finally
     gMG.FObjectPool.Release(nList);
+  end;
+end;
+
+//Date: 2018-05-07
+//Parm: 客户编号;包含信用;信用金额
+//Desc: 获取nCID用户的可用金额,包含信用额或净额
+function GetCustomerValidMoney(nCID: string; const nLimit: Boolean;
+ const nCredit: PDouble): Double;
+var nStr: string;
+    nOut: TWorkerBusinessCommand;
+begin
+  if nLimit then
+       nStr := sFlag_Yes
+  else nStr := sFlag_No;
+
+  if CallBusinessCommand(cBC_GetCustomerMoney, nCID, nStr, @nOut) then
+  begin
+    Result := StrToFloat(nOut.FData);
+    if Assigned(nCredit) then
+      nCredit^ := StrToFloat(nOut.FExtParam);
+    //xxxxx
+  end else
+  begin
+    Result := 0;
+    if Assigned(nCredit) then
+      nCredit^ := 0;
+    //xxxxx
   end;
 end;
 

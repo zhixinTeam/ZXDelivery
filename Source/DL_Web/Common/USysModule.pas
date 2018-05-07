@@ -12,7 +12,11 @@ uses
   UClientWorker, UClientPacker,
   UFormChangePwd, UFormExit, UFrameCustomer, UFormCustomer, UFrameContract,
   UFormContract, UFormDateFilter, UFrameZhiKa, UFormZhiKa, UFormGetContract,
-  UFrameZhiKaDetail, UFormZhiKaFreeze, UFormZhiKaPrice;
+  UFrameZhiKaDetail, UFormZhiKaFreeze, UFormZhiKaPrice, UFrameCustomerCredit,
+  UFormCustomerCredit, UFormCreditDetail,
+//--------------------------------- report -------------------------------------
+  UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
+  UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal;
 
 implementation
 
