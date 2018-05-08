@@ -43,6 +43,7 @@ type
     procedure MenuItem2Click(Sender: TObject);
     procedure BtnDateFilterClick(Sender: TObject);
     procedure MenuItem6Click(Sender: TObject);
+    procedure MenuItem5Click(Sender: TObject);
   private
     { Private declarations }
     FStart,FEnd: TDate;
@@ -63,7 +64,7 @@ implementation
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, uniGUIForm,
   ULibFun, UManagerGroup, USysBusiness, UFormBase, USysDB, USysConst,
-  UFormDateFilter;
+  UFormDateFilter, UFormzhikaFixMoney;
 
 procedure TfFrameZhiKa.OnCreateFrame(const nIni: TIniFile);
 begin
@@ -291,6 +292,18 @@ begin
     InitFormData(FWhere);
     ShowMessage(nMsg);
   end;
+end;
+
+//Desc: 限制提货
+procedure TfFrameZhiKa.MenuItem5Click(Sender: TObject);
+begin
+  if DBGridMain.SelectedRows.Count > 0 then
+   ShowZKFixMoneyForm(ClientDS.FieldByName('Z_ID').AsString,
+    procedure(const nResult: Integer; const nParam: PFormCommandParam)
+    begin
+      if nResult = mrOk then InitFormData(FWhere);
+    end);
+  //xxxxx
 end;
 
 //Desc: 快捷查询

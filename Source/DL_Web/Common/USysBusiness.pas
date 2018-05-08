@@ -14,7 +14,7 @@ uses
   //----------------------------------------------------------------------------
   uniGUIAbstractClasses, uniGUITypes, uniGUIClasses, uniGUIBaseClasses,
   uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm, uniGUIFrame,
-  uniDBGrid, uniBasicGrid, uniStringGrid,
+  uniDBGrid, uniBasicGrid, uniStringGrid, uniComboBox,
   //----------------------------------------------------------------------------
   UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun, USysRemote;
 
@@ -45,7 +45,7 @@ function SystemGetForm(const nClass: string;
 function UserConfigFile: TIniFile;
 //用户自定义配置文件
 function WriteSysLog(const nGroup,nItem,nEvent: string;
-  const nType: TAdoConnectionType = ctMain;
+  const nType: TAdoConnectionType = ctMain; const nQuery: TADOQuery = nil;
   const nHint: Boolean = True; const nExec: Boolean = True;
   const nKeyID: string = ''; const nMan: string = ''): string;
  //记录系统日志
@@ -65,11 +65,14 @@ function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取业务员列表
 function LoadCustomer(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取客户列表
+function GetIDFromBox(const nBox: TUniComboBox): string;
+//从nBox中读取ID号
+
 function IsZhiKaNeedVerify(const nQuery: TADOQuery): Boolean;
 //纸卡是否需要审核
-function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
+procedure SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
  const nType,nPayment,nMemo: string; const nMoney: Double;
- const nCredit: Boolean = True): Boolean;
+ const nModalResult: TFormModalResult = nil; const nCredit: Boolean = True);
 //保存回款记录
 function IsAutoPayCredit(const nQuery: TADOQuery): Boolean;
 //回款时冲信用
@@ -219,10 +222,6 @@ begin
       ConnectionString := nStr;
       LoginPrompt := False;
     end;
-
-    if not Connected then
-      Connected := True;
-    //xxxxx
   end;
 end;
 
@@ -535,8 +534,8 @@ end;
 //Parm: 信息分组;标识;事件;连接类型;错误提示;执行;辅助标识;操作人
 //Desc: 像系统日志表写入一条日志记录
 function WriteSysLog(const nGroup,nItem,nEvent: string;
- const nType: TAdoConnectionType; const nHint,nExec: Boolean;
- const nKeyID,nMan: string): string;
+ const nType: TAdoConnectionType; const nQuery: TADOQuery;
+ const nHint,nExec: Boolean; const nKeyID,nMan: string): string;
 var nStr,nSQL: string;
 begin
   with TStringHelper,UniMainModule do
@@ -557,7 +556,7 @@ begin
 
     if nExec then
     try
-      DBExecute(nSQL, nil, nType);
+      DBExecute(nSQL, nQuery, nType);
     except
       if nHint then
         FMainForm.ShowMessage('系统日志写入错误');
@@ -722,6 +721,15 @@ begin
   end;
 end;
 
+//Date: 2018-05-08
+//Parm: 下拉框,数据格式: ID.Name
+//Desc: 获取nBox当前选中的记录ID号
+function GetIDFromBox(const nBox: TUniComboBox): string;
+begin
+  Result := nBox.Text;
+  Result := Copy(Result, 1, Pos('.', Result) - 1);
+end;
+
 //Date: 2018-05-05
 //Parm: 查询对象
 //Desc: 纸卡是否需要审核
@@ -790,9 +798,9 @@ begin
 end;
 
 //Desc: 保存nCusID的一次回款记录
-function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
+procedure SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
  const nType,nPayment,nMemo: string; const nMoney: Double;
- const nCredit: Boolean): Boolean;
+ const nModalResult: TFormModalResult; const nCredit: Boolean);
 var nStr: string;
     nVal,nLimit: Double;
     nList: TStrings;
@@ -800,7 +808,7 @@ var nStr: string;
 begin
   nList := nil;
   nQuery := nil;
-  Result := False;
+  //init
 
   with TStringHelper,TFloatHelper do
   try
@@ -854,17 +862,23 @@ begin
             //xxxxx
 
             DoSaveCustomerPayment(nCusID, nCusName, nSaleMan, nType, nPayment,
-               nMemo, nVal, 0, nil, nil);
+               nMemo, nVal, nLimit, nil, nil);
             //匿名函数中不能使用全局的nList,nQuery
-          end);
-        //xxxxx
-      end;
 
-      Exit;
+            if Assigned(nModalResult) then
+              nModalResult(mrOk);
+            //xxxxx
+          end);
+        Exit;
+      end;
     end;
 
     DoSaveCustomerPayment(nCusID, nCusName, nSaleMan, nType, nPayment,
       nMemo, nVal, 0, nList, nQuery);
+    //do save
+
+    if Assigned(nModalResult) then
+      nModalResult(mrOk);
     //xxxxx
   finally
     gMG.FObjectPool.Release(nList);

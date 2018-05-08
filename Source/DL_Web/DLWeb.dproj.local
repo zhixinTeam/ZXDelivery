@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899-12-30 00:00:00.000.430,D:\MyWork\ZXDelivery\Source\DL_Web\Forms\UFrameCustomer.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.690,D:\MyWork\ZXDelivery\Source\DL_Web\Forms\UFrameBase.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.430,D:\MyWork\ZXDelivery\Source\DL_Web\Forms\UFrameCustomer.pas=D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.pas</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.787,D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\UFormBase.dfm</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.910,D:\MyWork\ZXDelivery\Source\DL_Web\UFormLogin.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm</Transaction>
-    <Transaction>1899-12-30 00:00:00.000.154,D:\MyWork\ZXDelivery\Source\DL_Web\UFormMain.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Main.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.787,D:\MyWork\ZXDelivery\Source\DL_Web\UFormBase.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.430,D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.pas=D:\MyWork\ZXDelivery\Source\DL_Web\Forms\UFrameCustomer.pas</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.154,D:\MyWork\ZXDelivery\Source\DL_Web\Main.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\UFormMain.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.430,D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Forms\UFrameCustomer.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.690,D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\Forms\UFrameBase.dfm</Transaction>
+    <Transaction>1899-12-30 00:00:00.000.910,D:\MyWork\ZXDelivery\Source\DL_Web\Unit1.dfm=D:\MyWork\ZXDelivery\Source\DL_Web\UFormLogin.dfm</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="Common"/>

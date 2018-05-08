@@ -9,7 +9,6 @@ inherited fFormCutomer: TfFormCutomer
   inherited BtnOK: TUniButton
     Left = 316
     Top = 479
-    OnClick = BtnOKClick
     ExplicitLeft = 316
     ExplicitTop = 479
   end

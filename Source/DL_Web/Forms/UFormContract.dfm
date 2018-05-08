@@ -10,7 +10,6 @@ inherited fFormSaleContract: TfFormSaleContract
     Left = 380
     Top = 565
     TabOrder = 1
-    OnClick = BtnOKClick
     ExplicitLeft = 380
     ExplicitTop = 565
   end

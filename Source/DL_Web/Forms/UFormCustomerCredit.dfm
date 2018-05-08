@@ -9,21 +9,20 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
   inherited BtnOK: TUniButton
     Left = 297
     Top = 223
-    OnClick = BtnOKClick
-    ExplicitLeft = 148
-    ExplicitTop = 116
+    ExplicitLeft = 297
+    ExplicitTop = 223
   end
   inherited BtnExit: TUniButton
     Left = 380
     Top = 223
-    ExplicitLeft = 231
-    ExplicitTop = 116
+    ExplicitLeft = 380
+    ExplicitTop = 223
   end
   inherited PanelWork: TUniSimplePanel
     Width = 447
     Height = 207
-    ExplicitWidth = 298
-    ExplicitHeight = 100
+    ExplicitWidth = 447
+    ExplicitHeight = 207
     object Label1: TUniLabel
       Left = 8
       Top = 56
@@ -64,7 +63,6 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Name = #23435#20307
       TabOrder = 3
       OnChange = EditSaleManChange
-      ExplicitWidth = 412
     end
     object EditCus: TUniComboBox
       Left = 68
@@ -80,7 +78,6 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Height = -12
       Font.Name = #23435#20307
       TabOrder = 4
-      ExplicitWidth = 412
     end
     object Label3: TUniLabel
       Left = 8
@@ -174,7 +171,6 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Text = ''
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 12
-      ExplicitWidth = 412
     end
   end
 end

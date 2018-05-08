@@ -13,16 +13,6 @@ uses
   USysConst;
 
 type
-  PFormCommandParam = ^TFormCommandParam;
-  TFormCommandParam = record
-    FCommand: integer;
-    FParamA: Variant;
-    FParamB: Variant;
-    FParamC: Variant;
-    FParamD: Variant;
-    FParamE: Variant;
-  end;
-
   TfFormBase = class(TUniForm)
     BtnOK: TUniButton;
     BtnExit: TUniButton;

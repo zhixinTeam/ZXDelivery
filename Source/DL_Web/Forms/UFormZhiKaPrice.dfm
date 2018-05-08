@@ -9,7 +9,6 @@ inherited fFormZKPrice: TfFormZKPrice
   inherited BtnOK: TUniButton
     Left = 300
     Top = 210
-    OnClick = BtnOKClick
     ExplicitLeft = 132
     ExplicitTop = 102
   end

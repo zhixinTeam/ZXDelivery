@@ -7,7 +7,7 @@ unit USysFun;
 interface
 
 uses
-  Windows, Classes, Forms, SysUtils, IniFiles, ULibFun, USysConst;
+  Windows, Classes, Forms, SysUtils, IniFiles, ULibFun, UBaseObject, USysConst;
 
 procedure InitSystemEnvironment;
 //初始化系统运行环境的变量
@@ -30,6 +30,9 @@ procedure InitSystemEnvironment;
 begin
   Randomize;
   gPath := ExtractFilePath(Application.ExeName);
+
+  TObjectStatusHelper.shTitle := 100;
+  TObjectStatusHelper.shData := 50;
 end;
 
 //Date: 2007-09-13

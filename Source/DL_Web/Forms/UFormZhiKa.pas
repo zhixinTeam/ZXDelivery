@@ -8,10 +8,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Data.Win.ADODB,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniMemo, uniMultiItem, uniComboBox, uniDateTimePicker,
-  uniCheckBox, uniBasicGrid, uniStringGrid, uniGroupBox, uniBitBtn;
+  Controls, Forms, USysConst, UFormBase, uniBitBtn, uniBasicGrid, uniStringGrid,
+  uniDateTimePicker, uniMultiItem, uniComboBox, uniLabel, uniGUIClasses,
+  uniEdit, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormZhiKa = class(TfFormBase)
@@ -51,8 +50,6 @@ type
     //载入数据
     procedure LoadContract(const nCID: string; const nQuery: TADOQuery);
     //读取合同
-    function GetIDFromBox(const nBox: TUniComboBox): string;
-    //获取数据
     procedure OnGetContract(const nContract: string);
     //检索合同
   public
@@ -66,9 +63,8 @@ implementation
 {$R *.dfm}
 
 uses
-  uniGUIVars, MainModule, uniGUIApplication, UManagerGroup,
-  Vcl.Grids, Vcl.StdCtrls, ULibFun, UFormGetContract, USysBusiness, USysRemote,
-  USysDB, USysConst;
+  uniGUIVars, MainModule, uniGUIApplication, UManagerGroup, Vcl.Grids,
+  Vcl.StdCtrls, ULibFun, UFormGetContract, USysBusiness, USysRemote, USysDB;
 
 const
   giID    = 0;
@@ -319,12 +315,6 @@ begin
       ReleaseDBQuery(nC);
     //xxxxx
   end;
-end;
-
-function TfFormZhiKa.GetIDFromBox(const nBox: TUniComboBox): string;
-begin
-  Result := nBox.Text;
-  Result := Copy(Result, 1, Pos('.', Result) - 1);
 end;
 
 procedure TfFormZhiKa.Grid1SelectCell(Sender: TObject; ACol, ARow: Integer;

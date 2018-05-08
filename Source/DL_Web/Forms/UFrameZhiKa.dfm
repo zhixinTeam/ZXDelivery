@@ -149,6 +149,7 @@ inherited fFrameZhiKa: TfFrameZhiKa
     end
     object MenuItem5: TUniMenuItem
       Caption = #38480#21046#25552#36135
+      OnClick = MenuItem5Click
     end
     object MenuItemN4: TUniMenuItem
       Caption = '-'

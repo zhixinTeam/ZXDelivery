@@ -92,6 +92,20 @@ type
 
   TMenuModuleItems = array of TMenuModuleItem;       //模块列表
 
+  PFormCommandParam = ^TFormCommandParam;
+  TFormCommandParam = record
+    FCommand: integer;                               //命令
+    FParamA: Variant;
+    FParamB: Variant;
+    FParamC: Variant;
+    FParamD: Variant;
+    FParamE: Variant;                                //参数A-E
+  end;
+
+  TFormModalResult = reference to  procedure(const nResult: Integer;
+    const nParam: PFormCommandParam = nil);
+  //模式窗体结果回调
+
   //----------------------------------------------------------------------------
   PMenuItemData = ^TMenuItemData;
   TMenuItemData = record
@@ -271,9 +285,10 @@ begin
 
   AddMenuModuleItem('MAIN_B01', '');
   AddMenuModuleItem('MAIN_B02', 'TfFrameCustomer');
-  AddMenuModuleItem('MAIN_B03', '');
+  AddMenuModuleItem('MAIN_B03', 'TfFrameSalesMan');
   AddMenuModuleItem('MAIN_B04', 'TfFrameContract');
 
+  AddMenuModuleItem('MAIN_C02', 'TfFramePayment');
   AddMenuModuleItem('MAIN_C03', 'TfFrameCustomerCredit');
 
   AddMenuModuleItem('MAIN_D01', 'TfFormZhiKa', mtForm);
@@ -287,6 +302,7 @@ begin
   AddMenuModuleItem('MAIN_L06', 'TfFrameQuerySaleDetail');
   AddMenuModuleItem('MAIN_L07', 'TfFrameQuerySaleTotal');
   AddMenuModuleItem('MAIN_L08', 'TfFrameZhiKaDetail');
+  AddMenuModuleItem('MAIN_L10', 'TfFrameOrderDetail');
 end;
 
 //Desc: 清理模块列表

@@ -7,11 +7,10 @@ unit UFormContract;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniMemo, uniMultiItem, uniComboBox, uniDateTimePicker,
-  uniCheckBox, uniBasicGrid, uniStringGrid, uniGroupBox, uniBitBtn;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  USysConst, uniGUITypes, UFormBase, uniCheckBox, uniBitBtn, uniBasicGrid,
+  uniStringGrid, uniDateTimePicker, uniMultiItem, uniComboBox, uniLabel,
+  uniGUIClasses, uniEdit, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormSaleContract = class(TfFormBase)
@@ -51,8 +50,6 @@ type
     { Private declarations }
     procedure InitFormData(const nID: string);
     //载入数据
-    function GetIDFromBox(const nBox: TUniComboBox): string;
-    //获取数据
   public
     { Public declarations }
     procedure OnCreateForm(Sender: TObject); override;
@@ -66,7 +63,7 @@ implementation
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, UManagerGroup,
   System.IniFiles, Vcl.Grids, Vcl.StdCtrls, ULibFun, USysBusiness, USysRemote,
-  USysDB, USysConst;
+  USysDB;
 
 const
   giID    = 0;
@@ -225,12 +222,6 @@ begin
   finally
     ReleaseDBQuery(nQuery);
   end;
-end;
-
-function TfFormSaleContract.GetIDFromBox(const nBox: TUniComboBox): string;
-begin
-  Result := nBox.Text;
-  Result := Copy(Result, 1, Pos('.', Result) - 1);
 end;
 
 //Desc: 业务员变更,选择客户

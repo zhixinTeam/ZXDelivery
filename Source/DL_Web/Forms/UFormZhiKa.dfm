@@ -10,7 +10,6 @@ inherited fFormZhiKa: TfFormZhiKa
     Left = 363
     Top = 535
     TabOrder = 1
-    OnClick = BtnOKClick
     ExplicitLeft = 363
     ExplicitTop = 535
   end

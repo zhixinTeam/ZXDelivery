@@ -7,10 +7,9 @@ unit UFormCustomerCredit;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniDateTimePicker, uniMultiItem, uniComboBox;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  USysConst, UFormBase, uniDateTimePicker, uniEdit, uniGUIClasses, uniMultiItem,
+  uniComboBox, uniLabel, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormCustomerCredit = class(TfFormBase)
@@ -30,7 +29,6 @@ type
     procedure BtnOKClick(Sender: TObject);
   private
     { Private declarations }
-    function GetIDFromBox(const nBox: TUniComboBox): string;
   public
     { Public declarations }
     function OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean; override;
@@ -50,8 +48,8 @@ implementation
 {$R *.dfm}
 
 uses
-  Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, ULibFun,
-  USysBusiness, USysDB, USysConst;
+  Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, uniGUIForm,
+  ULibFun, USysBusiness, USysDB;
 
 //Date: 2018-05-07
 //Parm: 客户编号;结果回调
@@ -78,12 +76,6 @@ begin
         //xxxxx
       end);
   end;
-end;
-
-function TfFormCustomerCredit.GetIDFromBox(const nBox: TUniComboBox): string;
-begin
-  Result := nBox.Text;
-  Result := Copy(Result, 1, Pos('.', Result) - 1);
 end;
 
 function TfFormCustomerCredit.SetParam(const nParam: TFormCommandParam): Boolean;

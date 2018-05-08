@@ -7,10 +7,9 @@ unit UFormZhiKaPrice;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniCheckBox;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  USysConst, uniGUITypes, UFormBase, uniCheckBox, uniGUIClasses, uniEdit,
+  uniLabel, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormZKPrice = class(TfFormBase)
@@ -47,8 +46,8 @@ implementation
 {$R *.dfm}
 
 uses
-  Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, System.IniFiles,
-  UManagerGroup, ULibFun, USysBusiness, USysDB, USysConst;
+  Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, uniGUIForm,
+  System.IniFiles, UManagerGroup, ULibFun, USysBusiness, USysDB;
 
 //Date: 2018-05-06
 //Parm: 待调价的记录;结果回调
@@ -202,7 +201,7 @@ begin
 
           nStr := '水泥品种[ %s ]单价调整[ %s -> %.2f ]';
           nStr := Format(nStr, [nListA[4], nListA[1], nVal]);
-          nStr := WriteSysLog(sFlag_ZhiKaItem, nListA[2], nStr, FDBType, False, False);
+          nStr := WriteSysLog(sFlag_ZhiKaItem, nListA[2], nStr, FDBType, nil, False, False);
           nListB.Add(nStr);
 
           if not Check1.Checked then Continue;

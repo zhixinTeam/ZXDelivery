@@ -7,8 +7,8 @@ unit UFormCustomer;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  USysConst, uniGUITypes, uniGUIAbstractClasses,
   uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
   uniEdit, uniLabel, uniMemo, uniMultiItem, uniComboBox;
 
@@ -57,7 +57,7 @@ implementation
 
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, UManagerGroup,
-  ULibFun, USysBusiness, USysRemote, USysDB, USysConst;
+  ULibFun, USysBusiness, USysRemote, USysDB;
 
 function TfFormCutomer.SetParam(const nParam: TFormCommandParam): Boolean;
 begin
@@ -178,7 +178,7 @@ begin
       nList.Add(nStr);
     end;
 
-    DBExecute(nList, nil, ctWork);
+    DBExecute(nList, nil, FDBType);
     ModalResult := mrOk;
   finally
     gMG.FObjectPool.Release(nList);
