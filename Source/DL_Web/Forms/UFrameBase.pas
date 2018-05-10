@@ -34,7 +34,6 @@ type
     DBGridMain: TUniDBGrid;
     ClientDS: TClientDataSet;
     DataSource1: TDataSource;
-    SplitterTop: TUniSplitter;
     procedure UniFrameCreate(Sender: TObject);
     procedure UniFrameDestroy(Sender: TObject);
     procedure BtnExitClick(Sender: TObject);
@@ -86,7 +85,7 @@ begin
   nIni := nil;
   try
     nIni := UserConfigFile;
-    PanelQuick.Height := nIni.ReadInteger(ClassName, 'PanelQuick', 50);
+    //PanelQuick.Height := nIni.ReadInteger(ClassName, 'PanelQuick', 50);
 
     OnLoadGridConfig(nIni);
     //载入用户配置
@@ -106,7 +105,7 @@ begin
   nIni := nil;
   try
     nIni := UserConfigFile;
-    nIni.WriteInteger(ClassName, 'PanelQuick', PanelQuick.Height);
+    //nIni.WriteInteger(ClassName, 'PanelQuick', PanelQuick.Height);
 
     OnSaveGridConfig(nIni);
     //保存用户配置

@@ -61,9 +61,5 @@ inherited fFrameCustomer: TfFrameCustomer
           Font.Name = #23435#20307
         end>
     end
-    inherited SplitterTop: TUniSplitter
-      Top = 91
-      ExplicitTop = 91
-    end
   end
 end

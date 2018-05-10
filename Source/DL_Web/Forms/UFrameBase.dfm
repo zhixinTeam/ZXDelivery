@@ -142,9 +142,9 @@ object fFrameBase: TfFrameBase
     end
     object DBGridMain: TUniDBGrid
       Left = 0
-      Top = 102
+      Top = 96
       Width = 814
-      Height = 488
+      Height = 494
       Hint = ''
       DataSource = DataSource1
       Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgConfirmDelete, dgAutoRefreshRow]
@@ -152,17 +152,6 @@ object fFrameBase: TfFrameBase
       Align = alClient
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 3
-    end
-    object SplitterTop: TUniSplitter
-      Left = 0
-      Top = 96
-      Width = 814
-      Height = 6
-      Cursor = crVSplit
-      Hint = ''
-      Align = alTop
-      ParentColor = False
-      Color = clBtnFace
     end
   end
   object ClientDS: TClientDataSet

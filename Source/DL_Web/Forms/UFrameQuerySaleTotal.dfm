@@ -167,10 +167,6 @@ inherited fFrameQuerySaleTotal: TfFrameQuerySaleTotal
           Font.Name = #23435#20307
         end>
     end
-    inherited SplitterTop: TUniSplitter
-      Width = 991
-      ExplicitWidth = 991
-    end
   end
   object PMenu1: TUniPopupMenu
     Left = 40

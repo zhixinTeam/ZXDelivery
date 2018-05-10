@@ -10,12 +10,15 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
   inherited PanelWork: TUniContainerPanel
     Width = 991
     Height = 636
+    ExplicitWidth = 991
+    ExplicitHeight = 636
     inherited UniToolBar1: TUniToolBar
       Width = 991
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
+      ExplicitWidth = 991
       inherited BtnAdd: TUniToolButton
         Visible = False
       end
@@ -31,6 +34,7 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
     end
     inherited PanelQuick: TUniSimplePanel
       Width = 991
+      ExplicitWidth = 991
       object Label2: TUniLabel
         Left = 422
         Top = 17
@@ -162,9 +166,6 @@ inherited fFrameQuerySaleDetail: TfFrameQuerySaleDetail
           Font.Height = -12
           Font.Name = #23435#20307
         end>
-    end
-    inherited SplitterTop: TUniSplitter
-      Width = 991
     end
   end
   object PMenu1: TUniPopupMenu
