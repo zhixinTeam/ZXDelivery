@@ -1,10 +1,17 @@
 inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
+  Width = 794
+  Height = 532
   Font.Charset = GB2312_CHARSET
   Font.Height = -12
   Font.Name = #23435#20307
   ParentFont = False
+  ExplicitWidth = 794
+  ExplicitHeight = 532
   inherited PanelWork: TUniContainerPanel
+    Width = 794
+    Height = 532
     inherited UniToolBar1: TUniToolBar
+      Width = 794
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -23,9 +30,13 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
       end
     end
     inherited PanelQuick: TUniSimplePanel
+      Width = 794
+      Height = 80
+      ExplicitWidth = 964
+      ExplicitHeight = 80
       object Label1: TUniLabel
         Left = 12
-        Top = 16
+        Top = 47
         Width = 54
         Height = 12
         Hint = ''
@@ -38,7 +49,7 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
       end
       object EditID: TUniEdit
         Left = 72
-        Top = 12
+        Top = 42
         Width = 125
         Hint = ''
         Text = ''
@@ -51,8 +62,8 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
         OnKeyPress = EditIDKeyPress
       end
       object Label2: TUniLabel
-        Left = 224
-        Top = 16
+        Left = 215
+        Top = 47
         Width = 54
         Height = 12
         Hint = ''
@@ -64,8 +75,8 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
         TabOrder = 3
       end
       object EditCus: TUniEdit
-        Left = 284
-        Top = 12
+        Left = 272
+        Top = 42
         Width = 125
         Hint = ''
         Text = ''
@@ -79,7 +90,7 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
       end
       object Label3: TUniLabel
         Left = 435
-        Top = 16
+        Top = 47
         Width = 54
         Height = 12
         Hint = ''
@@ -92,8 +103,8 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
       end
       object EditDate: TUniEdit
         Left = 495
-        Top = 12
-        Width = 185
+        Top = 42
+        Width = 186
         Hint = ''
         Text = ''
         ParentFont = False
@@ -107,16 +118,43 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
       end
       object BtnDateFilter: TUniBitBtn
         Left = 682
-        Top = 12
-        Width = 25
+        Top = 42
+        Width = 26
         Height = 22
         Hint = ''
         Caption = '...'
         TabOrder = 7
         OnClick = BtnDateFilterClick
       end
+      object Label4: TUniLabel
+        Left = 12
+        Top = 17
+        Width = 54
+        Height = 12
+        Hint = ''
+        Caption = #27700#27877#21697#31181':'
+        ParentFont = False
+        Font.Charset = GB2312_CHARSET
+        Font.Height = -12
+        Font.Name = #23435#20307
+        TabOrder = 8
+      end
+      object EditStock: TUniComboBox
+        Left = 72
+        Top = 12
+        Width = 325
+        Hint = ''
+        Style = csDropDownList
+        Text = ''
+        TabOrder = 9
+        EmptyText = #20840#37096#26174#31034
+        OnChange = EditStockChange
+      end
     end
     inherited DBGridMain: TUniDBGrid
+      Top = 126
+      Width = 794
+      Height = 406
       Options = [dgEditing, dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgRowSelect, dgCheckSelect, dgConfirmDelete, dgMultiSelect, dgAutoRefreshRow]
       OnMouseDown = DBGridMainMouseDown
       Columns = <

@@ -8,10 +8,10 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIFrame, UFrameBase, Data.DB, Datasnap.DBClient,
-  uniSplitter, uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses,
-  uniEdit, uniLabel, Vcl.Menus, uniMainMenu, uniButton, uniBitBtn;
+  ULibFun, uniGUITypes, UFrameBase, uniMultiItem, uniComboBox, Vcl.Menus,
+  uniMainMenu, uniButton, uniBitBtn, uniEdit, uniLabel, Data.DB,
+  Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
+  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
 
 type
   TfFrameZhiKaDetail = class(TfFrameBase)
@@ -39,6 +39,8 @@ type
     MenuItem10: TUniMenuItem;
     MenuItem13: TUniMenuItem;
     MenuItem14: TUniMenuItem;
+    Label4: TUniLabel;
+    EditStock: TUniComboBox;
     procedure EditIDKeyPress(Sender: TObject; var Key: Char);
     procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -47,6 +49,8 @@ type
     procedure MenuItem4Click(Sender: TObject);
     procedure MenuItem9Click(Sender: TObject);
     procedure MenuItem6Click(Sender: TObject);
+    procedure EditStockChange(Sender: TObject);
+    procedure BtnRefreshClick(Sender: TObject);
   private
     { Private declarations }
     FStart,FEnd: TDate;
@@ -55,12 +59,17 @@ type
     //启用区间
     FValidFilte: Boolean;
     //启用有效状态
+    FStockList: TStringHelper.TDictionaryItems;
+    //品种列表
     procedure OnDateFilter(const nStart,nEnd: TDate);
     //日期筛选
     procedure OnFreeByStock(const nStocks: string);
     //按品种冻结
     procedure OnZKPrice(const nRes: Integer);
     //调价结果
+    procedure LoadStockList;
+    function GetStockID: string;
+    //品种列表
     function FreezeZK(const nFreeze: Boolean): Boolean;
     //冻结选中提货单
     procedure SelectedZK(const nList: TStrings);
@@ -79,7 +88,7 @@ implementation
 {$R *.dfm}
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, uniGUIForm,
-  ULibFun, UManagerGroup, USysBusiness, UFormBase, USysDB, USysConst,
+  UManagerGroup, USysBusiness, UFormBase, USysDB, USysConst,
   UFormDateFilter, UFormZhiKaFreeze, UFormZhiKaPrice;
 
 procedure TfFrameZhiKaDetail.OnCreateFrame(const nIni: TIniFile);
@@ -101,7 +110,7 @@ begin
   MenuItem10.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
 
   InitDateRange(ClassName, FStart, FEnd);
-  //xxxxxx
+  LoadStockList;
 end;
 
 procedure TfFrameZhiKaDetail.OnDestroyFrame(const nIni: TIniFile);
@@ -131,6 +140,7 @@ begin
 end;
 
 function TfFrameZhiKaDetail.InitFormDataSQL(const nWhere: string): string;
+var nNo: string;
 begin
   with TStringHelper,TDateTimeHelper do
   begin
@@ -158,11 +168,16 @@ begin
       Result := Result + ' and (Z_Date>=''$STT'' and Z_Date<''$End'')';
     //xxxxx
 
+    nNo := GetStockID;
+    if nNo <> '' then
+      Result := Result + ' and (zd.D_StockNo=''$No'')';
+    //xxxxx
+
     Result := MacroValue(Result, [MI('$ZK', sTable_ZhiKa), MI('$Yes', sFlag_Yes),
               MI('$ZD', sTable_ZhiKaDtl), MI('$SM', sTable_Salesman),
               MI('$Cus', sTable_Customer), MI('$Now', sField_SQLServer_Now),
               MI('$STT', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1)),
-              MI('$HT', sTable_SaleContract)]);
+              MI('$HT', sTable_SaleContract), MI('$No', nNo)]);
     //xxxxx
   end;
 end;
@@ -173,12 +188,94 @@ begin
   FValidFilte := True;
 end;
 
+//Desc: 读取品种列表
+procedure TfFrameZhiKaDetail.LoadStockList;
+var nStr: string;
+    nIdx: Integer;
+    nQuery: TADOQuery;
+begin
+  nQuery := nil;
+  try
+    with EditStock.Items do
+    begin
+      BeginUpdate;
+      Clear;
+      Add('全部显示');
+    end;
+
+    SetLength(FStockList, 0);
+    nQuery := LockDBQuery(FDBType);
+
+    nStr := 'Select D_Value,D_Memo,D_ParamB From %s ' +
+            'Where D_Name=''%s'' Order By D_Index ASC';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
+
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+    begin
+      SetLength(FStockList, RecordCount);
+      nIdx := 0;
+      First;
+
+      while not Eof do
+      begin
+        with FStockList[nIdx] do
+        begin
+          FKey   := FieldByName('D_ParamB').AsString;
+          FValue := FieldByName('D_Value').AsString;
+          FParam := FieldByName('D_Memo').AsString;
+        end;
+
+        Inc(nIdx);
+        Next;
+      end;
+    end;
+
+    for nIdx := Low(FStockList) to High(FStockList) do
+      EditStock.Items.AddObject(FStockList[nIdx].FValue, Pointer(nIdx));
+    EditStock.ItemIndex := 0;
+  finally
+    EditStock.Items.EndUpdate;
+    ReleaseDBQuery(nQuery);
+  end;
+end;
+
+//Desc: 获取选中的品种
+function TfFrameZhiKaDetail.GetStockID: string;
+var nIdx: Integer;
+begin
+  Result := '';
+  if EditStock.ItemIndex < 1 then Exit;
+
+  if not (FDateFilte and FValidFilte) then
+  begin
+    EditStock.ItemIndex := 0;
+    Exit;
+  end;
+
+  nIdx := NativeInt(EditStock.Items.Objects[EditStock.ItemIndex]);
+  Result := FStockList[nIdx].FKey;
+end;
+
+procedure TfFrameZhiKaDetail.BtnRefreshClick(Sender: TObject);
+begin
+  EditStock.ItemIndex := 0;
+  inherited;
+end;
+
+//Desc: 品种切换
+procedure TfFrameZhiKaDetail.EditStockChange(Sender: TObject);
+begin
+  InitFormData(FWhere);
+end;
+
 //Desc: 日期筛选
 procedure TfFrameZhiKaDetail.BtnDateFilterClick(Sender: TObject);
 begin
   ShowDateFilterForm(FStart, FEnd, OnDateFilter);
 end;
 
+//Desc: 刷新
 procedure TfFrameZhiKaDetail.EditIDKeyPress(Sender: TObject; var Key: Char);
 begin
   if Key <> #13 then Exit;

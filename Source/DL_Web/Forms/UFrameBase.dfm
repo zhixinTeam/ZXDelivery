@@ -152,6 +152,7 @@ object fFrameBase: TfFrameBase
       Align = alClient
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 3
+      OnColumnSort = DBGridMainColumnSort
     end
   end
   object ClientDS: TClientDataSet

@@ -108,6 +108,8 @@ procedure LoadEntityList(const nForce: Boolean);
 procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
   const nFilter: string = '');
 //构建表格列
+procedure BuidDataSetSortIndex(const nClientDS: TClientDataSet);
+//构建nClientDS排序索引
 procedure SetGridColumnFormat(const nEntity: string; const nGrid: TUniDBGrid;
   const nClientDS: TClientDataSet; const nOnData: TFieldGetTextEvent);
 //设置nGrid的数据和现实映射
@@ -1542,6 +1544,26 @@ begin
   end;
 end;
 
+//Date: 2018-05-11
+//Parm: 数据集
+//Desc: 构建nClientDS排序索引
+procedure BuidDataSetSortIndex(const nClientDS: TClientDataSet);
+var nStr: string;
+    nIdx: Integer;
+begin
+  with nClientDS do
+  begin
+    for nIdx := FieldCount-1 downto 0 do
+    begin
+      nStr := Fields[nIdx].FieldName + '_asc';
+      IndexDefs.Add(nStr, Fields[nIdx].FieldName, []);
+
+      nStr := Fields[nIdx].FieldName + '_des';
+      IndexDefs.Add(nStr, Fields[nIdx].FieldName, [ixDescending]);
+    end;
+  end;
+end;
+
 //Date: 2018-04-26
 //Parm: 实体名称;列表;排除字段
 //Desc: 使用数据字典nEntity构建nGrid的表头
@@ -1650,6 +1672,7 @@ begin
         with nColumn do
         begin
           Tag := i;
+          Sortable := True;
           Alignment := FAlign;
           FieldName := FDBItem.FField;
 

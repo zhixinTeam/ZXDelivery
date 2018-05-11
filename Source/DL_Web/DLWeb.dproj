@@ -63,7 +63,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <Icns_MainIcns>$(BDS)\bin\delphi_PROJECTICNS.icns</Icns_MainIcns>
         <VerInfo_Locale>2052</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Runsoft(润)工作室;FileDescription=Delivery Web;FileVersion=2.0.1.0;InternalName=DLWeb;LegalCopyright=GPL公共许可;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=ZXDelivery B/S版本,提供系统远程入口.</VerInfo_Keys>
         <DCC_UnitSearchPath>Common;..\Common;Forms;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <SanitizedProjectName>DLWeb</SanitizedProjectName>
     </PropertyGroup>
@@ -78,7 +78,6 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
         <Icon_MainIcon>DLWeb_Icon.ico</Icon_MainIcon>
-        <VerInfo_Keys>CompanyName=Runsoft(润)工作室;FileDescription=Delivery Web;FileVersion=2.0.1.0;InternalName=DLWeb;LegalCopyright=GPL公共许可;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=ZXDelivery B/S版本,提供系统远程入口.</VerInfo_Keys>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <VerInfo_Release>1</VerInfo_Release>
     </PropertyGroup>
@@ -121,7 +120,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_MajorVer>2</VerInfo_MajorVer>
         <VerInfo_Release>1</VerInfo_Release>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=2.0.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=Runsoft(润)工作室;FileDescription=Delivery Web;FileVersion=2.0.1.0;InternalName=DLWeb;LegalCopyright=GPL公共许可;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=ZXDelivery B/S版本,提供系统远程入口.</VerInfo_Keys>
+        <Icon_MainIcon>DLWeb_Icon.ico</Icon_MainIcon>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

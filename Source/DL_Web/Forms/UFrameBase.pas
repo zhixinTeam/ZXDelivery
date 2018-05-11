@@ -38,6 +38,8 @@ type
     procedure UniFrameDestroy(Sender: TObject);
     procedure BtnExitClick(Sender: TObject);
     procedure BtnRefreshClick(Sender: TObject);
+    procedure DBGridMainColumnSort(Column: TUniDBGridColumn;
+      Direction: Boolean);
   private
     { Private declarations }
   protected
@@ -189,6 +191,8 @@ begin
 
     DBQuery(nStr, nC, ClientDS);
     //query data
+    BuidDataSetSortIndex(ClientDS);
+    //sort index
 
     SetGridColumnFormat(FMenuID, DBGridMain, ClientDS, OnFormat);
     //列格式化
@@ -276,6 +280,15 @@ procedure TfFrameBase.BtnRefreshClick(Sender: TObject);
 begin
   FWhere := '';
   InitFormData(FWhere);
+end;
+
+//Desc: 排序
+procedure TfFrameBase.DBGridMainColumnSort(Column: TUniDBGridColumn;
+  Direction: Boolean);
+begin
+  if Direction then
+       ClientDS.IndexName := Column.FieldName + '_asc'
+  else ClientDS.IndexName := Column.FieldName + '_des';
 end;
 
 end.
