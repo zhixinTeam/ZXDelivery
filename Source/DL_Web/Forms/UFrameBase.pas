@@ -55,6 +55,7 @@ type
     function FilterColumnField: string; virtual;
     procedure OnLoadGridConfig(const nIni: TIniFile); virtual;
     procedure OnSaveGridConfig(const nIni: TIniFile); virtual;
+    procedure OnFormat(Sender: TField; var Text: string; DisplayText: Boolean);
     {*表格配置*}
     procedure OnInitFormData(var nDefault: Boolean; const nWhere: string = '';
      const nQuery: TADOQuery = nil); virtual;
@@ -188,6 +189,9 @@ begin
 
     DBQuery(nStr, nC, ClientDS);
     //query data
+
+    SetGridColumnFormat(FMenuID, DBGridMain, ClientDS, OnFormat);
+    //列格式化
   finally
     if not Assigned(nQuery) then
       ReleaseDBQuery(nC);
@@ -206,6 +210,56 @@ procedure TfFrameBase.OnInitFormData(var nDefault: Boolean;
   const nWhere: string; const nQuery: TADOQuery);
 begin
 
+end;
+
+//Desc: 字段数据格式化
+procedure TfFrameBase.OnFormat(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+var nStr: string;
+    i,nIdx,nS,nE,nNA,nNB,nLen: Integer;
+begin
+  for nIdx := DBGridMain.Columns.Count-1 downto 0 do
+  with DBGridMain.Columns[nIdx] do
+  begin
+    if CompareText(FieldName, Sender.FieldName) <> 0 then Continue;
+    nStr := CheckBoxField.FieldValues; //数据内容
+
+    i := Pos(Sender.AsString, nStr);
+    if i < 1 then Exit;
+    //不需要格式化
+
+    nNA := 1;
+    while i > 0 do
+    begin
+      if nStr[i] = ';' then
+        Inc(nNA); //分号个数
+      Dec(i);
+    end;
+
+    nStr := Trim(CheckBoxField.DisplayValues);
+    nLen := Length(nStr); //待显示内容
+    if nLen < 1 then Exit;    
+
+    nS := 1;
+    nE := 1;
+    nNB := 0;
+
+    for i := 1 to nLen do
+    begin
+      if nStr[i] = ';' then
+      begin
+        Inc(nNB);
+        if nNB = nNA then
+          Break;
+        nS := i+1;
+      end;
+      nE := i;
+    end;
+
+    if nE > nS then
+      Text := Copy(nStr, nS, nE-nS+1);
+    Exit;
+  end;
 end;
 
 //------------------------------------------------------------------------------

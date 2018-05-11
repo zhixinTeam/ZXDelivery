@@ -108,6 +108,9 @@ procedure LoadEntityList(const nForce: Boolean);
 procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
   const nFilter: string = '');
 //构建表格列
+procedure SetGridColumnFormat(const nEntity: string; const nGrid: TUniDBGrid;
+  const nClientDS: TClientDataSet; const nOnData: TFieldGetTextEvent);
+//设置nGrid的数据和现实映射
 procedure UserDefineGrid(const nForm: string; const nGrid: TUniDBGrid;
   const nLoad: Boolean; const nIni: TIniFile = nil);
 //用户自定义表格
@@ -1545,7 +1548,50 @@ end;
 procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
  const nFilter: string);
 var i,nIdx: Integer;
-    nList: TStrings;
+    nList,nFList: TStrings;
+    nColumn: TUniBaseDBGridColumn;
+
+  //Desc: 处理数据和显示映射数据
+  procedure SplitFormat(const nFormat: PDictFormatItem);
+  var f,d,s: string;
+      j,p: Integer;
+  begin
+    with nColumn.CheckBoxField do
+    begin
+      Enabled := False;
+      FieldValues := '';
+      DisplayValues := '';
+
+      if nFormat.FData = '' then Exit;
+      TStringHelper.Split(nFormat.FData, nList, 0, ';');
+
+      f := '';
+      d := '';
+      for j := nList.Count-1 downto 0 do
+      begin
+        s := Trim(nList[j]);
+        p := Pos('=', s);
+        if p < 2 then Continue;
+
+        f := f + Copy(s, 1, p - 1) + ';';
+        System.Delete(s, 1, p);
+        d := d + Trim(s) + ';';
+      end;
+
+      p := Length(f);
+      if Copy(f, p, 1) = ';' then
+        System.Delete(f, p, 1);
+      //xxxxx
+
+      p := Length(d);
+      if Copy(d, p, 1) = ';' then
+        System.Delete(d, p, 1);
+      //xxxxx
+
+      if f <> '' then FieldValues := f;
+      if d <> '' then DisplayValues := d;
+    end;
+  end;
 begin
   with nGrid do
   begin
@@ -1557,9 +1603,12 @@ begin
     //选项控制
 
     ReadOnly := True;
+    WebOptions.Paged := True;
+    WebOptions.PageSize := 1000;
   end;
 
   nList := nil;
+  nFList := nil;
   try
     GlobalSyncLock;
     nGrid.Columns.BeginUpdate;
@@ -1575,11 +1624,12 @@ begin
 
     if nIdx < 0 then Exit;
     //no entity match
+    nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
 
     if nFilter <> '' then
     begin
-      nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
-      TStringHelper.Split(nFilter, nList, 0, ';');
+      nFList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+      TStringHelper.Split(nFilter, nFList, 0, ';');
     end;
 
     with gAllEntitys[nIdx],nGrid do
@@ -1592,26 +1642,75 @@ begin
       begin
         if not FVisible then Continue;
 
-        if Assigned(nList) and (nList.IndexOf(FDBItem.FField) >= 0) then
+        if Assigned(nFList) and (nFList.IndexOf(FDBItem.FField) >= 0) then
           Continue;
         //字段被过滤,不予显示
 
-        with Columns.Add do
+        nColumn := Columns.Add;
+        with nColumn do
         begin
+          Tag := i;
           Alignment := FAlign;
           FieldName := FDBItem.FField;
 
           Title.Alignment := FAlign;
           Title.Caption := FTitle;
           Width := FWidth;
-          Tag := i;
+
+          if FFormat.FStyle = fsFixed then
+            SplitFormat(@FFormat);
+          //xxxxx
         end;
       end;
     end;
   finally
     GlobalSyncRelease;
+    gMG.FObjectPool.Release(nFList);
     gMG.FObjectPool.Release(nList);
     nGrid.Columns.EndUpdate;
+  end;
+end;
+
+//Date: 2018-05-10
+//Parm: 实体;表格;数据集;处理事件
+//Desc: 设置nClientDS数据格式化
+procedure SetGridColumnFormat(const nEntity: string; const nGrid: TUniDBGrid;
+  const nClientDS: TClientDataSet; const nOnData: TFieldGetTextEvent);
+var nIdx,nEn,nTag,nL,nH: Integer;
+    nField: TField;
+begin
+  try
+    GlobalSyncLock;
+    nEn := -1;
+    //init
+
+    for nIdx := Low(gAllEntitys) to High(gAllEntitys) do
+    if CompareText(nEntity, gAllEntitys[nIdx].FEntity) = 0 then
+    begin
+      nEn := nIdx;
+      Break;
+    end;
+
+    if nEn < 0 then Exit; //no entity match
+    nL := Low(gAllEntitys[nEn].FDictItem);
+    nH := High(gAllEntitys[nEn].FDictItem);
+
+    for nIdx := nGrid.Columns.Count-1 downto 0 do
+    with gAllEntitys[nEn] do
+    begin
+      nTag := nGrid.Columns[nIdx].Tag;
+      if (nTag < nL) or (nTag > nH) then Continue;
+
+      if FDictItem[nTag].FFormat.FStyle <> fsFixed then Continue;
+      if Trim(FDictItem[nTag].FFormat.FData) = '' then Continue;
+
+      nField := nClientDS.FindField(FDictItem[nTag].FDBItem.FField);
+      if Assigned(nField) then
+        nField.OnGetText := nOnData;
+      //xxxxx
+    end;
+  finally
+    GlobalSyncRelease;
   end;
 end;
 

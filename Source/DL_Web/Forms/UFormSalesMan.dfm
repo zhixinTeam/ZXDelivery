@@ -1,7 +1,7 @@
 inherited fFormSalesMan: TfFormSalesMan
   ClientHeight = 359
   ClientWidth = 368
-  Caption = #23458#25143
+  Caption = #19994#21153#21592
   ExplicitWidth = 374
   ExplicitHeight = 388
   PixelsPerInch = 96
@@ -9,20 +9,20 @@ inherited fFormSalesMan: TfFormSalesMan
   inherited BtnOK: TUniButton
     Left = 204
     Top = 323
-    ExplicitLeft = 232
-    ExplicitTop = 352
+    ExplicitLeft = 204
+    ExplicitTop = 323
   end
   inherited BtnExit: TUniButton
     Left = 285
     Top = 325
-    ExplicitLeft = 313
-    ExplicitTop = 354
+    ExplicitLeft = 285
+    ExplicitTop = 325
   end
   inherited PanelWork: TUniSimplePanel
     Width = 352
     Height = 309
-    ExplicitWidth = 380
-    ExplicitHeight = 338
+    ExplicitWidth = 352
+    ExplicitHeight = 309
     object EditName: TUniEdit
       Left = 70
       Top = 15
@@ -36,7 +36,6 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Name = #23435#20307
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 1
-      ExplicitWidth = 296
     end
     object UniLabel1: TUniLabel
       Left = 8
@@ -77,7 +76,6 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Name = #23435#20307
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
-      ExplicitWidth = 296
     end
     object EditMemo: TUniMemo
       Left = 8
@@ -91,7 +89,6 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Name = #23435#20307
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 5
-      ExplicitWidth = 358
     end
     object UniLabel13: TUniLabel
       Left = 8
@@ -132,7 +129,6 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Name = #23435#20307
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 8
-      ExplicitWidth = 296
     end
   end
   object Check1: TUniCheckBox
