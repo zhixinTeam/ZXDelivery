@@ -1556,10 +1556,14 @@ begin
     for nIdx := FieldCount-1 downto 0 do
     begin
       nStr := Fields[nIdx].FieldName + '_asc';
-      IndexDefs.Add(nStr, Fields[nIdx].FieldName, []);
+      if IndexDefs.IndexOf(nStr) < 0 then
+        IndexDefs.Add(nStr, Fields[nIdx].FieldName, []);
+      //xxxxx
 
       nStr := Fields[nIdx].FieldName + '_des';
-      IndexDefs.Add(nStr, Fields[nIdx].FieldName, [ixDescending]);
+      if IndexDefs.IndexOf(nStr) < 0 then
+        IndexDefs.Add(nStr, Fields[nIdx].FieldName, [ixDescending]);
+      //xxxxx
     end;
   end;
 end;
@@ -1619,9 +1623,10 @@ begin
   begin
     BorderStyle := ubsDefault;
     LoadMask.Message := '加载数据';
+    Options := [dgTitles, dgIndicator, dgColLines, dgRowSelect, dgRowSelect];
 
-    Options := [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowSelect,
-                dgRowSelect, dgColumnMove];
+    if UniMainModule.FGridColumnAdjust then
+      Options := Options + [dgColumnResize, dgColumnMove];
     //选项控制
 
     ReadOnly := True;

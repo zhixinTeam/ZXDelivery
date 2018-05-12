@@ -281,6 +281,7 @@ begin
   gMenuModule := TList.Create;
 
   AddMenuModuleItem('MAIN_A05', 'TfFormChangePwd', mtForm);
+  AddMenuModuleItem('MAIN_A06', 'TfFormOptions', mtForm);
   AddMenuModuleItem('MAIN_SYSCLOSE', 'TfFormExit', mtForm);
 
   AddMenuModuleItem('MAIN_B01', '');

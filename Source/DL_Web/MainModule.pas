@@ -26,6 +26,8 @@ type
     //主窗体
     FUserConfig: TSysParam;
     //系统参数
+    FGridColumnAdjust: Boolean;
+    //允许调整
     FMenuModule: TMenuModuleItems;
     //菜单模块
   end;
@@ -48,8 +50,12 @@ end;
 procedure TUniMainModule.UniGUIMainModuleCreate(Sender: TObject);
 var nIdx: Integer;
 begin
+  FGridColumnAdjust := False;
+  //默认不允许调整表格列宽和顺序
+
   FUserConfig := gSysParam;
   //复制全局参数
+
   with FUserConfig,UniSession do
   begin
     FLocalIP   := RemoteIP;

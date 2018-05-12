@@ -9,12 +9,12 @@ unit USysModule;
 interface
 
 uses
-  UClientWorker, UClientPacker, UFormChangePwd, UFormExit,
+  UClientWorker, UClientPacker, UFormChangePwd, UFormOptions, UFormExit,
   UFrameCustomer, UFormCustomer, UFrameContract, UFormContract, UFormDateFilter,
   UFrameZhiKa, UFormZhiKa, UFrameZhiKaDetail, UFormZhiKaFreeze, UFormZhiKaPrice,
   UFormZhiKaFixMoney, UFormGetContract, UFrameCustomerCredit, UFormCreditDetail,
   UFormCustomerCredit, UFramePayment, UFormPayment, UFrameSalesMan,
-  UFormSalesMan,
+  UFormSalesMan, UFormSysLog,
 //--------------------------------- report -------------------------------------
   UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
   UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal,

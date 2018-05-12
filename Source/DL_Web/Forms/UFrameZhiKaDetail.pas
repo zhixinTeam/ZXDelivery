@@ -51,6 +51,7 @@ type
     procedure MenuItem6Click(Sender: TObject);
     procedure EditStockChange(Sender: TObject);
     procedure BtnRefreshClick(Sender: TObject);
+    procedure MenuItem7Click(Sender: TObject);
   private
     { Private declarations }
     FStart,FEnd: TDate;
@@ -89,7 +90,7 @@ implementation
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, uniGUIForm,
   UManagerGroup, USysBusiness, UFormBase, USysDB, USysConst,
-  UFormDateFilter, UFormZhiKaFreeze, UFormZhiKaPrice;
+  UFormDateFilter, UFormZhiKaFreeze, UFormZhiKaPrice, UFormSysLog;
 
 procedure TfFrameZhiKaDetail.OnCreateFrame(const nIni: TIniFile);
 begin
@@ -98,8 +99,11 @@ begin
   FValidFilte := True;
 
   with DBGridMain do
-    Options := Options + [dgMultiSelect, dgCheckSelect];
-  //xxxxx
+  begin
+    if UniMainModule.FGridColumnAdjust then
+         Options := Options + [dgMultiSelect]
+    else Options := Options + [dgMultiSelect, dgCheckSelect];
+  end;
 
   MenuItem2.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
   MenuItem3.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
@@ -540,6 +544,28 @@ begin
     end;
 
     ClientDS.EnableControls;
+  end;
+end;
+
+//Desc: 调价记录
+procedure TfFrameZhiKaDetail.MenuItem7Click(Sender: TObject);
+var nStr: string;
+    nParam: TFormCommandParam;
+begin
+  if DBGridMain.SelectedRows.Count > 0 then
+  begin
+    nParam.FCommand := cCmd_ViewSysLog;
+    nParam.FParamA := '2008-08-08';
+    nParam.FParamB := '2050-12-12';
+
+    nParam.FParamC := ClientDS.FieldByName('Z_ID').AsString;
+    nStr := 'L_Group=''$Group'' And L_ItemID=''$ID''';
+    with TStringHelper do
+    nParam.FParamD := MacroValue(nStr, [MI('$Group', sFlag_ZhiKaItem),
+                      MI('$ID', nParam.FParamC)]);
+    //检索条件
+
+    ShowSystemLog(nParam);
   end;
 end;
 

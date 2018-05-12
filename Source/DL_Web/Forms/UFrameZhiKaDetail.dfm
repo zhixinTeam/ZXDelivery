@@ -10,12 +10,15 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
   inherited PanelWork: TUniContainerPanel
     Width = 794
     Height = 532
+    ExplicitWidth = 794
+    ExplicitHeight = 532
     inherited UniToolBar1: TUniToolBar
       Width = 794
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
+      ExplicitWidth = 794
       inherited BtnAdd: TUniToolButton
         Visible = False
       end
@@ -32,7 +35,7 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
     inherited PanelQuick: TUniSimplePanel
       Width = 794
       Height = 80
-      ExplicitWidth = 964
+      ExplicitWidth = 794
       ExplicitHeight = 80
       object Label1: TUniLabel
         Left = 12
@@ -202,6 +205,7 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
     end
     object MenuItem7: TUniMenuItem
       Caption = #35843#20215#35760#24405
+      OnClick = MenuItem7Click
     end
     object MenuItem8: TUniMenuItem
       Tag = 10
