@@ -66,7 +66,8 @@ function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
 function LoadCustomer(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取客户列表
 function GetIDFromBox(const nBox: TUniComboBox): string;
-//从nBox中读取ID号
+function GetNameFromBox(const nBox: TUniComboBox): string;
+//从nBox中读取ID,Name号
 
 function IsZhiKaNeedVerify(const nQuery: TADOQuery): Boolean;
 //纸卡是否需要审核
@@ -733,6 +734,15 @@ function GetIDFromBox(const nBox: TUniComboBox): string;
 begin
   Result := nBox.Text;
   Result := Copy(Result, 1, Pos('.', Result) - 1);
+end;
+
+//Date: 2018-05-13
+//Parm: 下拉框,数据格式: ID.Name
+//Desc: 获取nBox当前选中的记录Name号
+function GetNameFromBox(const nBox: TUniComboBox): string;
+begin
+  Result := nBox.Text;
+  System.Delete(Result, 1, Pos('.', Result));
 end;
 
 //Date: 2018-05-05
@@ -1633,6 +1643,9 @@ begin
     WebOptions.Paged := True;
     WebOptions.PageSize := 1000;
   end;
+
+  if nEntity = '' then Exit;
+  //manual column
 
   nList := nil;
   nFList := nil;

@@ -46,6 +46,7 @@ type
     EditMemo: TUniEdit;
     procedure BtnOKClick(Sender: TObject);
     procedure EditSaleManChange(Sender: TObject);
+    procedure EditCusKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     procedure InitFormData(const nID: string);
@@ -63,7 +64,7 @@ implementation
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, UManagerGroup,
   System.IniFiles, Vcl.Grids, Vcl.StdCtrls, ULibFun, USysBusiness, USysRemote,
-  USysDB;
+  USysDB, UFormGetCustomer;
 
 const
   giID    = 0;
@@ -116,11 +117,11 @@ begin
   if nID = '' then
   begin
     EditSaleMan.Style := csDropDownList;
-    EditCus.Style := csDropDownList
+    EditCus.Style := csDropDown;
   end else
   begin
     EditSaleMan.Style := csDropDown;
-    EditCus.Style := csDropDown
+    EditCus.Style := csDropDown;
   end;
 
   if EditSaleMan.Items.Count < 1 then
@@ -239,6 +240,30 @@ begin
   LoadCustomer(EditCus.Items, nStr);
 end;
 
+//Desc: 选择客户
+procedure TfFormSaleContract.EditCusKeyPress(Sender: TObject; var Key: Char);
+var nStr: string;
+begin
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+    ShowGetCustomerForm(GetNameFromBox(EditCus),
+      procedure(const nResult: Integer; const nParam: PFormCommandParam)
+      begin
+        nStr := Trim(nParam.FParamC + '.' + nParam.FParamD); //saleman: id.name
+        if (nStr <> '.') and (EditSaleMan.Items.IndexOf(nStr) < 0) then
+          EditSaleMan.Items.Add(nStr);
+        EditSaleMan.ItemIndex := EditSaleMan.Items.IndexOf(nStr);
+
+        nStr := nParam.FParamA + '.' + nParam.FParamB; //cus: id.name
+        if EditCus.Items.IndexOf(nStr) < 0 then
+          EditCus.Items.Add(nStr);
+        EditCus.ItemIndex := EditCus.Items.IndexOf(nStr);
+      end
+    );
+  end;
+end;
+
 procedure TfFormSaleContract.BtnOKClick(Sender: TObject);
 var nStr,nCus: string;
     nIdx: Integer;
@@ -253,7 +278,7 @@ begin
   end;
 
   nCus := GetIDFromBox(EditCus);
-  if nCus = '' then
+  if (nCus = '') or ((not EditCus.ReadOnly) and (EditCus.ItemIndex < 0)) then
   begin
     EditCus.SetFocus;
     ShowMessage('请选择客户'); Exit;

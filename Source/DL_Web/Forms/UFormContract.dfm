@@ -173,8 +173,9 @@ inherited fFormSaleContract: TfFormSaleContract
       Left = 296
       Top = 50
       Width = 220
-      Hint = ''
-      Style = csDropDownList
+      Hint = #25353#22238#36710#38190#26597#35810#23458#25143
+      ShowHint = True
+      ParentShowHint = False
       MaxLength = 35
       Text = ''
       ParentFont = False
@@ -182,6 +183,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Height = -12
       Font.Name = #23435#20307
       TabOrder = 6
+      OnKeyPress = EditCusKeyPress
     end
     object UniLabel10: TUniLabel
       Left = 235

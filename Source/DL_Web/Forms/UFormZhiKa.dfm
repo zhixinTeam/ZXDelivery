@@ -150,7 +150,6 @@ inherited fFormZhiKa: TfFormZhiKa
       Top = 123
       Width = 412
       Hint = ''
-      Style = csDropDownList
       MaxLength = 35
       Text = ''
       ParentFont = False
@@ -158,6 +157,7 @@ inherited fFormZhiKa: TfFormZhiKa
       Font.Height = -12
       Font.Name = #23435#20307
       TabOrder = 10
+      OnKeyPress = EditCusKeyPress
     end
     object UniLabel13: TUniLabel
       Left = 235

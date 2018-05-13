@@ -82,6 +82,8 @@ begin
   try
     nIni := UserConfigFile();
     LoadFormConfig(Self, nIni);
+
+    BuildDBGridColumn('', DBGrid1);
     UserDefineGrid(ClassName, DBGrid1, True, nIni);
   finally
     nIni.Free;

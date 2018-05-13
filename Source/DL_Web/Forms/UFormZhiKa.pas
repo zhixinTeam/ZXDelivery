@@ -44,6 +44,7 @@ type
       var CanSelect: Boolean);
     procedure EditCIDKeyPress(Sender: TObject; var Key: Char);
     procedure BtnGetContractClick(Sender: TObject);
+    procedure EditCusKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     procedure InitFormData(const nID: string);
@@ -64,7 +65,8 @@ implementation
 
 uses
   uniGUIVars, MainModule, uniGUIApplication, UManagerGroup, Vcl.Grids,
-  Vcl.StdCtrls, ULibFun, UFormGetContract, USysBusiness, USysRemote, USysDB;
+  Vcl.StdCtrls, ULibFun, UFormGetContract, USysBusiness, USysRemote, USysDB,
+  UFormGetCustomer;
 
 const
   giID    = 0;
@@ -127,7 +129,7 @@ begin
   if nID = '' then
   begin
     EditSaleMan.Style := csDropDownList;
-    EditCus.Style := csDropDownList
+    EditCus.Style := csDropDown
   end else
   begin
     EditSaleMan.Style := csDropDown;
@@ -357,6 +359,30 @@ begin
   end;
 end;
 
+//Desc: 选择客户
+procedure TfFormZhiKa.EditCusKeyPress(Sender: TObject; var Key: Char);
+var nStr: string;
+begin
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+    ShowGetCustomerForm(GetNameFromBox(EditCus),
+      procedure(const nResult: Integer; const nParam: PFormCommandParam)
+      begin
+        nStr := Trim(nParam.FParamC + '.' + nParam.FParamD); //saleman: id.name
+        if (nStr <> '.') and (EditSaleMan.Items.IndexOf(nStr) < 0) then
+          EditSaleMan.Items.Add(nStr);
+        EditSaleMan.ItemIndex := EditSaleMan.Items.IndexOf(nStr);
+
+        nStr := nParam.FParamA + '.' + nParam.FParamB; //cus: id.name
+        if EditCus.Items.IndexOf(nStr) < 0 then
+          EditCus.Items.Add(nStr);
+        EditCus.ItemIndex := EditCus.Items.IndexOf(nStr);
+      end
+    );
+  end;
+end;
+
 procedure TfFormZhiKa.OnGetContract(const nContract: string);
 begin
   if nContract <> '' then
@@ -386,7 +412,7 @@ begin
   end;
 
   nID := GetIDFromBox(EditCus);
-  if nID = '' then
+  if (nID = '') or ((not EditCus.ReadOnly) and (EditCus.ItemIndex < 0)) then
   begin
     ShowMessage('请选择客户'); 
     Exit;
