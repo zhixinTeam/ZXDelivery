@@ -149,7 +149,9 @@ inherited fFormZhiKa: TfFormZhiKa
       Left = 68
       Top = 123
       Width = 412
-      Hint = ''
+      Hint = #25353#22238#36710#38190#26597#35810#23458#25143
+      ShowHint = True
+      ParentShowHint = False
       MaxLength = 35
       Text = ''
       ParentFont = False

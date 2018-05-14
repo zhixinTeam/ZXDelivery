@@ -29,7 +29,7 @@ inherited fFormSaleContract: TfFormSaleContract
     object EditID: TUniEdit
       Left = 68
       Top = 15
-      Width = 150
+      Width = 130
       Hint = ''
       MaxLength = 15
       Text = ''
@@ -430,6 +430,18 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Height = -12
       Font.Name = #23435#20307
       TabOrder = 29
+    end
+    object BtnMakeID: TUniBitBtn
+      Left = 198
+      Top = 15
+      Width = 20
+      Height = 22
+      Hint = #33258#21160#29983#25104#21512#21516#32534#21495
+      ShowHint = True
+      ParentShowHint = False
+      Caption = '...'
+      TabOrder = 30
+      OnClick = BtnMakeIDClick
     end
   end
   object Check1: TUniCheckBox

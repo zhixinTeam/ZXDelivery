@@ -153,6 +153,8 @@ object fFrameBase: TfFrameBase
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 3
       OnColumnSort = DBGridMainColumnSort
+      OnColumnSummary = DBGridMainColumnSummary
+      OnColumnSummaryResult = DBGridMainColumnSummaryResult
     end
   end
   object ClientDS: TClientDataSet

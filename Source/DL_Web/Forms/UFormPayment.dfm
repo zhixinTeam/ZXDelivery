@@ -9,14 +9,14 @@ inherited fFormPayment: TfFormPayment
   inherited BtnOK: TUniButton
     Left = 244
     Top = 373
-    ExplicitLeft = 132
-    ExplicitTop = 102
+    ExplicitLeft = 244
+    ExplicitTop = 373
   end
   inherited BtnExit: TUniButton
     Left = 327
     Top = 373
-    ExplicitLeft = 215
-    ExplicitTop = 102
+    ExplicitLeft = 327
+    ExplicitTop = 373
   end
   inherited PanelWork: TUniSimplePanel
     Width = 394
@@ -63,14 +63,14 @@ inherited fFormPayment: TfFormPayment
       Font.Name = #23435#20307
       TabOrder = 3
       OnChange = EditSaleManChange
-      ExplicitWidth = 442
     end
     object EditCus: TUniComboBox
       Left = 68
       Top = 51
       Width = 314
-      Hint = ''
-      Style = csDropDownList
+      Hint = #25353#22238#36710#38190#26597#35810#23458#25143
+      ShowHint = True
+      ParentShowHint = False
       MaxLength = 35
       Text = ''
       Anchors = [akLeft, akTop, akRight]
@@ -79,8 +79,8 @@ inherited fFormPayment: TfFormPayment
       Font.Height = -12
       Font.Name = #23435#20307
       TabOrder = 4
+      OnKeyPress = EditCusKeyPress
       OnChange = EditCusChange
-      ExplicitWidth = 442
     end
     object Panel1: TUniSimplePanel
       Left = 8

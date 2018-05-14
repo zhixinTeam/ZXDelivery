@@ -1633,7 +1633,7 @@ begin
   begin
     BorderStyle := ubsDefault;
     LoadMask.Message := 'º”‘ÿ ˝æ›';
-    Options := [dgTitles, dgIndicator, dgColLines, dgRowSelect, dgRowSelect];
+    Options := [dgTitles, dgIndicator, dgColLines, dgRowLines, dgRowSelect];
 
     if UniMainModule.FGridColumnAdjust then
       Options := Options + [dgColumnResize, dgColumnMove];
@@ -1674,6 +1674,13 @@ begin
 
     with gAllEntitys[nIdx],nGrid do
     begin
+      with Summary do
+      begin
+        Enabled := False;
+        GrandTotal := False;
+      end;
+
+      Tag := nIdx;
       Columns.Clear;
       //clear first
 
@@ -1701,6 +1708,12 @@ begin
           if FFormat.FStyle = fsFixed then
             SplitFormat(@FFormat);
           //xxxxx
+
+          if (FFooter.FKind = fkSum) or (FFooter.FKind = fkCount) then
+          begin
+            nColumn.ShowSummary := True;
+            Summary.Enabled := True;
+          end;
         end;
       end;
     end;

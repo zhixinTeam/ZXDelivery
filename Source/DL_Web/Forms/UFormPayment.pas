@@ -35,6 +35,7 @@ type
     procedure BtnOKClick(Sender: TObject);
     procedure EditSaleManChange(Sender: TObject);
     procedure EditCusChange(Sender: TObject);
+    procedure EditCusKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     procedure LoadCustomerData(const nCusID: string);
@@ -55,7 +56,7 @@ implementation
 
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, uniGUIForm,
-  ULibFun, USysBusiness, USysDB, USysConst;
+  ULibFun, USysBusiness, USysDB, USysConst, UFormGetCustomer;
 
 procedure ShowPaymentForm(const nCusID: string; nResult: TFormPaymentResult);
 var nForm: TUniForm;
@@ -152,6 +153,38 @@ begin
   if nStr <> '' then
     LoadCustomerData(nStr);
   //xxxxx
+end;
+
+//Desc: Ñ¡Ôñ¿Í»§
+procedure TfFormPayment.EditCusKeyPress(Sender: TObject; var Key: Char);
+var nStr: string;
+    nIdx: Integer;
+begin
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+    ShowGetCustomerForm(GetNameFromBox(EditCus),
+      procedure(const nResult: Integer; const nParam: PFormCommandParam)
+      begin
+        nStr := Trim(nParam.FParamC + '.' + nParam.FParamD); //saleman: id.name
+        if (nStr <> '.') and (EditSaleMan.Items.IndexOf(nStr) < 0) then
+          EditSaleMan.Items.Add(nStr);
+        EditSaleMan.ItemIndex := EditSaleMan.Items.IndexOf(nStr);
+
+        nStr := nParam.FParamA + '.' + nParam.FParamB; //cus: id.name
+        if EditCus.Items.IndexOf(nStr) < 0 then
+          EditCus.Items.Add(nStr);
+        //xxxxx
+
+        nIdx := EditCus.Items.IndexOf(nStr);
+        if EditCus.ItemIndex <> nIdx then
+        begin
+          EditCus.ItemIndex := nIdx;
+          EditCusChange(nil);
+        end;
+      end
+    );
+  end;
 end;
 
 function TfFormPayment.OnVerifyCtrl(Sender: TObject;

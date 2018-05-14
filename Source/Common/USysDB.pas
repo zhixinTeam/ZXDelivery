@@ -236,6 +236,7 @@ const
   sFlag_PoundID       = 'Bus_Pound';                 //称重记录
   sFlag_Customer      = 'Bus_Customer';              //客户编号
   sFlag_SaleMan       = 'Bus_SaleMan';               //业务员编号
+  sFlag_Contract      = 'Bus_Contract';              //合同编号
   sFlag_ZhiKa         = 'Bus_ZhiKa';                 //纸卡编号
   sFlag_WeiXin        = 'Bus_WeiXin';                //微信映射编号
   sFlag_HYDan         = 'Bus_HYDan';                 //化验单号

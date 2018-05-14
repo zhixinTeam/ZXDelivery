@@ -44,9 +44,11 @@ type
     BtnAdd: TUniBitBtn;
     BtnDel: TUniBitBtn;
     EditMemo: TUniEdit;
+    BtnMakeID: TUniBitBtn;
     procedure BtnOKClick(Sender: TObject);
     procedure EditSaleManChange(Sender: TObject);
     procedure EditCusKeyPress(Sender: TObject; var Key: Char);
+    procedure BtnMakeIDClick(Sender: TObject);
   private
     { Private declarations }
     procedure InitFormData(const nID: string);
@@ -111,6 +113,7 @@ var nStr: string;
     nQuery: TADOQuery;
 begin
   EditID.ReadOnly := nID <> '';
+  BtnMakeID.Enabled := nID = '';
   EditSaleMan.ReadOnly := nID <> '';
   EditCus.ReadOnly := nID <> '';
 
@@ -262,6 +265,12 @@ begin
       end
     );
   end;
+end;
+
+//Desc: Éú³É±àºÅ
+procedure TfFormSaleContract.BtnMakeIDClick(Sender: TObject);
+begin
+  EditID.Text := GetSerialNo(sFlag_BusGroup, sFlag_Contract, False);
 end;
 
 procedure TfFormSaleContract.BtnOKClick(Sender: TObject);

@@ -40,11 +40,15 @@ type
     procedure BtnRefreshClick(Sender: TObject);
     procedure DBGridMainColumnSort(Column: TUniDBGridColumn;
       Direction: Boolean);
+    procedure DBGridMainColumnSummary(Column: TUniDBGridColumn;
+      GroupFieldValue: Variant);
+    procedure DBGridMainColumnSummaryResult(Column: TUniDBGridColumn;
+      GroupFieldValue: Variant; Attribs: TUniCellAttribs; var Result: string);
   private
     { Private declarations }
   protected
     FDBType: TAdoConnectionType;
-    //数据连接
+    {*数据连接*}
     FMenuID: string;
     FPopedom: string;
     {*权限项*}
@@ -142,14 +146,21 @@ begin
   BtnPrint.Enabled    := HasPopedom2(sPopedom_Print, FPopedom);
   BtnPreview.Enabled  := HasPopedom2(sPopedom_Preview, FPopedom);
   BtnExport.Enabled   := HasPopedom2(sPopedom_Export, FPopedom);
+end;
 
-  BuildDBGridColumn(FMenuID, DBGridMain, FilterColumnField());
-  //构建表头
+//Desc: 过滤不显示
+function TfFrameBase.FilterColumnField: string;
+begin
+  Result := '';
 end;
 
 procedure TfFrameBase.OnLoadGridConfig(const nIni: TIniFile);
 begin
+  BuildDBGridColumn(FMenuID, DBGridMain, FilterColumnField());
+  //构建表头
+
   UserDefineGrid(ClassName, DBGridMain, True, nIni);
+  //自定义表头配置
 end;
 
 procedure TfFrameBase.OnSaveGridConfig(const nIni: TIniFile);
@@ -157,10 +168,11 @@ begin
   UserDefineGrid(ClassName, DBGridMain, False, nIni);
 end;
 
-//Desc: 过滤不显示
-function TfFrameBase.FilterColumnField: string;
+//Desc: 执行数据查询
+procedure TfFrameBase.OnInitFormData(var nDefault: Boolean;
+  const nWhere: string; const nQuery: TADOQuery);
 begin
-  Result := '';
+
 end;
 
 //Desc: 构建数据载入SQL语句
@@ -209,11 +221,20 @@ begin
 
 end;
 
-//Desc: 执行数据查询
-procedure TfFrameBase.OnInitFormData(var nDefault: Boolean;
-  const nWhere: string; const nQuery: TADOQuery);
+//------------------------------------------------------------------------------
+//Desc: 关闭
+procedure TfFrameBase.BtnExitClick(Sender: TObject);
+var nSheet: TUniTabSheet;
 begin
+  nSheet := Parent as TUniTabSheet;
+  nSheet.Close;
+end;
 
+//Desc: 刷新
+procedure TfFrameBase.BtnRefreshClick(Sender: TObject);
+begin
+  FWhere := '';
+  InitFormData(FWhere);
 end;
 
 //Desc: 字段数据格式化
@@ -242,7 +263,7 @@ begin
 
     nStr := Trim(CheckBoxField.DisplayValues);
     nLen := Length(nStr); //待显示内容
-    if nLen < 1 then Exit;    
+    if nLen < 1 then Exit;
 
     nS := 1;
     nE := 1;
@@ -266,22 +287,6 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
-//Desc: 关闭
-procedure TfFrameBase.BtnExitClick(Sender: TObject);
-var nSheet: TUniTabSheet;
-begin
-  nSheet := Parent as TUniTabSheet;
-  nSheet.Close;
-end;
-
-//Desc: 刷新
-procedure TfFrameBase.BtnRefreshClick(Sender: TObject);
-begin
-  FWhere := '';
-  InitFormData(FWhere);
-end;
-
 //Desc: 排序
 procedure TfFrameBase.DBGridMainColumnSort(Column: TUniDBGridColumn;
   Direction: Boolean);
@@ -289,6 +294,67 @@ begin
   if Direction then
        ClientDS.IndexName := Column.FieldName + '_asc'
   else ClientDS.IndexName := Column.FieldName + '_des';
+end;
+
+//Desc: 合计
+procedure TfFrameBase.DBGridMainColumnSummary(Column: TUniDBGridColumn;
+  GroupFieldValue: Variant);
+begin
+  GlobalSyncLock;
+  try
+    with gAllEntitys[DBGridMain.Tag].FDictItem[Column.Tag] do
+    begin
+      if FFooter.FKind = fkSum then //sum
+      begin
+        if Column.AuxValue = NULL then
+             Column.AuxValue := Column.Field.AsFloat
+        else Column.AuxValue := Column.AuxValue + Column.Field.AsFloat;
+      end else
+
+      if FFooter.FKind = fkCount then //count
+      begin
+        if Column.AuxValue = NULL then
+             Column.AuxValue := 1
+        else Column.AuxValue := Column.AuxValue + 1;
+      end;
+    end;
+  finally
+    GlobalSyncRelease;
+  end;
+end;
+
+procedure TfFrameBase.DBGridMainColumnSummaryResult(Column: TUniDBGridColumn;
+  GroupFieldValue: Variant; Attribs: TUniCellAttribs; var Result: string);
+var nF: Double;
+    nI: Integer;
+begin
+  GlobalSyncLock;
+  try
+    with gAllEntitys[DBGridMain.Tag].FDictItem[Column.Tag] do
+    begin
+      if FFooter.FKind = fkSum then //sum
+      begin
+        nF := Column.AuxValue;
+        Result := FormatFloat(FFooter.FFormat, nF );
+
+        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Color := clNavy;
+      end else
+
+      if FFooter.FKind = fkCount then //count
+      begin
+        nI := Column.AuxValue;
+        Result := FormatFloat(FFooter.FFormat, nI);
+
+        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Color := clNavy;
+      end;
+    end;
+
+    Column.AuxValue := NULL;
+  finally
+    GlobalSyncRelease;
+  end;
 end;
 
 end.
