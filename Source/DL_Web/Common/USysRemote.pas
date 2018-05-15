@@ -8,8 +8,8 @@ unit USysRemote;
 interface
 
 uses
-  Windows, Classes, System.SysUtils, UClientWorker, UBusinessConst, ULibFun,
-  UManagerGroup, USysDB, USysConst, USysFun;
+  Windows, Classes, System.SysUtils, UClientWorker, UBusinessConst,
+  UManagerGroup, USysDB, USysConst;
 
 function GetSerialNo(const nGroup,nObject: string;
  const nUseDate: Boolean = True): string;

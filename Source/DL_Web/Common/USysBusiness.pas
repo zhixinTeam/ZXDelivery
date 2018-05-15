@@ -13,8 +13,8 @@ uses
   System.SyncObjs, Vcl.Grids,
   //----------------------------------------------------------------------------
   uniGUIAbstractClasses, uniGUITypes, uniGUIClasses, uniGUIBaseClasses,
-  uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm, uniGUIFrame,
-  uniDBGrid, uniBasicGrid, uniStringGrid, uniComboBox,
+  uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm,
+  uniDBGrid, uniStringGrid, uniComboBox,
   //----------------------------------------------------------------------------
   UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun, USysRemote;
 
@@ -111,7 +111,7 @@ procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
 //构建表格列
 procedure BuidDataSetSortIndex(const nClientDS: TClientDataSet);
 //构建nClientDS排序索引
-procedure SetGridColumnFormat(const nEntity: string; const nGrid: TUniDBGrid;
+procedure SetGridColumnFormat(const nEntity: string;
   const nClientDS: TClientDataSet; const nOnData: TFieldGetTextEvent);
 //设置nGrid的数据和现实映射
 procedure UserDefineGrid(const nForm: string; const nGrid: TUniDBGrid;
@@ -1586,48 +1586,6 @@ procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
 var i,nIdx: Integer;
     nList,nFList: TStrings;
     nColumn: TUniBaseDBGridColumn;
-
-  //Desc: 处理数据和显示映射数据
-  procedure SplitFormat(const nFormat: PDictFormatItem);
-  var f,d,s: string;
-      j,p: Integer;
-  begin
-    with nColumn.CheckBoxField do
-    begin
-      Enabled := False;
-      FieldValues := '';
-      DisplayValues := '';
-
-      if nFormat.FData = '' then Exit;
-      TStringHelper.Split(nFormat.FData, nList, 0, ';');
-
-      f := '';
-      d := '';
-      for j := nList.Count-1 downto 0 do
-      begin
-        s := Trim(nList[j]);
-        p := Pos('=', s);
-        if p < 2 then Continue;
-
-        f := f + Copy(s, 1, p - 1) + ';';
-        System.Delete(s, 1, p);
-        d := d + Trim(s) + ';';
-      end;
-
-      p := Length(f);
-      if Copy(f, p, 1) = ';' then
-        System.Delete(f, p, 1);
-      //xxxxx
-
-      p := Length(d);
-      if Copy(d, p, 1) = ';' then
-        System.Delete(d, p, 1);
-      //xxxxx
-
-      if f <> '' then FieldValues := f;
-      if d <> '' then DisplayValues := d;
-    end;
-  end;
 begin
   with nGrid do
   begin
@@ -1642,6 +1600,10 @@ begin
     ReadOnly := True;
     WebOptions.Paged := True;
     WebOptions.PageSize := 1000;
+
+    OnColumnSort := UniMainModule.DoColumnSort;
+    OnColumnSummary := UniMainModule.DoColumnSummary;
+    OnColumnSummaryResult := UniMainModule.DoColumnSummaryResult;
   end;
 
   if nEntity = '' then Exit;
@@ -1705,10 +1667,6 @@ begin
           Title.Caption := FTitle;
           Width := FWidth;
 
-          if FFormat.FStyle = fsFixed then
-            SplitFormat(@FFormat);
-          //xxxxx
-
           if (FFooter.FKind = fkSum) or (FFooter.FKind = fkCount) then
           begin
             nColumn.ShowSummary := True;
@@ -1726,11 +1684,11 @@ begin
 end;
 
 //Date: 2018-05-10
-//Parm: 实体;表格;数据集;处理事件
+//Parm: 实体;数据集;处理事件
 //Desc: 设置nClientDS数据格式化
-procedure SetGridColumnFormat(const nEntity: string; const nGrid: TUniDBGrid;
+procedure SetGridColumnFormat(const nEntity: string;
   const nClientDS: TClientDataSet; const nOnData: TFieldGetTextEvent);
-var nIdx,nEn,nTag,nL,nH: Integer;
+var nIdx,nEn,nL,nH: Integer;
     nField: TField;
 begin
   try
@@ -1745,23 +1703,25 @@ begin
       Break;
     end;
 
-    if nEn < 0 then Exit; //no entity match
+    if nEn < 0 then Exit;
+    //no entity match
+    nClientDS.Tag := nEn;
+
     nL := Low(gAllEntitys[nEn].FDictItem);
     nH := High(gAllEntitys[nEn].FDictItem);
 
-    for nIdx := nGrid.Columns.Count-1 downto 0 do
-    with gAllEntitys[nEn] do
+    for nIdx := nL to nH do
+    with gAllEntitys[nEn].FDictItem[nIdx] do
     begin
-      nTag := nGrid.Columns[nIdx].Tag;
-      if (nTag < nL) or (nTag > nH) then Continue;
+      if FFormat.FStyle <> fsFixed then Continue;
+      if Trim(FFormat.FData) = '' then Continue;
 
-      if FDictItem[nTag].FFormat.FStyle <> fsFixed then Continue;
-      if Trim(FDictItem[nTag].FFormat.FData) = '' then Continue;
-
-      nField := nClientDS.FindField(FDictItem[nTag].FDBItem.FField);
+      nField := nClientDS.FindField(FDBItem.FField);
       if Assigned(nField) then
+      begin
+        nField.Tag := nIdx;
         nField.OnGetText := nOnData;
-      //xxxxx
+      end;
     end;
   finally
     GlobalSyncRelease;
@@ -1793,24 +1753,6 @@ begin
     if nLoad then
     begin
       nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
-      nStr := nTmp.ReadString(nForm, 'GridWidth_' + nGrid.Name, '');
-
-      if Split(nStr, nList, nGrid.Columns.Count) then
-      begin
-        for i := 0 to nCount do
-         if IsNumber(nList[i], False) then
-          nGrid.Columns[i].Width := StrToInt(nList[i]);
-        //apply width
-      end;
-
-      nStr := nTmp.ReadString(nForm, 'GridVisible_' + nGrid.Name, '');
-      if Split(nStr, nList, nGrid.Columns.Count) then
-      begin
-        for i := 0 to nCount do
-          nGrid.Columns[i].Visible := nList[i] = '1';
-        //apply visible
-      end;
-
       nStr := nTmp.ReadString(nForm, 'GridIndex_' + nGrid.Name, '');
       if Split(nStr, nList, nGrid.Columns.Count) then
       begin
@@ -1827,33 +1769,57 @@ begin
           end;
         end;
       end;
+
+      nStr := nTmp.ReadString(nForm, 'GridWidth_' + nGrid.Name, '');
+      if Split(nStr, nList, nGrid.Columns.Count) then
+      begin
+        for i := 0 to nCount do
+         if IsNumber(nList[i], False) then
+          nGrid.Columns[i].Width := StrToInt(nList[i]);
+        //apply width
+      end;
+
+      if not UniMainModule.FGridColumnAdjust then //调整时全部显示
+      begin
+        nStr := nTmp.ReadString(nForm, 'GridVisible_' + nGrid.Name, '');
+        if Split(nStr, nList, nGrid.Columns.Count) then
+        begin
+          for i := 0 to nCount do
+            nGrid.Columns[i].Visible := nList[i] = '1';
+          //apply visible
+        end;
+      end;
     end else
     begin
-      nStr := '';
-      for i := 0 to nCount do
+      if UniMainModule.FGridColumnAdjust then //save manual adjust grid
       begin
-        nStr := nStr + IntToStr(nGrid.Columns[i].Tag);
-        if i <> nCount then nStr := nStr + ';';
-      end;
-      nTmp.WriteString(nForm, 'GridIndex_' + nGrid.Name, nStr);
+        nStr := '';
+        for i := 0 to nCount do
+        begin
+          nStr := nStr + IntToStr(nGrid.Columns[i].Tag);
+          if i <> nCount then nStr := nStr + ';';
+        end;
+        nTmp.WriteString(nForm, 'GridIndex_' + nGrid.Name, nStr);
 
-      nStr := '';
-      for i := 0 to nCount do
+        nStr := '';
+        for i := 0 to nCount do
+        begin
+          nStr := nStr + IntToStr(nGrid.Columns[i].Width);
+          if i <> nCount then nStr := nStr + ';';
+        end;
+        nTmp.WriteString(nForm, 'GridWidth_' + nGrid.Name, nStr);
+      end else
       begin
-        nStr := nStr + IntToStr(nGrid.Columns[i].Width);
-        if i <> nCount then nStr := nStr + ';';
+        nStr := '';
+        for i := 0 to nCount do
+        begin
+          if nGrid.Columns[i].Visible then
+               nStr := nStr + '1'
+          else nStr := nStr + '0';
+          if i <> nCount then nStr := nStr + ';';
+        end;
+        nTmp.WriteString(nForm, 'GridVisible_' + nGrid.Name, nStr);
       end;
-      nTmp.WriteString(nForm, 'GridWidth_' + nGrid.Name, nStr);
-
-      nStr := '';
-      for i := 0 to nCount do
-      begin
-        if nGrid.Columns[i].Visible then
-             nStr := nStr + '1'
-        else nStr := nStr + '0';
-        if i <> nCount then nStr := nStr + ';';
-      end;
-      nTmp.WriteString(nForm, 'GridVisible_' + nGrid.Name, nStr);
     end;
   finally
     gMG.FObjectPool.Release(nList);

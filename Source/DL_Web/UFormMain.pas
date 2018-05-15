@@ -8,10 +8,10 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, Dialogs,
-  uniGUITypes, uniGUIAbstractClasses, uniGUIClasses, uniGUIRegClasses,
-  uniGUIForm, uniLabel, uniMultiItem, uniComboBox, uniTreeView, uniImage,
-  uniPanel, uniGUIBaseClasses, uniGUIFrame, Vcl.Menus, uniMainMenu, uniSplitter,
-  uniCheckBox, uniButton, uniMemo, uniPageControl, Vcl.Controls, uniStatusBar;
+  uniGUITypes, uniGUIAbstractClasses, uniGUIForm, uniGUIFrame, Vcl.Menus,
+  uniMainMenu, uniSplitter, uniTreeView, uniMultiItem, uniComboBox, uniCheckBox,
+  uniButton, uniGUIClasses, uniMemo, uniPanel, uniPageControl, uniLabel,
+  uniImage, Vcl.Controls, uniGUIBaseClasses, uniStatusBar;
 
 type
   TfFormMain = class(TUniForm)
@@ -68,8 +68,8 @@ implementation
 {$R *.dfm}
 
 uses
-  uniGUIVars, MainModule, uniGUIApplication, ULibFun, UManagerGroup,
-  System.IniFiles, USysDB, USysFun, USysBusiness, USysConst;
+  uniGUIVars, MainModule, UManagerGroup, System.IniFiles, USysDB,
+  USysBusiness, USysConst;
 
 function fFormMain: TfFormMain;
 begin
@@ -111,7 +111,7 @@ begin
     //config object
 
     nInt := nIni.ReadInteger(ClassName, 'PanelLeft', 200);
-    if nInt < 50 then nInt := 50;
+    if nInt < 100 then nInt := 100;
     PanelLeft.Width := nInt;
 
     nInt := nIni.ReadInteger(ClassName, 'FactoryLast', 0);

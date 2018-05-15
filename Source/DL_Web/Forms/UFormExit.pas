@@ -8,9 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel;
+  Controls, Forms, uniGUITypes, UFormBase, uniLabel, uniGUIClasses, uniPanel,
+  uniGUIBaseClasses, uniButton;
 
 type
   TfFormExit = class(TfFormBase)

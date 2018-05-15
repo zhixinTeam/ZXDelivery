@@ -7,8 +7,8 @@ unit ServerModule;
 interface
 
 uses
-  Classes, SysUtils, uniGUIServer, uniGUIMainModule, uniGUIApplication,
-  uIdCustomHTTPServer, uniGUITypes, Data.Win.ADODB, UManagerGroup, ULibFun;
+  Classes, SysUtils, Data.Win.ADODB, uniGUIServer, uniGUITypes, UManagerGroup,
+  ULibFun;
 
 type
   TUniServerModule = class(TUniGUIServerModule)

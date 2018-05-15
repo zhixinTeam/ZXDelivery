@@ -8,10 +8,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniDateTimePicker, uniBasicGrid, uniDBGrid, Data.DB,
-  Datasnap.DBClient;
+  Controls, Forms, uniGUITypes, uniGUIForm, UFormBase, Data.DB,
+  Datasnap.DBClient, uniEdit, uniLabel, uniGUIClasses, uniBasicGrid, uniDBGrid,
+  uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormGetContract = class(TfFormBase)

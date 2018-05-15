@@ -7,8 +7,9 @@ unit MainModule;
 interface
 
 uses
-  uniGUIMainModule, SysUtils, Classes, uniGUIBaseClasses, uniGUIClasses,
-  uniImageList, uniGUIForm, System.SyncObjs, USysConst;
+  uniGUIMainModule, SysUtils, Classes, Vcl.Graphics, Data.Win.ADODB, Data.DB,
+  Datasnap.DBClient, System.Variants, uniGUIBaseClasses, uniGUIClasses,
+  uniImageList, uniGUIForm, uniDBGrid, uniGUITypes, USysConst;
 
 type
   TUniMainModule = class(TUniGUIMainModule)
@@ -30,6 +31,14 @@ type
     //允许调整
     FMenuModule: TMenuModuleItems;
     //菜单模块
+    procedure DoColumnFormat(Sender: TField; var Text: string;
+      DisplayText: Boolean);
+    procedure DoColumnSort(Column: TUniDBGridColumn; Direction: Boolean);
+    procedure DoColumnSummary(Column: TUniDBGridColumn;
+      GroupFieldValue: Variant);
+    procedure DoColumnSummaryResult(Column: TUniDBGridColumn;
+      GroupFieldValue: Variant; Attribs: TUniCellAttribs; var Result: string);
+    //表格处理
   end;
 
 function UniMainModule: TUniMainModule;
@@ -100,6 +109,117 @@ procedure TUniMainModule.UniGUIMainModuleBeforeLogin(Sender: TObject;
   var Handled: Boolean);
 begin
   Handled := FUserConfig.FUserID <> '';
+end;
+
+//------------------------------------------------------------------------------
+//Desc: 字段数据格式化
+procedure TUniMainModule.DoColumnFormat(Sender: TField; var Text: string;
+  DisplayText: Boolean);
+var nStr: string;
+    nIdx,nInt: Integer;
+begin
+  GlobalSyncLock;
+  try
+    with gAllEntitys[Sender.DataSet.Tag].FDictItem[Sender.Tag] do
+    begin
+      nStr := Trim(Sender.AsString) + '=';
+      if nStr = '=' then Exit;
+
+      nIdx := Pos(nStr, FFormat.FData);
+      if nIdx < 1 then Exit;
+
+      nInt := nIdx + Length(nStr);     //start
+      nStr := Copy(FFormat.FData, nInt, Length(FFormat.FData) - nInt + 1);
+
+      nInt := Pos(';', nStr);
+      if nInt < 2 then
+           Text := nStr
+      else Text := Copy(nStr, 1, nInt - 1);
+    end;
+  finally
+    GlobalSyncRelease;
+  end;
+end;
+
+//Desc: 排序
+procedure TUniMainModule.DoColumnSort(Column: TUniDBGridColumn;
+  Direction: Boolean);
+var nStr: string;
+    nDS: TClientDataSet;
+begin
+  if TUniDBGrid(Column.Grid).DataSource.DataSet is TClientDataSet then
+       nDS := TUniDBGrid(Column.Grid).DataSource.DataSet as TClientDataSet
+  else Exit;
+
+  if Direction then
+       nStr := Column.FieldName + '_asc'
+  else nStr := Column.FieldName + '_des';
+
+  if nDS.IndexDefs.IndexOf(nStr) >= 0 then
+    nDS.IndexName := nStr;
+  //xxxxx
+end;
+
+//Desc: 合计计算
+procedure TUniMainModule.DoColumnSummary(Column: TUniDBGridColumn;
+  GroupFieldValue: Variant);
+begin
+  GlobalSyncLock;
+  try
+    with gAllEntitys[Column.Grid.Tag].FDictItem[Column.Tag] do
+    begin
+      if FFooter.FKind = fkSum then //sum
+      begin
+        if Column.AuxValue = NULL then
+             Column.AuxValue := Column.Field.AsFloat
+        else Column.AuxValue := Column.AuxValue + Column.Field.AsFloat;
+      end else
+
+      if FFooter.FKind = fkCount then //count
+      begin
+        if Column.AuxValue = NULL then
+             Column.AuxValue := 1
+        else Column.AuxValue := Column.AuxValue + 1;
+      end;
+    end;
+  finally
+    GlobalSyncRelease;
+  end;
+end;
+
+//Desc: 合计结果
+procedure TUniMainModule.DoColumnSummaryResult(Column: TUniDBGridColumn;
+  GroupFieldValue: Variant; Attribs: TUniCellAttribs; var Result: string);
+var nF: Double;
+    nI: Integer;
+begin
+  GlobalSyncLock;
+  try
+    with gAllEntitys[Column.Grid.Tag].FDictItem[Column.Tag] do
+    begin
+      if FFooter.FKind = fkSum then //sum
+      begin
+        nF := Column.AuxValue;
+        Result := FormatFloat(FFooter.FFormat, nF );
+
+        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Color := clNavy;
+      end else
+
+      if FFooter.FKind = fkCount then //count
+      begin
+        nI := Column.AuxValue;
+        Result := FormatFloat(FFooter.FFormat, nI);
+
+        Attribs.Font.Style := [fsBold];
+        Attribs.Font.Color := clNavy;
+      end;
+    end;
+
+    Column.AuxValue := NULL;
+  finally
+    GlobalSyncRelease;
+  end;
 end;
 
 initialization

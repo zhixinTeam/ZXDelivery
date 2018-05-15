@@ -8,9 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIRegClasses, uniGUIForm, uniGUIBaseClasses, uniImage,
-  uniButton, uniEdit, uniLabel, uniPanel;
+  Controls, Forms, uniGUITypes, uniGUIForm, uniButton, uniGUIClasses, uniEdit,
+  uniLabel, uniPanel, uniGUIBaseClasses, uniImage;
 
 type
   TfFormLogin = class(TUniLoginForm)
@@ -38,8 +37,8 @@ implementation
 {$R *.dfm}
 
 uses
-  uniGUIVars, MainModule, uniGUIApplication, ULibFun, Data.Win.ADODB,
-  USysBusiness, USysFun, USysConst, USysDB;
+  uniGUIVars, MainModule, ULibFun, Data.Win.ADODB,
+  USysBusiness, USysConst, USysDB;
 
 function fFormLogin: TfFormLogin;
 begin

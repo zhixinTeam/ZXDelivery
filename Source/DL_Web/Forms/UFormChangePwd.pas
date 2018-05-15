@@ -8,9 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel;
+  Controls, Forms, UFormBase, uniGUIClasses, uniEdit, uniLabel, uniPanel,
+  uniGUIBaseClasses, uniButton;
 
 type
   TfFormChangePwd = class(TfFormBase)
@@ -33,7 +32,7 @@ implementation
 {$R *.dfm}
 
 uses
-  uniGUIVars, MainModule, uniGUIApplication, USysDB, USysBusiness;
+  MainModule, USysDB, USysBusiness;
 
 function fFormChangePwd: TfFormChangePwd;
 begin

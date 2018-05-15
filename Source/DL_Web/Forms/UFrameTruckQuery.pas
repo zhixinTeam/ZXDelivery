@@ -8,10 +8,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIFrame, UFrameBase, Data.DB, Datasnap.DBClient,
-  uniSplitter, uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses,
-  uniEdit, uniLabel, Vcl.Menus, uniMainMenu, uniButton, uniBitBtn;
+  Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu, uniButton,
+  uniBitBtn, uniEdit, uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses,
+  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, uniGUIBaseClasses;
 
 type
   TfFrameTruckQuery = class(TfFrameBase)

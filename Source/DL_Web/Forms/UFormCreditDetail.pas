@@ -8,10 +8,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniDateTimePicker, uniBasicGrid, uniDBGrid, Data.DB,
-  Datasnap.DBClient, Vcl.Menus, uniMainMenu;
+  Controls, Forms, uniGUITypes, uniGUIForm, UFormBase, Vcl.Menus, uniMainMenu,
+  Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
+  uniGUIBaseClasses, uniButton;
 
 type
   TfFormCreditDetail = class(TfFormBase)
@@ -120,6 +119,7 @@ begin
 
     nQuery := LockDBQuery(FDBType);
     DBQuery(nStr, nQuery, ClientDS1);
+    SetGridColumnFormat('CusCredit', ClientDS1, UniMainModule.DoColumnFormat);
   finally
     ReleaseDBQuery(nQuery);
   end;

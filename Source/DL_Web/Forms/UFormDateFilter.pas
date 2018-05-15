@@ -8,9 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniDateTimePicker;
+  Controls, Forms, uniGUITypes, uniGUIForm, UFormBase, uniLabel, uniGUIClasses,
+  uniDateTimePicker, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormDateFilter = class(TfFormBase)

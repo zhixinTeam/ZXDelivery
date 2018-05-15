@@ -8,9 +8,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UFrameBase, uniGUITypes, uniLabel, uniEdit, Data.DB, Datasnap.DBClient,
-  uniSplitter, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel, uniToolBar,
-  uniGUIBaseClasses, Vcl.Menus, uniMainMenu;
+  UFrameBase, uniGUITypes, Vcl.Menus, uniMainMenu, uniLabel, uniEdit, Data.DB,
+  Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
+  uniToolBar, uniGUIBaseClasses;
 
 type
   TfFrameSalesMan = class(TfFrameBase)

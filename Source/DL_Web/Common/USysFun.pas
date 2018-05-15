@@ -7,7 +7,7 @@ unit USysFun;
 interface
 
 uses
-  Windows, Classes, Forms, SysUtils, IniFiles, ULibFun, UBaseObject, USysConst;
+  Windows, Classes, Forms, SysUtils, IniFiles, UBaseObject, USysConst;
 
 procedure InitSystemEnvironment;
 //初始化系统运行环境的变量
@@ -31,8 +31,17 @@ begin
   Randomize;
   gPath := ExtractFilePath(Application.ExeName);
 
-  TObjectStatusHelper.shTitle := 100;
-  TObjectStatusHelper.shData := 50;
+  with FormatSettings do
+  begin
+    DateSeparator := '-';
+    ShortDateFormat := 'yyyy-MM-dd';
+  end;
+
+  with TObjectStatusHelper do
+  begin
+    shData := 50;
+    shTitle := 100;
+  end;
 end;
 
 //Date: 2007-09-13

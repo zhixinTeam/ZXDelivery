@@ -8,9 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  USysConst, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniMemo, uniMultiItem, uniComboBox;
+  USysConst, uniGUITypes, UFormBase, uniMemo, uniMultiItem, uniComboBox,
+  uniLabel, uniGUIClasses, uniEdit, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormCutomer = class(TfFormBase)

@@ -8,8 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  USysConst, uniGUITypes, UFormBase, uniMemo, uniLabel, uniGUIClasses, uniEdit,
-  uniPanel, uniGUIBaseClasses, uniButton, uniCheckBox;
+  USysConst, uniGUITypes, UFormBase, uniCheckBox, uniMemo, uniLabel,
+  uniGUIClasses, uniEdit, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormSalesMan = class(TfFormBase)

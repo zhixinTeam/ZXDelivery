@@ -8,8 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
-  ULibFun, uniGUITypes, UFrameBase, uniMultiItem, uniComboBox, Vcl.Menus,
-  uniMainMenu, uniButton, uniBitBtn, uniEdit, uniLabel, Data.DB,
+  ULibFun, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu, uniMultiItem,
+  uniComboBox, uniButton, uniBitBtn, uniEdit, uniLabel, Data.DB,
   Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
   uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
 
