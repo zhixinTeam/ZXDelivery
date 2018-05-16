@@ -29,11 +29,6 @@ implementation
 uses
   uniGUIVars, MainModule, uniGUIApplication;
 
-function fFormOptions: TfFormOptions;
-begin
-  Result := TfFormOptions(UniMainModule.GetFormInstance(TfFormOptions));
-end;
-
 procedure TfFormOptions.OnCreateForm(Sender: TObject);
 begin
   CheckColumnAdjust.Checked := UniMainModule.FGridColumnAdjust;

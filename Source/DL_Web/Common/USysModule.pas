@@ -14,7 +14,8 @@ uses
   UFrameZhiKa, UFormZhiKa, UFrameZhiKaDetail, UFormZhiKaFreeze, UFormZhiKaPrice,
   UFormZhiKaFixMoney, UFormGetContract, UFrameCustomerCredit, UFormCreditDetail,
   UFormCustomerCredit, UFramePayment, UFormPayment, UFrameSalesMan,
-  UFormSalesMan, UFormSysLog, UFormGetCustomer,
+  UFormSalesMan, UFormSysLog, UFormGetCustomer, UFrameInvoiceWeek,
+  UFormInvoiceWeek, UFrameInvoiceZZ,
 //--------------------------------- report -------------------------------------
   UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
   UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal,

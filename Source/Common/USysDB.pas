@@ -238,6 +238,7 @@ const
   sFlag_SaleMan       = 'Bus_SaleMan';               //业务员编号
   sFlag_Contract      = 'Bus_Contract';              //合同编号
   sFlag_ZhiKa         = 'Bus_ZhiKa';                 //纸卡编号
+  sFlag_InvWeek       = 'Bus_InvoiceWeek';           //结算周期
   sFlag_WeiXin        = 'Bus_WeiXin';                //微信映射编号
   sFlag_HYDan         = 'Bus_HYDan';                 //化验单号
   sFlag_ForceHint     = 'Bus_HintMsg';               //强制提示

@@ -2,7 +2,6 @@ inherited fFormChangePwd: TfFormChangePwd
   ClientHeight = 173
   ClientWidth = 294
   Caption = #20462#25913#23494#30721
-  OnCreate = UniFormCreate
   ExplicitWidth = 300
   ExplicitHeight = 198
   PixelsPerInch = 96
@@ -10,17 +9,18 @@ inherited fFormChangePwd: TfFormChangePwd
   inherited BtnOK: TUniButton
     Left = 128
     Top = 139
-    OnClick = BtnOKClick
+    ExplicitLeft = 128
+    ExplicitTop = 139
   end
   inherited BtnExit: TUniButton
     Left = 211
     Top = 139
+    ExplicitLeft = 211
+    ExplicitTop = 139
   end
   inherited PanelWork: TUniSimplePanel
     Width = 278
     Height = 123
-    ExplicitWidth = 286
-    ExplicitHeight = 120
     object UniLabel1: TUniLabel
       Left = 16
       Top = 20

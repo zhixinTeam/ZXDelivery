@@ -8,8 +8,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UFormBase, uniMemo, uniEdit, uniGUIClasses, uniMultiItem, uniComboBox,
-  uniLabel, uniPanel, uniGUIBaseClasses, uniButton;
+  USysConst, UFormBase, uniMemo, uniEdit, uniGUIClasses, uniMultiItem,
+  uniComboBox, uniLabel, uniPanel, uniGUIBaseClasses, uniButton;
 
 type
   TfFormPayment = class(TfFormBase)
@@ -44,10 +44,7 @@ type
     function OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean; override;
   end;
 
-  TFormPaymentResult = procedure (nCusID: string; nMoney: Double) of object;
-  //结果回调
-
-procedure ShowPaymentForm(const nCusID: string; nResult: TFormPaymentResult);
+procedure ShowPaymentForm(const nCusID: string; nResult: TFormModalResult);
 //入口函数
 
 implementation
@@ -56,9 +53,9 @@ implementation
 
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, uniGUIForm,
-  ULibFun, USysBusiness, USysDB, USysConst, UFormGetCustomer;
+  ULibFun, USysBusiness, USysDB, UFormGetCustomer;
 
-procedure ShowPaymentForm(const nCusID: string; nResult: TFormPaymentResult);
+procedure ShowPaymentForm(const nCusID: string; nResult: TFormModalResult);
 var nForm: TUniForm;
 begin
   nForm := SystemGetForm('TfFormPayment', True);
@@ -76,7 +73,11 @@ begin
     ShowModal(
       procedure(Sender: TComponent; Result:Integer)
       begin
-        nResult(FParam.FParamA, 0);
+        if Result = mrOk then
+        begin
+          FParam.FParamD := EditMoney.Text;
+          nResult(Result, @FParam);
+        end;
       end);
   end;
 end;

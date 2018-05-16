@@ -7,10 +7,10 @@ unit UFormGetContract;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIForm, UFormBase, Data.DB,
-  Datasnap.DBClient, uniEdit, uniLabel, uniGUIClasses, uniBasicGrid, uniDBGrid,
-  uniPanel, uniGUIBaseClasses, uniButton;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, uniGUIForm,
+  USysConst, UFormBase, Data.DB, Datasnap.DBClient, uniEdit, uniLabel,
+  uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel, Vcl.Controls, Vcl.Forms,
+  uniGUIBaseClasses, uniButton;
 
 type
   TfFormGetContract = class(TfFormBase)
@@ -31,16 +31,11 @@ type
     { Private declarations }
   public
     { Public declarations }
-    function GetContractID: string;
-    //选中合同号
     procedure OnCreateForm(Sender: TObject); override;
     procedure OnDestroyForm(Sender: TObject); override;
   end;
 
-  TFormGetContractResult = procedure (const nContract: string) of object;
-  //结果回调
-
-function ShowGetContractForm(const nResult: TFormGetContractResult): Boolean;
+function ShowGetContractForm(const nResult: TFormModalResult): Boolean;
 //入口函数
 
 implementation
@@ -54,7 +49,7 @@ uses
 //Date: 2018-05-04
 //Parm: 结果回调
 //Desc: 显示合同查询窗口
-function ShowGetContractForm(const nResult: TFormGetContractResult): Boolean;
+function ShowGetContractForm(const nResult: TFormModalResult): Boolean;
 var nForm: TUniForm;
 begin
   Result := False;
@@ -67,8 +62,11 @@ begin
       procedure(Sender: TComponent; Result:Integer)
       begin
         if Result = mrOk then
-          nResult(GetContractID);
-        //xxxxx
+        with ClientDS1 do
+        begin
+          FParam.FParamA := FieldByName('C_ID').AsString;
+          nResult(Result, @FParam);
+        end;
       end);
     Result := True;
   end;
@@ -163,11 +161,6 @@ begin
   finally
     ReleaseDBQuery(nQuery);
   end;
-end;
-
-function TfFormGetContract.GetContractID: string;
-begin
-  Result := ClientDS1.FieldByName('C_ID').AsString;
 end;
 
 procedure TfFormGetContract.BtnOKClick(Sender: TObject);

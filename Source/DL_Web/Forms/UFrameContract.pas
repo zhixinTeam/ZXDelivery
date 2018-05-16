@@ -166,12 +166,16 @@ begin
           nSQL := Format(nSQL, [sTable_SContractExt, nStr]);
           nList.Add(nSQL);
 
-          DBExecute(nList, nil, ctWork);
+          DBExecute(nList, nil, FDBType);
+          gMG.FObjectPool.Release(nList);
+          nList := nil;
+
           InitFormData(FWhere);
           ShowMessage('ÒÑ³É¹¦É¾³ý¼ÇÂ¼');
         except
           on nErr: Exception do
           begin
+            gMG.FObjectPool.Release(nList);
             ShowMessage('É¾³ýÊ§°Ü: ' + nErr.Message);
           end;
         end;

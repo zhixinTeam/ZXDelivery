@@ -7,10 +7,10 @@ unit UFrameCustomer;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, UFrameBase, uniGUITypes, uniLabel, uniEdit, Data.DB,
-  Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
-  uniToolBar, uniGUIBaseClasses;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, uniGUITypes,
+  UFrameBase, uniLabel, uniEdit, Data.DB, Datasnap.DBClient, uniGUIClasses,
+  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms,
+  uniGUIBaseClasses;
 
 type
   TfFrameCustomer = class(TfFrameBase)
@@ -33,14 +33,24 @@ implementation
 {$R *.dfm}
 uses
   uniGUIVars, MainModule, uniGUIApplication, uniGUIForm, UFormBase,
-  UManagerGroup, USysBusiness, USysDB, USysConst;
+  UManagerGroup, ULibFun, USysBusiness, USysDB, USysConst;
 
 function TfFrameCustomer.InitFormDataSQL(const nWhere: string): string;
 begin
-  Result := 'Select * From ' + sTable_Customer;
-  if nWhere <> '' then
-    Result := Result + ' where ' + nWhere;
-  //xxxxx
+  with TStringHelper do
+  begin
+    Result := 'Select cus.*,S_Name From $Cus cus' +
+              ' Left Join $Sale On S_ID=cus.C_SaleMan';
+    //xxxxx
+
+    if nWhere = '' then
+         Result := Result + ' Where C_XuNi<>''$Yes'''
+    else Result := Result + ' Where (' + nWhere + ')';
+
+    Result := MacroValue(Result, [MI('$Cus', sTable_Customer),
+              MI('$Sale', sTable_Salesman), MI('$Yes', sFlag_Yes)]);
+    //xxxxx
+  end;
 end;
 
 procedure TfFrameCustomer.BtnAddClick(Sender: TObject);
@@ -123,6 +133,7 @@ begin
 
         DBExecute(nList, nil, FDBType);
         gMG.FObjectPool.Release(nList);
+        nList := nil;
 
         InitFormData(FWhere);
         ShowMessage('已成功删除记录');

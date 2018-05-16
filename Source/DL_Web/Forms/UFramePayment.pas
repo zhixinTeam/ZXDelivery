@@ -1,6 +1,6 @@
 {*******************************************************************************
   作者: dmzn@163.com 2018-05-08
-  描述: 出入车辆查询
+  描述: 销售回款
 *******************************************************************************}
 unit UFramePayment;
 
@@ -28,8 +28,6 @@ type
     {*时间区间*}
     procedure OnDateFilter(const nStart,nEnd: TDate);
     //日期筛选
-    procedure OnPayment(nCusID: string; nMoney: Double);
-    //回款结果
   public
     { Public declarations }
     procedure OnCreateFrame(const nIni: TIniFile); override;
@@ -42,7 +40,8 @@ implementation
 
 {$R *.dfm}
 uses
-  uniGUIVars, MainModule, uniGUIApplication, ULibFun, USysDB, USysConst, UFormDateFilter, UFormPayment;
+  uniGUIVars, MainModule, uniGUIApplication, ULibFun, USysDB, USysConst,
+  UFormDateFilter, UFormPayment;
 
 procedure TfFramePayment.OnCreateFrame(const nIni: TIniFile);
 begin
@@ -106,11 +105,6 @@ begin
   end;
 end;
 
-procedure TfFramePayment.OnPayment(nCusID: string; nMoney: Double);
-begin
-  InitFormData(FWhere);
-end;
-
 //Desc: 回款
 procedure TfFramePayment.BtnEditClick(Sender: TObject);
 var nStr: string;
@@ -119,7 +113,12 @@ begin
        nStr := ClientDS.FieldByName('M_CusID').AsString
   else nStr := '';
 
-  ShowPaymentForm(nStr, OnPayment);
+  ShowPaymentForm(nStr,
+    procedure(const nResult: Integer; const nParam: PFormCommandParam)
+    begin
+      InitFormData(FWhere);
+    end);
+  //xxxxx
 end;
 
 initialization

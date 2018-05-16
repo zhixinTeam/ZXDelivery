@@ -51,8 +51,6 @@ type
     //载入数据
     procedure LoadContract(const nCID: string; const nQuery: TADOQuery);
     //读取合同
-    procedure OnGetContract(const nContract: string);
-    //检索合同
   public
     { Public declarations }
     procedure OnCreateForm(Sender: TObject); override;
@@ -79,11 +77,7 @@ const
 
   cChecked = '√';
 
-function fFormZhiKa: TfFormZhiKa;
-begin
-  Result := TfFormZhiKa(UniMainModule.GetFormInstance(TfFormZhiKa));
-end;
-
+//------------------------------------------------------------------------------
 procedure TfFormZhiKa.OnCreateForm(Sender: TObject);
 begin
   with Grid1 do
@@ -383,19 +377,19 @@ begin
   end;
 end;
 
-procedure TfFormZhiKa.OnGetContract(const nContract: string);
-begin
-  if nContract <> '' then
-  begin
-    EditCID.Text := nContract;
-    LoadContract(nContract, nil);
-  end;
-end;
-
 //Desc: 选择合同
 procedure TfFormZhiKa.BtnGetContractClick(Sender: TObject);
 begin
-  ShowGetContractForm(OnGetContract);
+  ShowGetContractForm(
+    procedure(const nResult: Integer; const nParam: PFormCommandParam)
+    begin
+      if nParam.FParamA <> '' then
+      begin
+        EditCID.Text := nParam.FParamA;
+        LoadContract(nParam.FParamA, nil);
+      end;
+    end);
+  //xxxxx
 end;
 
 procedure TfFormZhiKa.BtnOKClick(Sender: TObject);
@@ -513,7 +507,7 @@ begin
       nList.Add(nStr);
     end;
 
-    DBExecute(nList, nil, ctWork);
+    DBExecute(nList, nil, FDBType);
     ModalResult := mrOk;
   finally
     gMG.FObjectPool.Release(nList);

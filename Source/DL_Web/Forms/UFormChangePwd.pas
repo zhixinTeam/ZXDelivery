@@ -34,11 +34,6 @@ implementation
 uses
   MainModule, USysDB, USysBusiness;
 
-function fFormChangePwd: TfFormChangePwd;
-begin
-  Result := TfFormChangePwd(UniMainModule.GetFormInstance(TfFormChangePwd));
-end;
-
 procedure TfFormChangePwd.UniFormCreate(Sender: TObject);
 begin
   inherited;

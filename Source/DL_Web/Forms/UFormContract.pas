@@ -374,7 +374,7 @@ begin
       nList.Add(nStr);
     end;
 
-    DBExecute(nList, nil, ctWork);
+    DBExecute(nList, nil, FDBType);
     ModalResult := mrOk;
   finally
     gMG.FObjectPool.Release(nList);

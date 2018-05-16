@@ -39,6 +39,8 @@ function DBExecute(const nList: TStrings; const nCmd: TADOQuery = nil;
 procedure DSClientDS(const nDS: TDataSet; const nClientDS: TClientDataSet);
 //数据集转换
 
+function AdjustHintToRead(const nHint: string): string;
+//调整提示内容
 function SystemGetForm(const nClass: string;
   const nException: Boolean = False): TUniForm;
 //根据类名称获取窗体对像
@@ -490,6 +492,26 @@ begin
     //载入数据字典
   finally
     GlobalSyncRelease;
+  end;
+end;
+
+//Date: 2018-05-16
+//Parm: 提示内容
+//Desc: 调整nHint为易读的格式
+function AdjustHintToRead(const nHint: string): string;
+var nIdx: Integer;
+    nList: TStrings;
+begin
+  nList := nil;
+  try
+    nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+    nList.Text := nHint;
+
+    for nIdx:=0 to nList.Count - 1 do
+      nList[nIdx] := '※.' + nList[nIdx];
+    Result := nList.Text;
+  finally
+    gMG.FObjectPool.Release(nList);
   end;
 end;
 
@@ -1584,7 +1606,7 @@ end;
 procedure BuildDBGridColumn(const nEntity: string; const nGrid: TUniDBGrid;
  const nFilter: string);
 var i,nIdx: Integer;
-    nList,nFList: TStrings;
+    nList: TStrings;
     nColumn: TUniBaseDBGridColumn;
 begin
   with nGrid do
@@ -1610,7 +1632,6 @@ begin
   //manual column
 
   nList := nil;
-  nFList := nil;
   try
     GlobalSyncLock;
     nGrid.Columns.BeginUpdate;
@@ -1626,12 +1647,11 @@ begin
 
     if nIdx < 0 then Exit;
     //no entity match
-    nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
 
     if nFilter <> '' then
     begin
-      nFList := gMG.FObjectPool.Lock(TStrings) as TStrings;
-      TStringHelper.Split(nFilter, nFList, 0, ';');
+      nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+      TStringHelper.Split(nFilter, nList, 0, ';');
     end;
 
     with gAllEntitys[nIdx],nGrid do
@@ -1651,7 +1671,7 @@ begin
       begin
         if not FVisible then Continue;
 
-        if Assigned(nFList) and (nFList.IndexOf(FDBItem.FField) >= 0) then
+        if Assigned(nList) and (nList.IndexOf(FDBItem.FField) >= 0) then
           Continue;
         //字段被过滤,不予显示
 
@@ -1677,7 +1697,6 @@ begin
     end;
   finally
     GlobalSyncRelease;
-    gMG.FObjectPool.Release(nFList);
     gMG.FObjectPool.Release(nList);
     nGrid.Columns.EndUpdate;
   end;

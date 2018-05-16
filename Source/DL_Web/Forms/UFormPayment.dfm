@@ -1,7 +1,7 @@
 inherited fFormPayment: TfFormPayment
   ClientHeight = 407
   ClientWidth = 410
-  Caption = #27880#38144
+  Caption = #36130#21153#22238#27454
   ExplicitWidth = 416
   ExplicitHeight = 436
   PixelsPerInch = 96

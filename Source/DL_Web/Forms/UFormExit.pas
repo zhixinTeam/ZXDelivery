@@ -28,11 +28,6 @@ implementation
 uses
   uniGUIVars, MainModule, uniGUIApplication;
 
-function fFormExit: TfFormExit;
-begin
-  Result := TfFormExit(UniMainModule.GetFormInstance(TfFormExit));
-end;
-
 procedure TfFormExit.BtnOKClick(Sender: TObject);
 begin
   UniSession.Terminate('×¢Ïú³É¹¦');

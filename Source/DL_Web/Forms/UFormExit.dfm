@@ -9,7 +9,6 @@ inherited fFormExit: TfFormExit
   inherited BtnOK: TUniButton
     Left = 132
     Top = 102
-    OnClick = BtnOKClick
     ExplicitLeft = 128
     ExplicitTop = 139
   end
