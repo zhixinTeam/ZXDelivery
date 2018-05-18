@@ -283,6 +283,7 @@ type
     FData:string; //数量
     Ftracknumber:string; //车牌号
     Fpurchasecontract_no:string;//合同编号
+    FOrder_ls:string; //商城ID
   end;
   //网上商城供货单明细
 

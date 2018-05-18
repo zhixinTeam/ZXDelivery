@@ -126,7 +126,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
-        TabOrder = 5
+        TabOrder = 6
         OnClick = BtnOKClick
       end
       object BtnExit: TButton
@@ -141,13 +141,14 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
-        TabOrder = 6
+        TabOrder = 7
         OnClick = BtnExitClick
       end
       object EditValue: TcxTextEdit
         Left = 399
         Top = 144
         ParentFont = False
+        Properties.ReadOnly = True
         Style.BorderColor = clWindowFrame
         Style.BorderStyle = ebs3D
         Style.Font.Charset = DEFAULT_CHARSET
@@ -156,7 +157,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Style.Font.Name = 'MS Sans Serif'
         Style.Font.Style = []
         Style.IsFontAssigned = True
-        TabOrder = 4
+        TabOrder = 5
         Width = 266
       end
       object EditProv: TcxTextEdit
@@ -218,6 +219,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
             Default = True
             Kind = bkEllipsis
           end>
+        Properties.ReadOnly = True
         Style.BorderColor = clWindowFrame
         Style.BorderStyle = ebs3D
         Style.Font.Charset = DEFAULT_CHARSET
@@ -227,8 +229,23 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Style.Font.Style = []
         Style.ButtonStyle = bts3D
         Style.IsFontAssigned = True
-        TabOrder = 3
+        TabOrder = 4
         Width = 259
+      end
+      object EditLs: TcxTextEdit
+        Left = 399
+        Top = 71
+        ParentFont = False
+        Properties.ReadOnly = True
+        Style.BorderStyle = ebs3D
+        Style.Font.Charset = DEFAULT_CHARSET
+        Style.Font.Color = clWindowText
+        Style.Font.Height = -24
+        Style.Font.Name = 'MS Sans Serif'
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 3
+        Width = 265
       end
       object dxLayoutGroup1: TdxLayoutGroup
         AutoAligns = [aaHorizontal]
@@ -243,55 +260,48 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
-            object dxLayoutGroup2: TdxLayoutGroup
-              AutoAligns = [aaVertical]
-              AlignHorz = ahClient
-              ShowCaption = False
-              Hidden = True
-              ShowBorder = False
-              object dxLayout1Group1: TdxLayoutGroup
-                ShowCaption = False
-                Hidden = True
-                LayoutDirection = ldHorizontal
-                ShowBorder = False
-                object dxLayout1Item5: TdxLayoutItem
-                  Caption = #21512#21516#21333#21495
-                  Control = EditID
-                  ControlOptions.ShowBorder = False
-                end
-                object dxLayout1Item9: TdxLayoutItem
-                  Caption = #20379#24212#21830
-                  Control = EditProv
-                  ControlOptions.ShowBorder = False
-                end
-              end
+            object dxLayout1Item5: TdxLayoutItem
+              Caption = #21512#21516#21333#21495
+              Control = EditID
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item9: TdxLayoutItem
+              Caption = #20379#24212#21830
+              Control = EditProv
+              ControlOptions.ShowBorder = False
             end
           end
-          object dxlytmLayout1Item3: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            Caption = #21407#26448#26009
-            Control = EditProduct
-            ControlOptions.ShowBorder = False
+          object dxLayout1Group2: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            LayoutDirection = ldHorizontal
+            ShowBorder = False
+            object dxlytmLayout1Item3: TdxLayoutItem
+              AutoAligns = [aaVertical]
+              Caption = #21407#26448#26009
+              Control = EditProduct
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item1: TdxLayoutItem
+              Caption = #30719#21457#27969#27700
+              Control = EditLs
+              ControlOptions.ShowBorder = False
+            end
           end
         end
         object dxGroup2: TdxLayoutGroup
           AutoAligns = [aaVertical]
           Caption = #36135#21333#20449#24687
-          object dxGroupLayout1Group6: TdxLayoutGroup
-            ShowCaption = False
-            Hidden = True
-            LayoutDirection = ldHorizontal
-            ShowBorder = False
-            object dxlytmLayout1Item12: TdxLayoutItem
-              Caption = #20379#36135#36710#36742':'
-              Control = EditTruck
-              ControlOptions.ShowBorder = False
-            end
-            object dxLayout1Item8: TdxLayoutItem
-              Caption = #21150#29702#21544#25968':'
-              Control = EditValue
-              ControlOptions.ShowBorder = False
-            end
+          LayoutDirection = ldHorizontal
+          object dxlytmLayout1Item12: TdxLayoutItem
+            Caption = #20379#36135#36710#36742':'
+            Control = EditTruck
+            ControlOptions.ShowBorder = False
+          end
+          object dxLayout1Item8: TdxLayoutItem
+            Caption = #21150#29702#21544#25968':'
+            Control = EditValue
+            ControlOptions.ShowBorder = False
           end
         end
         object dxLayoutGroup3: TdxLayoutGroup

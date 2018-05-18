@@ -250,12 +250,18 @@ const
   sFlag_DepDaTing     = '大厅';                      //服务大厅
   sFlag_DepJianZhuang = '监装';                      //监装
   sFlag_DepBangFang   = '磅房';                      //磅房
+  sFlag_DepHuaYan     = '化验室';                    //化验室
 
   sFlag_Solution_YN   = 'Y=通过;N=禁止';
   sFlag_Solution_YNI  = 'Y=通过;N=禁止;I=忽略';
-  
+  sFlag_Solution_OK   = 'O=知道了';
+
   sFlag_LSStock       = 'ls-sn-00';                  //零售水泥编号(预开)
   sFlag_LSCustomer    = 'ls-kh-00';                  //零售客户编号(预开)
+
+  sFlag_WxItem        = 'WxItem';                    //微信相关
+  sFlag_InOutBegin    = 'BeginTime';                 //进出厂查询起始时间
+  sFlag_InOutEnd      = 'EndTime';                   //进出厂查询结束时间
 
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
@@ -841,6 +847,7 @@ const
        'O_Type Char(1), O_StockNo varChar(32), O_StockName varChar(80),' +
        'O_Truck varChar(15), O_OStatus Char(1),' +
        'O_Man varChar(32), O_Date DateTime,' +
+       'O_KFValue varChar(16), O_KFLS varChar(32),' +
        'O_DelMan varChar(32), O_DelDate DateTime, O_Memo varChar(500))';
   {-----------------------------------------------------------------------------
    采购订单表: Order
@@ -859,6 +866,8 @@ const
    *.O_Truck: 车船号
    *.O_Man:操作人
    *.O_Date:创建时间
+   *.O_KFValue:矿发数量
+   *.O_KFLS:矿发流水
    *.O_DelMan: 采购单删除人员
    *.O_DelDate: 采购单删除时间
    *.O_Memo: 动作备注
@@ -876,7 +885,7 @@ const
        'D_MValue $Float, D_MDate DateTime, D_MMan varChar(32),' +
        'D_YTime DateTime, D_YMan varChar(32), ' +
        'D_Value $Float,D_KZValue $Float, D_AKValue $Float,' +
-       'D_YLine varChar(15), D_YLineName varChar(32), ' +
+       'D_YLine varChar(15), D_YLineName varChar(32), D_Unload varChar(80),' +
        'D_DelMan varChar(32), D_DelDate DateTime, D_YSResult Char(1), ' +
        'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500))';
   {-----------------------------------------------------------------------------
@@ -901,6 +910,7 @@ const
    *.D_YTime,D_YMan: 收货时间,验收人,
    *.D_Value,D_KZValue,D_AKValue: 收货量,验收扣除(明扣),暗扣
    *.D_YLine,D_YLineName: 收货通道
+   *.D_UnLoad: 卸货地点/库房
    *.D_YSResult: 验收结果
    *.D_OutFact,D_OutMan: 出厂放行
   -----------------------------------------------------------------------------}
@@ -1252,7 +1262,7 @@ const
   sSQL_NewMaterails = 'Create Table $Table(R_ID $Inc, M_ID varChar(32),' +
        'M_Name varChar(80),M_PY varChar(80),M_Unit varChar(20),M_Price $Float,' +
        'M_PrePValue Char(1), M_PrePTime Integer, M_Memo varChar(50), ' +
-       'M_IsSale Char(1) Default ''N'')';
+       'M_HasLs Char(1) Default ''N'', M_IsSale Char(1) Default ''N'')';
   {-----------------------------------------------------------------------------
    物料表: Materails
    *.M_ID: 编号
@@ -1263,6 +1273,7 @@ const
    *.M_PrePTime: 皮重时长(天)
    *.M_Memo: 备注
    *.M_IsSale: 销售品种
+   *.M_HasLs: 是否生成矿发流水
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockParam = 'Create Table $Table(P_ID varChar(15), P_Stock varChar(30),' +

@@ -148,6 +148,7 @@ object fFormNewCard: TfFormNewCard
         Left = 470
         Top = 230
         ParentFont = False
+        Properties.ReadOnly = True
         Style.BorderColor = clWindowFrame
         Style.BorderStyle = ebs3D
         Style.Font.Charset = DEFAULT_CHARSET
@@ -232,6 +233,7 @@ object fFormNewCard: TfFormNewCard
             Default = True
             Kind = bkEllipsis
           end>
+        Properties.ReadOnly = True
         Style.BorderColor = clWindowFrame
         Style.BorderStyle = ebs3D
         Style.Font.Charset = DEFAULT_CHARSET

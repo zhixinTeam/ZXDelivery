@@ -39,6 +39,10 @@ type
     cxLabel1: TcxLabel;
     dxLayout1Item4: TdxLayoutItem;
     dxLayout1Group4: TdxLayoutGroup;
+    EditKFValue: TcxTextEdit;
+    dxLayout1Item6: TdxLayoutItem;
+    EditKFLS: TcxTextEdit;
+    dxLayout1Item7: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
@@ -130,6 +134,13 @@ begin
   FCardData := TStringList.Create;
   AdjustCtrlData(Self);
   LoadFormConfig(Self);
+  {$IFDEF KuangFa}
+  dxLayout1Item6.Visible := True;
+  dxLayout1Item7.Visible := True;
+  {$ELSE}
+  dxLayout1Item6.Visible := False;
+  dxLayout1Item7.Visible := False;
+  {$ENDIF}
 end;
 
 procedure TfFormPurchaseOrder.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -220,6 +231,31 @@ var nOrder, nCardType: string;
 begin
   if not IsDataValid then Exit;
   //check valid
+  {$IFDEF KuangFa}
+  if IfStockHasLs(FCardData.Values['SQ_StockNo']) then
+  begin
+    if not IsNumber(EditKFValue.Text, True) then
+    begin
+      EditKFValue.SetFocus;
+      ShowMsg('请填写有效的矿发数量',sHint);
+      Exit;
+    end;
+
+    if StrToFloat(EditKFValue.Text) < 0 then
+    begin
+      EditKFValue.SetFocus;
+      ShowMsg('矿发数量必须大于等于0',sHint);
+      Exit;
+    end;
+
+    if Trim(EditKFLS.Text) = '' then
+    begin
+      EditKFLS.SetFocus;
+      ShowMsg('请填写矿发流水',sHint);
+      Exit;
+    end;
+  end;
+  {$ENDIF}
 
   with FListA do
   begin
@@ -244,6 +280,9 @@ begin
     if nCardType='L' then
           Values['Value']   := EditValue.Text
     else  Values['Value']   := '0.00';
+
+    Values['KFValue']       := Trim(EditKFValue.Text);
+    Values['KFLS']          := Trim(EditKFLS.Text);
   end;
 
   nOrder := SaveOrder(PackerEncodeStr(FListA.Text));
@@ -251,7 +290,7 @@ begin
 
   if nCardType = 'L' then
     PrintRCOrderReport(nOrder, True);
-  //临时卡提示打印入厂  
+  //临时卡提示打印入厂
 
   SetOrderCard(nOrder, FListA.Values['Truck'], True);
   //办理磁卡

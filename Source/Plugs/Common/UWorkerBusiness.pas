@@ -111,6 +111,9 @@ type
     function GetSalePlan(var nData: string): Boolean;
     //读取销售计划
     {$ENDIF}
+    procedure SaveHyDanEvent(const nStockno,nEvent,
+          nFrom,nSolution,nDepartment: string);
+    //生成化验单推送事件
   public
     constructor Create; override;
     destructor destroy; override;
@@ -1042,6 +1045,9 @@ begin
     begin
       nData := '物料[ %s ]未配置批次号规则.';
       nData := Format(nData, [FIn.FData]);
+      {$IFDEF SaveHyDanEvent}
+      SaveHyDanEvent(FIn.FData,nData,sFlag_DepDaTing,sFlag_Solution_OK,sFlag_DepHuaYan);
+      {$ENDIF}
       Exit;
     end;
 
@@ -1141,7 +1147,14 @@ begin
   if FOut.FData = '' then
     FOut.FData := NewBatCode;
   //xxxxx
-  
+
+  if FOut.FBase.FErrCode = sFlag_ForceHint then
+  begin
+    {$IFDEF SaveHyDanEvent}
+    SaveHyDanEvent(FIn.FData,FOut.FBase.FErrDesc,
+                   sFlag_DepDaTing,sFlag_Solution_OK,sFlag_DepHuaYan);
+    {$ENDIF}
+  end;
   Result := True;
   FOut.FBase.FResult := True;
 end;
@@ -2363,7 +2376,7 @@ begin
           Values['name'] := FieldByName('StockName').AsString;
           Values['truck'] := FListC[nIdx];
           Inc(nIdx);
-          
+
           if IsNumber(FListC[nIdx], True) then
                Values['value'] := FListC[nIdx]
           else Values['value'] := '0';
@@ -2386,6 +2399,37 @@ begin
   end;
 end;
 {$ENDIF}
+
+procedure TWorkerBusinessCommander.SaveHyDanEvent(const nStockno,nEvent,
+          nFrom,nSolution,nDepartment: string);
+var
+  nStr:string;
+  nEID:string;
+begin
+  try
+    nEID := nStockno + FormatDateTime('YYYYMMDD',Now);
+    nStr := 'Delete From %s Where E_ID=''%s''';
+    nStr := Format(nStr, [sTable_ManualEvent, nEID]);
+
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+
+    nStr := MakeSQLByStr([
+        SF('E_ID', nEID),
+        SF('E_Key', ''),
+        SF('E_From', nFrom),
+        SF('E_Event', nEvent),
+        SF('E_Solution', nSolution),
+        SF('E_Departmen', nDepartment),
+        SF('E_Date', sField_SQLServer_Now, sfVal)
+        ], sTable_ManualEvent, '', True);
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+  except
+    on E: Exception do
+    begin
+      WriteLog(e.message);
+    end;
+  end;
+end;
 
 initialization
   gBusinessWorkerManager.RegisteWorker(TBusWorkerQueryField, sPlug_ModuleBus);

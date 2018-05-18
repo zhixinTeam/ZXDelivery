@@ -80,6 +80,7 @@ const
   cBC_TunnelOC                = $0076;
   cBC_PlayVoice               = $0077;
   cBC_OpenDoorByReader        = $0078;
+  cBC_ShowTxt                 = $0079;   //车检:发送小屏
 
   cBC_SyncCustomer            = $0080;   //远程同步客户
   cBC_SyncSaleMan             = $0081;   //远程同步业务员
@@ -164,6 +165,7 @@ type
     FPoundID    : string;          //称重记录
     FSelected   : Boolean;         //选中状态
 
+    FHKRecord   : string;          //合单记录(销售)卸货地点(采购)
     FYSValid    : string;          //验收结果，Y验收成功；N拒收；
     FKZValue    : Double;          //供应扣除
     FPrintHY    : Boolean;         //打印化验单
@@ -309,6 +311,7 @@ begin
         else FKZValue := 0;
 
         FYSValid := Values['YSValid'];
+        FHKRecord:= Values['HKRecord'];
         FPrintHY := Values['PrintHY'] = sFlag_Yes;
         FHYDan   := Values['HYDan'];
         FMemo    := Values['Memo'];
@@ -319,7 +322,7 @@ begin
   finally
     nListB.Free;
     nListA.Free;
-  end;   
+  end;
 end;
 
 //Date: 2014-09-18
@@ -390,6 +393,7 @@ begin
         Values['KZValue']    := FloatToStr(FKZValue);
         Values['YSValid']    := FYSValid;
         Values['Memo']       := FMemo;
+        Values['HKRecord']   := FHKRecord;
 
         if FPrintHY then
              Values['PrintHY'] := sFlag_Yes

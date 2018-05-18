@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormPMaterails;
 
+{$I Link.inc}
 interface
 
 uses
@@ -54,6 +55,8 @@ type
     dxLayoutControl1Group10: TdxLayoutGroup;
     dxLayoutControl1Item13: TdxLayoutItem;
     EditID: TcxTextEdit;
+    cxbLs: TcxComboBox;
+    dxLayoutControl1Item15: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnAddClick(Sender: TObject);
@@ -170,6 +173,12 @@ begin
 
   ResetHintAllForm(Self, 'T', sTable_Materails);
   //ÖØÖÃ±íÃû³Æ
+
+  {$IFDEF KuangFa}
+  dxLayoutControl1Item15.Visible := True;
+  {$ELSE}
+  dxLayoutControl1Item15.Visible := False;
+  {$ENDIF}
 end;
 
 procedure TfFormMaterails.FormClose(Sender: TObject;
@@ -220,7 +229,7 @@ begin
   if Sender = EditPValue then
   begin
     Result := True;
-    
+
     if nData = sFlag_Yes then
          EditPValue.ItemIndex := 0
     else EditPValue.ItemIndex := 1;
@@ -235,6 +244,17 @@ begin
   nStr := 'Select * From %s Where M_ID=''%s''';
   nStr := Format(nStr, [sTable_Materails, nID]);
   LoadDataToCtrl(FDM.QueryTemp(nStr), Self, '', SetData);
+
+  {$IFDEF KuangFa}
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    if FieldByName('M_HasLs').AsString = sFlag_Yes then
+      cxbLs.ItemIndex := 1
+    else
+      cxbLs.ItemIndex := 0;
+  end;
+  {$ENDIF}
 
   InfoList1.Clear;
   nStr := MacroValue(sQuery_ExtInfo, [MI('$Table', sTable_ExtInfo),
@@ -329,6 +349,13 @@ begin
   nList := TStringList.Create;
   nList.Text := SF('M_PY', GetPinYinOfStr(EditName.Text));
 
+  {$IFDEF KuangFa}
+  if cxbLs.ItemIndex = 1 then
+    nList.Text := nList.Text + SF('M_HasLs', sFlag_Yes)
+  else
+    nList.Text := nList.Text + SF('M_HasLs', sFlag_No);
+  {$ENDIF}
+
   if FRecordID = '' then
   begin
     nSQL := MakeSQLByForm(Self, sTable_Materails, '', True, GetData, nList);
@@ -336,7 +363,7 @@ begin
   begin
     nStr := 'M_ID=''' + FRecordID + '''';
     nSQL := MakeSQLByForm(Self, sTable_Materails, nStr, False, GetData, nList);
-  end;      
+  end;
 
   nList.Free;
   FDM.ADOConn.BeginTrans;

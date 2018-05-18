@@ -184,6 +184,7 @@ var
 begin
   FAutoClose := gSysParam.FAutoClose_Mintue;
   btnQuery.Enabled := False;
+  editWebOrderNo.SelectAll;
   try
     nCardNo := Trim(editWebOrderNo.Text);
     if nCardNo='' then
@@ -460,6 +461,13 @@ begin
     Exit;
   end;
 
+  {$IFDEF ForceEleCard}
+  if not IsEleCardVaid(EditTruck.Text) then
+  begin
+    ShowMsg('车辆未办理电子标签或电子标签未启用！请联系管理员', sHint); Exit;
+  end;
+  {$ENDIF}
+
   if not VerifyCtrl(EditValue,nHint) then
   begin
     ShowMsg(nHint,sHint);
@@ -467,31 +475,11 @@ begin
     Exit;
   end;
 
-  nNewCardNo := '';
-  Fbegin := Now;
-
-  //连续三次读卡均失败，则回收卡片，重新发卡
-  for i := 0 to 3 do
+  if IFHasBill(EditTruck.Text) then
   begin
-    for nIdx:=0 to 3 do
-    begin
-      if gMgrK720Reader.ReadCard(nNewCardNo) then Break;
-      //连续三次读卡,成功则退出。
-    end;
-    if nNewCardNo<>'' then Break;
-    gMgrK720Reader.RecycleCard;
-  end;
-
-  if nNewCardNo = '' then
-  begin
-    ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
+    ShowMsg('车辆存在未完成的提货单,无法开单,请联系管理员',sHint);
     Exit;
   end;
-
-  nNewCardNo := gMgrK720Reader.ParseCardNO(nNewCardNo);
-  WriteLog(nNewCardNo);
-  //解析卡片
-  writelog('TfFormNewCard.SaveBillProxy 发卡机读卡-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
 
   //保存提货单
   nStocks := TStringList.Create;
@@ -530,7 +518,13 @@ begin
     nBillData := PackerEncodeStr(nList.Text);
     FBegin := Now;
     nBillID := SaveBill(nBillData);
-    if nBillID = '' then Exit;
+    if nBillID = '' then
+    begin
+      nHint := '保存提货单失败';
+      ShowMsg(nHint,sError);
+      Writelog(nHint);
+      Exit;
+    end;
     writelog('TfFormNewCard.SaveBillProxy 生成提货单['+nBillID+']-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
     FBegin := Now;
     SaveWebOrderMatch(nBillID,nWebOrderID,sFlag_Sale);
@@ -543,33 +537,18 @@ begin
 
   ShowMsg('提货单保存成功', sHint);
 
-  FBegin := Now;
-  nRet := SaveBillCard(nBillID,nNewCardNo);
-  if nRet then
+  //发卡
+  if not FSzttceApi.IssueOneCard(nNewCardNo) then
   begin
-    nRet := False;
-    for nIdx := 0 to 3 do
-    begin
-      nRet := gMgrK720Reader.SendReaderCmd('FC0');
-      if nRet then Break;
-    end;
-    //发卡
-  end;
-  if nRet then
-  begin
-    nHint := '商城订单号['+editWebOrderNo.Text+']发卡成功,卡号['+nNewCardNo+'],请收好您的卡片';
-    WriteLog(nHint);
-    ShowMsg(nHint,sWarn);
+    nHint := '出卡失败,请到开票窗口补办磁卡：[errorcode=%d,errormsg=%s]';
+    nHint := Format(nHint,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg]);
+    ShowMsg(nHint,sHint);
   end
   else begin
-    gMgrK720Reader.RecycleCard;
-
-    nHint := '商城订单号['+editWebOrderNo.Text+'],卡号['+nNewCardNo+']关联订单失败，请到开票窗口重新关联。';
-    WriteLog(nHint);
-    ShowDlg(nHint,sHint,Self.Handle);
+    ShowMsg('发卡成功,卡号['+nNewCardNo+'],请收好您的卡片',sHint);
+    SaveBillCard(nBillID,nNewCardNo);
   end;
-  writelog('TfFormNewCard.SaveBillProxy 发卡机出卡并关联磁卡号-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
-
+  Result := True;
   if nPrint then
     PrintBillReport(nBillID, True);
   //print report

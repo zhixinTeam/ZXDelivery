@@ -362,6 +362,11 @@ begin
             SF('O_StockNo', FListA.Values['StockNO']),
             SF('O_StockName', FListA.Values['StockName']),
 
+            {$IFDEF KuangFa}
+            SF('O_KFValue', FListA.Values['KFValue']),
+            SF('O_KFLS', FListA.Values['KFLS']),
+            {$ENDIF}
+
             SF('O_Truck', FListA.Values['Truck']),
             SF('O_Man', FIn.FBase.FFrom.FUser),
             SF('O_Date', sField_SQLServer_Now, sfVal)
@@ -912,6 +917,7 @@ begin
               SF('D_YMan', FIn.FBase.FFrom.FUser),
               SF('D_KZValue', FKZValue, sfVal),
               SF('D_YSResult', FYSValid),
+              SF('D_Unload', FHKRecord),
               SF('D_Memo', FMemo)
               ], sTable_OrderDtl, SF('D_ID', FID), False);
       FListA.Add(nSQL);

@@ -10,7 +10,7 @@ interface
 uses
   Windows, Classes, Controls, SysUtils, DB, ADODB, NativeXml, UBusinessWorker,
   UBusinessPacker, UBusinessConst, UMgrDBConn, UMgrParam, UFormCtrl, USysLoger,
-  ZnMD5, ULibFun, USysDB, UMITConst, UMgrChannel,
+  ZnMD5, ULibFun, USysDB, UMITConst, UMgrChannel, DateUtils,
   {$IFDEF WXChannelPool}Wechat_Intf{$ELSE}wechat_soap{$ENDIF},IdHTTP,Graphics;
 
 type
@@ -708,6 +708,9 @@ begin
     begin
       NodeNew('CusId').ValueAsString := FieldByName('Z_Customer').AsString;
       NodeNew('CusName').ValueAsString := GetCusName(FieldByName('Z_Customer').AsString);
+      {$IFDEF WxShowCusMoney}
+      NodeNew('CusMoney').ValueAsString := FloatToStr(nMoney);
+      {$ENDIF}
     end;
 
     nNode := Root.NodeNew('Items');
@@ -1167,6 +1170,9 @@ begin
       if Assigned(nTmp.NodeByName('data')) then
         FListB.Values['data'] := nTmp.NodeByName('data').ValueAsString;
 
+      if Assigned(nTmp.NodeByName('order_ls')) then
+        FListB.Values['order_ls'] := nTmp.NodeByName('order_ls').ValueAsString;
+
       nStr := StringReplace(FListB.Text, '\n', #13#10, [rfReplaceAll]);
 
       {$IFDEF UseUTFDecode}
@@ -1376,10 +1382,11 @@ begin
   nProID := Trim(FIn.FData);
   BuildDefaultXML;
 
-  nStr := 'Select *,(B_Value-B_SentValue-B_FreezeValue) As B_MaxValue From %s '
+  nStr := 'Select *,(B_Value-B_SentValue-B_FreezeValue) As B_MaxValue From %s PB '
+    +'left join %s PM on PM.M_ID = PB.B_StockNo ' 
     +'where ((B_Value-B_SentValue>0) or (B_Value=0)) And B_BStatus=''%s'' '
     +'and B_ProID=''%s''';
-  nStr := Format(nStr , [sTable_OrderBase, sFlag_Yes, nProID]);
+  nStr := Format(nStr , [sTable_OrderBase, sTable_Materails, sFlag_Yes, nProID]);
   WriteLog('获取采购订单列表sql:'+nStr);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr),FPacker.XMLBuilder do
@@ -1417,6 +1424,11 @@ begin
         NodeNew('StockNo').ValueAsString    := FieldByName('B_StockNo').AsString;
         NodeNew('StockName').ValueAsString  := FieldByName('B_StockName').AsString;
         NodeNew('MaxNumber').ValueAsString  := FieldByName('B_MaxValue').AsString;
+        {$IFDEF KuangFa}
+        NodeNew('HasLs').ValueAsString      := FieldByName('M_HasLs').AsString;
+        {$ELSE}
+        NodeNew('HasLs').ValueAsString      := sFlag_No;
+        {$ENDIF}
       end;
 
       Next;
@@ -1622,8 +1634,10 @@ var
   nType,nStartDate,nEndDate:string;
   nPos:Integer;
   nNode: TXmlNode;
+  nStartTime,nEndTime:string;
+  nDt : TDateTime;
 begin
-  Result := False;
+  Result := True;
   BuildDefaultXML;
 
   nType := Trim(fin.FData);
@@ -1651,6 +1665,64 @@ begin
     nStartDate := Copy(nExtParam,1,nPos-1)+' 00:00:00';
     nEndDate := Copy(nExtParam,nPos+3,Length(nExtParam)-nPos-2)+' 23:59:59';
   end;
+
+  nStr := 'Select D_Memo, D_Value From %s Where D_Name =''%s'' ';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_WxItem]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nStartTime := '';
+      nEndTime := '';
+
+      First;
+
+      while not Eof do
+      begin
+        if Fields[0].AsString = sFlag_InOutBegin then
+          nStartTime := Fields[1].AsString;
+
+        if Fields[0].AsString = sFlag_InOutEnd then
+          nEndTime := Fields[1].AsString;
+
+        Next;
+      end;
+
+      if (Length(nStartTime) > 0) and (Length(nEndTime) > 0) then
+      begin
+        nPos := Pos('and',nExtParam);
+        if nPos > 0 then
+        begin
+          nStartDate := Copy(nExtParam,1,nPos-1);
+          nEndDate := Copy(nExtParam,nPos+3,Length(nExtParam)-nPos-2);
+        end;
+        WriteLog('时间处理初始值:起始' + nStartDate + '结束' + nEndDate);
+        if nStartDate = nEndDate then
+        begin
+          nStartDate := nStartDate + nStartTime;
+          try
+            nDt := StrToDateTime(nStartDate);
+            nDt := IncDay(nDt, 1);
+            nEndDate := FormatDateTime('YYYY-MM-DD', nDt) + nEndTime;
+          except
+            on E : Exception do
+            begin
+              nEndDate := nEndDate + ' 23:59:59';
+              WriteLog('结束时间处理异常:' + e.Message);
+            end;
+          end;
+        end
+        else
+        begin
+          nStartDate := nStartDate + nStartTime;
+          nEndDate := nEndDate + nEndTime;
+        end;
+      end;
+    end;
+  end;
+
+  WriteLog('查询进出厂时间条件:' + '起始:' + nStartDate + '结束:' + nEndDate);
 
   FListA.Text := GetInOutValue(nStartDate,nEndDate,nType);
 

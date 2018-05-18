@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameQuerySaleDetail;
 
+{$I Link.inc}
 interface
 
 uses
@@ -116,7 +117,14 @@ function TfFrameSaleDetailQuery.InitFormDataSQL(const nWhere: string): string;
 begin
   FEnableBackDB := True;
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
+
+  {$IFDEF CastMoney}
+  Result := 'Select *,CAST((L_Value * L_Price) as decimal(38, 2)) as L_Money, ' +
+            '(P_MValue-P_PValue) As P_NetWeight From $Bill b ' +
+            'left join $Pound P on P.P_Bill = b.L_ID ';
+  {$ELSE}
   Result := 'Select *,(L_Value*L_Price) as L_Money From $Bill b ';
+  {$ENDIF}
 
   if FJBWhere = '' then
   begin
@@ -130,8 +138,13 @@ begin
     Result := Result + ' Where (' + FJBWhere + ')';
   end;
 
+  {$IFDEF CastMoney}
+  Result := MacroValue(Result, [MI('$Bill', sTable_Bill), MI('$Pound', sTable_PoundLog),
+            MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+  {$ELSE}
   Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
             MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+  {$ENDIF}
   //xxxxx
 end;
 

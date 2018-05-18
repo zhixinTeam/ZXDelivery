@@ -1,7 +1,7 @@
 inherited fFormPurchaseOrder: TfFormPurchaseOrder
   Left = 451
   Top = 243
-  ClientHeight = 334
+  ClientHeight = 366
   ClientWidth = 477
   OnClose = FormClose
   OnCreate = FormCreate
@@ -9,22 +9,22 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 477
-    Height = 334
+    Height = 366
     AutoControlTabOrders = False
     inherited BtnOK: TButton
       Left = 331
-      Top = 301
+      Top = 333
       Caption = #24320#21333
       TabOrder = 8
     end
     inherited BtnExit: TButton
       Left = 401
-      Top = 301
+      Top = 333
       TabOrder = 10
     end
     object EditValue: TcxTextEdit [2]
       Left = 279
-      Top = 236
+      Top = 239
       ParentFont = False
       TabOrder = 7
       Text = '0.00'
@@ -89,7 +89,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object EditTruck: TcxButtonEdit [9]
       Left = 81
-      Top = 236
+      Top = 239
       ParentFont = False
       Properties.Buttons = <
         item
@@ -103,7 +103,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object EditCardType: TcxComboBox [10]
       Left = 81
-      Top = 261
+      Top = 264
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.Items.Strings = (
@@ -114,9 +114,24 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
     end
     object cxLabel1: TcxLabel [11]
       Left = 221
-      Top = 261
+      Top = 264
       Caption = #27880':'#20020#26102#21345#20986#21378#26102#22238#25910';'#22266#23450#21345#20986#21378#26102#19981#22238#25910
       ParentFont = False
+    end
+    object EditKFValue: TcxTextEdit [12]
+      Left = 81
+      Top = 289
+      ParentFont = False
+      TabOrder = 15
+      Text = '0.00'
+      Width = 121
+    end
+    object EditKFLS: TcxTextEdit [13]
+      Left = 279
+      Top = 285
+      ParentFont = False
+      TabOrder = 16
+      Width = 121
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -179,6 +194,11 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
             Control = EditCardType
             ControlOptions.ShowBorder = False
           end
+          object dxLayout1Item6: TdxLayoutItem
+            Caption = #30719#21457#25968#37327':'
+            Control = EditKFValue
+            ControlOptions.ShowBorder = False
+          end
         end
         object dxLayout1Group4: TdxLayoutGroup
           ShowCaption = False
@@ -195,6 +215,11 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
             Caption = 'cxLabel1'
             ShowCaption = False
             Control = cxLabel1
+            ControlOptions.ShowBorder = False
+          end
+          object dxLayout1Item7: TdxLayoutItem
+            Caption = #30719#21457#27969#27700':'
+            Control = EditKFLS
             ControlOptions.ShowBorder = False
           end
         end

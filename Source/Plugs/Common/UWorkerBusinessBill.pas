@@ -302,6 +302,20 @@ begin
   nTruck := FListA.Values['Truck'];
   if not VerifyTruckNO(nTruck, nData) then Exit;
 
+  nStr := 'Select %s as T_Now,T_LastTime,T_NoVerify,T_Valid From %s ' +
+          'Where T_Truck=''%s''';
+  nStr := Format(nStr, [sField_SQLServer_Now, sTable_Truck, nTruck]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+      if FieldByName('T_Valid').AsString = sFlag_No then
+      begin
+        nData := '车辆[ %s ]被管理员禁止开单.';
+        nData := Format(nData, [nTruck]);
+        Exit;
+      end;
+  end;
   //----------------------------------------------------------------------------
   SetLength(FStockItems, 0);
   SetLength(FMatchItems, 0);
@@ -368,7 +382,7 @@ begin
         nStr := '车辆[ %s ]有已出队的交货单[ %s ],需先处理.';
         nData := Format(nStr, [nTruck, FieldByName('T_Bill').AsString]);
         Exit;
-      end; 
+      end;
 
       with FMatchItems[nIdx] do
       begin
@@ -384,7 +398,7 @@ begin
 
   TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo, nTruck, '', @nOut);
   //保存车牌号
-                        
+
   //----------------------------------------------------------------------------
   nStr := 'Select zk.*,ht.C_Area,cus.C_Name,cus.C_PY,sm.S_Name From $ZK zk ' +
           ' Left Join $HT ht On ht.C_ID=zk.Z_CID ' +
@@ -419,6 +433,8 @@ begin
     end;
 
     nStr := FieldByName('Z_TJStatus').AsString;
+
+    {$IFNDEF NoShowPriceChange}
     if nStr  <> '' then
     begin
       if nStr = sFlag_TJOver then
@@ -428,6 +444,16 @@ begin
       nData := Format(nData, [Values['ZhiKa']]);
       Exit;
     end;
+    {$ELSE}
+    if nStr  <> '' then
+    begin
+      if nStr = sFlag_TJing then
+        nData := '纸卡[ %s ]正在调价,请稍后.';
+
+      nData := Format(nData, [Values['ZhiKa']]);
+      Exit;
+    end;
+    {$ENDIF}
 
     if FieldByName('Z_ValidDays').AsDateTime <= Date() then
     begin

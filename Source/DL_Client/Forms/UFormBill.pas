@@ -594,6 +594,12 @@ begin
   begin
     ShowMsg('请先办理提货单', sHint); Exit;
   end;
+  {$IFDEF ForceEleCard}
+  if not IsEleCardVaid(EditTruck.Text) then
+  begin
+    ShowMsg('车辆未办理电子标签或电子标签未启用！请联系管理员', sHint); Exit;
+  end;
+  {$ENDIF}
 
   nStocks := TStringList.Create;
   nList := TStringList.Create;

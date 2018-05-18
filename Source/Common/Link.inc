@@ -50,7 +50,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SXSW}
+{$DEFINE XXCJ}
 //特定系统
 
 //山西声威
@@ -85,6 +85,8 @@
   //订单量使用客户余额计算
   {$DEFINE PrintHY}
   //出厂打印化验单
+  {$DEFINE UseUTFDecode}
+  //使用UTF解包函数
 {$ENDIF}
 
 //新乡春江
@@ -121,6 +123,20 @@
   //订单量使用客户余额计算
   {$DEFINE PrintHY}
   //出厂打印化验单
+  {$DEFINE SaveHyDanEvent}
+  //生成推送化验单事件
+  {$DEFINE ForceEleCard}
+  //强制车辆办理和启用电子标签
+  {$DEFINE WxShowCusMoney}
+  //微信端显示客户金额
+  {$DEFINE KuangFa}
+  //矿发信息
+  {$DEFINE CastMoney}
+  //对吨位及金额小数位后2位四舍五入
+  {$DEFINE NoCheckOrderValue}
+  //自助机原材料开卡不检查订单剩余量
+  {$DEFINE ProberShow}
+  //车检发送小屏
 {$ENDIF}
 
 //郑州上街

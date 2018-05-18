@@ -69,6 +69,7 @@ type
     //计数器业务
     function TruckProbe_IsTunnelOK(var nData: string): Boolean;
     function TruckProbe_TunnelOC(var nData: string): Boolean;
+    function TruckProbe_ShowTxt(var nData: string): Boolean;
     //车辆检测控制器业务
     function OpenDoorByReader(var nData: string): Boolean;
     //通过读卡器打开道闸
@@ -246,7 +247,8 @@ begin
 
    cBC_IsTunnelOK           : Result := TruckProbe_IsTunnelOK(nData);
    cBC_TunnelOC             : Result := TruckProbe_TunnelOC(nData);
-
+   cBC_ShowTxt              : Result := TruckProbe_ShowTxt(nData);
+   
    cBC_OpenDoorByReader     : Result := OpenDoorByReader(nData);
    //xxxxxx
    else
@@ -299,9 +301,26 @@ end;
 //Parm: 磅站号[FIn.FData]
 //Desc: 获取指定磅站读卡器上的磁卡号
 function THardwareCommander.PoundCardNo(var nData: string): Boolean;
-var nStr, nReader: string;
+var nStr, nReader, nPoundID: string;
+    nIdx: Integer;
 begin
   Result := True;
+  if FIn.FExtParam = sFlag_Yes then
+  begin
+    FListA.Clear;
+    FListB.Clear;
+    if not SplitStr(FIn.FData, FListA, 0, ',') then Exit;
+
+    for nIdx:=0 to FListA.Count - 1 do
+    begin
+      nPoundID := FListA[nIdx];
+      FListB.Values[nPoundID] := gHardwareHelper.GetPoundCard(nPoundID, FOut.FExtParam);
+    end;
+
+    FOut.FData := FListB.Text;
+    Exit;
+  end;
+
   FOut.FData := gHardwareHelper.GetPoundCard(FIn.FData, nReader);
   if FOut.FData = '' then Exit;
 
@@ -697,6 +716,20 @@ begin
 
   if Trim(nReader) <> '' then
     gHYReaderManager.OpenDoor(Trim(nReader));
+end;
+
+//Date: 2018-02-27
+//Parm: 通道号[FIn.FData] 发送内容[FIn.FExt]
+//Desc: 向指定通道的显示屏发送内容
+function THardwareCommander.TruckProbe_ShowTxt(var nData: string): Boolean;
+begin
+  Result := True;
+  if not Assigned(gProberManager) then Exit;
+
+  gProberManager.ShowTxt(FIn.FData,FIn.FExtParam);
+
+  nData := Format('ShowTxt -> %s:%s', [FIn.FData, FIn.FExtParam]);
+  WriteLog(nData);
 end;
 
 initialization

@@ -187,6 +187,12 @@ function get_shoporderbyno(const nXmlStr: string): string;
 
 function get_shopPurchaseByno(const nXmlStr:string):string;
 //根据货单号获取供货信息
+function IFHasBill(const nTruck: string): Boolean;
+//车辆是否存在未完成提货单
+function IsEleCardVaid(const nTruckNo: string): Boolean;
+//验证车辆电子标签
+function IfStockHasLs(const nStockNo: string): Boolean;
+//验证物料是否需要输入流水
 
 function CallBusinessCommand(const nCmd: Integer; const nData,nExt: string;
   const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
@@ -1611,6 +1617,69 @@ begin
   Result := '';
   if CallBusinessWechat(cBC_WX_get_shopPurchasebyNO, nXmlStr, '', '', @nOut,False) then
     Result := nOut.FData;
+end;
+
+//车辆是否存在未完成提货单
+function IFHasBill(const nTruck: string): Boolean;
+var nStr: string;
+begin
+  Result := False;
+
+  nStr :='select L_ID from %s where L_Status <> ''%s'' and L_Truck =''%s'' ';
+  nStr := Format(nStr, [sTable_Bill, sFlag_TruckOut, nTruck]);
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    Result := True;
+  end;
+end;
+
+//验证车辆电子标签
+function IsEleCardVaid(const nTruckNo: string): Boolean;
+var
+  nSql:string;
+begin
+  Result := True;
+
+  nSql := 'select * from %s where T_Truck = ''%s'' ';
+  nSql := Format(nSql,[sTable_Truck,nTruckNo]);
+
+  with FDM.QueryTemp(nSql) do
+  begin
+    if recordcount>0 then
+    begin
+      if FieldByName('T_CardUse').AsString = sFlag_Yes then//启用
+      begin
+        if (FieldByName('T_Card').AsString = '') and (FieldByName('T_Card2').AsString = '') then
+        begin
+          Result := False;
+          Exit;
+        end;
+      end;
+    end;
+  end;
+end;
+
+//验证物料是否需要输入流水
+function IfStockHasLs(const nStockNo: string): Boolean;
+var
+  nSql:string;
+begin
+  Result := False;
+
+  nSql := 'select * from %s where M_ID = ''%s'' ';
+  nSql := Format(nSql,[sTable_Materails,nStockNo]);
+
+  with FDM.QueryTemp(nSql) do
+  begin
+    if recordcount>0 then
+    begin
+      if FieldByName('M_HasLs').AsString = sFlag_Yes then//启用
+      begin
+        Result := True;
+      end;
+    end;
+  end;
 end;
 
 end.

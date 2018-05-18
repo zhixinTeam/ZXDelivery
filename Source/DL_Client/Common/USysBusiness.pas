@@ -165,6 +165,11 @@ function SaveTruckPoundItem(const nTunnel: PPTTunnelItem;
 //保存车辆过磅记录
 function ReadPoundCard(const nTunnel: string; var nReader: string): string;
 //读取指定磅站读头上的卡号
+function ReadPoundCardEx(var nReader: string;
+  const nTunnel: string; nReadOnly: String = ''): string;
+//读取指定磅站读头上的卡号(电子标签)
+function GetTruckRealLabel(const nTruck: string): string;
+//获取车辆绑定的电子标签
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
 
@@ -182,6 +187,8 @@ procedure TunnelOC(const nTunnel: string; const nOpen: Boolean);
 //控制通道红绿灯开合
 function PlayNetVoice(const nText,nCard,nContent: string): Boolean;
 //经中间件播发语音
+procedure ProberShowTxt(const nTunnel, nText: string);
+//车检发送小屏
 
 function SaveOrderBase(const nOrderData: string): string;
 //保存采购申请单
@@ -224,7 +231,10 @@ function OpenDoorByReader(const nReader: string; nType: string = 'Y'): Boolean;
 function GetHYMaxValue: Double;
 function GetHYValueByStockNo(const nNo: string): Double;
 //获取化验单已开量
-
+function IsEleCardVaid(const nTruckNo: string): Boolean;
+//验证车辆电子标签
+function IfStockHasLs(const nStockNo: string): Boolean;
+//验证物料是否需要输入流水
 function IsWeekValid(const nWeek: string; var nHint: string): Boolean;
 //周期是否有效
 function IsWeekHasEnable(const nWeek: string): Boolean;
@@ -1313,6 +1323,43 @@ begin
     Result := Trim(nOut.FData);
     nReader:= Trim(nOut.FExtParam);
   end;
+end;
+
+//Date: 2018-04-27
+//Parm: 通道号
+//Desc: 读取nTunnel读头上的卡号(电子标签)
+function ReadPoundCardEx(var nReader: string;
+    const nTunnel: string; nReadOnly: String = ''): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := '';
+  nReader:= '';
+  //卡号
+
+  if CallBusinessHardware(cBC_GetPoundCard, nTunnel, nReadOnly, @nOut)  then
+  begin
+    Result := Trim(nOut.FData);
+    nReader:= Trim(nOut.FExtParam);
+  end;
+end;
+
+//Date: 2017/5/18
+//Parm: 车牌号码
+//Desc: 获取车辆在用的电子标签
+function GetTruckRealLabel(const nTruck: string): string;
+var nStr: string;
+begin
+  Result := '';
+  //默认允许
+
+  nStr := 'Select Top 1 T_Card From %s ' +
+          'Where T_Truck=''%s'' And T_CardUse=''%s'' And T_Card Is not NULL';
+  nStr := Format(nStr, [sTable_Truck, nTruck, sFlag_Yes]);
+  //选择该车提一条有电子标签的记录
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+    Result := Fields[0].AsString;
 end;
 
 //------------------------------------------------------------------------------
@@ -2861,6 +2908,60 @@ var nStr: string;
 begin
   nStr := Format('      %.2f', [nValue]);
   Result := Copy(nStr, Length(nStr) - 6 + 1, 6);
+end;
+
+//验证车辆电子标签
+function IsEleCardVaid(const nTruckNo: string): Boolean;
+var
+  nSql:string;
+begin
+  Result := True;
+
+  nSql := 'select * from %s where T_Truck = ''%s'' ';
+  nSql := Format(nSql,[sTable_Truck,nTruckNo]);
+
+  with FDM.QueryTemp(nSql) do
+  begin
+    if recordcount>0 then
+    begin
+      if FieldByName('T_CardUse').AsString = sFlag_Yes then//启用
+      begin
+        if (FieldByName('T_Card').AsString = '') and (FieldByName('T_Card2').AsString = '') then
+        begin
+          Result := False;
+          Exit;
+        end;
+      end;
+    end;
+  end;
+end;
+
+//验证物料是否需要输入流水
+function IfStockHasLs(const nStockNo: string): Boolean;
+var
+  nSql:string;
+begin
+  Result := False;
+
+  nSql := 'select * from %s where M_ID = ''%s'' ';
+  nSql := Format(nSql,[sTable_Materails,nStockNo]);
+
+  with FDM.QueryTemp(nSql) do
+  begin
+    if recordcount>0 then
+    begin
+      if FieldByName('M_HasLs').AsString = sFlag_Yes then//启用
+      begin
+        Result := True;
+      end;
+    end;
+  end;
+end;
+
+procedure ProberShowTxt(const nTunnel, nText: string);
+var nOut: TWorkerBusinessCommand;
+begin
+  CallBusinessHardware(cBC_ShowTxt, nTunnel, nText, @nOut);
 end;
 
 end.

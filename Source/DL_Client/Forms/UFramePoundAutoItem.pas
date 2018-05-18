@@ -85,6 +85,8 @@ type
     FSampleIndex: Integer;
     FValueSamples: array of Double;
     //数据采样
+    FVirPoundID: string;
+    //虚拟地磅编号
     FBarrierGate: Boolean;
     //是否采用道闸
     FEmptyPoundInit, FDoneEmptyPoundInit: Int64;
@@ -244,6 +246,7 @@ begin
   if Assigned(FPoundTunnel.FOptions) then
   with FPoundTunnel.FOptions do
   begin
+    FVirPoundID  := Values['VirPoundID'];
     FBarrierGate := Values['BarrierGate'] = sFlag_Yes;
     FEmptyPoundIdleLong := StrToInt64Def(Values['EmptyIdleLong'], 60);
     FEmptyPoundIdleShort:= StrToInt64Def(Values['EmptyIdleShort'], 5);
@@ -378,7 +381,7 @@ procedure TfFrameAutoPoundItem.LoadBillItems(const nCard: string);
 var nRet: Boolean;
     nIdx,nInt: Integer;
     nBills: TLadingBillItems;
-    nStr,nHint, nVoice: string;
+    nStr,nHint, nVoice, nLabel: string;
 begin
   nStr := Format('读取到卡号[ %s ],开始执行业务.', [nCard]);
   WriteLog(nStr);
@@ -478,6 +481,28 @@ begin
     Exit;
   end;
   //指定时间内车辆禁止过磅
+
+  if FVirPoundID <> '' then
+  begin
+    nLabel := GetTruckRealLabel(FUIData.FTruck);
+    if nLabel <> '' then
+    begin
+      nHint := ReadPoundCardEx(nStr, FVirPoundID);
+      if (nHint = '') or (Pos(nLabel, nHint) < 1) then
+      begin
+        nStr := '未识别电子签,请移动车辆.';
+        PlayVoice(nStr);
+
+        nStr := '磅站[ %s.%s ]: 车辆[ %s.%s ]电子标签不匹配[ %s ],禁止上磅';
+        nStr := Format(nStr, [FPoundTunnel.FID, FPoundTunnel.FName,
+                FUIData.FTruck, nLabel, nHint]);
+        WriteSysLog(nStr);
+        SetUIData(True);
+        Exit;
+      end;
+    end;
+  end;
+  //判断车辆是否就位
 
   InitSamples;
   //初始化样本
@@ -732,6 +757,14 @@ begin
 
             nStr := GetTruckNO(FTruck) + '请去包装点包';
             LEDDisplay(nStr);
+
+            {$IFDEF ProberShow}
+              {$IFDEF MITTruckProber}
+              ProberShowTxt(FPoundTunnel.FID, nStr);
+              {$ELSE}
+              gProberManager.ShowTxt(FPoundTunnel.FID, nStr);
+              {$ENDIF}
+            {$ENDIF}
             Exit;
           end;
           {$ENDIF}
@@ -949,6 +982,14 @@ begin
     PlayVoice(nStr);
     LEDDisplay(nStr);
 
+    {$IFDEF ProberShow}
+      {$IFDEF MITTruckProber}
+      ProberShowTxt(FPoundTunnel.FID, nStr);
+      {$ELSE}
+      gProberManager.ShowTxt(FPoundTunnel.FID, nStr);
+      {$ENDIF}
+    {$ENDIF}
+
     InitSamples;
     Exit;
   end;
@@ -967,6 +1008,15 @@ begin
     else
       nStr := GetTruckNO(FUIData.FTruck) + '重量:' + GetValue(nValue);
     LEDDisplay(nStr);
+
+    {$IFDEF ProberShow}
+      {$IFDEF MITTruckProber}
+      ProberShowTxt(FPoundTunnel.FID, nStr);
+      {$ELSE}
+      gProberManager.ShowTxt(FPoundTunnel.FID, nStr);
+      {$ENDIF}
+    {$ENDIF}
+
     TimerDelay.Enabled := True
   end
   else Timer_SaveFail.Enabled := True;

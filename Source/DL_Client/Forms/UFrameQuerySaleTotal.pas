@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameQuerySaleTotal;
 
+{$I Link.inc}
 interface
 
 uses
@@ -118,6 +119,22 @@ begin
   FEnableBackDB := True;
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
+  {$IFDEF CastMoney}
+  if Radio1.Checked then
+  begin
+    Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
+              'CAST(Sum(L_Value) as decimal(38, 2)) as L_Value,' +
+              'CAST(Sum(L_Value * L_Price) as decimal(38, 2)) as L_Money ' +
+              'From $Bill ';
+    //xxxxx
+  end else
+  begin
+    Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,L_Type,' +
+              'L_StockNo,L_StockName,CAST(Sum(L_Value) as decimal(38, 2)) as L_Value,' +
+              'CAST(Sum(L_Value * L_Price) as decimal(38, 2)) as L_Money From $Bill ';
+    //xxxxx
+  end;
+  {$ELSE}
   if Radio1.Checked then
   begin
     Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
@@ -131,6 +148,7 @@ begin
               'Sum(L_Value * L_Price) as L_Money From $Bill ';
     //xxxxx
   end;
+  {$ENDIF}
 
   if FJBWhere = '' then
   begin

@@ -3,7 +3,7 @@
   描述: 自助办卡窗口--单厂版
 *******************************************************************************}
 unit uZXNewPurchaseCard;
-
+{$I Link.Inc}
 interface
 
 uses
@@ -32,12 +32,10 @@ type
     dxLayoutGroup1: TdxLayoutGroup;
     dxGroup1: TdxLayoutGroup;
     dxGroupLayout1Group2: TdxLayoutGroup;
-    dxLayoutGroup2: TdxLayoutGroup;
     dxLayout1Item5: TdxLayoutItem;
     dxLayout1Item9: TdxLayoutItem;
     dxlytmLayout1Item3: TdxLayoutItem;
     dxGroup2: TdxLayoutGroup;
-    dxGroupLayout1Group6: TdxLayoutGroup;
     dxlytmLayout1Item12: TdxLayoutItem;
     dxLayout1Item8: TdxLayoutItem;
     dxLayoutGroup3: TdxLayoutGroup;
@@ -49,7 +47,9 @@ type
     Label1: TLabel;
     btnClear: TcxButton;
     TimerAutoClose: TTimer;
-    dxLayout1Group1: TdxLayoutGroup;
+    EditLs: TcxTextEdit;
+    dxLayout1Item1: TdxLayoutItem;
+    dxLayout1Group2: TdxLayoutGroup;
     procedure BtnExitClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure btnClearClick(Sender: TObject);
@@ -158,6 +158,7 @@ var
 begin
   FAutoClose := gSysParam.FAutoClose_Mintue;
   btnQuery.Enabled := False;
+  editWebOrderNo.SelectAll;
   try
     nCardNo := Trim(editWebOrderNo.Text);
     if nCardNo='' then
@@ -286,6 +287,7 @@ begin
       FWebOrderItems[i].FGoodsname := nListB.Values['goodsname'];
       FWebOrderItems[i].FData := nListB.Values['data'];
       FWebOrderItems[i].Ftracknumber := nListB.Values['tracknumber'];
+      FWebOrderItems[i].FOrder_ls := nListB.Values['order_ls'];
       AddListViewItem(FWebOrderItems[i]);
     end;
   finally
@@ -346,6 +348,7 @@ begin
   //货单信息
   EditTruck.Text := nOrderItem.Ftracknumber;
   EditValue.Text := nOrderItem.FData;
+  EditLs.Text    := nOrderItem.FOrder_ls;
 
   FWebOrderItems[FWebOrderIndex] := nOrderItem;
   BtnOK.Enabled := not nRepeat;
@@ -412,7 +415,7 @@ begin
   //      Writelog(nMsg);
   //      Exit;
   //    end;
-
+    {$IFNDEF NoCheckOrderValue}
     if nwebOrderValue-FMaxQuantity>0.00001 then
     begin
       nMsg := '商城货单中提货数量有误，最多可提货数量为[%f]。';
@@ -421,6 +424,7 @@ begin
       Writelog(nMsg);
       Exit;
     end;
+    {$ENDIF}
   end;
   Result := True;
 end;
@@ -455,6 +459,13 @@ begin
     Exit;
   end;
 
+  {$IFDEF ForceEleCard}
+  if not IsEleCardVaid(EditTruck.Text) then
+  begin
+    ShowMsg('车辆未办理电子标签或电子标签未启用！请联系管理员', sHint); Exit;
+  end;
+  {$ENDIF}
+
   if not VerifyCtrl(EditValue,nHint) then
   begin
     ShowMsg(nHint,sHint);
@@ -462,30 +473,16 @@ begin
     Exit;
   end;
 
-  nNewCardNo := '';
-  FBegin := Now;
-
-  //连续三次读卡均失败，则回收卡片，重新发卡
-  for i := 0 to 3 do
+  {$IFDEF KuangFa}
+  if IfStockHasLs(nOrderItem.FGoodsID) then
   begin
-    for nIdx:=0 to 3 do
-    if gMgrK720Reader.ReadCard(nNewCardNo) then Break
-    else Sleep(500);
-    //连续三次读卡,成功则退出。
-    if nNewCardNo<>'' then Break;
-    gMgrK720Reader.RecycleCard;
+    if Trim(Editls.Text) = '' then
+    begin
+      ShowMsg('矿发流水为空,请联系管理员',sHint);
+      Exit;
+    end;
   end;
-
-  if nNewCardNo = '' then
-  begin
-    ShowDlg('卡箱异常,请查看是否有卡.', sWarn, Self.Handle);
-    Exit;
-  end;
-
-  nNewCardNo := gMgrK720Reader.ParseCardNO(nNewCardNo);
-  WriteLog(nNewCardNo);
-  //解析卡片
-  writelog('TfFormNewPurchaseCard.SaveBillProxy 发卡机读卡-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+  {$ENDIF}
 
   nList := TStringList.Create;
   try
@@ -502,6 +499,9 @@ begin
     nList.Values['Value'] := EditValue.Text;
 
     nList.Values['WebOrderID'] := nWebOrderID;
+
+    nList.Values['KFValue']  := Trim(EditValue.Text);
+    nList.Values['KFLS']     := Trim(EditLs.Text);
 
     FBegin := Now;
     nOrder := SaveOrder(PackerEncodeStr(nList.Text));
@@ -523,36 +523,18 @@ begin
 
   ShowMsg('采购单保存成功', sHint);
 
-  FBegin := Now;
-  nRet := SaveOrderCard(nOrder,nNewCardNo);
-  if nRet then
-  begin
-    nRet := False;
-    for nIdx := 0 to 3 do
-    begin
-      nRet := gMgrK720Reader.SendReaderCmd('FC0');
-      if nRet then Break;
-
-      Sleep(500);
-    end;
     //发卡
-  end;
-
-  if nRet then
+  if not FSzttceApi.IssueOneCard(nNewCardNo) then
   begin
-    nHint := '商城货单号['+editWebOrderNo.Text+']发卡成功,卡号['+nNewCardNo+'],请收好您的卡片';
-    WriteLog(nHint);
-    ShowMsg(nHint,sWarn);
+    nHint := '出卡失败,请到开票窗口补办磁卡：[errorcode=%d,errormsg=%s]';
+    nHint := Format(nHint,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg]);
+    ShowMsg(nHint,sHint);
   end
   else begin
-    gMgrK720Reader.RecycleCard;
-
-    nHint := '商城货单号[%s]卡号 [%s] 关联采购订单 [%s] 失败，请到开票窗口重新关联。';
-    nHint := Format(nHint,[editWebOrderNo.Text,nNewCardNo,nOrder]);
-    Writelog(nHint);
-    ShowMsg(nHint,sHint);
+    ShowMsg('发卡成功,卡号['+nNewCardNo+'],请收好您的卡片',sHint);
+    SaveOrderCard(nOrder,nNewCardNo);
   end;
-  writelog('TfFormNewPurchaseCard.SaveBillProxy 发卡机出卡并关联磁卡号-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+  Result := True;
   if nRet then Close;
 end;
 
@@ -609,6 +591,7 @@ begin
       Exit;
     end;
 
+    {$IFNDEF NoCheckOrderValue}
     nVal := StrToFloat(EditValue.Text);
     Result := FloatRelation(nVal, FMaxQuantity,rtLE);
     if not Result then
@@ -616,6 +599,7 @@ begin
       nHint := '已超出可提货量';
       Writelog(nHint);
     end;
+    {$ENDIF}
   end;
 end;
 
