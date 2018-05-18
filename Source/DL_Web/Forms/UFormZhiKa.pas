@@ -67,12 +67,13 @@ uses
   UFormGetCustomer;
 
 const
-  giID    = 0;
-  giName  = 1;
-  giPrice = 2;
-  giValue = 3;
-  giType  = 4;
-  giCheck = 5;
+  giID       = 0;
+  giName     = 1;
+  giPrice    = 2;
+  giFLPrice  = 3;
+  giValue    = 4;
+  giType     = 5;
+  giCheck    = 6;
   //grid info:表格列数据描述
 
   cChecked = '√';
@@ -84,6 +85,7 @@ begin
   begin
     FixedCols := 2;
     RowCount := 0;
+    ColCount := 7;
     Options := [goVertLine,goHorzLine,goEditing,goAlwaysShowEditor,goFixedColClick];
   end;
 
@@ -206,6 +208,7 @@ begin
         begin
           Grid1.Cells[giValue, nIdx] := FieldByName('D_Value').AsString;
           Grid1.Cells[giPrice, nIdx] := FieldByName('D_Price').AsString;
+          Grid1.Cells[giFLPrice, nIdx] := FieldByName('D_FLPrice').AsString;
           Grid1.Cells[giCheck, nIdx] := cChecked;
           Break;
         end;
@@ -299,6 +302,7 @@ begin
         Grid1.Cells[giID, nIdx] := FieldByName('E_StockNo').AsString;
         Grid1.Cells[giName, nIdx] := FieldByName('E_StockName').AsString;
         Grid1.Cells[giPrice, nIdx] := FieldByName('E_Price').AsString;
+        Grid1.Cells[giFLPrice, nIdx] := '0';
         Grid1.Cells[giValue, nIdx] := '0';
         Grid1.Cells[giType, nIdx] := FieldByName('E_Type').AsString;
 
@@ -437,6 +441,14 @@ begin
       ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx]]));
       Exit;
     end;
+
+    if (not IsNumber(Grid1.Cells[giFLPrice, nIdx], True)) or
+       (StrToFloat(Grid1.Cells[giFLPrice, nIdx]) < 0) then
+    begin
+      nStr := '品种[ %s ]返利价差无效.';
+      ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx]]));
+      Exit;
+    end;
   end;
 
   nList := nil;
@@ -499,6 +511,7 @@ begin
               SF('D_StockNo', Grid1.Cells[giID, nIdx]),
               SF('D_StockName', Grid1.Cells[giName, nIdx]),
               SF('D_Price', Grid1.Cells[giPrice, nIdx], sfVal),
+              SF('D_FLPrice', Grid1.Cells[giFLPrice, nIdx], sfVal),
 
               SF_IF([SF('D_Value', Grid1.Cells[giValue, nIdx], sfVal),
                      'D_Value=0'], IsNumber(Grid1.Cells[giValue, nIdx], True))

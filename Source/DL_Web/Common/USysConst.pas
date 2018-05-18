@@ -292,6 +292,7 @@ begin
   AddMenuModuleItem('MAIN_C02', 'TfFramePayment');
   AddMenuModuleItem('MAIN_C03', 'TfFrameCustomerCredit');
   AddMenuModuleItem('MAIN_C06', 'TfFrameInvoiceWeek');
+  AddMenuModuleItem('MAIN_C08', 'TfFrameInvoiceZZ');
 
   AddMenuModuleItem('MAIN_D01', 'TfFormZhiKa', mtForm);
   AddMenuModuleItem('MAIN_D05', 'TfFrameZhiKa');

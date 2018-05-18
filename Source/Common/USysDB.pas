@@ -717,7 +717,7 @@ const
 
   sSQL_NewZhiKaDtl = 'Create Table $Table(R_ID $Inc, D_ZID varChar(15),' +
        'D_Type Char(1), D_StockNo varChar(20), D_StockName varChar(80),' +
-       'D_Price $Float, D_Value $Float, D_PPrice $Float, ' +
+       'D_Price $Float, D_Value $Float, D_FLPrice $Float, D_PPrice $Float,' +
        'D_TPrice Char(1) Default ''Y'')';
   {-----------------------------------------------------------------------------
    纸卡明细:ZhiKaDtl
@@ -727,6 +727,7 @@ const
    *.D_StockNo,D_StockName:水泥名称
    *.D_Price:单价
    *.D_Value:办理量
+   *.D_FLPrice: 返利价
    *.D_PPrice:调价前单价
    *.D_TPrice:允许调价
   -----------------------------------------------------------------------------}
@@ -1160,7 +1161,7 @@ const
   -----------------------------------------------------------------------------}
 
   sSQL_NewInvoiceReq = 'Create Table $Table(R_ID $Inc, R_Week varChar(15),' +
-       'R_CusID varChar(15), R_Customer varChar(80),' +
+       'R_ZhiKa varChar(15), R_CusID varChar(15), R_Customer varChar(80),' +
        'R_SaleID varChar(15), R_SaleMan varChar(50), R_Type Char(1),' +
        'R_Stock varChar(30), R_Price $Float, R_Value $Float, ' +
        'R_PreHasK $Float Default 0, R_ReqValue $Float, R_KPrice $Float,' +
@@ -1170,6 +1171,7 @@ const
    发票结算申请:InvoiceReq
    *.R_ID:记录编号
    *.R_Week:结算周期
+   *.R_ZhiKa: 纸卡编号
    *.R_CusID:客户号
    *.R_Customer:客户名
    *.R_SaleID:业务员号

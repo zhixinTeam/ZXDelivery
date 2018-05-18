@@ -1,35 +1,35 @@
 inherited fFormZhiKa: TfFormZhiKa
-  ClientHeight = 571
-  ClientWidth = 527
+  ClientHeight = 609
+  ClientWidth = 578
   Caption = #32440#21345
-  ExplicitWidth = 533
-  ExplicitHeight = 600
+  ExplicitWidth = 584
+  ExplicitHeight = 638
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
-    Left = 363
-    Top = 535
+    Left = 414
+    Top = 573
     TabOrder = 1
     ExplicitLeft = 363
     ExplicitTop = 535
   end
   inherited BtnExit: TUniButton
-    Left = 444
-    Top = 537
+    Left = 495
+    Top = 575
     TabOrder = 2
     ExplicitLeft = 444
     ExplicitTop = 537
   end
   inherited PanelWork: TUniSimplePanel
-    Width = 511
-    Height = 521
+    Width = 562
+    Height = 559
     TabOrder = 0
     ExplicitWidth = 511
     ExplicitHeight = 521
     object EditName: TUniEdit
       Left = 68
       Top = 15
-      Width = 150
+      Width = 185
       Hint = ''
       MaxLength = 100
       Text = ''
@@ -53,7 +53,7 @@ inherited fFormZhiKa: TfFormZhiKa
       TabOrder = 4
     end
     object UniLabel2: TUniLabel
-      Left = 235
+      Left = 275
       Top = 20
       Width = 54
       Height = 12
@@ -66,9 +66,9 @@ inherited fFormZhiKa: TfFormZhiKa
       TabOrder = 5
     end
     object EditCID: TUniEdit
-      Left = 295
+      Left = 338
       Top = 15
-      Width = 185
+      Width = 190
       Hint = ''
       MaxLength = 15
       Text = ''
@@ -95,7 +95,7 @@ inherited fFormZhiKa: TfFormZhiKa
     object EditProject: TUniEdit
       Left = 68
       Top = 51
-      Width = 412
+      Width = 460
       Hint = ''
       MaxLength = 100
       Text = ''
@@ -108,7 +108,7 @@ inherited fFormZhiKa: TfFormZhiKa
     object EditSaleMan: TUniComboBox
       Left = 68
       Top = 87
-      Width = 412
+      Width = 460
       Hint = ''
       Style = csDropDownList
       Text = ''
@@ -148,7 +148,7 @@ inherited fFormZhiKa: TfFormZhiKa
     object EditCus: TUniComboBox
       Left = 68
       Top = 123
-      Width = 412
+      Width = 460
       Hint = #25353#22238#36710#38190#26597#35810#23458#25143
       ShowHint = True
       ParentShowHint = False
@@ -162,7 +162,7 @@ inherited fFormZhiKa: TfFormZhiKa
       OnKeyPress = EditCusKeyPress
     end
     object UniLabel13: TUniLabel
-      Left = 235
+      Left = 275
       Top = 162
       Width = 54
       Height = 12
@@ -188,7 +188,7 @@ inherited fFormZhiKa: TfFormZhiKa
       TabOrder = 18
     end
     object UniLabel6: TUniLabel
-      Left = 235
+      Left = 275
       Top = 200
       Width = 54
       Height = 12
@@ -201,9 +201,9 @@ inherited fFormZhiKa: TfFormZhiKa
       TabOrder = 19
     end
     object EditMoney: TUniEdit
-      Left = 295
+      Left = 338
       Top = 195
-      Width = 185
+      Width = 190
       Hint = ''
       MaxLength = 6
       Text = '0'
@@ -214,9 +214,9 @@ inherited fFormZhiKa: TfFormZhiKa
       TabOrder = 17
     end
     object EditDays: TUniDateTimePicker
-      Left = 295
+      Left = 338
       Top = 158
-      Width = 185
+      Width = 190
       Hint = ''
       DateTime = 43224.000000000000000000
       DateFormat = 'yyyy-MM-dd'
@@ -224,7 +224,7 @@ inherited fFormZhiKa: TfFormZhiKa
       TabOrder = 12
     end
     object Label1: TUniLabel
-      Left = 486
+      Left = 532
       Top = 200
       Width = 12
       Height = 12
@@ -239,7 +239,7 @@ inherited fFormZhiKa: TfFormZhiKa
     object EditPayment: TUniComboBox
       Left = 68
       Top = 195
-      Width = 150
+      Width = 185
       Hint = ''
       MaxLength = 20
       Text = ''
@@ -251,9 +251,9 @@ inherited fFormZhiKa: TfFormZhiKa
     end
     object Grid1: TUniStringGrid
       Left = 8
-      Top = 268
-      Width = 491
-      Height = 244
+      Top = 255
+      Width = 542
+      Height = 295
       Hint = #21452#20987#32534#36753
       ShowHint = True
       ParentShowHint = False
@@ -273,11 +273,15 @@ inherited fFormZhiKa: TfFormZhiKa
         end
         item
           Title.Caption = #21333#20215'('#20803'/'#21544')'
-          Width = 80
+          Width = 75
+        end
+        item
+          Title.Caption = #36820#21033'('#20215#24046')'
+          Width = 72
         end
         item
           Title.Caption = #21150#29702#37327'('#21544')'
-          Width = 80
+          Width = 72
         end
         item
           Title.Caption = #21253#35013#31867#22411
@@ -285,10 +289,10 @@ inherited fFormZhiKa: TfFormZhiKa
         end
         item
           Title.Caption = #36873#20013
-          Width = 45
+          Width = 32
         end>
       OnSelectCell = Grid1SelectCell
-      Anchors = [akLeft, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 24
       ParentFont = False
       Font.Charset = GB2312_CHARSET
@@ -297,12 +301,12 @@ inherited fFormZhiKa: TfFormZhiKa
     end
     object Label3: TUniLabel
       Left = 8
-      Top = 249
+      Top = 237
       Width = 54
       Height = 12
       Hint = ''
       Caption = #32440#21345#26126#32454':'
-      Anchors = [akLeft, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight]
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -310,33 +314,33 @@ inherited fFormZhiKa: TfFormZhiKa
       TabOrder = 23
     end
     object BtnAdd: TUniBitBtn
-      Left = 442
-      Top = 245
-      Width = 28
+      Left = 505
+      Top = 237
+      Width = 22
       Height = 20
       Hint = #28155#21152#21512#21516#26126#32454
       Visible = False
       ShowHint = True
       ParentShowHint = False
       Caption = '+'
-      Anchors = [akRight, akBottom]
+      Anchors = [akTop, akRight]
       TabOrder = 21
     end
     object BtnDel: TUniBitBtn
-      Left = 471
-      Top = 245
-      Width = 28
+      Left = 528
+      Top = 237
+      Width = 22
       Height = 20
       Hint = #21024#38500#36873#20013#30340#26126#32454
       Visible = False
       ShowHint = True
       ParentShowHint = False
       Caption = '-'
-      Anchors = [akLeft, akRight, akBottom]
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 22
     end
     object BtnGetContract: TUniBitBtn
-      Left = 480
+      Left = 528
       Top = 15
       Width = 22
       Height = 22
@@ -363,7 +367,7 @@ inherited fFormZhiKa: TfFormZhiKa
     object EditLading: TUniComboBox
       Left = 68
       Top = 159
-      Width = 150
+      Width = 185
       Hint = ''
       Style = csDropDownList
       MaxLength = 20
