@@ -22,8 +22,8 @@ inherited fFormInvoiceZZAll: TfFormInvoiceZZAll
   inherited PanelWork: TUniSimplePanel
     Width = 390
     Height = 360
-    ExplicitWidth = 298
-    ExplicitHeight = 100
+    ExplicitWidth = 390
+    ExplicitHeight = 360
     object UniLabel1: TUniLabel
       Left = 16
       Top = 20
@@ -60,8 +60,6 @@ inherited fFormInvoiceZZAll: TfFormInvoiceZZAll
       Hint = ''
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 4
-      ExplicitWidth = 417
-      ExplicitHeight = 201
     end
     object BtnWeekFilter: TUniBitBtn
       Left = 358

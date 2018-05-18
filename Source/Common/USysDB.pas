@@ -1172,8 +1172,9 @@ const
 
   sSQL_NewInvoiceReq = 'Create Table $Table(R_ID $Inc, R_Week varChar(15),' +
        'R_ZhiKa varChar(15), R_CusID varChar(15), R_Customer varChar(80),' +
-       'R_SaleID varChar(15), R_SaleMan varChar(50), R_Type Char(1),' +
-       'R_Stock varChar(30), R_Price $Float, R_Value $Float, ' +
+       'R_CusPY varChar(80), R_SaleID varChar(15), R_SaleMan varChar(50), ' +
+       'R_Type Char(1), R_Stock varChar(20), R_StockName varChar(80), ' +
+       'R_Price $Float, R_Value $Float, ' +
        'R_PreHasK $Float Default 0, R_ReqValue $Float, R_KPrice $Float,' +
        'R_KValue $Float Default 0, R_KOther $Float Default 0,' +
        'R_Man varChar(32), R_Date DateTime)';
@@ -1183,11 +1184,11 @@ const
    *.R_Week:结算周期
    *.R_ZhiKa: 纸卡编号
    *.R_CusID:客户号
-   *.R_Customer:客户名
+   *.R_Customer,R_CusPY:客户名
    *.R_SaleID:业务员号
    *.R_SaleMan:业务员名
    *.R_Type:水泥类型(D,S)
-   *.R_Stock:水泥名称
+   *.R_Stock,R_StockName:水泥品种
    *.R_Price:单价
    *.R_Value:提货量
    *.R_PreHasK:之前已开量

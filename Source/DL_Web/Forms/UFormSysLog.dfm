@@ -3,27 +3,27 @@ inherited fFormSysLog: TfFormSysLog
   ClientWidth = 655
   Caption = #31995#32479#26085#24535
   BorderStyle = bsSizeable
-  ExplicitWidth = 671
-  ExplicitHeight = 452
+  ExplicitWidth = 663
+  ExplicitHeight = 440
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 489
     Top = 379
-    ExplicitLeft = 524
-    ExplicitTop = 403
+    ExplicitLeft = 489
+    ExplicitTop = 379
   end
   inherited BtnExit: TUniButton
     Left = 572
     Top = 379
-    ExplicitLeft = 607
-    ExplicitTop = 403
+    ExplicitLeft = 572
+    ExplicitTop = 379
   end
   inherited PanelWork: TUniSimplePanel
     Width = 639
     Height = 363
-    ExplicitWidth = 674
-    ExplicitHeight = 387
+    ExplicitWidth = 639
+    ExplicitHeight = 363
     object DBGrid1: TUniDBGrid
       Left = 0
       Top = 47
@@ -48,7 +48,6 @@ inherited fFormSysLog: TfFormSysLog
       Align = alTop
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
-      ExplicitWidth = 674
       object Label1: TUniLabel
         Left = 8
         Top = 20

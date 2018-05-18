@@ -23,8 +23,8 @@ type
     procedure BtnOKClick(Sender: TObject);
   private
     { Private declarations }
-    FLastInterval: Cardinal;
-    //上次执行
+    FWeekBegin,FWeekEnd: TDateTime;
+    //周期区间
     procedure InitFormData;
     //初始化
     procedure ZZAll;
@@ -67,7 +67,7 @@ begin
       FParamC := nWeekName;
     end;
 
-    FLastInterval := 0;
+    //FLastInterval := 0;
     InitFormData; //init
     
     ShowModal(
@@ -108,11 +108,6 @@ end;
 procedure TfFormInvoiceZZAll.ShowHintText(const nText: string);
 begin
   EditMemo.Lines.Add(IntToStr(EditMemo.Lines.Count) + ' ::: ' + nText);
-  Application.ProcessMessages;
-
-  if GetTickCount - FLastInterval < 500 then
-    Sleep(375);
-  FLastInterval := GetTickCount;
 end;
 
 //------------------------------------------------------------------------------
@@ -130,7 +125,7 @@ begin
   nQuery := nil;
   try
     nQuery := LockDBQuery(FDBType);
-    if not IsWeekValid(FParam.FParamB, nStr, nQuery) then
+    if not IsWeekValid(FParam.FParamB, nStr, FWeekBegin, FWeekEnd, nQuery) then
     begin
       ShowMessage(nStr); Exit;
     end;
@@ -157,7 +152,7 @@ begin
     MessageDlg(nStr, mtConfirmation, mbYesNo,
       procedure(Sender: TComponent; Res: Integer)
       begin
-        if Res = mrok then
+        if Res = mrYes then
           ZZAll;
         //do zz
       end);
@@ -168,7 +163,7 @@ begin
 end;
 
 procedure TfFormInvoiceZZAll.ZZAll;
-var nStr: string;
+var nStr,nFields: string;
     nList: TStrings;
     nQuery: TADOQuery;
 begin
@@ -188,15 +183,15 @@ begin
       nList.Add(nStr);
     end;
 
-    nStr := 'Insert Into %s(R_Week,R_CusID,R_Customer,R_SaleID,R_SaleMan,' +
-            'R_Type,R_Stock,R_Price,R_Value,R_PreHasK,R_ReqValue,R_KPrice,' +
-            'R_KValue,R_KOther,R_Man,R_Date,R_ZhiKa) ' +
-            ' Select R_Week,R_CusID,R_Customer,R_SaleID,R_SaleMan,' +
-            ' R_Type,R_Stock,R_Price,R_Value,R_PreHasK,R_ReqValue,R_KPrice,' +
-            ' R_KValue,R_KOther,R_Man,R_Date,R_ZhiKa From %s';
+    nFields := 'R_Week,R_ZhiKa,R_CusID,R_Customer,R_CusPY,R_SaleID,R_SaleMan,' +
+      'R_Type,R_Stock,R_StockName,R_Price,R_Value,R_PreHasK,R_ReqValue,' +
+      'R_KPrice,R_KValue,R_KOther,R_Man,R_Date';
+    //xxxxx
+
+    nStr := 'Insert Into %s(%s) Select %s From %s';
     //move into normal table
 
-    nStr := Format(nStr, [sTable_InvoiceReq, sTable_InvReqtemp]);
+    nStr := Format(nStr, [sTable_InvoiceReq, nFields, nFields, sTable_InvReqtemp]);
     nList.Add(nStr);
     
     nStr := '用户[ %s ]对周期[ %s ]执行扎账操作.';
@@ -225,15 +220,16 @@ begin
   DBExecute(nStr, nQuery);
   //清空临时表
 
-  nSQL := 'Select L_ZhiKa,L_SaleID,L_CusID,L_Type,L_StockName,' +
-          'Sum(L_Value) as L_Value,L_SaleMan,L_CusName From $Bill ' +
-          'Where L_OutFact Is Not Null ' +
-          'Group By L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_Type,' +
-          'L_StockName';
+  nSQL := 'Select L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
+          'L_Type,L_StockNo,L_StockName,Sum(L_Value) as L_Value From $Bill ' +
+          'Where L_OutFact>=''$S'' And L_OutFact<=''$E'' ' +
+          'Group By L_ZhiKa,L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
+          'L_Type,L_StockNo,L_StockName';
   //xxxxx
 
-  with TStringHelper do
-    nSQL := MacroValue(nSQL, [MI('$Bill', sTable_Bill)]);
+  with TStringHelper,TDateTimeHelper do
+    nSQL := MacroValue(nSQL, [MI('$Bill', sTable_Bill),
+            MI('$S', Date2Str(FWeekBegin)), MI('$E', Date2Str(FWeekEnd+1))]);
   //同客户同品种同单价合并
 
   nStr := 'Select ''$W'' As R_Week,''$Man'' As R_Man,$Now As R_Date,' +
@@ -244,8 +240,9 @@ begin
             MI('$Now', sField_SQLServer_Now)]);
   //合并有效内容
 
-  nStr := 'Insert Into %s(R_Week,R_Man,R_Date,R_ZhiKa,R_SaleID,R_CusID,' +
-    'R_Type,R_Stock,R_Value,R_SaleMan,R_Customer) Select * From (%s) t';
+  nStr := 'Insert Into %s(R_Week,R_Man,R_Date,R_ZhiKa,R_SaleID,R_SaleMan,' +
+    'R_CusID,R_Customer,R_CusPY,R_Type,R_Stock,R_StockName,' +
+    'R_Value) Select * From (%s) t';
   nStr := Format(nStr, [sTable_InvReqtemp, nSQL]);
 
   ShowHintText('开始计算客户总提货量...');

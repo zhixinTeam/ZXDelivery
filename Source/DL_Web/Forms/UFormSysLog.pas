@@ -101,6 +101,7 @@ end;
 function TfFormSysLog.SetParam(const nParam: TFormCommandParam): Boolean;
 begin
   Result := True;
+  BtnOK.Enabled := False;
   if nParam.FCommand <> cCmd_ViewSysLog then Exit;
 
   with TDateTimeHelper do

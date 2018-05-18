@@ -125,7 +125,7 @@ function MakeGridColumnInfo(const nGrid: TUniStringGrid): string;
 //组合列表表头宽度信息
 
 function IsWeekValid(const nWeek: string; var nHint: string;
-  const nQuery: TADOQuery): Boolean;
+  var nBegin,nEnd: TDateTime; const nQuery: TADOQuery): Boolean;
 //周期是否有效
 function IsWeekHasEnable(const nWeek: string; const nQuery: TADOQuery): Boolean;
 //周期是否启用
@@ -408,7 +408,6 @@ begin
         raise;
       end;
     end;
-
   finally
     if not Assigned(nCmd) then
       ReleaseDBQuery(nC);
@@ -1911,12 +1910,12 @@ end;
 //Parm: 周期编号;提示
 //Desc: 检测nWeek是否存在或过期
 function IsWeekValid(const nWeek: string; var nHint: string;
-  const nQuery: TADOQuery): Boolean;
+  var nBegin,nEnd: TDateTime; const nQuery: TADOQuery): Boolean;
 var nStr: string;
 begin
   with TStringHelper do
   begin
-    nStr := 'Select W_End,$Now From $W Where W_NO=''$NO''';
+    nStr := 'Select W_Begin,W_End,$Now From $W Where W_NO=''$NO''';
     nStr := MacroValue(nStr, [MI('$W', sTable_InvoiceWeek),
             MI('$Now', sField_SQLServer_Now), MI('$NO', nWeek)]);
     //xxxxx
@@ -1924,7 +1923,9 @@ begin
     with DBQuery(nStr, nQuery) do
     if RecordCount > 0 then
     begin
-      Result := Fields[0].AsDateTime + 1 > Fields[1].AsDateTime;
+      nBegin := Fields[0].AsDateTime;
+      nEnd   := Fields[1].AsDateTime;
+      Result := nEnd + 1 > Fields[2].AsDateTime;
       if not Result then
         nHint := '该结算周期已结束';
       //xxxxx

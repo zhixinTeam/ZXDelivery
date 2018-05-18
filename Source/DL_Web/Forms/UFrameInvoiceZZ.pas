@@ -21,12 +21,16 @@ type
     Label3: TUniLabel;
     EditWeek: TUniEdit;
     BtnWeekFilter: TUniBitBtn;
+    N1: TUniMenuItem;
+    N2: TUniMenuItem;
     procedure EditCustomerKeyPress(Sender: TObject; var Key: Char);
     procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure MenuItem1Click(Sender: TObject);
     procedure BtnWeekFilterClick(Sender: TObject);
     procedure BtnAddClick(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure BtnEditClick(Sender: TObject);
   private
     { Private declarations }
     FNowYear,FNowWeek,FWeekName: string;
@@ -46,8 +50,8 @@ implementation
 {$R *.dfm}
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, UManagerGroup,
-  ULibFun, USysBusiness, USysDB, USysConst, UFormInvoiceGetWeek,
-  UFormInvoiceZZAll;
+  ULibFun, USysBusiness, USysDB, USysConst, UFormBase, UFormInvoiceGetWeek,
+  UFormInvoiceZZAll, UFormSysLog;
 
 procedure TfFrameInvoiceZZ.OnCreateFrame(const nIni: TIniFile);
 begin
@@ -101,31 +105,15 @@ begin
     Result := 'Select req.*,W_Name,Z_Name,Z_Project From $Req req ' +
               ' Left Join $Week On W_NO=req.R_Week ' +
               ' Left Join $ZK On Z_ID=req.R_ZhiKa ';
-    //xxxxx
+    Result := Result + nWeek;
 
-    if nWhere = '' then
-         Result := Result + nWeek
-    else Result := Result + 'Where ( ' + nWhere + ' )';
+    if nWhere <> '' then
+      Result := Result + ' And ( ' + nWhere + ' )';
+    //xxxxx
 
     Result := MacroValue(Result, [MI('$Req', sTable_InvoiceReq),
               MI('$Week', sTable_InvoiceWeek), MI('$ZK', sTable_ZhiKa)]);
     //xxxxx
-  end;
-end;
-
-procedure TfFrameInvoiceZZ.EditCustomerKeyPress(Sender: TObject; var Key: Char);
-begin
-  if Key <> #13 then Exit;
-  Key := #0;
-
-  if Sender = EditCustomer then
-  begin
-    EditCustomer.Text := Trim(EditCustomer.Text);
-    if EditCustomer.Text = '' then Exit;
-
-    FWhere := 'R_CusID Like ''%%%s%%'' Or R_Customer Like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
-    InitFormData(FWhere);
   end;
 end;
 
@@ -164,10 +152,54 @@ begin
   //xxxxx
 end;
 
+//Desc: 修改价差
+procedure TfFrameInvoiceZZ.BtnEditClick(Sender: TObject);
+var nForm: TUniForm;
+    nParam: TFormCommandParam;
+begin
+  if DBGridMain.SelectedRows.Count < 1 then
+  begin
+    ShowMessage('请选择要修改的记录');
+    Exit;
+  end;
+
+  nForm := SystemGetForm('TfFormInvoiceFLSet', True);
+  if not Assigned(nForm) then Exit;
+
+  nParam.FCommand := cCmd_EditData;
+  nParam.FParamA := ClientDS.FieldByName('R_ID').AsString;
+  (nForm as TfFormBase).SetParam(nParam);
+
+  nForm.ShowModal(
+    procedure(Sender: TComponent; Result:Integer)
+    begin
+      if Result = mrok then
+        InitFormData(FWhere);
+      //refresh
+    end);
+  //show form
+end;
+
 //Desc: 选择周期
 procedure TfFrameInvoiceZZ.BtnWeekFilterClick(Sender: TObject);
 begin
   LoadWeek;
+end;
+
+procedure TfFrameInvoiceZZ.EditCustomerKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key <> #13 then Exit;
+  Key := #0;
+
+  if Sender = EditCustomer then
+  begin
+    EditCustomer.Text := Trim(EditCustomer.Text);
+    if EditCustomer.Text = '' then Exit;
+
+    FWhere := 'R_CusPY Like ''%%%s%%'' Or R_Customer Like ''%%%s%%''';
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
+    InitFormData(FWhere);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -180,12 +212,29 @@ end;
 //Desc: 快捷菜单
 procedure TfFrameInvoiceZZ.MenuItem1Click(Sender: TObject);
 begin
-  case TComponent(Sender).Tag of
-   10: FWhere := Format('C_XuNi=''%s''', [sFlag_Yes]);
-   20: FWhere := '1=1';
-  end;
 
-  InitFormData(FWhere);
+end;
+
+//Desc: 价差修改记录
+procedure TfFrameInvoiceZZ.N2Click(Sender: TObject);
+var nStr: string;
+    nParam: TFormCommandParam;
+begin
+  if DBGridMain.SelectedRows.Count > 0 then
+  begin
+    nParam.FCommand := cCmd_ViewSysLog;
+    nParam.FParamA := '2008-08-08';
+    nParam.FParamB := '2050-12-12';
+
+    nParam.FParamC := ClientDS.FieldByName('R_ZhiKa').AsString;
+    nStr := 'L_Group=''$Group'' And L_ItemID=''$ID''';
+    with TStringHelper do
+    nParam.FParamD := MacroValue(nStr, [MI('$Group', sFlag_ZhiKaItem),
+                      MI('$ID', nParam.FParamC)]);
+    //检索条件
+
+    ShowSystemLog(nParam);
+  end;
 end;
 
 initialization

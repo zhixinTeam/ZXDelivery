@@ -442,8 +442,7 @@ begin
       Exit;
     end;
 
-    if (not IsNumber(Grid1.Cells[giFLPrice, nIdx], True)) or
-       (StrToFloat(Grid1.Cells[giFLPrice, nIdx]) < 0) then
+    if not IsNumber(Grid1.Cells[giFLPrice, nIdx], True) then
     begin
       nStr := '品种[ %s ]返利价差无效.';
       ShowMessage(Format(nStr, [Grid1.Cells[giName, nIdx]]));
