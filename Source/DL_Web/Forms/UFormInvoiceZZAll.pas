@@ -19,8 +19,11 @@ type
     UniLabel2: TUniLabel;
     EditMemo: TUniMemo;
     BtnWeekFilter: TUniBitBtn;
+    PanelHide1: TUniHiddenPanel;
+    BtnRun: TUniButton;
     procedure BtnWeekFilterClick(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
+    procedure BtnRunClick(Sender: TObject);
   private
     { Private declarations }
     FWeekBegin,FWeekEnd: TDateTime;
@@ -111,6 +114,12 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+//Desc: 执行扎帐
+procedure TfFormInvoiceZZAll.BtnRunClick(Sender: TObject);
+begin
+  ZZAll;
+end;
+
 procedure TfFormInvoiceZZAll.BtnOKClick(Sender: TObject);
 var nStr: string;
     nInt: Integer;
@@ -153,8 +162,11 @@ begin
       procedure(Sender: TComponent; Res: Integer)
       begin
         if Res = mrYes then
-          ZZAll;
-        //do zz
+        begin
+          EditMemo.Text := '开始扎帐,请耐心等待';
+          BtnRun.JSInterface.JSCall('fireEvent', ['click', BtnRun]);
+          //调用远程代码,显示进度并执行click操作
+        end;
       end);
     //xxxxx
   finally
@@ -164,12 +176,14 @@ end;
 
 procedure TfFormInvoiceZZAll.ZZAll;
 var nStr,nFields: string;
+    nInit: Int64;
     nList: TStrings;
     nQuery: TADOQuery;
 begin
   nList := nil;
   nQuery := nil;
   try
+    nInit := GetTickCount;
     nQuery := LockDBQuery(FDBType);
     ZZ_All(FParam.FParamE = sFlag_Yes, nQuery);
 
@@ -206,6 +220,11 @@ begin
   finally
     gMG.FObjectPool.Release(nList);
     ReleaseDBQuery(nQuery);
+
+    nInit := GetTickCount - nInit;
+    if nInit < 2000 then
+      Sleep(2000 - nInit);
+    //xxxxx
   end;
 end;
 

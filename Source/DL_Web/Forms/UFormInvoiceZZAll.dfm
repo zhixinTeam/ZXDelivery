@@ -10,14 +10,14 @@ inherited fFormInvoiceZZAll: TfFormInvoiceZZAll
     Left = 240
     Top = 376
     Caption = #24320#22987
-    ExplicitLeft = 148
-    ExplicitTop = 116
+    ExplicitLeft = 240
+    ExplicitTop = 376
   end
   inherited BtnExit: TUniButton
     Left = 323
     Top = 376
-    ExplicitLeft = 231
-    ExplicitTop = 116
+    ExplicitLeft = 323
+    ExplicitTop = 376
   end
   inherited PanelWork: TUniSimplePanel
     Width = 390
@@ -72,6 +72,28 @@ inherited fFormInvoiceZZAll: TfFormInvoiceZZAll
       Caption = '...'
       TabOrder = 5
       OnClick = BtnWeekFilterClick
+    end
+  end
+  object PanelHide1: TUniHiddenPanel
+    Left = 8
+    Top = 374
+    Width = 160
+    Height = 32
+    Hint = ''
+    Visible = True
+    object BtnRun: TUniButton
+      Left = 3
+      Top = 4
+      Width = 75
+      Height = 25
+      Hint = ''
+      Caption = #38544#34255#25191#34892
+      TabOrder = 1
+      Default = True
+      ScreenMask.Enabled = True
+      ScreenMask.Message = #25166#24080#20013','#35831#31245#21518
+      ScreenMask.Target = PanelWork
+      OnClick = BtnRunClick
     end
   end
 end

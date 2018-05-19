@@ -10,14 +10,12 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
       Font.Height = -12
       Font.Name = #23435#20307
       inherited BtnAdd: TUniToolButton
-        Caption = #36820#21033#25166#24080
+        Caption = #38144#21806#25166#24080
         OnClick = BtnAddClick
       end
       inherited BtnEdit: TUniToolButton
         Caption = #20462#25913#20215#24046
         OnClick = BtnEditClick
-        ExplicitLeft = 81
-        ExplicitTop = -2
       end
     end
     inherited PanelQuick: TUniSimplePanel
@@ -98,7 +96,7 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
     end
   end
   object PMenu1: TUniPopupMenu
-    Left = 40
+    Left = 42
     Top = 184
     object MenuItem1: TUniMenuItem
       Caption = #20462#25913#36820#21033#20215#24046
@@ -108,8 +106,12 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
       Caption = '-'
     end
     object N2: TUniMenuItem
-      Caption = #20215#24046#20462#25913#35760#24405
+      Caption = #26597#35810#20462#25913#35760#24405
       OnClick = N2Click
+    end
+    object N3: TUniMenuItem
+      Caption = #26597#35810#26410#36820#23436#27605
+      OnClick = N3Click
     end
   end
 end

@@ -23,14 +23,15 @@ type
     BtnWeekFilter: TUniBitBtn;
     N1: TUniMenuItem;
     N2: TUniMenuItem;
+    N3: TUniMenuItem;
     procedure EditCustomerKeyPress(Sender: TObject; var Key: Char);
     procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure MenuItem1Click(Sender: TObject);
     procedure BtnWeekFilterClick(Sender: TObject);
     procedure BtnAddClick(Sender: TObject);
     procedure N2Click(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
+    procedure N3Click(Sender: TObject);
   private
     { Private declarations }
     FNowYear,FNowWeek,FWeekName: string;
@@ -147,6 +148,8 @@ begin
       FNowYear := nParam.FParamA;
       FNowWeek := nParam.FParamB;
       FWeekName := nParam.FParamC;
+
+      FWhere := '';
       InitFormData(FWhere);
     end);
   //xxxxx
@@ -209,12 +212,6 @@ begin
   if Button = mbRight then PMenu1.Popup(X, Y, DBGridMain);
 end;
 
-//Desc: 快捷菜单
-procedure TfFrameInvoiceZZ.MenuItem1Click(Sender: TObject);
-begin
-
-end;
-
 //Desc: 价差修改记录
 procedure TfFrameInvoiceZZ.N2Click(Sender: TObject);
 var nStr: string;
@@ -235,6 +232,13 @@ begin
 
     ShowSystemLog(nParam);
   end;
+end;
+
+//Desc: 未完成
+procedure TfFrameInvoiceZZ.N3Click(Sender: TObject);
+begin
+  FWhere := '(R_Value<>R_KValue) And (R_KPrice <> 0)';
+  InitFormData(FWhere);
 end;
 
 initialization
