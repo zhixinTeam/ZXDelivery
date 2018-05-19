@@ -305,6 +305,7 @@ begin
   AddMenuModuleItem('MAIN_L06', 'TfFrameQuerySaleDetail');
   AddMenuModuleItem('MAIN_L07', 'TfFrameQuerySaleTotal');
   AddMenuModuleItem('MAIN_L08', 'TfFrameZhiKaDetail');
+  AddMenuModuleItem('MAIN_L09', 'TfFrameInvoiceSettle');
   AddMenuModuleItem('MAIN_L10', 'TfFrameOrderDetail');
 end;
 

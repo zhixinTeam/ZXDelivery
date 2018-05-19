@@ -182,8 +182,8 @@ var nStr,nFields: string;
 begin
   nList := nil;
   nQuery := nil;
+  nInit := GetTickCount;
   try
-    nInit := GetTickCount;
     nQuery := LockDBQuery(FDBType);
     ZZ_All(FParam.FParamE = sFlag_Yes, nQuery);
 

@@ -1,4 +1,4 @@
-inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
+inherited fFrameInvoiceSettle: TfFrameInvoiceSettle
   Font.Charset = GB2312_CHARSET
   Font.Height = -12
   Font.Name = #23435#20307
@@ -10,7 +10,7 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
       Font.Height = -12
       Font.Name = #23435#20307
       inherited BtnAdd: TUniToolButton
-        Caption = #38144#21806#25166#24080
+        Caption = #32467#31639#36820#21033
         OnClick = BtnAddClick
       end
       inherited BtnEdit: TUniToolButton
