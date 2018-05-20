@@ -16,7 +16,7 @@ uses
   UFormCustomerCredit, UFramePayment, UFormPayment, UFrameSalesMan,
   UFormSalesMan, UFormSysLog, UFormGetCustomer, UFrameInvoiceWeek,
   UFormInvoiceWeek, UFormInvoiceGetWeek, UFrameInvoiceZZ, UFormInvoiceZZAll,
-  UFormInvoiceFLSet, UFrameInvoiceSettle,
+  UFormInvoiceFLSet, UFrameInvoiceSettle, UFormInvoiceSettle,
 //--------------------------------- report -------------------------------------
   UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
   UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal,

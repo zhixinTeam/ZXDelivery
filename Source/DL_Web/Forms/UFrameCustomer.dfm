@@ -51,8 +51,9 @@ inherited fFrameCustomer: TfFrameCustomer
       end
     end
     inherited DBGridMain: TUniDBGrid
-      Top = 97
-      Height = 493
+      Top = 91
+      Height = 499
+      OnMouseDown = DBGridMainMouseDown
       Columns = <
         item
           Width = 64
@@ -60,6 +61,23 @@ inherited fFrameCustomer: TfFrameCustomer
           Font.Height = -12
           Font.Name = #23435#20307
         end>
+    end
+  end
+  object PMenu1: TUniPopupMenu
+    Left = 40
+    Top = 184
+    object N1: TUniMenuItem
+      Tag = 10
+      Caption = #26597#35810#38750#27491#24335#23458#25143
+      OnClick = N1Click
+    end
+    object N2: TUniMenuItem
+      Caption = '-'
+    end
+    object N3: TUniMenuItem
+      Tag = 20
+      Caption = #26597#35810#20840#37096#23458#25143
+      OnClick = N1Click
     end
   end
 end

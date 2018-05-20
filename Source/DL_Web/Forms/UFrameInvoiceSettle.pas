@@ -52,7 +52,7 @@ implementation
 uses
   Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication, UManagerGroup,
   ULibFun, USysBusiness, USysDB, USysConst, UFormBase, UFormInvoiceGetWeek,
-  UFormSysLog;
+  UFormSysLog, UFormInvoiceSettle;
 
 procedure TfFrameInvoiceSettle.OnCreateFrame(const nIni: TIniFile);
 begin
@@ -103,7 +103,8 @@ begin
       end;
     end;
 
-    Result := 'Select req.*,W_Name,Z_Name,Z_Project From $Req req ' +
+    Result := 'Select req.*,(R_KPrice*R_KValue) R_KMoney,W_Name,Z_Name,' +
+              'Z_Project From $Req req ' +
               ' Left Join $Week On W_NO=req.R_Week ' +
               ' Left Join $ZK On Z_ID=req.R_ZhiKa ';
     Result := Result + nWeek;
@@ -142,8 +143,37 @@ end;
 
 //Desc: 开始结算
 procedure TfFrameInvoiceSettle.BtnAddClick(Sender: TObject);
+var nStr: string;
+    nBegin,nEnd: TDateTime;
+    nQuery: TADOQuery;
 begin
-  //
+  if FNowWeek = '' then
+  begin
+    ShowMessage('请选择结算周期'); Exit;
+  end;
+
+  nQuery := nil;
+  try
+    if ClientDS.RecordCount < 1 then
+    begin
+      ShowMessage('没有需要结算的数据'); Exit;
+    end;
+
+    nQuery := LockDBQuery(FDBType);
+    if not IsWeekValid(FNowWeek, nStr, nBegin, nEnd, nQuery) then
+    begin
+      ShowMessage(nStr); Exit;
+    end;
+
+    ShowInvoiceSettleForm(FNowYear, FNowWeek, FWeekName, nBegin, nEnd,
+      procedure(const nResult: Integer; const nParam: PFormCommandParam)
+      begin
+        InitFormData(FWhere);
+      end);
+  //xxxxx
+  finally
+    ReleaseDBQuery(nQuery);
+  end;
 end;
 
 //Desc: 修改价差

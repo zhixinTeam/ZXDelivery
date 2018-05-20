@@ -131,6 +131,7 @@ end;
 
 procedure TfFormCutomer.BtnOKClick(Sender: TObject);
 var nStr,nID: string;
+    nBool: Boolean;
     nList: TStrings;
 begin
   EditName.Text := Trim(EditName.Text);
@@ -143,7 +144,8 @@ begin
   nList := nil;
   with TSQLBuilder,TStringHelper do
   try
-    if FParam.FCommand = cCmd_AddData then
+    nBool := FParam.FCommand <> cCmd_EditData;
+    if  nBool then
     begin
       nID := GetSerialNo(sFlag_BusGroup, sFlag_Customer, False);
       if nID = '' then Exit;      
@@ -154,7 +156,9 @@ begin
     nStr := SF('R_ID', FParam.FParamA, sfVal);
 
     nStr := MakeSQLByStr([
-      SF_IF([SF('C_ID', nID), ''], FParam.FCommand = cCmd_AddData),
+      SF_IF([SF('C_ID', nID), ''], nBool),
+      SF_IF([SF('C_XuNi', sFlag_No), ''], nBool),
+
       SF('C_Name', EditName.Text),
       SF('C_PY', GetPinYin(EditName.Text)),
       SF('C_FaRen', EditFaRen.Text),

@@ -41,6 +41,7 @@ type
   public
     { Public declarations }
     procedure OnCreateFrame(const nIni: TIniFile); override;
+    function FilterColumnField: string; override;
     procedure OnLoadGridConfig(const nIni: TIniFile); override;
     function InitFormDataSQL(const nWhere: string): string; override;
     //¹¹½¨Óï¾ä
@@ -61,6 +62,11 @@ begin
   FNowWeek := '';
   FWeekName := '';
   LoadWeek;
+end;
+
+function TfFrameInvoiceZZ.FilterColumnField: string;
+begin
+  Result := 'R_KMoney';
 end;
 
 procedure TfFrameInvoiceZZ.OnLoadGridConfig(const nIni: TIniFile);

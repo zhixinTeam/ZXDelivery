@@ -175,6 +175,7 @@ const
   sFlag_ViaBillCard   = 'ViaBillCard';               //直接制卡
   sFlag_PayCredit     = 'Pay_Credit';                //回款冲信用
   sFlag_CreditVerify  = 'CreditVerify';              //信用审核
+  sFlag_SettleValid   = 'SettleValid';               //结算有效期
   sFlag_HYValue       = 'HYMaxValue';                //化验批次量
   sFlag_SaleManDept   = 'SaleManDepartment';         //业务员部门编号
   sFlag_VerifyFQValue = 'VerifyFQValue';             //禁止封签号超发
@@ -325,6 +326,7 @@ const
   sTable_InvoiceWeek  = 'Sys_InvoiceWeek';           //结算周期
   sTable_InvoiceReq   = 'Sys_InvoiceRequst';         //结算申请
   sTable_InvReqtemp   = 'Sys_InvoiceReqtemp';        //临时申请
+  sTable_InvSettle    = 'Sys_InvoiceSettle';         //销售结算
   sTable_DataTemp     = 'Sys_DataTemp';              //临时数据
 
   sTable_WeixinLog    = 'Sys_WeixinLog';             //微信日志
@@ -942,8 +944,8 @@ const
        'T_PrePUse Char(1), T_MinPVal $Float, T_MaxPVal $Float, ' +
        'T_PValue $Float Default 0, T_PTime Integer Default 0,' +
        'T_PlateColor varChar(12),T_Type varChar(12), T_LastTime DateTime, ' +
-       'T_Card varChar(32), T_CardUse Char(1), T_NoVerify Char(1),' +
-       'T_Valid Char(1), T_VIPTruck Char(1), T_HasGPS Char(1))';
+       'T_Card varChar(32), T_CardUse Char(1), T_Card2 varChar(32),' +
+       'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), T_HasGPS Char(1))';
   {-----------------------------------------------------------------------------
    车辆信息:Truck
    *.R_ID: 记录号
@@ -1198,6 +1200,25 @@ const
    *.R_KOther:本周申请量之外已开
    *.R_Man:申请人
    *.R_Date:申请时间
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewInvoiceSettle = 'Create Table $Table(R_ID $Inc, S_Week varChar(15),' +
+       'S_Bill varChar(15), S_CusID varChar(15), S_ZhiKa varChar(15),' +
+       'S_Stock varChar(20), S_Value $Float, S_Price $Float, ' +
+       'S_OutFact DateTime, S_Man varChar(32), S_Date DateTime)';
+  {-----------------------------------------------------------------------------
+   结算结算:InvoiceSettle
+   *.R_ID:记录编号
+   *.S_Week: 结算周期
+   *.S_Bill: 交货单号
+   *.S_CusID: 客户编号
+   *.S_ZhiKa: 纸卡编号
+   *.S_Stock: 品种编号
+   *.S_Value: 发货量
+   *.S_Price: 返利单价
+   *.S_OutFact: 出厂时间
+   *.S_Man: 结算人
+   *.S_Date: 结算时间
   -----------------------------------------------------------------------------}
 
   sSQL_NewWXLog = 'Create Table $Table(R_ID $Inc, L_UserID varChar(50), ' +
@@ -1572,6 +1593,7 @@ begin
   AddSysTableItem(sTable_InvoiceDtl, sSQL_NewInvoiceDtl);
   AddSysTableItem(sTable_InvoiceReq, sSQL_NewInvoiceReq);
   AddSysTableItem(sTable_InvReqtemp, sSQL_NewInvoiceReq);
+  AddSysTableItem(sTable_InvSettle, sSQL_NewInvoiceSettle);
   AddSysTableItem(sTable_DataTemp, sSQL_NewDataTemp);
 
   AddSysTableItem(sTable_WeixinLog, sSQL_NewWXLog);

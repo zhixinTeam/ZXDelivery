@@ -1912,9 +1912,18 @@ end;
 function IsWeekValid(const nWeek: string; var nHint: string;
   var nBegin,nEnd: TDateTime; const nQuery: TADOQuery): Boolean;
 var nStr: string;
+    nInt: Integer;
 begin
   with TStringHelper do
   begin
+    nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_SettleValid]);
+
+    with DBQuery(nStr, nQuery) do
+    if RecordCount > 0 then
+         nInt := Fields[0].AsInteger
+    else nInt := 0;
+
     nStr := 'Select W_Begin,W_End,$Now From $W Where W_NO=''$NO''';
     nStr := MacroValue(nStr, [MI('$W', sTable_InvoiceWeek),
             MI('$Now', sField_SQLServer_Now), MI('$NO', nWeek)]);
@@ -1925,7 +1934,7 @@ begin
     begin
       nBegin := Fields[0].AsDateTime;
       nEnd   := Fields[1].AsDateTime;
-      Result := nEnd + 1 > Fields[2].AsDateTime;
+      Result := nEnd + nInt + 1 > Fields[2].AsDateTime;
       if not Result then
         nHint := '该结算周期已结束';
       //xxxxx

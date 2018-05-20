@@ -8,18 +8,25 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, uniGUITypes,
-  UFrameBase, uniLabel, uniEdit, Data.DB, Datasnap.DBClient, uniGUIClasses,
-  uniBasicGrid, uniDBGrid, uniPanel, uniToolBar, Vcl.Controls, Vcl.Forms,
-  uniGUIBaseClasses;
+  UFrameBase, Vcl.Menus, uniMainMenu, uniLabel, uniEdit, Data.DB,
+  Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
+  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
 
 type
   TfFrameCustomer = class(TfFrameBase)
     EditName: TUniEdit;
     UniLabel1: TUniLabel;
+    PMenu1: TUniPopupMenu;
+    N1: TUniMenuItem;
+    N2: TUniMenuItem;
+    N3: TUniMenuItem;
     procedure BtnAddClick(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
     procedure EditNameKeyPress(Sender: TObject; var Key: Char);
+    procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure N1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -160,6 +167,24 @@ begin
     FWhere := Format(FWhere, [EditName.Text, EditName.Text]);
     InitFormData(FWhere);
   end;
+end;
+
+//------------------------------------------------------------------------------
+procedure TfFrameCustomer.DBGridMainMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = mbRight then PMenu1.Popup(X, Y, DBGridMain);
+end;
+
+//Desc: ¿ì½Ý²Ëµ¥
+procedure TfFrameCustomer.N1Click(Sender: TObject);
+begin
+  case TComponent(Sender).Tag of
+    10: FWhere := Format('C_XuNi=''%s''', [sFlag_Yes]);
+    20: FWhere := '1=1';
+  end;
+
+  InitFormData(FWhere);
 end;
 
 initialization

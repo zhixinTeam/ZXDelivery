@@ -594,6 +594,7 @@ begin
   begin
     ShowMsg('请先办理提货单', sHint); Exit;
   end;
+  
   {$IFDEF ForceEleCard}
   if not IsEleCardVaid(EditTruck.Text) then
   begin
