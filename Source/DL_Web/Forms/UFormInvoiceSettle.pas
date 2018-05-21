@@ -175,14 +175,15 @@ begin
             'Where S_Week=''%s'' Group By S_ZhiKa,S_Stock';
     nSQL := Format(nSQL, [sTable_InvSettle, FNowWeek]);
 
-    nStr := 'Update $T Set $T.R_KValue=t.S_Value From ($S) t ' +
-            'Where $T.R_Week=''$WK'' And $T.R_ZhiKa=t.S_ZhiKa And ' +
+    nStr := 'Update $T Set $T.R_KValue=t.S_Value,R_KMan=''$KM'',R_KDate=$DT ' +
+            'From ($S) t Where $T.R_Week=''$WK'' And $T.R_ZhiKa=t.S_ZhiKa And ' +
             '$T.R_Stock=t.S_Stock';
     //xxxxx
 
     with TStringHelper do
-    nStr := MacroValue(nStr, [MI('$T', sTable_InvoiceReq),
-            MI('$S', nSQL), MI('$WK', FNowWeek)]);
+    nStr := MacroValue(nStr, [MI('$T', sTable_InvoiceReq), MI('$S', nSQL),
+            MI('$WK', FNowWeek), MI('$KM', UniMainModule.FUserConfig.FUserID),
+            MI('$DT', sField_SQLServer_Now)]);
     nList.Add(nStr);
 
     ShowHintText('Ω·À„ÕÍ±œ.');

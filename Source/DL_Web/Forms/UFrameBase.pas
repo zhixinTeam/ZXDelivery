@@ -40,6 +40,7 @@ type
   protected
     FDBType: TAdoConnectionType;
     {*数据连接*}
+    FEntity: string;
     FMenuID: string;
     FPopedom: string;
     {*权限项*}
@@ -76,6 +77,8 @@ var nIni: TIniFile;
 begin
   FDBType := ctWork;
   FMenuID := GetMenuByModule(ClassName);
+  FEntity := FMenuID;
+
   FPopedom := GetPopedom(FMenuID);
   OnLoadPopedom; //加载权限
 
@@ -84,16 +87,15 @@ begin
     nIni := UserConfigFile;
     //PanelQuick.Height := nIni.ReadInteger(ClassName, 'PanelQuick', 50);
 
-    OnLoadGridConfig(nIni);
-    //载入用户配置
     OnCreateFrame(nIni);
     //子类处理
+    OnLoadGridConfig(nIni);
+    //载入用户配置
   finally
     nIni.Free;
   end;
 
-  InitFormData;
-  //初始化数据
+  InitFormData; //初始化数据
 end;
 
 procedure TfFrameBase.UniFrameDestroy(Sender: TObject);
@@ -104,10 +106,10 @@ begin
     nIni := UserConfigFile;
     //nIni.WriteInteger(ClassName, 'PanelQuick', PanelQuick.Height);
 
-    OnSaveGridConfig(nIni);
-    //保存用户配置
     OnDestroyFrame(nIni);
     //子类处理
+    OnSaveGridConfig(nIni);
+    //保存用户配置
   finally
     nIni.Free;
   end;
@@ -146,7 +148,7 @@ end;
 
 procedure TfFrameBase.OnLoadGridConfig(const nIni: TIniFile);
 begin
-  BuildDBGridColumn(FMenuID, DBGridMain, FilterColumnField());
+  BuildDBGridColumn(FEntity, DBGridMain, FilterColumnField());
   //构建表头
 
   UserDefineGrid(ClassName, DBGridMain, True, nIni);
@@ -196,7 +198,7 @@ begin
     BuidDataSetSortIndex(ClientDS);
     //sort index
 
-    SetGridColumnFormat(FMenuID, ClientDS, UniMainModule.DoColumnFormat);
+    SetGridColumnFormat(FEntity, ClientDS, UniMainModule.DoColumnFormat);
     //列格式化
   finally
     if not Assigned(nQuery) then

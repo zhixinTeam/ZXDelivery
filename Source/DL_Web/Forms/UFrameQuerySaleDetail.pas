@@ -91,25 +91,35 @@ begin
 end;
 
 function TfFrameQuerySaleDetail.InitFormDataSQL(const nWhere: string): string;
+var nWH: string;
 begin
   with TStringHelper, TDateTimeHelper do
   begin
+    nWH := '';
     EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
-    Result := 'Select *,(L_Value*L_Price) as L_Money From $Bill b ';
+
+    Result := 'Select L_Price,L_Value,L_Value*L_Price as L_Money,' +
+              'b.* from $Bill b $WH union all ' +
+              'Select S_Price*(-1) as L_Price,S_Value as L_Value,' +
+              'S_Value*S_Price*(-1) as L_Money,b.* From $ST st ' +
+              ' Left Join $Bill b on b.L_ID=st.S_Bill $WH';
+    //xxxxx
 
     if FJBWhere = '' then
     begin
-      Result := Result + 'Where (L_OutFact>=''$S'' and L_OutFact <''$End'')';
+      nWH := 'Where (L_OutFact>=''$S'' and L_OutFact <''$End'')';
 
       if nWhere <> '' then
-        Result := Result + ' And (' + nWhere + ')';
+        nWH := nWH + ' And (' + nWhere + ')';
       //xxxxx
     end else
     begin
-      Result := Result + ' Where (' + FJBWhere + ')';
+      nWH := ' Where (' + FJBWhere + ')';
     end;
 
+    Result := MacroValue(Result, [MI('$WH', nWH)]);
     Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
+              MI('$ST', sTable_InvSettle),
               MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx
   end;

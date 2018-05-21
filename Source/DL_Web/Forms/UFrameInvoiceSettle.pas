@@ -41,7 +41,6 @@ type
   public
     { Public declarations }
     procedure OnCreateFrame(const nIni: TIniFile); override;
-    procedure OnLoadGridConfig(const nIni: TIniFile); override;
     function InitFormDataSQL(const nWhere: string): string; override;
     //构建语句
   end;
@@ -56,20 +55,13 @@ uses
 
 procedure TfFrameInvoiceSettle.OnCreateFrame(const nIni: TIniFile);
 begin
+  FEntity := 'SW_ZHAZHANG';
   MenuItem1.Enabled := BtnEdit.Enabled;
+
   FNowYear := '';
   FNowWeek := '';
   FWeekName := '';
   LoadWeek;
-end;
-
-procedure TfFrameInvoiceSettle.OnLoadGridConfig(const nIni: TIniFile);
-begin
-  BuildDBGridColumn('SW_ZHAZHANG', DBGridMain, FilterColumnField());
-  //构建表头
-
-  UserDefineGrid(ClassName, DBGridMain, True, nIni);
-  //自定义表头配置
 end;
 
 function TfFrameInvoiceSettle.InitFormDataSQL(const nWhere: string): string;

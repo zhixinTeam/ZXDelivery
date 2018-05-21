@@ -20,7 +20,7 @@ uses
 //--------------------------------- report -------------------------------------
   UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
   UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal,
-  UFrameOrderDetail;
+  UFrameOrderDetail, UFrameQueryStockDays;
 
 implementation
 

@@ -1179,7 +1179,7 @@ const
        'R_Price $Float, R_Value $Float, ' +
        'R_PreHasK $Float Default 0, R_ReqValue $Float, R_KPrice $Float,' +
        'R_KValue $Float Default 0, R_KOther $Float Default 0,' +
-       'R_Man varChar(32), R_Date DateTime)';
+       'R_KMan varChar(32),R_KDate DateTime,R_Man varChar(32),R_Date DateTime)';
   {-----------------------------------------------------------------------------
    发票结算申请:InvoiceReq
    *.R_ID:记录编号
@@ -1198,6 +1198,7 @@ const
    *.R_KPrice:开票单价
    *.R_KValue:申请已完成量
    *.R_KOther:本周申请量之外已开
+   *.R_KMan,R_KDate: 结算人
    *.R_Man:申请人
    *.R_Date:申请时间
   -----------------------------------------------------------------------------}
