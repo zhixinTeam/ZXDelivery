@@ -42,7 +42,9 @@ uses
 
 function TfFormInvoiceWeek.SetParam(const nParam: TFormCommandParam): Boolean;
 begin
+  ActiveControl := EditName;
   Result := inherited SetParam(nParam);
+
   case nParam.FCommand of
    cCmd_AddData:
     begin

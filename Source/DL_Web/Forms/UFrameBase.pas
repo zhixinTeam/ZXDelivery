@@ -35,6 +35,7 @@ type
     procedure UniFrameDestroy(Sender: TObject);
     procedure BtnExitClick(Sender: TObject);
     procedure BtnRefreshClick(Sender: TObject);
+    procedure BtnExportClick(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -227,6 +228,37 @@ procedure TfFrameBase.BtnRefreshClick(Sender: TObject);
 begin
   FWhere := '';
   InitFormData(FWhere);
+end;
+
+//Desc: 导出
+procedure TfFrameBase.BtnExportClick(Sender: TObject);
+var nStr,nFile: string;
+begin
+  if (not ClientDS.Active) or (ClientDS.RecordCount < 1) then
+  begin
+    ShowMessage('没有需要导出的数据');
+    Exit;
+  end;
+
+  nStr := '是否要导出当前表格内的数据?';
+  MessageDlg(nStr, mtConfirmation, mbYesNo,
+    procedure(Sender: TComponent; Res: Integer)
+    begin
+      if Res <> mrYes then Exit;
+      nFile := gPath + 'files\' + UserFlagByID + '.xls';
+
+      if FileExists(nFile) then
+        DeleteFile(nFile);
+      //xxxxx
+
+      nStr := GridExportExcel(DBGridMain, nFile);
+      if nStr = '' then
+      begin
+        UniSession.SendFile(nFile);
+        //send file
+      end else ShowMessage(nStr);
+    end);
+  //xxxxx
 end;
 
 end.

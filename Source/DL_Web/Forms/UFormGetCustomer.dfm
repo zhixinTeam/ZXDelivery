@@ -3,27 +3,27 @@ inherited fFormGetCustomer: TfFormGetCustomer
   ClientWidth = 558
   Caption = #26597#25214#23458#25143
   BorderStyle = bsSizeable
-  ExplicitWidth = 574
-  ExplicitHeight = 375
+  ExplicitWidth = 566
+  ExplicitHeight = 363
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 392
     Top = 302
-    ExplicitLeft = 259
-    ExplicitTop = 403
+    ExplicitLeft = 392
+    ExplicitTop = 302
   end
   inherited BtnExit: TUniButton
     Left = 475
     Top = 302
-    ExplicitLeft = 342
-    ExplicitTop = 403
+    ExplicitLeft = 475
+    ExplicitTop = 302
   end
   inherited PanelWork: TUniSimplePanel
     Width = 542
     Height = 286
-    ExplicitWidth = 409
-    ExplicitHeight = 387
+    ExplicitWidth = 542
+    ExplicitHeight = 286
     object DBGrid1: TUniDBGrid
       Left = 0
       Top = 45
@@ -79,7 +79,6 @@ inherited fFormGetCustomer: TfFormGetCustomer
       Align = alTop
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
-      ExplicitWidth = 409
       object Label2: TUniLabel
         Left = 8
         Top = 20
@@ -104,6 +103,7 @@ inherited fFormGetCustomer: TfFormGetCustomer
         Font.Height = -12
         Font.Name = #23435#20307
         TabOrder = 2
+        OnKeyPress = EditCustomerKeyPress
       end
       object Btn1: TUniButton
         Tag = 20

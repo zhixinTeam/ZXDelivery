@@ -89,6 +89,7 @@ begin
     Options := [goVertLine,goHorzLine,goEditing,goAlwaysShowEditor,goFixedColClick];
   end;
 
+  ActiveControl := EditName;
   InitFormData('');
 end;
 

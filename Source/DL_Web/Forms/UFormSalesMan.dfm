@@ -1,32 +1,35 @@
 inherited fFormSalesMan: TfFormSalesMan
-  ClientHeight = 359
-  ClientWidth = 368
+  ClientHeight = 351
+  ClientWidth = 327
   Caption = #19994#21153#21592
-  ExplicitWidth = 374
-  ExplicitHeight = 388
+  ExplicitWidth = 333
+  ExplicitHeight = 376
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
-    Left = 204
-    Top = 323
-    ExplicitLeft = 204
-    ExplicitTop = 323
+    Left = 163
+    Top = 315
+    TabOrder = 1
+    ExplicitLeft = 163
+    ExplicitTop = 315
   end
   inherited BtnExit: TUniButton
-    Left = 285
-    Top = 325
-    ExplicitLeft = 285
-    ExplicitTop = 325
+    Left = 244
+    Top = 315
+    TabOrder = 2
+    ExplicitLeft = 244
+    ExplicitTop = 315
   end
   inherited PanelWork: TUniSimplePanel
-    Width = 352
-    Height = 309
-    ExplicitWidth = 352
-    ExplicitHeight = 309
+    Width = 311
+    Height = 301
+    TabOrder = 0
+    ExplicitWidth = 311
+    ExplicitHeight = 301
     object EditName: TUniEdit
       Left = 70
       Top = 15
-      Width = 268
+      Width = 228
       Hint = ''
       MaxLength = 30
       Text = ''
@@ -61,12 +64,12 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 3
+      TabOrder = 6
     end
     object EditArea: TUniEdit
       Left = 70
       Top = 90
-      Width = 268
+      Width = 228
       Hint = ''
       MaxLength = 50
       Text = ''
@@ -75,20 +78,20 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Height = -12
       Font.Name = #23435#20307
       Anchors = [akLeft, akTop, akRight]
-      TabOrder = 4
+      TabOrder = 5
     end
     object EditMemo: TUniMemo
       Left = 8
       Top = 142
-      Width = 330
-      Height = 129
+      Width = 290
+      Height = 127
       Hint = ''
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      Anchors = [akLeft, akTop, akRight]
-      TabOrder = 5
+      Anchors = [akLeft, akTop, akRight, akBottom]
+      TabOrder = 8
     end
     object UniLabel13: TUniLabel
       Left = 8
@@ -101,7 +104,7 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 6
+      TabOrder = 7
     end
     object UniLabel6: TUniLabel
       Left = 8
@@ -114,12 +117,12 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 7
+      TabOrder = 4
     end
     object EditPhone: TUniEdit
       Left = 70
       Top = 52
-      Width = 268
+      Width = 228
       Hint = ''
       MaxLength = 20
       Text = ''
@@ -128,17 +131,17 @@ inherited fFormSalesMan: TfFormSalesMan
       Font.Height = -12
       Font.Name = #23435#20307
       Anchors = [akLeft, akTop, akRight]
-      TabOrder = 8
+      TabOrder = 3
     end
-  end
-  object Check1: TUniCheckBox
-    Left = 8
-    Top = 327
-    Width = 195
-    Height = 17
-    Hint = ''
-    Caption = #26080#25928#20154#21592': '#27491#24120#26597#35810#26102#19981#20104#26174#31034'.'
-    Anchors = [akLeft, akBottom]
-    TabOrder = 3
+    object Check1: TUniCheckBox
+      Left = 8
+      Top = 277
+      Width = 195
+      Height = 17
+      Hint = ''
+      Caption = #26080#25928#20154#21592': '#27491#24120#26597#35810#26102#19981#20104#26174#31034'.'
+      Anchors = [akLeft, akBottom]
+      TabOrder = 9
+    end
   end
 end

@@ -113,8 +113,9 @@ var nIdx: Integer;
     nList: TStrings;
     nMin,nMax,nVal: Double;
 begin
-  nList := nil;
   Result := True;
+  nList := nil;
+  ActiveControl := EditNew;
 
   with TStringHelper do
   try

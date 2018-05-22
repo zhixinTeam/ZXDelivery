@@ -89,7 +89,9 @@ end;
 
 function TfFormSaleContract.SetParam(const nParam: TFormCommandParam): Boolean;
 begin
+  ActiveControl := EditID;
   Result := inherited SetParam(nParam);
+
   case nParam.FCommand of
    cCmd_AddData:
     begin

@@ -10,13 +10,14 @@ interface
 uses
   Windows, Classes, ComCtrls, Controls, Messages, Forms, SysUtils, IniFiles,
   Data.DB, Data.Win.ADODB, Datasnap.Provider, Datasnap.DBClient,
-  System.SyncObjs, Vcl.Grids,
+  System.SyncObjs, Vcl.Grids, Vcl.DBGrids, Vcl.Graphics,
   //----------------------------------------------------------------------------
   uniGUIAbstractClasses, uniGUITypes, uniGUIClasses, uniGUIBaseClasses,
   uniGUISessionManager, uniGUIApplication, uniTreeView, uniGUIForm,
   uniDBGrid, uniStringGrid, uniComboBox,
   //----------------------------------------------------------------------------
-  UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun, USysRemote;
+  UBaseObject, UManagerGroup, ULibFun, USysDB, USysConst, USysFun, USysRemote,
+  DBGrid2Excel;
 
 procedure GlobalSyncLock;
 procedure GlobalSyncRelease;
@@ -44,6 +45,7 @@ function AdjustHintToRead(const nHint: string): string;
 function SystemGetForm(const nClass: string;
   const nException: Boolean = False): TUniForm;
 //根据类名称获取窗体对像
+function UserFlagByID: string;
 function UserConfigFile: TIniFile;
 //用户自定义配置文件
 function WriteSysLog(const nGroup,nItem,nEvent: string;
@@ -123,6 +125,8 @@ procedure LoadGridColumn(const nWidths: string; const nGrid: TUniStringGrid);
 //载入列表表头宽度
 function MakeGridColumnInfo(const nGrid: TUniStringGrid): string;
 //组合列表表头宽度信息
+function GridExportExcel(const nGrid: TUniDBGrid; const nFile: string): string;
+//将nGrid的数据导出到nFile文件中
 
 function IsWeekValid(const nWeek: string; var nHint: string;
   var nBegin,nEnd: TDateTime; const nQuery: TADOQuery): Boolean;
@@ -201,6 +205,20 @@ begin
         //nothing
       end);
     //data provider
+
+    NewClass(TDBGrid2Excel,
+      function(var nData: Pointer):TObject
+      begin
+        Result := TDBGrid2Excel.Create(nil);
+      end);
+    //data exporter
+
+    NewClass(TDBGrid,
+      function(var nData: Pointer):TObject
+      begin
+        Result := TDBGrid.Create(nil);
+      end);
+    //data grid
   end;
 end;
 
@@ -540,27 +558,35 @@ begin
   //xxxxx
 end;
 
+//Date: 2018-05-22
+//Desc: 生成用户标识
+function UserFlagByID: string;
+var nStr: string;
+    nIdx: Integer;
+begin
+  with TEncodeHelper,UniMainModule do
+    nStr := EncodeBase64(FUserConfig.FUserID);
+  Result := '';
+
+  for nIdx := 1 to Length(nStr) do
+   if CharInSet(nStr[nIdx], ['a'..'z', 'A'..'Z','0'..'9']) then
+    Result := Result + nStr[nIdx];
+  //number & charactor
+end;
+
 //Date: 2018-04-26
 //Desc: 用户自定义配置
 function UserConfigFile: TIniFile;
-var nStr,nFile: string;
-    nIdx: Integer;
+var nStr: string;
 begin
   nStr := gPath + 'users\';
   if not DirectoryExists(nStr) then
     ForceDirectories(nStr);
   //new folder
 
-  with TEncodeHelper,UniMainModule do
-    nFile := EncodeBase64(FUserConfig.FUserID);
-  //encode
+  nStr := nStr + UserFlagByID + '.ini';
+  Result := TIniFile.Create(nStr);
 
-  for nIdx := 1 to Length(nFile) do
-   if CharInSet(nFile[nIdx], ['a'..'z', 'A'..'Z','0'..'9']) then
-    nStr := nStr + nFile[nIdx];
-  //number & charactor
-
-  Result := TIniFile.Create(nStr + '.ini');
   if not FileExists(nStr) then
   begin
     Result.WriteString('Config', 'User', UniMainModule.FUserConfig.FUserID);
@@ -1903,6 +1929,74 @@ begin
   if i = nCount then
        Result := Result + IntToStr(nGrid.Columns[i].Width)
   else Result := Result + IntToStr(nGrid.Columns[i].Width) + ';';
+end;
+
+//Date: 2018-05-22
+//Parm: 表格;文件名
+//Desc: 将nGrid的数据导出至nFile文件
+function GridExportExcel(const nGrid: TUniDBGrid; const nFile: string): string;
+var nIdx: Integer;
+    nGrd: TDBGrid;
+    nExcel: TDBGrid2Excel;
+begin
+  Result := '';
+  nGrd := nil;
+  nExcel := nil;
+  try
+    try
+      nGrd := gMG.FObjectPool.Lock(TDBGrid) as TDBGrid;
+      //get grid
+
+      with nGrd do
+      begin
+        Columns.Clear;
+        TitleFont.Charset := GB2312_CHARSET;
+        TitleFont.Name := '宋体';
+        TitleFont.Size := 11;
+      end;
+
+      for nIdx := 0 to nGrid.Columns.Count - 1 do
+      begin
+        if not nGrid.Columns[nIdx].Visible then Continue;
+        //no visible,no export
+
+        with nGrd.Columns.Add do
+        begin
+          Title.Caption := nGrid.Columns[nIdx].Title.Caption;
+          FieldName := nGrid.Columns[nIdx].FieldName;
+          Width := nGrid.Columns[nIdx].Width;
+          Color := clWhite;
+
+          Font.Charset := GB2312_CHARSET;
+          Font.Name := '宋体';
+          Font.Size := 9;
+          //Font.Color := clWhite;
+        end;
+      end;
+
+      nGrd.DataSource := nGrid.DataSource;
+      nExcel := gMG.FObjectPool.Lock(TDBGrid2Excel) as TDBGrid2Excel;
+      //get exporter
+
+      with nExcel do
+      begin
+        DBGrid := nGrd;
+        SaveDBGridAs(nFile);
+      end;
+
+      nExcel.DBGrid := nil;
+      nGrd.DataSource := nil;
+      nGrd.Columns.Clear;
+    except
+      on nErr: Exception do
+      begin
+        Result := '数据导出错误: ' + nErr.Message;
+      end;
+    end;
+  finally
+    gMG.FObjectPool.Release(nGrd);
+    gMG.FObjectPool.Release(nExcel);
+  end;
 end;
 
 //------------------------------------------------------------------------------

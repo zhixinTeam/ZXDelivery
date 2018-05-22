@@ -3,24 +3,27 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
   ClientWidth = 463
   Caption = #20449#29992#21464#21160
   ExplicitWidth = 469
-  ExplicitHeight = 286
+  ExplicitHeight = 282
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 297
     Top = 223
+    TabOrder = 1
     ExplicitLeft = 297
     ExplicitTop = 223
   end
   inherited BtnExit: TUniButton
     Left = 380
     Top = 223
+    TabOrder = 2
     ExplicitLeft = 380
     ExplicitTop = 223
   end
   inherited PanelWork: TUniSimplePanel
     Width = 447
     Height = 207
+    TabOrder = 0
     ExplicitWidth = 447
     ExplicitHeight = 207
     object Label1: TUniLabel
@@ -34,7 +37,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 1
+      TabOrder = 4
     end
     object Label2: TUniLabel
       Left = 8
@@ -61,7 +64,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 3
+      TabOrder = 1
       OnChange = EditSaleManChange
     end
     object EditCus: TUniComboBox
@@ -77,7 +80,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 4
+      TabOrder = 3
     end
     object Label3: TUniLabel
       Left = 8
@@ -90,7 +93,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 5
+      TabOrder = 6
     end
     object EditCredit: TUniEdit
       Left = 68
@@ -98,7 +101,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Width = 200
       Hint = ''
       Text = '0'
-      TabOrder = 6
+      TabOrder = 5
     end
     object Label4: TUniLabel
       Left = 280
@@ -124,7 +127,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 8
+      TabOrder = 9
     end
     object EditEnd: TUniDateTimePicker
       Left = 68
@@ -135,7 +138,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       DateFormat = 'yyyy-MM-dd'
       TimeFormat = 'HH:mm:ss'
       Kind = tUniDateTime
-      TabOrder = 9
+      TabOrder = 8
     end
     object Label6: TUniLabel
       Left = 280
@@ -161,7 +164,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 11
+      TabOrder = 12
     end
     object EditMemo: TUniEdit
       Left = 68
@@ -170,7 +173,7 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Hint = ''
       Text = ''
       Anchors = [akLeft, akTop, akRight]
-      TabOrder = 12
+      TabOrder = 11
     end
   end
 end

@@ -3,29 +3,29 @@ inherited fFormZhiKa: TfFormZhiKa
   ClientWidth = 578
   Caption = #32440#21345
   ExplicitWidth = 584
-  ExplicitHeight = 638
+  ExplicitHeight = 634
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 414
-    Top = 573
+    Top = 575
     TabOrder = 1
-    ExplicitLeft = 363
-    ExplicitTop = 535
+    ExplicitLeft = 414
+    ExplicitTop = 575
   end
   inherited BtnExit: TUniButton
     Left = 495
     Top = 575
     TabOrder = 2
-    ExplicitLeft = 444
-    ExplicitTop = 537
+    ExplicitLeft = 495
+    ExplicitTop = 575
   end
   inherited PanelWork: TUniSimplePanel
     Width = 562
     Height = 559
     TabOrder = 0
-    ExplicitWidth = 511
-    ExplicitHeight = 521
+    ExplicitWidth = 562
+    ExplicitHeight = 559
     object EditName: TUniEdit
       Left = 68
       Top = 15
@@ -311,7 +311,7 @@ inherited fFormZhiKa: TfFormZhiKa
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 23
+      TabOrder = 21
     end
     object BtnAdd: TUniBitBtn
       Left = 505
@@ -324,7 +324,7 @@ inherited fFormZhiKa: TfFormZhiKa
       ParentShowHint = False
       Caption = '+'
       Anchors = [akTop, akRight]
-      TabOrder = 21
+      TabOrder = 22
     end
     object BtnDel: TUniBitBtn
       Left = 528
@@ -337,7 +337,7 @@ inherited fFormZhiKa: TfFormZhiKa
       ParentShowHint = False
       Caption = '-'
       Anchors = [akLeft, akTop, akRight]
-      TabOrder = 22
+      TabOrder = 23
     end
     object BtnGetContract: TUniBitBtn
       Left = 528

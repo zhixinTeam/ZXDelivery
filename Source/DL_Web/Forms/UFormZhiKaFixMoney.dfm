@@ -3,7 +3,7 @@ inherited fFormZhiKaFixMoney: TfFormZhiKaFixMoney
   ClientWidth = 410
   Caption = #32440#21345#38480#25552
   ExplicitWidth = 416
-  ExplicitHeight = 436
+  ExplicitHeight = 432
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
@@ -52,11 +52,12 @@ inherited fFormZhiKaFixMoney: TfFormZhiKaFixMoney
     object Panel1: TUniSimplePanel
       Left = 8
       Top = 82
-      Width = 407
+      Width = 375
       Height = 1
       Hint = ''
       ParentColor = False
       Border = True
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 3
     end
     object Label3: TUniLabel
@@ -132,11 +133,12 @@ inherited fFormZhiKaFixMoney: TfFormZhiKaFixMoney
     object Panel2: TUniSimplePanel
       Left = 8
       Top = 165
-      Width = 407
+      Width = 375
       Height = 1
       Hint = ''
       ParentColor = False
       Border = True
+      Anchors = [akLeft, akTop, akRight]
       TabOrder = 10
     end
     object EditZK: TUniEdit
@@ -225,7 +227,7 @@ inherited fFormZhiKaFixMoney: TfFormZhiKaFixMoney
     end
     object Label9: TUniLabel
       Left = 182
-      Top = 135
+      Top = 137
       Width = 12
       Height = 12
       Hint = ''

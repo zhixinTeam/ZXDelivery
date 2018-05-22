@@ -3,24 +3,27 @@ inherited fFormCutomer: TfFormCutomer
   ClientWidth = 480
   Caption = #23458#25143
   ExplicitWidth = 486
-  ExplicitHeight = 544
+  ExplicitHeight = 540
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 316
-    Top = 479
+    Top = 481
+    TabOrder = 1
     ExplicitLeft = 316
-    ExplicitTop = 479
+    ExplicitTop = 481
   end
   inherited BtnExit: TUniButton
     Left = 397
     Top = 481
+    TabOrder = 2
     ExplicitLeft = 397
     ExplicitTop = 481
   end
   inherited PanelWork: TUniSimplePanel
     Width = 464
     Height = 465
+    TabOrder = 0
     ExplicitWidth = 464
     ExplicitHeight = 465
     object EditName: TUniEdit
@@ -60,7 +63,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 3
+      TabOrder = 6
     end
     object EditFaRen: TUniEdit
       Left = 300
@@ -86,7 +89,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 5
+      TabOrder = 8
     end
     object EditAddr: TUniEdit
       Left = 70
@@ -99,7 +102,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 6
+      TabOrder = 7
     end
     object UniLabel4: TUniLabel
       Left = 8
@@ -112,7 +115,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 7
+      TabOrder = 11
     end
     object EditLiXiRen: TUniEdit
       Left = 70
@@ -125,7 +128,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 8
+      TabOrder = 9
     end
     object EditSaleMan: TUniComboBox
       Left = 70
@@ -138,7 +141,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 9
+      TabOrder = 3
     end
     object UniLabel8: TUniLabel
       Left = 8
@@ -151,7 +154,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 10
+      TabOrder = 5
     end
     object UniLabel9: TUniLabel
       Left = 8
@@ -164,7 +167,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 11
+      TabOrder = 19
     end
     object EditBank: TUniComboBox
       Left = 70
@@ -177,7 +180,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 12
+      TabOrder = 17
     end
     object UniLabel10: TUniLabel
       Left = 237
@@ -190,7 +193,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 13
+      TabOrder = 20
     end
     object EditAccount: TUniEdit
       Left = 300
@@ -203,7 +206,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 14
+      TabOrder = 18
     end
     object UniLabel11: TUniLabel
       Left = 8
@@ -216,7 +219,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 15
+      TabOrder = 22
     end
     object EditCredit: TUniEdit
       Left = 70
@@ -228,7 +231,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 16
+      TabOrder = 21
       ReadOnly = True
     end
     object UniLabel12: TUniLabel
@@ -242,7 +245,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 17
+      TabOrder = 23
     end
     object EditMemo: TUniMemo
       Left = 8
@@ -254,7 +257,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 18
+      TabOrder = 25
     end
     object UniLabel13: TUniLabel
       Left = 8
@@ -267,7 +270,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 19
+      TabOrder = 24
     end
     object UniLabel14: TUniLabel
       Left = 8
@@ -280,7 +283,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 20
+      TabOrder = 15
     end
     object UniLabel6: TUniLabel
       Left = 237
@@ -293,7 +296,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 21
+      TabOrder = 12
     end
     object UniLabel5: TUniLabel
       Left = 237
@@ -306,7 +309,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 22
+      TabOrder = 16
     end
     object EditFax: TUniEdit
       Left = 70
@@ -319,7 +322,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 23
+      TabOrder = 13
     end
     object EditPhone: TUniEdit
       Left = 300
@@ -332,7 +335,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 24
+      TabOrder = 10
     end
     object EditTax: TUniEdit
       Left = 300
@@ -345,7 +348,7 @@ inherited fFormCutomer: TfFormCutomer
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 25
+      TabOrder = 14
     end
   end
 end

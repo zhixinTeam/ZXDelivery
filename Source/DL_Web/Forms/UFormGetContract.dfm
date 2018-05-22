@@ -97,6 +97,7 @@ inherited fFormGetContract: TfFormGetContract
         Font.Name = #23435#20307
         TabOrder = 2
         OnEnter = EditContractEnter
+        OnKeyPress = EditContractKeyPress
       end
       object Label2: TUniLabel
         Left = 8
@@ -123,6 +124,7 @@ inherited fFormGetContract: TfFormGetContract
         Font.Name = #23435#20307
         TabOrder = 4
         OnEnter = EditCustomerEnter
+        OnKeyPress = EditContractKeyPress
       end
       object Btn1: TUniButton
         Tag = 20

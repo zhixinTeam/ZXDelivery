@@ -108,6 +108,7 @@ object fFrameBase: TfFrameBase
         ImageIndex = 6
         Caption = #23548#20986
         TabOrder = 8
+        OnClick = BtnExportClick
       end
       object UniToolButton11: TUniToolButton
         Left = 625

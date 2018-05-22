@@ -3,26 +3,26 @@ inherited fFormZKPrice: TfFormZKPrice
   ClientWidth = 466
   Caption = #32440#21345#35843#20215
   ExplicitWidth = 472
-  ExplicitHeight = 273
+  ExplicitHeight = 269
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 300
     Top = 210
-    ExplicitLeft = 132
-    ExplicitTop = 102
+    ExplicitLeft = 300
+    ExplicitTop = 210
   end
   inherited BtnExit: TUniButton
     Left = 383
     Top = 210
-    ExplicitLeft = 215
-    ExplicitTop = 102
+    ExplicitLeft = 383
+    ExplicitTop = 210
   end
   inherited PanelWork: TUniSimplePanel
     Width = 450
     Height = 194
-    ExplicitWidth = 282
-    ExplicitHeight = 86
+    ExplicitWidth = 450
+    ExplicitHeight = 194
     object Label1: TUniLabel
       Left = 8
       Top = 20
@@ -49,7 +49,6 @@ inherited fFormZKPrice: TfFormZKPrice
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 2
       ReadOnly = True
-      ExplicitWidth = 405
     end
     object Label2: TUniLabel
       Left = 8
@@ -77,7 +76,6 @@ inherited fFormZKPrice: TfFormZKPrice
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 4
       ReadOnly = True
-      ExplicitWidth = 405
     end
     object Label3: TUniLabel
       Left = 8
@@ -104,7 +102,6 @@ inherited fFormZKPrice: TfFormZKPrice
       Font.Name = #23435#20307
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 6
-      ExplicitWidth = 405
     end
     object Check1: TUniCheckBox
       Left = 8

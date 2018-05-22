@@ -3,25 +3,27 @@ inherited fFormZKFreeze: TfFormZKFreeze
   ClientWidth = 450
   Caption = #25353#21697#31181#20923#32467
   ExplicitWidth = 456
-  ExplicitHeight = 495
+  ExplicitHeight = 491
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 284
     Top = 432
-    OnClick = BtnOKClick
+    TabOrder = 1
     ExplicitLeft = 284
     ExplicitTop = 432
   end
   inherited BtnExit: TUniButton
     Left = 367
     Top = 432
+    TabOrder = 2
     ExplicitLeft = 367
     ExplicitTop = 432
   end
   inherited PanelWork: TUniSimplePanel
     Width = 434
     Height = 416
+    TabOrder = 0
     ExplicitWidth = 434
     ExplicitHeight = 416
     object Panel1: TUniSimplePanel
@@ -33,7 +35,7 @@ inherited fFormZKFreeze: TfFormZKFreeze
       ParentColor = False
       Align = alBottom
       Anchors = [akLeft, akRight, akBottom]
-      TabOrder = 1
+      TabOrder = 2
       object Check1: TUniCheckBox
         Tag = 10
         Left = 12
@@ -120,7 +122,7 @@ inherited fFormZKFreeze: TfFormZKFreeze
       OnSelectCell = Grid1SelectCell
       Align = alClient
       Anchors = [akLeft, akTop, akRight, akBottom]
-      TabOrder = 2
+      TabOrder = 0
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12

@@ -55,7 +55,7 @@ begin
   else FEnd := EncodeDate(nY+1, 1, 1) - 1;
 
   nY := nIni.ReadInteger(ClassName, 'ChartHeight', 0);
-  if nY < 300 then nY := 300;
+  if nY < 100 then nY := 100;
   Chart1.Height := nY;
 end;
 

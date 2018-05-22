@@ -3,24 +3,27 @@ inherited fFormPayment: TfFormPayment
   ClientWidth = 410
   Caption = #36130#21153#22238#27454
   ExplicitWidth = 416
-  ExplicitHeight = 436
+  ExplicitHeight = 432
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 244
     Top = 373
+    TabOrder = 1
     ExplicitLeft = 244
     ExplicitTop = 373
   end
   inherited BtnExit: TUniButton
     Left = 327
     Top = 373
+    TabOrder = 2
     ExplicitLeft = 327
     ExplicitTop = 373
   end
   inherited PanelWork: TUniSimplePanel
     Width = 394
     Height = 357
+    TabOrder = 0
     ExplicitWidth = 394
     ExplicitHeight = 357
     object Label2: TUniLabel
@@ -34,7 +37,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 1
+      TabOrder = 2
     end
     object Label1: TUniLabel
       Left = 8
@@ -47,7 +50,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 2
+      TabOrder = 4
     end
     object EditSaleMan: TUniComboBox
       Left = 68
@@ -61,7 +64,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 3
+      TabOrder = 1
       OnChange = EditSaleManChange
     end
     object EditCus: TUniComboBox
@@ -78,7 +81,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 4
+      TabOrder = 3
       OnKeyPress = EditCusKeyPress
       OnChange = EditCusChange
     end
@@ -103,7 +106,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 6
+      TabOrder = 8
     end
     object EditIn: TUniEdit
       Left = 68
@@ -111,7 +114,7 @@ inherited fFormPayment: TfFormPayment
       Width = 110
       Hint = ''
       Text = '0'
-      TabOrder = 7
+      TabOrder = 6
       ReadOnly = True
     end
     object EditOut: TUniEdit
@@ -120,7 +123,7 @@ inherited fFormPayment: TfFormPayment
       Width = 100
       Hint = ''
       Text = '0'
-      TabOrder = 8
+      TabOrder = 7
       ReadOnly = True
     end
     object Label4: TUniLabel
@@ -134,7 +137,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 9
+      TabOrder = 10
     end
     object Label5: TUniLabel
       Left = 182
@@ -147,7 +150,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 10
+      TabOrder = 9
     end
     object Label6: TUniLabel
       Left = 370
@@ -183,7 +186,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 13
+      TabOrder = 15
     end
     object EditType: TUniComboBox
       Left = 68
@@ -197,7 +200,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 14
+      TabOrder = 13
     end
     object Label8: TUniLabel
       Left = 205
@@ -210,7 +213,7 @@ inherited fFormPayment: TfFormPayment
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 15
+      TabOrder = 16
     end
     object EditMoney: TUniEdit
       Left = 265
@@ -218,7 +221,7 @@ inherited fFormPayment: TfFormPayment
       Width = 100
       Hint = ''
       Text = '0'
-      TabOrder = 16
+      TabOrder = 14
     end
     object Label9: TUniLabel
       Left = 370

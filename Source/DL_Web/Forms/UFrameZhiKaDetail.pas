@@ -79,6 +79,7 @@ type
     { Public declarations }
     procedure OnCreateFrame(const nIni: TIniFile); override;
     procedure OnDestroyFrame(const nIni: TIniFile); override;
+    procedure OnLoadGridConfig(const nIni: TIniFile); override;
     procedure AfterInitFormData; override;
     function InitFormDataSQL(const nWhere: string): string; override;
     //构建语句
@@ -98,13 +99,6 @@ begin
   FDateFilte := True;
   FValidFilte := True;
 
-  with DBGridMain do
-  begin
-    if UniMainModule.FGridColumnAdjust then
-         Options := Options + [dgMultiSelect]
-    else Options := Options + [dgMultiSelect, dgCheckSelect];
-  end;
-
   MenuItem2.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
   MenuItem3.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
   MenuItem4.Enabled := HasPopedom2(sPopedom_Edit, FPopedom);
@@ -121,6 +115,17 @@ procedure TfFrameZhiKaDetail.OnDestroyFrame(const nIni: TIniFile);
 begin
   SaveDateRange(ClassName, FStart, FEnd);
   inherited;
+end;
+
+procedure TfFrameZhiKaDetail.OnLoadGridConfig(const nIni: TIniFile);
+begin
+  inherited;
+  with DBGridMain do
+  begin
+    if UniMainModule.FGridColumnAdjust then
+         Options := Options + [dgMultiSelect]
+    else Options := Options + [dgMultiSelect, dgCheckSelect];
+  end;
 end;
 
 //Desc: 日期选择窗返回结果

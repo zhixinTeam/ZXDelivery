@@ -50,7 +50,9 @@ uses
 
 function TfFormInvoiceFLSet.SetParam(const nParam: TFormCommandParam): Boolean;
 begin
+  ActiveControl := EditFLNew;
   Result := inherited SetParam(nParam);
+
   case nParam.FCommand of
    cCmd_AddData:
     begin
@@ -98,7 +100,7 @@ begin
       EditPrice.Text := Format('%.2f ิช/ถึ', [FPrice]);
       FFLPrice := FieldByName('R_KPrice').AsFloat;
       EditFL.Text := Format('%.2f ิช/ถึ', [FFLPrice]);
-      EditFLNew.Text := Format('%.2f', [FFLPrice]);
+      //EditFLNew.Text := Format('%.2f', [FFLPrice]);
     end;
   finally
     ReleaseDBQuery(nQuery);

@@ -82,6 +82,7 @@ function TfFormCustomerCredit.SetParam(const nParam: TFormCommandParam): Boolean
 var nStr: string;
     nQuery: TADOQuery;
 begin
+  ActiveControl := EditCredit;
   Result := inherited SetParam(nParam);
   EditEnd.DateTime := Date() + 1;
 

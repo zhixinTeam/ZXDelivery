@@ -27,6 +27,7 @@ type
     procedure EditCustomerEnter(Sender: TObject);
     procedure Btn1Click(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
+    procedure EditContractKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
   public
@@ -77,6 +78,7 @@ var nIni: TIniFile;
 begin
   nIni := nil;
   try
+    ActiveControl := EditCustomer;
     nIni := UserConfigFile();
     LoadFormConfig(Self, nIni);
 
@@ -104,6 +106,16 @@ procedure TfFormGetContract.EditContractEnter(Sender: TObject);
 begin
   Btn1.Top := EditContract.Top;
   Btn1.Tag := 10;
+end;
+
+procedure TfFormGetContract.EditContractKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+    Btn1.Click;
+  end;
 end;
 
 procedure TfFormGetContract.EditCustomerEnter(Sender: TObject);

@@ -63,6 +63,10 @@ begin
 
   with nForm as TfFormPayment do
   begin
+    if nCusID = '' then
+         ActiveControl := EditCus
+    else ActiveControl := EditMoney;
+
     LoadSaleMan(EditSaleMan.Items);
     LoadSysDictItem(sFlag_PaymentItem, EditType.Items);
 

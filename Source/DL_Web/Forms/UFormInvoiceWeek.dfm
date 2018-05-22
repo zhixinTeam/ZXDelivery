@@ -3,26 +3,26 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
   ClientWidth = 387
   Caption = #32467#31639#21608#26399
   ExplicitWidth = 393
-  ExplicitHeight = 273
+  ExplicitHeight = 269
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 221
     Top = 210
-    ExplicitLeft = 132
-    ExplicitTop = 102
+    ExplicitLeft = 221
+    ExplicitTop = 210
   end
   inherited BtnExit: TUniButton
     Left = 304
     Top = 210
-    ExplicitLeft = 215
-    ExplicitTop = 102
+    ExplicitLeft = 304
+    ExplicitTop = 210
   end
   inherited PanelWork: TUniSimplePanel
     Width = 371
     Height = 194
-    ExplicitWidth = 282
-    ExplicitHeight = 86
+    ExplicitWidth = 371
+    ExplicitHeight = 194
     object EditStart: TUniDateTimePicker
       Left = 68
       Top = 50
@@ -37,7 +37,6 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      ExplicitWidth = 256
     end
     object Label1: TUniLabel
       Left = 7
@@ -71,7 +70,6 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      ExplicitWidth = 256
     end
     object UniLabel1: TUniLabel
       Left = 7
@@ -95,7 +93,6 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       Font.Name = #23435#20307
       Anchors = [akLeft, akTop, akRight]
       TabOrder = 6
-      ExplicitWidth = 256
     end
     object UniLabel2: TUniLabel
       Left = 7
@@ -114,8 +111,6 @@ inherited fFormInvoiceWeek: TfFormInvoiceWeek
       Hint = ''
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 8
-      ExplicitWidth = 226
-      ExplicitHeight = 65
     end
   end
 end

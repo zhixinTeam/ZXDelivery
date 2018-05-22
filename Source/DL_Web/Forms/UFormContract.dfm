@@ -3,15 +3,15 @@ inherited fFormSaleContract: TfFormSaleContract
   ClientWidth = 544
   Caption = #21512#21516
   ExplicitWidth = 550
-  ExplicitHeight = 630
+  ExplicitHeight = 626
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 380
-    Top = 565
+    Top = 567
     TabOrder = 1
     ExplicitLeft = 380
-    ExplicitTop = 565
+    ExplicitTop = 567
   end
   inherited BtnExit: TUniButton
     Left = 461
@@ -50,7 +50,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 3
+      TabOrder = 4
     end
     object UniLabel2: TUniLabel
       Left = 235
@@ -63,7 +63,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 4
+      TabOrder = 5
     end
     object EditName: TUniEdit
       Left = 296
@@ -76,7 +76,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 2
+      TabOrder = 3
     end
     object UniLabel3: TUniLabel
       Left = 8
@@ -89,7 +89,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 15
+      TabOrder = 16
     end
     object EditArea: TUniEdit
       Left = 68
@@ -102,7 +102,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 13
+      TabOrder = 15
     end
     object UniLabel4: TUniLabel
       Left = 235
@@ -115,7 +115,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 20
+      TabOrder = 21
     end
     object EditApproval: TUniEdit
       Left = 296
@@ -140,7 +140,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 5
+      TabOrder = 6
       OnChange = EditSaleManChange
     end
     object UniLabel8: TUniLabel
@@ -154,7 +154,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 7
+      TabOrder = 8
     end
     object UniLabel9: TUniLabel
       Left = 235
@@ -167,7 +167,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 8
+      TabOrder = 9
     end
     object EditCus: TUniComboBox
       Left = 296
@@ -182,7 +182,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 6
+      TabOrder = 7
       OnKeyPress = EditCusKeyPress
     end
     object UniLabel10: TUniLabel
@@ -196,7 +196,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 12
+      TabOrder = 13
     end
     object EditQAddr: TUniEdit
       Left = 296
@@ -222,7 +222,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 11
+      TabOrder = 12
     end
     object UniLabel14: TUniLabel
       Left = 8
@@ -235,7 +235,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 19
+      TabOrder = 20
     end
     object UniLabel6: TUniLabel
       Left = 8
@@ -248,7 +248,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 22
+      TabOrder = 23
     end
     object UniLabel5: TUniLabel
       Left = 235
@@ -261,7 +261,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 16
+      TabOrder = 17
     end
     object EditDays: TUniEdit
       Left = 68
@@ -274,7 +274,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 21
+      TabOrder = 22
     end
     object EditJAddr: TUniEdit
       Left = 296
@@ -297,7 +297,7 @@ inherited fFormSaleContract: TfFormSaleContract
       DateTime = 43224.000000000000000000
       DateFormat = 'yyyy-MM-dd'
       TimeFormat = 'HH:mm:ss'
-      TabOrder = 9
+      TabOrder = 11
     end
     object Label1: TUniLabel
       Left = 235
@@ -310,7 +310,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 23
+      TabOrder = 24
     end
     object Label2: TUniLabel
       Left = 8
@@ -323,7 +323,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 24
+      TabOrder = 26
     end
     object EditPayment: TUniComboBox
       Left = 68
@@ -336,7 +336,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 17
+      TabOrder = 19
     end
     object Grid1: TUniStringGrid
       Left = 8
@@ -375,7 +375,7 @@ inherited fFormSaleContract: TfFormSaleContract
           Width = 0
         end>
       Anchors = [akLeft, akTop, akRight, akBottom]
-      TabOrder = 28
+      TabOrder = 30
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -392,7 +392,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 27
+      TabOrder = 29
     end
     object BtnAdd: TUniBitBtn
       Left = 425
@@ -404,7 +404,7 @@ inherited fFormSaleContract: TfFormSaleContract
       ShowHint = True
       ParentShowHint = False
       Caption = '+'
-      TabOrder = 25
+      TabOrder = 27
     end
     object BtnDel: TUniBitBtn
       Left = 471
@@ -416,7 +416,7 @@ inherited fFormSaleContract: TfFormSaleContract
       ShowHint = True
       ParentShowHint = False
       Caption = '-'
-      TabOrder = 26
+      TabOrder = 28
     end
     object EditMemo: TUniEdit
       Left = 68
@@ -429,7 +429,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 29
+      TabOrder = 25
     end
     object BtnMakeID: TUniBitBtn
       Left = 198
@@ -440,13 +440,13 @@ inherited fFormSaleContract: TfFormSaleContract
       ShowHint = True
       ParentShowHint = False
       Caption = '...'
-      TabOrder = 30
+      TabOrder = 2
       OnClick = BtnMakeIDClick
     end
   end
   object Check1: TUniCheckBox
     Left = 8
-    Top = 569
+    Top = 571
     Width = 300
     Height = 17
     Hint = ''

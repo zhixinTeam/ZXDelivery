@@ -68,6 +68,7 @@ begin
 
   with nForm as TfFormZhiKaFixMoney do
   begin
+    ActiveControl := EditMoney;
     BtnOK.Enabled := False;
     LoadZhiKaData(nZhiKa);
 

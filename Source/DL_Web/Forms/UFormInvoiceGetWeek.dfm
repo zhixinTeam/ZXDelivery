@@ -3,26 +3,28 @@ inherited fFormInvoiceGetWeek: TfFormInvoiceGetWeek
   ClientWidth = 344
   Caption = #21608#26399' - '#36873#25321
   ExplicitWidth = 350
-  ExplicitHeight = 169
+  ExplicitHeight = 165
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 180
     Top = 107
+    TabOrder = 2
     ExplicitLeft = 180
     ExplicitTop = 107
   end
   inherited BtnExit: TUniButton
     Left = 261
     Top = 106
-    ExplicitLeft = 342
-    ExplicitTop = 403
+    ExplicitLeft = 261
+    ExplicitTop = 106
   end
   inherited PanelWork: TUniSimplePanel
     Width = 328
     Height = 90
-    ExplicitWidth = 409
-    ExplicitHeight = 387
+    TabOrder = 0
+    ExplicitWidth = 328
+    ExplicitHeight = 90
     object EditYear: TUniComboBox
       Left = 76
       Top = 15
@@ -61,7 +63,7 @@ inherited fFormInvoiceGetWeek: TfFormInvoiceGetWeek
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 3
+      TabOrder = 4
     end
     object EditWeek: TUniComboBox
       Left = 76
@@ -77,7 +79,7 @@ inherited fFormInvoiceGetWeek: TfFormInvoiceGetWeek
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 4
+      TabOrder = 3
     end
   end
 end

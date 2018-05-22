@@ -23,6 +23,7 @@ type
     Btn1: TUniButton;
     procedure BtnOKClick(Sender: TObject);
     procedure Btn1Click(Sender: TObject);
+    procedure EditCustomerKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     procedure FindCustomer(const nCusName: string);
@@ -113,7 +114,8 @@ end;
 
 function TfFormGetCustomer.SetParam(const nParam: TFormCommandParam): Boolean;
 begin
-  Result := True;
+  ActiveControl := EditCustomer;
+  Result := inherited SetParam(nParam);
   FindCustomer(nParam.FParamA);
 end;
 
@@ -141,6 +143,16 @@ begin
     DBQuery(nStr, nQuery, ClientDS1);
   finally
     ReleaseDBQuery(nQuery);
+  end;
+end;
+
+procedure TfFormGetCustomer.EditCustomerKeyPress(Sender: TObject;
+  var Key: Char);
+begin
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+    Btn1.Click;
   end;
 end;
 

@@ -2,27 +2,29 @@ inherited fFormDateFilter: TfFormDateFilter
   ClientHeight = 150
   ClientWidth = 314
   Caption = #26085#26399#31579#36873
-  ExplicitHeight = 179
+  ExplicitHeight = 175
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
     Left = 148
     Top = 116
-    OnClick = BtnOKClick
-    ExplicitLeft = 132
-    ExplicitTop = 102
+    TabOrder = 1
+    ExplicitLeft = 148
+    ExplicitTop = 116
   end
   inherited BtnExit: TUniButton
     Left = 231
     Top = 116
-    ExplicitLeft = 215
-    ExplicitTop = 102
+    TabOrder = 2
+    ExplicitLeft = 231
+    ExplicitTop = 116
   end
   inherited PanelWork: TUniSimplePanel
     Width = 298
     Height = 100
+    TabOrder = 0
     ExplicitWidth = 298
-    ExplicitHeight = 112
+    ExplicitHeight = 100
     object EditStart: TUniDateTimePicker
       Left = 74
       Top = 20
@@ -53,7 +55,7 @@ inherited fFormDateFilter: TfFormDateFilter
       Height = 13
       Hint = ''
       Caption = #32467#26463#26085#26399':'
-      TabOrder = 3
+      TabOrder = 4
     end
     object EditEnd: TUniDateTimePicker
       Left = 74
@@ -63,7 +65,7 @@ inherited fFormDateFilter: TfFormDateFilter
       DateTime = 43224.000000000000000000
       DateFormat = 'yyyy-MM-dd'
       TimeFormat = 'HH:mm:ss'
-      TabOrder = 4
+      TabOrder = 3
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
