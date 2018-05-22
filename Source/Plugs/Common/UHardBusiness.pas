@@ -255,13 +255,15 @@ begin
   if nReader <> '' then
   while nIdx < 5 do
   begin
-    if gHardwareHelper.ConnHelper then
-         gHardwareHelper.OpenDoor(nReader)
-    {$IFDEF BlueCard}
-    else gHYReaderManager.OpenDoor(nReader);
-    {$ELSE}
-    else gHYReaderManager.OpenDoor(nReader);
-    {$ENDIF}
+    gHYReaderManager.OpenDoor(nReader);
+    gHardwareHelper.OpenDoor(nReader);
+//    if gHardwareHelper.ConnHelper then
+//         gHardwareHelper.OpenDoor(nReader)
+//    {$IFDEF BlueCard}
+//    else gHYReaderManager.OpenDoor(nReader);
+//    {$ELSE}
+//    else gHYReaderManager.OpenDoor(nReader);
+//    {$ENDIF}
 
     Inc(nIdx);
   end;
