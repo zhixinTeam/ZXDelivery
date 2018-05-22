@@ -8,27 +8,30 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, System.IniFiles,
-  Controls, Forms, uniGUITypes, UFrameBase, Vcl.Menus, uniMainMenu,
-  uniRadioButton, uniButton, uniBitBtn, uniEdit, uniLabel, Data.DB,
-  Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid, uniPanel,
-  uniToolBar, uniGUIBaseClasses;
+  UFrameBase, uniChart, uniPanel, uniSplitter, uniButton, uniBitBtn, uniEdit,
+  uniLabel, Data.DB, Datasnap.DBClient, uniGUIClasses, uniBasicGrid, uniDBGrid,
+  uniToolBar, Vcl.Controls, Vcl.Forms, uniGUIBaseClasses;
 
 type
   TfFrameQueryStockDays = class(TfFrameBase)
     Label3: TUniLabel;
     EditDate: TUniEdit;
     BtnDateFilter: TUniBitBtn;
+    Splitter1: TUniSplitter;
+    Chart1: TUniChart;
+    Series1: TUniLineSeries;
     procedure BtnDateFilterClick(Sender: TObject);
+    procedure DBGridMainDblClick(Sender: TObject);
   private
     { Private declarations }
     FStart,FEnd: TDate;
     //时间区间
     procedure OnDateFilter(const nStart,nEnd: TDate);
-    procedure OnDateTimeFilter(const nStart,nEnd: TDate);
     //日期筛选
   public
     { Public declarations }
     procedure OnCreateFrame(const nIni: TIniFile); override;
+    procedure OnDestroyFrame(const nIni: TIniFile); override;
     function InitFormDataSQL(const nWhere: string): string; override;
     //构建语句
   end;
@@ -50,13 +53,15 @@ begin
   if nM < 12 then
        FEnd := EncodeDate(nY, nM+1, 1) - 1
   else FEnd := EncodeDate(nY+1, 1, 1) - 1;
+
+  nY := nIni.ReadInteger(ClassName, 'ChartHeight', 0);
+  if nY < 300 then nY := 300;
+  Chart1.Height := nY;
 end;
 
-procedure TfFrameQueryStockDays.OnDateFilter(const nStart,nEnd: TDate);
+procedure TfFrameQueryStockDays.OnDestroyFrame(const nIni: TIniFile);
 begin
-  FStart := nStart;
-  FEnd := nEnd;
-  InitFormData(FWhere);
+  nIni.WriteInteger(ClassName, 'ChartHeight', Chart1.Height);
 end;
 
 function TfFrameQueryStockDays.InitFormDataSQL(const nWhere: string): string;
@@ -94,15 +99,38 @@ begin
   end;
 end;
 
-procedure TfFrameQueryStockDays.OnDateTimeFilter(const nStart,nEnd: TDate);
+procedure TfFrameQueryStockDays.OnDateFilter(const nStart,nEnd: TDate);
 begin
-
+  FStart := nStart;
+  FEnd := nEnd;
+  InitFormData(FWhere);
 end;
 
 //Desc: 日期筛选
 procedure TfFrameQueryStockDays.BtnDateFilterClick(Sender: TObject);
 begin
   ShowDateFilterForm(FStart, FEnd, OnDateFilter);
+end;
+
+//Desc: 双击绘制图标
+procedure TfFrameQueryStockDays.DBGridMainDblClick(Sender: TObject);
+var nStr: string;
+    nIdx: Integer;
+begin
+  if (not ClientDS.Active) or (ClientDS.RecordCount < 1) then Exit;
+  //no data
+
+  with Chart1 do
+  begin
+    Title.Text.Text := '品种: ' + ClientDS.FieldByName('L_StockName').AsString;
+    Series1.Clear;
+  end;
+
+  for nIdx := 1 to 31 do
+  begin
+    nStr := Format('L_Day%d', [nIdx]);
+    Series1.Add(ClientDS.FieldByName(nStr).AsFloat, IntToStr(nIdx));
+  end;
 end;
 
 initialization

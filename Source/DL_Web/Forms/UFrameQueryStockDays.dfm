@@ -34,7 +34,6 @@ inherited fFrameQueryStockDays: TfFrameQueryStockDays
     end
     inherited PanelQuick: TUniSimplePanel
       Width = 991
-      ExplicitTop = 48
       ExplicitWidth = 991
       object Label3: TUniLabel
         Left = 12
@@ -76,7 +75,8 @@ inherited fFrameQueryStockDays: TfFrameQueryStockDays
     end
     inherited DBGridMain: TUniDBGrid
       Width = 991
-      Height = 540
+      Height = 370
+      OnDblClick = DBGridMainDblClick
       Columns = <
         item
           Width = 64
@@ -84,6 +84,38 @@ inherited fFrameQueryStockDays: TfFrameQueryStockDays
           Font.Height = -12
           Font.Name = #23435#20307
         end>
+    end
+    object Splitter1: TUniSplitter
+      Left = 0
+      Top = 466
+      Width = 991
+      Height = 6
+      Cursor = crVSplit
+      Hint = ''
+      Align = alBottom
+      ParentColor = False
+      Color = clBtnFace
+      ExplicitTop = 330
+    end
+    object Chart1: TUniChart
+      Left = 0
+      Top = 472
+      Width = 991
+      Height = 164
+      Hint = ''
+      Animate = True
+      Axes.AxisA.Title = #38144#37327'('#21544')'
+      Title.Text.Strings = (
+        #21452#20987#19978#38754#30340#25253#34920#25968#25454','#26174#31034#22270#34920'.')
+      LayoutConfig.BodyPadding = '10'
+      Align = alBottom
+      Anchors = [akLeft, akRight, akBottom]
+      TitleAlign = taCenter
+      object Series1: TUniLineSeries
+        Title = #26376#21333#26085#32479#35745
+        MarkerConfig.Shape = 'circle'
+        MarkerConfig.Radius = 2
+      end
     end
   end
 end

@@ -100,7 +100,7 @@ begin
 
     Result := 'Select L_Price,L_Value,L_Value*L_Price as L_Money,' +
               'b.* from $Bill b $WH union all ' +
-              'Select S_Price*(-1) as L_Price,S_Value as L_Value,' +
+              'Select S_Price*(-1) as L_Price,0 as L_Value,' +
               'S_Value*S_Price*(-1) as L_Money,b.* From $ST st ' +
               ' Left Join $Bill b on b.L_ID=st.S_Bill $WH';
     //xxxxx
