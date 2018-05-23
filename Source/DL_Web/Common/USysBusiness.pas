@@ -458,6 +458,7 @@ end;
 //Parm: 列表;友好格式
 //Desc: 将内存状态数据加载到列表中
 procedure LoadSystemMemoryStatus(const nList: TStrings; const nFriend: Boolean);
+var nIdx,nLen: Integer;
 begin
   GlobalSyncLock;
   try
@@ -478,6 +479,19 @@ begin
     gMG.FObjectManager.GetStatus(nList, nFriend);
     gMG.FObjectManager.GetStatus(nList, nFriend);
     gMG.FChannelManager.GetStatus(nList, nFriend);
+
+    with TObjectStatusHelper do
+    begin
+      AddTitle(nList, 'Online Users');
+      //online
+      nLen := gAllUsers.Count - 1;
+
+      for nIdx := 0 to nLen do
+       with PSysParam(gAllUsers[nIdx])^ do
+        nList.Add(FixData(Format('%2d.Name: %s', [nIdx+1, FUserID]), Format(
+         'IP: %s Sys: %s DESC: %s', [FLocalIP, FOSUser, FUserAgent])));
+      //xxxxx
+    end;
   finally
     GlobalSyncRelease;
     nList.EndUpdate;

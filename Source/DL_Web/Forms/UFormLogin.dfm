@@ -107,7 +107,7 @@ object fFormLogin: TfFormLogin
   end
   object BtnExit: TUniButton
     Left = 275
-    Top = 227
+    Top = 229
     Width = 75
     Height = 25
     Hint = ''
