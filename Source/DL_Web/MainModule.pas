@@ -31,6 +31,9 @@ type
     //允许调整
     FMenuModule: TMenuModuleItems;
     //菜单模块
+    procedure DoDefaultAdjustEvent(Sender: TComponent; nEventName: string;
+      nParams: TUniStrings);
+    //默认事件
     procedure DoColumnFormat(Sender: TField; var Text: string;
       DisplayText: Boolean);
     procedure DoColumnSort(Column: TUniDBGridColumn; Direction: Boolean);
@@ -112,6 +115,17 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+//Date: 2018-05-24
+//Parm: 事件;参数
+//Desc: 默认Adjust处理
+procedure TUniMainModule.DoDefaultAdjustEvent(Sender: TComponent;
+  nEventName: string; nParams: TUniStrings);
+begin
+  if nEventName = sEvent_StrGridColumnResize then
+    DoStringGridColumnResize(Sender, nParams);
+  //用户调整列宽
+end;
+
 //Desc: 字段数据格式化
 procedure TUniMainModule.DoColumnFormat(Sender: TField; var Text: string;
   DisplayText: Boolean);

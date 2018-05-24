@@ -8,10 +8,10 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms, Dialogs,
-  uniGUITypes, uniGUIAbstractClasses, uniGUIForm, uniGUIFrame, Vcl.Menus,
-  uniMainMenu, uniSplitter, uniTreeView, uniMultiItem, uniComboBox, uniCheckBox,
-  uniButton, uniGUIClasses, uniMemo, uniPanel, uniPageControl, uniLabel,
-  uniImage, Vcl.Controls, uniGUIBaseClasses, uniStatusBar;
+  uniGUITypes, uniGUIAbstractClasses, uniGUIRegClasses, uniGUIForm, uniGUIFrame,
+  Vcl.Menus, uniMainMenu, uniSplitter, uniTreeView, uniMultiItem, uniComboBox,
+  uniCheckBox, uniButton, uniGUIClasses, uniMemo, uniPanel, uniPageControl,
+  uniLabel, uniImage, Vcl.Controls, uniGUIBaseClasses, uniStatusBar;
 
 type
   TfFormMain = class(TUniForm)

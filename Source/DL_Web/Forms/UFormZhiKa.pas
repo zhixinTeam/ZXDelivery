@@ -33,8 +33,6 @@ type
     EditPayment: TUniComboBox;
     Grid1: TUniStringGrid;
     Label3: TUniLabel;
-    BtnAdd: TUniBitBtn;
-    BtnDel: TUniBitBtn;
     BtnGetContract: TUniBitBtn;
     Label2: TUniLabel;
     EditLading: TUniComboBox;
@@ -54,6 +52,7 @@ type
   public
     { Public declarations }
     procedure OnCreateForm(Sender: TObject); override;
+    procedure OnDestroyForm(Sender: TObject); override;
     function SetParam(const nParam: TFormCommandParam): Boolean; override;
   end;
 
@@ -86,11 +85,20 @@ begin
     FixedCols := 2;
     RowCount := 0;
     ColCount := 7;
-    Options := [goVertLine,goHorzLine,goEditing,goAlwaysShowEditor,goFixedColClick];
+
+    Options := [goVertLine,goHorzLine, goColSizing, goEditing,
+                goAlwaysShowEditor,goFixedColClick];
+    //xxxxx
   end;
 
   ActiveControl := EditName;
   InitFormData('');
+  UserDefineStringGrid(Name, Grid1, True);
+end;
+
+procedure TfFormZhiKa.OnDestroyForm(Sender: TObject);
+begin
+  UserDefineStringGrid(Name, Grid1, False);
 end;
 
 function TfFormZhiKa.SetParam(const nParam: TFormCommandParam): Boolean;

@@ -50,6 +50,7 @@ object UniServerModule: TUniServerModule
   SSL.SSLOptions.Mode = sslmUnassigned
   SSL.SSLOptions.VerifyMode = []
   SSL.SSLOptions.VerifyDepth = 0
+  Options = [soAutoPlatformSwitch, soWipeShadowSessions]
   ConnectionFailureRecovery.ErrorMessage = 'Connection Error'
   ConnectionFailureRecovery.RetryMessage = 'Retrying...'
   OnBeforeInit = UniGUIServerModuleBeforeInit

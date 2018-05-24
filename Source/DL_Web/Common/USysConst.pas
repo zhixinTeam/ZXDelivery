@@ -258,6 +258,8 @@ ResourceString
   sInvalidConfig      = '配置文件无效或已经损坏';    //配置文件无效
   sCloseQuery         = '确定要退出程序吗?';         //主窗口退出
 
+  sEvent_StrGridColumnResize = 'StrGridColResize';   //表格调整列表
+
 implementation
 
 //------------------------------------------------------------------------------

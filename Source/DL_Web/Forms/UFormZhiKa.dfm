@@ -293,7 +293,7 @@ inherited fFormZhiKa: TfFormZhiKa
         end>
       OnSelectCell = Grid1SelectCell
       Anchors = [akLeft, akTop, akRight, akBottom]
-      TabOrder = 24
+      TabOrder = 22
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -312,32 +312,6 @@ inherited fFormZhiKa: TfFormZhiKa
       Font.Height = -12
       Font.Name = #23435#20307
       TabOrder = 21
-    end
-    object BtnAdd: TUniBitBtn
-      Left = 505
-      Top = 237
-      Width = 22
-      Height = 20
-      Hint = #28155#21152#21512#21516#26126#32454
-      Visible = False
-      ShowHint = True
-      ParentShowHint = False
-      Caption = '+'
-      Anchors = [akTop, akRight]
-      TabOrder = 22
-    end
-    object BtnDel: TUniBitBtn
-      Left = 528
-      Top = 237
-      Width = 22
-      Height = 20
-      Hint = #21024#38500#36873#20013#30340#26126#32454
-      Visible = False
-      ShowHint = True
-      ParentShowHint = False
-      Caption = '-'
-      Anchors = [akLeft, akTop, akRight]
-      TabOrder = 23
     end
     object BtnGetContract: TUniBitBtn
       Left = 528

@@ -120,11 +120,11 @@ procedure SetGridColumnFormat(const nEntity: string;
 //设置nGrid的数据和现实映射
 procedure UserDefineGrid(const nForm: string; const nGrid: TUniDBGrid;
   const nLoad: Boolean; const nIni: TIniFile = nil);
+procedure UserDefineStringGrid(const nForm: string; const nGrid: TUniStringGrid;
+  const nLoad: Boolean; const nIni: TIniFile = nil);
+procedure DoStringGridColumnResize(const nGrid: TObject;
+  const nParam: TUniStrings);
 //用户自定义表格
-procedure LoadGridColumn(const nWidths: string; const nGrid: TUniStringGrid);
-//载入列表表头宽度
-function MakeGridColumnInfo(const nGrid: TUniStringGrid): string;
-//组合列表表头宽度信息
 function GridExportExcel(const nGrid: TUniDBGrid; const nFile: string): string;
 //将nGrid的数据导出到nFile文件中
 
@@ -1672,9 +1672,13 @@ begin
     WebOptions.Paged := True;
     WebOptions.PageSize := 1000;
 
-    OnColumnSort := UniMainModule.DoColumnSort;
-    OnColumnSummary := UniMainModule.DoColumnSummary;
-    OnColumnSummaryResult := UniMainModule.DoColumnSummaryResult;
+    if not Assigned(OnColumnSort) then
+      OnColumnSort := UniMainModule.DoColumnSort;
+    if not Assigned(OnColumnSummary) then
+      OnColumnSummary := UniMainModule.DoColumnSummary;
+    if not Assigned(OnColumnSummaryResult) then
+      OnColumnSummaryResult := UniMainModule.DoColumnSummaryResult;
+    //xxxxx
   end;
 
   if nEntity = '' then Exit;
@@ -1894,6 +1898,104 @@ begin
     if not Assigned(nIni) then
       nTmp.Free;
     //xxxxx
+  end;
+end;
+
+//Date: 2018-05-24
+//Parm: 窗体名;表格;读取
+//Desc: 读写nForm.nGrid的用户配置
+procedure UserDefineStringGrid(const nForm: string; const nGrid: TUniStringGrid;
+  const nLoad: Boolean; const nIni: TIniFile = nil);
+var nStr: string;
+    nIdx,nCount: Integer;
+    nTmp: TIniFile;
+    nList: TStrings;
+begin
+  nTmp := nil;
+  nList := nil;
+
+  with TStringHelper do
+  try
+    if Assigned(nIni) then
+         nTmp := nIni
+    else nTmp := UserConfigFile;
+
+    nCount := nGrid.Columns.Count - 1;
+    //column num
+
+    if nLoad then
+    begin
+      nStr := 'columnresize=function columnresize(ct,column,width,eOpts){'+
+        'ajaxRequest($O, ''$E'', [''idx=''+column.dataIndex,''w=''+width])}';
+      //add resize event
+
+      nStr := MacroValue(nStr, [MI('$O', nForm + '.' + nGrid.Name),
+        MI('$E', sEvent_StrGridColumnResize)]);
+      //xxxx
+
+      if nGrid.ClientEvents.ExtEvents.IndexOf(nStr) < 0 then
+        nGrid.ClientEvents.ExtEvents.Add(nStr);
+      //添加事件监听
+
+      if not Assigned(nGrid.OnAjaxEvent) then
+        nGrid.OnAjaxEvent := UniMainModule.DoDefaultAdjustEvent;
+      //添加事件处理
+
+      nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+      nStr := nTmp.ReadString(nForm, 'GridWidth_' + nGrid.Name, '');
+
+      if Split(nStr, nList, nGrid.Columns.Count) then
+      begin
+        for nIdx := 0 to nCount do
+         if IsNumber(nList[nIdx], False) then
+          nGrid.Columns[nIdx].Width := StrToInt(nList[nIdx]);
+        //apply width
+      end;
+    end else
+    begin
+      nStr := '';
+      for nIdx := 0 to nCount do
+      begin
+        nStr := nStr + IntToStr(nGrid.Columns[nIdx].Width);
+        if nIdx <> nCount then nStr := nStr + ';';
+      end;
+      nTmp.WriteString(nForm, 'GridWidth_' + nGrid.Name, nStr);
+    end;
+  finally
+    gMG.FObjectPool.Release(nList);
+    if not Assigned(nIni) then
+      nTmp.Free;
+    //xxxxx
+  end;
+end;
+
+//Date: 2018-05-24
+//Parm: 表格;参数
+//Desc: 用户调整列宽时触发,将用户调整的结果应用到nGrid.
+procedure DoStringGridColumnResize(const nGrid: TObject;
+  const nParam: TUniStrings);
+var nStr: string;
+    nIdx,nW: Integer;
+begin
+  with TStringHelper,TUniStringGrid(nGrid) do
+  begin
+    nStr := nParam.Values['idx'];
+    if IsNumber(nStr, False) then
+         nIdx := StrToInt(nStr)
+    else nIdx := -1;
+
+    if (nIdx < 0) or (nIdx >= Columns.Count) then Exit;
+    //out of range
+
+    nStr := nParam.Values['w'];
+    if IsNumber(nStr, False) then
+         nW := StrToInt(nStr)
+    else nW := -1;
+
+    if nW < 0 then Exit;
+    if nW > 320 then
+      nW := 320;
+    Columns[nIdx].Width := nW;
   end;
 end;
 
