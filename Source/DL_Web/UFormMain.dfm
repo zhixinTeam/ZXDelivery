@@ -182,7 +182,7 @@ object fFormMain: TfFormMain
       Left = 0
       Top = 0
       Width = 256
-      Height = 65
+      Height = 70
       Hint = ''
       ParentColor = False
       Border = True
@@ -191,7 +191,7 @@ object fFormMain: TfFormMain
       TabOrder = 1
       DesignSize = (
         256
-        65)
+        70)
       object ComboFactory: TUniComboBox
         Left = 3
         Top = 30
@@ -231,9 +231,9 @@ object fFormMain: TfFormMain
     end
     object TreeMenu: TUniTreeView
       Left = 0
-      Top = 65
+      Top = 70
       Width = 256
-      Height = 427
+      Height = 422
       Hint = ''
       Items.NodeData = {
         0303000000220000000000000000000000FFFFFFFFFFFFFFFF00000000000000
@@ -252,6 +252,8 @@ object fFormMain: TfFormMain
       Color = clWindow
       OnClick = TreeMenuClick
       OnMouseDown = TreeMenuMouseDown
+      ExplicitTop = 65
+      ExplicitHeight = 427
     end
   end
   object UniSplitter1: TUniSplitter

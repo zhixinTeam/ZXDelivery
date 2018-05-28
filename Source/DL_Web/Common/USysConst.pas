@@ -258,6 +258,8 @@ ResourceString
   sInvalidConfig      = '配置文件无效或已经损坏';    //配置文件无效
   sCloseQuery         = '确定要退出程序吗?';         //主窗口退出
 
+  sWebFlag           = 'web';                        //菜单标识
+  sCheckFlag          = '√';                         ///选中标记
   sEvent_StrGridColumnResize = 'StrGridColResize';   //表格调整列表
 
 implementation
@@ -284,6 +286,7 @@ begin
 
   AddMenuModuleItem('MAIN_A05', 'TfFormChangePwd', mtForm);
   AddMenuModuleItem('MAIN_A06', 'TfFormOptions', mtForm);
+  AddMenuModuleItem('MAIN_A07', 'TfFramePopedom');
   AddMenuModuleItem('MAIN_SYSCLOSE', 'TfFormExit', mtForm);
 
   AddMenuModuleItem('MAIN_B01', '');

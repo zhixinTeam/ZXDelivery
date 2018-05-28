@@ -21,9 +21,8 @@ type
     Radio2: TUniRadioButton;
     Grid1: TUniStringGrid;
     procedure BtnOKClick(Sender: TObject);
-    procedure Grid1SelectCell(Sender: TObject; ACol, ARow: Integer;
-      var CanSelect: Boolean);
     procedure Check1Click(Sender: TObject);
+    procedure Grid1Click(Sender: TObject);
   private
     { Private declarations }
     procedure InitFormData;
@@ -46,7 +45,7 @@ implementation
 
 uses
   Vcl.Grids, Data.Win.ADODB, uniGUIVars, MainModule, uniGUIApplication,
-  ULibFun, USysBusiness, USysDB;
+  ULibFun, USysBusiness, USysDB, USysConst;
 
 const
   giID    = 0;
@@ -55,8 +54,6 @@ const
   giCheck = 3;
   giType  = 4;
   //grid info:表格列数据描述
-
-  cChecked = '√';
 
 //Date: 2018-05-06
 //Desc: 显示按品种冻结窗口
@@ -139,14 +136,13 @@ begin
   end;
 end;
 
-procedure TfFormZKFreeze.Grid1SelectCell(Sender: TObject; ACol, ARow: Integer;
-  var CanSelect: Boolean);
+procedure TfFormZKFreeze.Grid1Click(Sender: TObject);
 begin
-  if ACol = giCheck then
+  if Grid1.Col = giCheck then
   begin
-    if Grid1.Cells[giCheck, ARow] = cChecked then
-         Grid1.Cells[giCheck, ARow] := ''
-    else Grid1.Cells[giCheck, ARow] := cChecked;
+    if Grid1.Cells[giCheck, Grid1.Row] = sCheckFlag then
+         Grid1.Cells[giCheck, Grid1.Row] := ''
+    else Grid1.Cells[giCheck, Grid1.Row] := sCheckFlag;
   end;
 end;
 
@@ -161,7 +157,7 @@ begin
       begin
         if Grid1.Cells[giType, nIdx] = sFlag_Dai then
           if Check1.Checked then
-               Grid1.Cells[giCheck, nIdx] := cChecked
+               Grid1.Cells[giCheck, nIdx] := sCheckFlag
           else Grid1.Cells[giCheck, nIdx] := '';
         //xxxxx
       end;
@@ -169,7 +165,7 @@ begin
       begin
         if Grid1.Cells[giType, nIdx] = sFlag_San then
           if Check2.Checked then
-               Grid1.Cells[giCheck, nIdx] := cChecked
+               Grid1.Cells[giCheck, nIdx] := sCheckFlag
           else Grid1.Cells[giCheck, nIdx] := '';
         //xxxxx
       end;
@@ -182,7 +178,7 @@ var nIdx: Integer;
 begin
   Result := '';
   for nIdx := Grid1.RowCount-1 downto 0 do
-   if Grid1.Cells[giCheck, nIdx] = cChecked then
+   if Grid1.Cells[giCheck, nIdx] = sCheckFlag then
     if Result = '' then
          Result := '''' + Grid1.Cells[giID, nIdx] + ''''
     else Result := Result + ',''' + Grid1.Cells[giID, nIdx] + ''''

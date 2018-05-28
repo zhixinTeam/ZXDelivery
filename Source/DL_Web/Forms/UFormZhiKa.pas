@@ -38,11 +38,10 @@ type
     EditLading: TUniComboBox;
     procedure BtnOKClick(Sender: TObject);
     procedure EditSaleManChange(Sender: TObject);
-    procedure Grid1SelectCell(Sender: TObject; ACol, ARow: Integer;
-      var CanSelect: Boolean);
     procedure EditCIDKeyPress(Sender: TObject; var Key: Char);
     procedure BtnGetContractClick(Sender: TObject);
     procedure EditCusKeyPress(Sender: TObject; var Key: Char);
+    procedure Grid1Click(Sender: TObject);
   private
     { Private declarations }
     procedure InitFormData(const nID: string);
@@ -75,8 +74,6 @@ const
   giType     = 6;
   giCheck    = 7;
   //grid info:表格列数据描述
-
-  cChecked = '√';
 
 //------------------------------------------------------------------------------
 procedure TfFormZhiKa.OnCreateForm(Sender: TObject);
@@ -217,7 +214,7 @@ begin
           Grid1.Cells[giPrice, nIdx] := FieldByName('D_Price').AsString;
           Grid1.Cells[giFLPrice, nIdx] := FieldByName('D_FLPrice').AsString;
           Grid1.Cells[giYunFei, nIdx] := FieldByName('D_YunFei').AsString;
-          Grid1.Cells[giCheck, nIdx] := cChecked;
+          Grid1.Cells[giCheck, nIdx] := sCheckFlag;
           Break;
         end;
 
@@ -326,14 +323,13 @@ begin
   end;
 end;
 
-procedure TfFormZhiKa.Grid1SelectCell(Sender: TObject; ACol, ARow: Integer;
-  var CanSelect: Boolean);
+procedure TfFormZhiKa.Grid1Click(Sender: TObject);
 begin
-  if ACol = giCheck then
+  if Grid1.Col = giCheck then
   begin
-    if Grid1.Cells[giCheck, ARow] = cChecked then
-         Grid1.Cells[giCheck, ARow] := ''
-    else Grid1.Cells[giCheck, ARow] := cChecked;
+    if Grid1.Cells[giCheck, Grid1.Row] = sCheckFlag then
+         Grid1.Cells[giCheck, Grid1.Row] := ''
+    else Grid1.Cells[giCheck, Grid1.Row] := sCheckFlag;
   end;
 end;
 
@@ -442,7 +438,7 @@ begin
   for nIdx := 0 to Grid1.RowCount - 1 do
   with TStringHelper do
   begin
-    if Grid1.Cells[giCheck, nIdx] <> cChecked then Continue;
+    if Grid1.Cells[giCheck, nIdx] <> sCheckFlag then Continue;
     if (not IsNumber(Grid1.Cells[giPrice, nIdx], True)) or
        (StrToFloat(Grid1.Cells[giPrice, nIdx]) <= 0) then
     begin
@@ -519,7 +515,7 @@ begin
 
     for nIdx:=0 to Grid1.RowCount-1 do
     begin
-      if Grid1.Cells[giCheck, nIdx] <> cChecked then Continue;
+      if Grid1.Cells[giCheck, nIdx] <> sCheckFlag then Continue;
       //no selected
 
       nStr := MakeSQLByStr([SF('D_ZID', nID),

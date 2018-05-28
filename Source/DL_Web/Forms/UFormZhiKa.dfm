@@ -295,7 +295,7 @@ inherited fFormZhiKa: TfFormZhiKa
           Title.Caption = #36873#20013
           Width = 32
         end>
-      OnSelectCell = Grid1SelectCell
+      OnClick = Grid1Click
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 22
       ParentFont = False

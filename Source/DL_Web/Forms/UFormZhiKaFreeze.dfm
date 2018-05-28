@@ -3,7 +3,7 @@ inherited fFormZKFreeze: TfFormZKFreeze
   ClientWidth = 450
   Caption = #25353#21697#31181#20923#32467
   ExplicitWidth = 456
-  ExplicitHeight = 491
+  ExplicitHeight = 495
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
@@ -119,7 +119,7 @@ inherited fFormZKFreeze: TfFormZKFreeze
           Title.Caption = #21253#35013#31867#22411
           Width = 0
         end>
-      OnSelectCell = Grid1SelectCell
+      OnClick = Grid1Click
       Align = alClient
       Anchors = [akLeft, akTop, akRight, akBottom]
       TabOrder = 0
