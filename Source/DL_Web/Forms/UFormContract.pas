@@ -41,8 +41,6 @@ type
     Check1: TUniCheckBox;
     Grid1: TUniStringGrid;
     Label3: TUniLabel;
-    BtnAdd: TUniBitBtn;
-    BtnDel: TUniBitBtn;
     EditMemo: TUniEdit;
     BtnMakeID: TUniBitBtn;
     procedure BtnOKClick(Sender: TObject);
@@ -56,6 +54,7 @@ type
   public
     { Public declarations }
     procedure OnCreateForm(Sender: TObject); override;
+    procedure OnDestroyForm(Sender: TObject); override;
     function SetParam(const nParam: TFormCommandParam): Boolean; override;
   end;
 
@@ -83,8 +82,16 @@ begin
   begin
     FixedCols := 2;
     RowCount := 0;
-    Options := [goVertLine,goHorzLine,goEditing,goAlwaysShowEditor];
+    ColCount := 6;
+    Options := [goVertLine,goHorzLine,goEditing,goFixedColClick];
   end;
+
+  UserDefineStringGrid(Name, Grid1, True);
+end;
+
+procedure TfFormSaleContract.OnDestroyForm(Sender: TObject);
+begin
+  UserDefineStringGrid(Name, Grid1, False);
 end;
 
 function TfFormSaleContract.SetParam(const nParam: TFormCommandParam): Boolean;

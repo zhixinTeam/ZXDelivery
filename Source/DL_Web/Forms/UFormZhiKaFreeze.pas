@@ -7,11 +7,10 @@ unit UFormZhiKaFreeze;
 interface
 
 uses
-  Windows, Messages, SysUtils, Variants, Classes, Graphics,
-  Controls, Forms, uniGUITypes, uniGUIAbstractClasses,
-  uniGUIClasses, uniGUIForm, UFormBase, uniPanel, uniGUIBaseClasses, uniButton,
-  uniEdit, uniLabel, uniCheckBox, uniBasicGrid, uniDBGrid, Data.DB,
-  Datasnap.DBClient, uniRadioButton, uniStringGrid;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, uniGUIForm,
+  uniGUITypes, UFormBase, uniBasicGrid, uniStringGrid, uniRadioButton,
+  uniGUIClasses, uniCheckBox, uniPanel, Vcl.Controls, Vcl.Forms,
+  uniGUIBaseClasses, uniButton;
 
 type
   TfFormZKFreeze = class(TfFormBase)
@@ -32,6 +31,7 @@ type
   public
     { Public declarations }
     procedure OnCreateForm(Sender: TObject); override;
+    procedure OnDestroyForm(Sender: TObject); override;
   end;
 
   TFormZKFreeResult = procedure (const nStocks: string) of object;
@@ -86,11 +86,18 @@ begin
   begin
     FixedCols := 3;
     RowCount := 0;
-    Options := [goVertLine,goHorzLine,goEditing,goAlwaysShowEditor,goFixedColClick];
+    ColCount := 5;
+    Options := [goVertLine,goHorzLine,goEditing,goFixedColClick];
   end;
 
+  UserDefineStringGrid(Name, Grid1, True);
   InitFormData;
   //load data
+end;
+
+procedure TfFormZKFreeze.OnDestroyForm(Sender: TObject);
+begin
+  UserDefineStringGrid(Name, Grid1, False);
 end;
 
 procedure TfFormZKFreeze.InitFormData;

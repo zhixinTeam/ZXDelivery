@@ -375,7 +375,7 @@ inherited fFormSaleContract: TfFormSaleContract
           Width = 0
         end>
       Anchors = [akLeft, akTop, akRight, akBottom]
-      TabOrder = 30
+      TabOrder = 28
       ParentFont = False
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
@@ -392,31 +392,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Font.Charset = GB2312_CHARSET
       Font.Height = -12
       Font.Name = #23435#20307
-      TabOrder = 29
-    end
-    object BtnAdd: TUniBitBtn
-      Left = 425
-      Top = 276
-      Width = 45
-      Height = 20
-      Hint = #28155#21152#21512#21516#26126#32454
-      Visible = False
-      ShowHint = True
-      ParentShowHint = False
-      Caption = '+'
       TabOrder = 27
-    end
-    object BtnDel: TUniBitBtn
-      Left = 471
-      Top = 276
-      Width = 45
-      Height = 20
-      Hint = #21024#38500#36873#20013#30340#26126#32454
-      Visible = False
-      ShowHint = True
-      ParentShowHint = False
-      Caption = '-'
-      TabOrder = 28
     end
     object EditMemo: TUniEdit
       Left = 68

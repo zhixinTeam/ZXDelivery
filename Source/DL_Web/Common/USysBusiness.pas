@@ -489,7 +489,7 @@ begin
       for nIdx := 0 to nLen do
        with PSysParam(gAllUsers[nIdx])^ do
         nList.Add(FixData(Format('%2d.Name: %s', [nIdx+1, FUserID]), Format(
-         'IP: %s Sys: %s DESC: %s', [FLocalIP, FOSUser, FUserAgent])));
+         'IP:%s SYS:%s DESC:%s', [FLocalIP, FOSUser, FUserAgent])));
       //xxxxx
     end;
   finally
@@ -1933,13 +1933,27 @@ begin
         MI('$E', sEvent_StrGridColumnResize)]);
       //xxxx
 
-      if nGrid.ClientEvents.ExtEvents.IndexOf(nStr) < 0 then
-        nGrid.ClientEvents.ExtEvents.Add(nStr);
-      //添加事件监听
+      nIdx := nGrid.ClientEvents.ExtEvents.IndexOf(nStr);
+      if UniMainModule.FGridColumnAdjust and (nIdx < 0) then
+      begin
+        nGrid.Options := nGrid.Options + [goColSizing];
+        //添加可调列宽
 
-      if not Assigned(nGrid.OnAjaxEvent) then
-        nGrid.OnAjaxEvent := UniMainModule.DoDefaultAdjustEvent;
-      //添加事件处理
+        nGrid.ClientEvents.ExtEvents.Add(nStr);
+        //添加事件监听
+
+        if not Assigned(nGrid.OnAjaxEvent) then
+          nGrid.OnAjaxEvent := UniMainModule.DoDefaultAdjustEvent;
+        //添加事件处理
+      end else
+      begin
+        nGrid.Options := nGrid.Options - [goColSizing];
+        //删除可调列宽
+
+        if nIdx >= 0 then
+          nGrid.ClientEvents.ExtEvents.Delete(nIdx);
+        //xxxxx
+      end;
 
       nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
       nStr := nTmp.ReadString(nForm, 'GridWidth_' + nGrid.Name, '');
@@ -1947,11 +1961,13 @@ begin
       if Split(nStr, nList, nGrid.Columns.Count) then
       begin
         for nIdx := 0 to nCount do
-         if IsNumber(nList[nIdx], False) then
+         if (nGrid.Columns[nIdx].Width>0) and IsNumber(nList[nIdx], False) then
           nGrid.Columns[nIdx].Width := StrToInt(nList[nIdx]);
         //apply width
       end;
     end else
+
+    if UniMainModule.FGridColumnAdjust then    
     begin
       nStr := '';
       for nIdx := 0 to nCount do

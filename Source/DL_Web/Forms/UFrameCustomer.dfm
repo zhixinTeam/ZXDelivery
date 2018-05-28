@@ -68,16 +68,24 @@ inherited fFrameCustomer: TfFrameCustomer
     Top = 184
     object N1: TUniMenuItem
       Tag = 10
-      Caption = #26597#35810#38750#27491#24335#23458#25143
+      Caption = #38750#27491#24335#23458#25143
       OnClick = N1Click
-    end
-    object N2: TUniMenuItem
-      Caption = '-'
     end
     object N3: TUniMenuItem
       Tag = 20
       Caption = #26597#35810#20840#37096#23458#25143
       OnClick = N1Click
+    end
+    object N2: TUniMenuItem
+      Caption = '-'
+    end
+    object N4: TUniMenuItem
+      Caption = #20851#32852#21830#22478#36134#25143
+      OnClick = N4Click
+    end
+    object N5: TUniMenuItem
+      Caption = #21462#28040#21830#22478#20851#32852
+      OnClick = N5Click
     end
   end
 end

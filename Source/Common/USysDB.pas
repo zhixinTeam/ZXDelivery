@@ -725,8 +725,9 @@ const
 
   sSQL_NewZhiKaDtl = 'Create Table $Table(R_ID $Inc, D_ZID varChar(15),' +
        'D_Type Char(1), D_StockNo varChar(20), D_StockName varChar(80),' +
-       'D_Price $Float, D_Value $Float, D_FLPrice $Float, D_PPrice $Float,' +
-       'D_TPrice Char(1) Default ''Y'')';
+       'D_Price $Float, D_Value $Float, ' +
+       'D_FLPrice $Float Default 0, D_YunFei $Float Default 0,' +
+       'D_PPrice $Float, D_TPrice Char(1) Default ''Y'')';
   {-----------------------------------------------------------------------------
    纸卡明细:ZhiKaDtl
    *.R_ID:记录编号
@@ -736,6 +737,7 @@ const
    *.D_Price:单价
    *.D_Value:办理量
    *.D_FLPrice: 返利价
+   *.D_YunFei: 运费单价
    *.D_PPrice:调价前单价
    *.D_TPrice:允许调价
   -----------------------------------------------------------------------------}

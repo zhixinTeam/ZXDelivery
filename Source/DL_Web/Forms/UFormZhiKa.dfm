@@ -3,7 +3,7 @@ inherited fFormZhiKa: TfFormZhiKa
   ClientWidth = 578
   Caption = #32440#21345
   ExplicitWidth = 584
-  ExplicitHeight = 634
+  ExplicitHeight = 638
   PixelsPerInch = 96
   TextHeight = 13
   inherited BtnOK: TUniButton
@@ -259,7 +259,7 @@ inherited fFormZhiKa: TfFormZhiKa
       ParentShowHint = False
       FixedCols = 0
       FixedRows = 0
-      ColCount = 6
+      ColCount = 8
       Options = [goVertLine, goHorzLine, goEditing, goAlwaysShowEditor, goFixedColClick]
       ShowColumnTitles = True
       Columns = <
@@ -277,6 +277,10 @@ inherited fFormZhiKa: TfFormZhiKa
         end
         item
           Title.Caption = #36820#21033'('#20215#24046')'
+          Width = 72
+        end
+        item
+          Title.Caption = #36816#36153'('#20803'/'#21544')'
           Width = 72
         end
         item

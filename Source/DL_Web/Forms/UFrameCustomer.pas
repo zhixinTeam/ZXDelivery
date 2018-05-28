@@ -20,6 +20,8 @@ type
     N1: TUniMenuItem;
     N2: TUniMenuItem;
     N3: TUniMenuItem;
+    N4: TUniMenuItem;
+    N5: TUniMenuItem;
     procedure BtnAddClick(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
@@ -27,6 +29,8 @@ type
     procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure N1Click(Sender: TObject);
+    procedure N4Click(Sender: TObject);
+    procedure N5Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -39,8 +43,9 @@ implementation
 
 {$R *.dfm}
 uses
-  uniGUIVars, MainModule, uniGUIApplication, uniGUIForm, UFormBase,
-  UManagerGroup, ULibFun, USysBusiness, USysDB, USysConst;
+  uniGUIVars, MainModule, uniGUIApplication, uniGUIForm, UFormBase, ULibFun,
+  UManagerGroup, USysBusiness, USysDB, USysConst, USysRemote, UBusinessPacker,
+  UFormGetWXAccount;
 
 function TfFrameCustomer.InitFormDataSQL(const nWhere: string): string;
 begin
@@ -185,6 +190,110 @@ begin
   end;
 
   InitFormData(FWhere);
+end;
+
+//Desc: 关联微信
+procedure TfFrameCustomer.N4Click(Sender: TObject);
+var nStr,nID,nAccount,nBindID: string;
+    nList: TStrings;
+begin
+  if DBGridMain.SelectedRows.Count < 1 then
+  begin
+    ShowMessage('请选择要开通的记录');
+    Exit;
+  end;
+
+  nAccount := ClientDS.FieldByName('C_WeiXin').AsString;
+  if nAccount <> '' then
+  begin
+    ShowMessage('商城账户[' + nAccount + ']已存在');
+    Exit;
+  end;
+
+  ShowGetWXAccountForm(nAccount,
+    procedure(const nResult: Integer; const nParam: PFormCommandParam)
+    begin
+      nList := nil;
+      try
+        nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+        nBindID  := nParam.FParamB;
+        nAccount := nParam.FParamC;
+        nID      := ClientDS.FieldByName('C_ID').AsString;
+
+        with nList do
+        begin
+          Values['Action']   := 'add';
+          Values['BindID']   := nBindID;
+          Values['Account']  := nAccount;
+          Values['CusID']    := nID;
+          Values['CusName']  := ClientDS.FieldByName('C_Name').AsString;
+          Values['Memo']     := sFlag_Sale;
+        end;
+
+        if edit_shopclients(PackerEncodeStr(nList.Text)) <> sFlag_Yes then Exit;
+        //call remote
+
+        nStr := 'update %s set C_WeiXin=''%s'' where C_ID=''%s''';
+        nStr := Format(nStr,[sTable_Customer, nAccount, nID]);
+        DBExecute(nStr, nil, FDBType);
+
+        ShowMessage('关联商城账户成功');
+        InitFormData(FWhere);
+      finally
+        gMG.FObjectPool.Release(nList);
+      end;
+    end);
+  //xxxxx
+end;
+
+//Desc: 取消关联商城账户
+procedure TfFrameCustomer.N5Click(Sender: TObject);
+var nStr,nID,nName,nAccount:string;
+    nList: TStrings;
+begin
+  if DBGridMain.SelectedRows.Count < 1 then
+  begin
+    ShowMessage('请选择要取消的记录');
+    Exit;
+  end;
+
+  nName := ClientDS.FieldByName('C_Name').AsString;
+  nStr := Format('确定要取消[ %s ]的商城账户吗?', [nName]);
+  MessageDlg(nStr, mtConfirmation, mbYesNo,
+    procedure(Sender: TComponent; Res: Integer)
+    begin
+      if Res <> mrYes then Exit;
+      //cancel
+
+      nList := nil;
+      try
+        nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+        nID := ClientDS.FieldByName('C_ID').AsString;
+        nAccount := ClientDS.FieldByName('C_WeiXin').AsString;
+
+        with nList do
+        begin
+          Values['Action']   := 'del';
+          Values['Account']  := nAccount;
+          Values['CusID']    := nID;
+          Values['CusName']  := nName;
+          Values['Memo']     := sFlag_Sale;
+        end;
+
+        if edit_shopclients(PackerEncodeStr(nList.Text)) <> sFlag_Yes then Exit;
+        //call remote
+
+        nStr := 'update %s set C_WeiXin=Null where C_ID=''%s''';
+        nStr := Format(nStr,[sTable_Customer, nID]);
+        DBExecute(nStr, nil, FDBType);
+
+        ShowMessage('取消商城关联成功！');
+        InitFormData(FWhere);
+      finally
+        gMG.FObjectPool.Release(nList);
+      end;
+    end);
+  //xxxxx
 end;
 
 initialization

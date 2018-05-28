@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Classes, System.SysUtils, UClientWorker, UBusinessConst,
-  UManagerGroup, USysDB, USysConst;
+  UBusinessPacker, UManagerGroup, USysDB, USysConst;
 
 function GetSerialNo(const nGroup,nObject: string;
  const nUseDate: Boolean = True): string;
@@ -17,6 +17,10 @@ function GetSerialNo(const nGroup,nObject: string;
 function GetCustomerValidMoney(nCID: string; const nLimit: Boolean = True;
  const nCredit: PDouble = nil): Double;
 //客户可用金额
+function edit_shopclients(const nData: string): string;
+//新增商城用户
+function getWXCustomerList(const nData: string): string;
+//获取商城注册用户列表
 
 implementation
 
@@ -226,6 +230,49 @@ begin
       nCredit^ := 0;
     //xxxxx
   end;
+end;
+
+//Date: 2018-05-25
+//Parm: 账户数据
+//Desc: 新增商城用户
+function edit_shopclients(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  {$IFDEF Debug}
+  Result := sFlag_Yes;
+  Exit;
+  {$ENDIF}
+
+  if CallBusinessWechat(cBC_WX_edit_shopclients, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//Date: 2018-05-27
+//Parm: 参数
+//Desc: 读取商城注册账户列表
+function getWXCustomerList(const nData: string): string;
+var nOut: TWorkerBusinessCommand;
+{$IFDEF Debug}nList: TStrings;{$ENDIF}
+begin
+  {$IFDEF Debug}
+  nList := gMG.FObjectPool.Lock(TStrings) as TStrings;
+  nList.Values['BindID'] := 'id';
+  nList.Values['Name'] := 'name_A';
+  nList.Values['Phone'] := 'Phone';
+
+  Result := PackerEncodeStr(nList.Text);
+  nList.Values['Name'] := 'name_B';
+  Result := Result + #13#10 + PackerEncodeStr(nList.Text);
+
+  gMG.FObjectPool.Release(nList);
+  Sleep(2000);
+  Exit;
+  {$ENDIF}
+
+  if CallBusinessWechat(cBC_WX_getCustomerInfo, nData, '', '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
 end;
 
 end.
