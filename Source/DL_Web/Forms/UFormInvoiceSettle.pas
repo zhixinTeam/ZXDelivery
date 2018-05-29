@@ -139,8 +139,8 @@ begin
     ShowHintText('新结算数据生成完毕.');
     //--------------------------------------------------------------------------
     ShowHintText('开始合并返利价格...');
-    nStr := 'Update $T Set $T.S_Price=$R.R_KPrice From $R ' +
-            'Where R_Week=''$WK'' And $T.S_Week=$R.R_Week' +
+    nStr := 'Update $T Set $T.S_Price=$R.R_KPrice,$T.S_YunFei=$R.R_YunFei' +
+            ' From $R Where R_Week=''$WK'' And $T.S_Week=$R.R_Week' +
             ' And $T.S_ZhiKa=$R.R_ZhiKa And $T.S_Stock=$R.R_Stock';
     //xxxxx
 

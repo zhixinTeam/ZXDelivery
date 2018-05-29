@@ -1178,7 +1178,7 @@ const
        'R_ZhiKa varChar(15), R_CusID varChar(15), R_Customer varChar(80),' +
        'R_CusPY varChar(80), R_SaleID varChar(15), R_SaleMan varChar(50), ' +
        'R_Type Char(1), R_Stock varChar(20), R_StockName varChar(80), ' +
-       'R_Price $Float, R_Value $Float, ' +
+       'R_Price $Float, R_Value $Float, R_YunFei $Float,' +
        'R_PreHasK $Float Default 0, R_ReqValue $Float, R_KPrice $Float,' +
        'R_KValue $Float Default 0, R_KOther $Float Default 0,' +
        'R_KMan varChar(32),R_KDate DateTime,R_Man varChar(32),R_Date DateTime)';
@@ -1195,6 +1195,7 @@ const
    *.R_Stock,R_StockName:水泥品种
    *.R_Price:单价
    *.R_Value:提货量
+   *.R_YunFei:运费单价
    *.R_PreHasK:之前已开量
    *.R_ReqValue:申请量
    *.R_KPrice:开票单价
@@ -1207,7 +1208,7 @@ const
 
   sSQL_NewInvoiceSettle = 'Create Table $Table(R_ID $Inc, S_Week varChar(15),' +
        'S_Bill varChar(15), S_CusID varChar(15), S_ZhiKa varChar(15),' +
-       'S_Stock varChar(20), S_Value $Float, S_Price $Float, ' +
+       'S_Stock varChar(20), S_Value $Float, S_Price $Float, S_YunFei $Float,' +
        'S_OutFact DateTime, S_Man varChar(32), S_Date DateTime)';
   {-----------------------------------------------------------------------------
    结算结算:InvoiceSettle
@@ -1219,6 +1220,7 @@ const
    *.S_Stock: 品种编号
    *.S_Value: 发货量
    *.S_Price: 返利单价
+   *.S_YunFei: 运费单价
    *.S_OutFact: 出厂时间
    *.S_Man: 结算人
    *.S_Date: 结算时间

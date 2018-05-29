@@ -99,10 +99,10 @@ begin
     EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
     Result := 'Select L_Price,L_Value,L_Value*L_Price as L_Money,' +
-              'b.* from $Bill b $WH union all ' +
-              'Select S_Price*(-1) as L_Price,0 as L_Value,' +
-              'S_Value*S_Price*(-1) as L_Money,b.* From $ST st ' +
-              ' Left Join $Bill b on b.L_ID=st.S_Bill $WH';
+      '0 as L_YunFei,b.* from $Bill b $WH union all ' +
+      'Select S_Price*(-1) as L_Price,0 as L_Value,' +
+      'S_Value*S_Price*(-1) as L_Money,L_Value*S_YunFei as L_YunFei,b.*' +
+      ' From $ST st Left Join $Bill b on b.L_ID=st.S_Bill $WH';
     //xxxxx
 
     if FJBWhere = '' then

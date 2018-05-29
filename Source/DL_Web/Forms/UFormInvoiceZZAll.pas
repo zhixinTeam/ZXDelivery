@@ -198,8 +198,8 @@ begin
     end;
 
     nFields := 'R_Week,R_ZhiKa,R_CusID,R_Customer,R_CusPY,R_SaleID,R_SaleMan,' +
-      'R_Type,R_Stock,R_StockName,R_Price,R_Value,R_PreHasK,R_ReqValue,' +
-      'R_KPrice,R_KValue,R_KOther,R_Man,R_Date';
+      'R_Type,R_Stock,R_StockName,R_Price,R_Value,R_YunFei,R_PreHasK,' +
+      'R_ReqValue,R_KPrice,R_KValue,R_KOther,R_Man,R_Date';
     //xxxxx
 
     nStr := 'Insert Into %s(%s) Select %s From %s';
@@ -269,8 +269,9 @@ begin
   ShowHintText('客户总提货量计算完毕!');
 
   //----------------------------------------------------------------------------
-  nSQL := 'Update $T Set $T.R_Price=$Z.D_Price,$T.R_KPrice=$Z.D_FLPrice ' +
-          'From $Z Where $T.R_ZhiKa=$Z.D_ZID And $T.R_Stock=$Z.D_StockNo';
+  nSQL := 'Update $T Set $T.R_Price=$Z.D_Price,$T.R_KPrice=$Z.D_FLPrice, ' +
+          '$T.R_YunFei=$Z.D_YunFei From $Z Where $T.R_ZhiKa=$Z.D_ZID And ' +
+          '$T.R_Stock=$Z.D_StockNo';
   //xxxxx
 
   with TStringHelper do
