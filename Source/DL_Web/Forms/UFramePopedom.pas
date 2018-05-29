@@ -702,7 +702,7 @@ end;
 //Desc: ÊÚÈ¨
 procedure TfFramePopedom.BtnApplyClick(Sender: TObject);
 var nStr,nP: string;
-    nIdx,nRow,nCol: Integer;
+    nRow,nCol: Integer;
     nList: TStrings;
 begin
   if FGroupSelected < 0 then

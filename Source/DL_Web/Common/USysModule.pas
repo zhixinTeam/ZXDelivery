@@ -21,7 +21,8 @@ uses
 //--------------------------------- report -------------------------------------
   UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
   UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal,
-  UFrameOrderDetail, UFrameQueryStockDays;
+  UFrameOrderDetail, UFrameQueryStockDays, UFrameCusTotalMoney,
+  UFrameCusReceivable;
 
 implementation
 

@@ -188,7 +188,7 @@ begin
     else nC := LockDBQuery(FDBType);
 
     nBool := True;
-    OnInitFormData(nBool, nWhere, nQuery);
+    OnInitFormData(nBool, nWhere, nC);
     if not nBool then Exit;
 
     nStr := InitFormDataSQL(nWhere);

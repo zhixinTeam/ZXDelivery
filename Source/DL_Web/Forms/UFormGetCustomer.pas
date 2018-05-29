@@ -89,6 +89,7 @@ var nIni: TIniFile;
 begin
   nIni := nil;
   try
+    ActiveControl := EditCustomer;
     nIni := UserConfigFile();
     LoadFormConfig(Self, nIni);
 
@@ -114,7 +115,6 @@ end;
 
 function TfFormGetCustomer.SetParam(const nParam: TFormCommandParam): Boolean;
 begin
-  ActiveControl := EditCustomer;
   Result := inherited SetParam(nParam);
   FindCustomer(nParam.FParamA);
 end;

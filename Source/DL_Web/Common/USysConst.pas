@@ -313,6 +313,8 @@ begin
   AddMenuModuleItem('MAIN_L09', 'TfFrameInvoiceSettle');
   AddMenuModuleItem('MAIN_L10', 'TfFrameOrderDetail');
   AddMenuModuleItem('MAIN_L11', 'TfFrameQueryStockDays');
+  AddMenuModuleItem('MAIN_L12', 'TfFrameCusReceivable');
+  AddMenuModuleItem('MAIN_L13', 'TfFrameCusTotalMoney');
 end;
 
 //Desc: 清理模块列表

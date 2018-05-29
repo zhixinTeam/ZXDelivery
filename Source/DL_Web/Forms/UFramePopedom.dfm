@@ -96,8 +96,6 @@ object fFramePopedom: TfFramePopedom
         Caption = #21024#38500#29992#25143
         TabOrder = 7
         OnClick = BtnDelUserClick
-        ExplicitLeft = 445
-        ExplicitTop = -2
       end
       object UniToolButton11: TUniToolButton
         Left = 530
@@ -116,8 +114,6 @@ object fFramePopedom: TfFramePopedom
         Caption = #25480#26435
         TabOrder = 8
         OnClick = BtnApplyClick
-        ExplicitLeft = 536
-        ExplicitTop = -2
       end
     end
     object UniSplitter1: TUniSplitter
