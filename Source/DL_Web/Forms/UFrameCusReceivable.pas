@@ -82,6 +82,10 @@ end;
 procedure TfFrameCusReceivable.OnInitFormData(var nDefault: Boolean;
   const nWhere: string; const nQuery: TADOQuery);
 begin
+  with TDateTimeHelper do
+    EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+  //xxxxx
+
   nDefault := False;
   BtnLoad.JSInterface.JSCall('fireEvent', ['click', BtnLoad]);
 end;
@@ -158,7 +162,7 @@ begin
     //合并出金
 
     nStr := 'Update #qichu Set C_Init=C_Init-IsNull((Select Sum(S_Price*' +
-            'S_Value) From %s Where S_CusID=''%s'' And S_OutFact<''$ST''), 0)';
+            'S_Value) From %s Where S_CusID=''%s'' And S_Date<''$ST''), 0)';
     nStr := Format(nStr, [sTable_InvSettle, FCusID]);
     nList.Add(nStr);
     //合并返还
@@ -200,13 +204,10 @@ begin
     //出入金
 
     nStr := 'Insert into #recv(R_ID,R_Date,R_Type,R_Desc,R_Stock,R_Price,' +
-      'R_Money,R_YunFei) Select * From (' +
-      'Select S_Bill as R_ID,S_Date as R_Date,4 as R_Type,''结算返利'' as ' +
-      'R_Desc,L_StockName as R_Stock,S_Price*(-1) as R_Price,' +
-      'S_Price*S_Value*(-1) as R_Money,S_YunFei*S_Value as R_YunFei ' +
-      'From %s st Left Join %s b on b.L_ID=st.S_Bill ' +
-      'Where S_CusID=''%s'' And S_OutFact>=''$ST'' And S_OutFact<''$ED'') t';
-    nStr := Format(nStr, [sTable_InvSettle, sTable_Bill, FCusID]);
+      'R_Money,R_YunFei) Select S_Bill,S_Date,4,''结算返利'',S_StockName,' +
+      'S_Price*(-1),S_Price*S_Value*(-1),S_YunFei*S_Value From %s ' +
+      'Where S_CusID=''%s'' And S_Date>=''$ST'' And S_Date<''$ED''';
+    nStr := Format(nStr, [sTable_InvSettle, FCusID]);
     nList.Add(nStr);
     //结算返利
 

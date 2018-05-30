@@ -170,7 +170,7 @@ begin
 
     BuidDataSetSortIndex(ClientDS);
     //sort index
-    SetGridColumnFormat(FEntity, ClientDS, UniMainModule.DoColumnFormat);
+    //SetGridColumnFormat(FEntity, ClientDS, UniMainModule.DoColumnFormat);
     //列格式化
   finally
     gMG.FObjectPool.Release(nList);

@@ -37,3 +37,11 @@ begin
   alter table Sys_InvoiceSettle add S_YunFei decimal(15, 5) Default 0
   EXEC('update Sys_InvoiceSettle set S_YunFei=0')
 end
+
+------------------------------------------------------------------------------------------------------------
+--2018.05.30: 添加结算表物料名称
+if not exists (select * from syscolumns where name='S_StockName' and id=object_id('Sys_InvoiceSettle'))
+begin
+  alter table Sys_InvoiceSettle add S_StockName varChar(80)
+  EXEC('update Sys_InvoiceSettle set S_StockName=L_StockName From S_Bill Where S_Bill=L_ID')
+end

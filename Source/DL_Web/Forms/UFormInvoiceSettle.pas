@@ -124,10 +124,10 @@ begin
     ShowHintText('恢复上次结算数据完毕.');
     //--------------------------------------------------------------------------
     ShowHintText('开始生成新结算数据...');
-    nStr := 'Insert Into $ST(S_Week,S_Bill,S_CusID,S_ZhiKa,S_Stock,S_Value,' +
-      'S_Price,S_OutFact,S_Man,S_Date) Select ''$WK'',L_ID,L_CusID,L_ZhiKa,' +
-      'L_StockNo,L_Value,0,L_OutFact,''$SM'',$SD From $Bill Where ' +
-      'L_OutFact>=''$SS'' And L_OutFact<''$ED''';
+    nStr := 'Insert Into $ST(S_Week,S_Bill,S_CusID,S_ZhiKa,S_Stock,S_StockName,' +
+      'S_Value,S_Price,S_OutFact,S_Man,S_Date) Select ''$WK'',L_ID,L_CusID,' +
+      'L_ZhiKa,L_StockNo,L_StockName,L_Value,0,L_OutFact,''$SM'',$SD From ' +
+      '$Bill Where L_OutFact>=''$SS'' And L_OutFact<''$ED''';
 
     with TStringHelper,TDateTimeHelper do
     nStr := MacroValue(nStr, [MI('$ST', sTable_InvSettle), MI('$WK', FNowWeek),
