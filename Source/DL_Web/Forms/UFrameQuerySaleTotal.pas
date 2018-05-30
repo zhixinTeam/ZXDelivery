@@ -150,7 +150,7 @@ begin
               MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
     //xxxxx
 
-    Result := 'Select *,(case L_Value when 0 then 0 else convert(decimal(15,2),' +
+    Result := 'Select *,(case IsNull(L_Value,0) when 0 then 0 else convert(decimal(15,2),' +
               'L_Money/L_Value) end) as L_Price From (' + Result + ') t';
     //¼ÆËã¾ù¼Û
   end;

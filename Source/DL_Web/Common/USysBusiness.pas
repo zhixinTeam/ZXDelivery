@@ -202,7 +202,7 @@ begin
 
       procedure(const nObj: TObject; const nData: Pointer)
       begin
-        //nothing
+        TDataSetProvider(nObj).Free;
       end);
     //data provider
 

@@ -93,8 +93,13 @@ begin
     nList.Add(nStr);
     //删除临时表
 
-    nStr := 'Select C_ID,C_PY,C_Name,0 as C_Init,0 as C_Total,0 as C_End ' +
-            'into #total From ' + sTable_Customer;
+    nStr := 'Create Table dbo.#total(C_ID varChar(15), C_Name varChar(80), ' +
+            'C_PY varChar(80), C_Init decimal(15,5) default 0, ' +
+            'C_Total decimal(15,5) default 0, C_End decimal(15,5) default 0)';
+    nList.Add(nStr);
+
+    nStr := 'Insert into #total(C_ID,C_Name,C_PY) Select C_ID,C_Name,' +
+            'C_PY From ' + sTable_Customer;
     nList.Add(nStr);
     //生成客户列表
 
@@ -147,7 +152,7 @@ begin
     nList.Add(nStr);
     //发生:合并返还
 
-    nStr := 'Update #total Set C_End=C_Init-C_Total';
+    nStr := 'Update #total Set C_End=C_Init+C_Total';
     nList.Add(nStr);
     //结余:生成结余
 

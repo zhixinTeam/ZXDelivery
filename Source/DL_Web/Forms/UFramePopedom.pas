@@ -40,6 +40,9 @@ type
     UniSimplePanel2: TUniSimplePanel;
     TreeGroup: TUniTreeView;
     LabelHint: TUniLabel;
+    BtnExit: TUniToolButton;
+    PMenu2: TUniPopupMenu;
+    N8: TUniMenuItem;
     procedure UniFrameCreate(Sender: TObject);
     procedure UniFrameDestroy(Sender: TObject);
     procedure Grid1MouseDown(Sender: TObject; Button: TMouseButton;
@@ -55,6 +58,8 @@ type
     procedure BtnEditUserClick(Sender: TObject);
     procedure BtnDelUserClick(Sender: TObject);
     procedure BtnApplyClick(Sender: TObject);
+    procedure BtnExitClick(Sender: TObject);
+    procedure N8Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -80,8 +85,8 @@ implementation
 {$R *.dfm}
 
 uses
-  Vcl.Grids, MainModule, ULibFun, UFormBase, USysBusiness, USysDB, USysFun,
-  UManagerGroup, UFormPopedomGroup, UFormPopedomUser;
+  Vcl.Grids, uniPageControl, MainModule, ULibFun, UFormBase, USysBusiness,
+  UManagerGroup, UFormPopedomGroup, UFormPopedomUser, USysDB, USysFun;
 
 const
   giID       = 0;
@@ -157,6 +162,13 @@ begin
   BtnApply.Enabled    := HasPopedom2(sPopedom_Add, FPopedom) and
                          HasPopedom2(sPopedom_Edit, FPopedom);
   //双权限
+end;
+
+procedure TfFramePopedom.BtnExitClick(Sender: TObject);
+var nSheet: TUniTabSheet;
+begin
+  nSheet := Parent as TUniTabSheet;
+  nSheet.Close;
 end;
 
 //------------------------------------------------------------------------------
@@ -500,7 +512,7 @@ procedure TfFramePopedom.TreeGroupClick(Sender: TObject);
 var nStr: string;
     i,nIdx,nRow,nCol: Integer;
 begin
-  if not (Assigned(TreeGroup.Selected) and 
+  if not (Assigned(TreeGroup.Selected) and
           Assigned(TreeGroup.Selected.Data)) then Exit;
   //invalid group
   
@@ -740,6 +752,30 @@ begin
   finally
     gMG.FObjectPool.Release(nList);
   end;
+end;
+
+//Desc: 立即生效
+procedure TfFramePopedom.N8Click(Sender: TObject);
+var nStr: string;
+begin
+  nStr := '确定要立即启用新的权限吗?';
+  MessageDlg(nStr, mtConfirmation, mbYesNo,
+    procedure(Sender: TComponent; Res: Integer)
+    begin
+      if Res <> mrYes then Exit;
+      //cancel
+
+      GlobalSyncLock;
+      try
+        LoadPopedomList(True);
+        //加载权限列表
+      finally
+        GlobalSyncRelease;
+      end;
+
+      ShowMessage('新权限已生效');
+    end);
+  //xxxxx
 end;
 
 initialization

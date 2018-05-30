@@ -42,6 +42,38 @@ object UniServerModule: TUniServerModule
   SuppressErrors = []
   Bindings = <>
   MainFormDisplayMode = mfPage
+  ServerMessages.UnavailableErrMsg = #36890#35759#38169#35823': '#25968#25454#26080#27861#27491#30830#20256#36755
+  ServerMessages.LoadingMessage = #27491#22312#35835#21462
+  ServerMessages.ExceptionTemplate.Strings = (
+    '<html>'
+    '<body bgcolor="#dfe8f6">'
+    '<p style="text-align:center;color:#A05050">'#31995#32479#21457#29983#38169#35823','#25551#36848#22914#19979':</p>'
+    '<p style="text-align:center;color:#0000A0">[###message###]</p>'
+    
+      '<p style="text-align:center;color:#A05050"><a href="[###url###]"' +
+      '>'#37325#26032#30331#24405#31995#32479'</a></p>'
+    '</body>'
+    '</html>')
+  ServerMessages.InvalidSessionTemplate.Strings = (
+    '<html>'
+    '<body bgcolor="#dfe8f6">'
+    '<p style="text-align:center;color:#0000A0">[###message###]</p>'
+    
+      '<p style="text-align:center;color:#A05050"><a href="[###url###]"' +
+      '>'#37325#26032#30331#24405#31995#32479'</a></p>'
+    '</body>'
+    '</html>')
+  ServerMessages.TerminateTemplate.Strings = (
+    '<html>'
+    '<body bgcolor="#dfe8f6">'
+    '<p style="text-align:center;color:#0000A0">[###message###]</p>'
+    
+      '<p style="text-align:center;color:#A05050"><a href="[###url###]"' +
+      '>'#37325#26032#30331#24405#31995#32479'</a></p>'
+    '</body>'
+    '</html>')
+  ServerMessages.InvalidSessionMessage = #27809#26377#30331#24405' '#25110' '#30331#24405#36229#26102
+  ServerMessages.TerminateMessage = #24744#24050#36864#20986#31995#32479
   SSL.SSLOptions.RootCertFile = 'root.pem'
   SSL.SSLOptions.CertFile = 'cert.pem'
   SSL.SSLOptions.KeyFile = 'key.pem'
@@ -54,6 +86,7 @@ object UniServerModule: TUniServerModule
   ConnectionFailureRecovery.ErrorMessage = 'Connection Error'
   ConnectionFailureRecovery.RetryMessage = 'Retrying...'
   OnBeforeInit = UniGUIServerModuleBeforeInit
+  OnBeforeShutdown = UniGUIServerModuleBeforeShutdown
   Height = 346
   Width = 524
 end

@@ -109,11 +109,27 @@ object fFramePopedom: TfFramePopedom
       object BtnApply: TUniToolButton
         Left = 538
         Top = 0
+        Width = 87
         Hint = ''
         ImageIndex = 8
+        Style = tbsDropDown
+        DropdownMenu = PMenu2
         Caption = #25480#26435
         TabOrder = 8
         OnClick = BtnApplyClick
+        ExplicitLeft = 536
+        ExplicitTop = -2
+      end
+      object BtnExit: TUniToolButton
+        Left = 625
+        Top = 0
+        Hint = ''
+        ImageIndex = 7
+        Caption = #36864#20986
+        TabOrder = 10
+        OnClick = BtnExitClick
+        ExplicitLeft = 631
+        ExplicitTop = -2
       end
     end
     object UniSplitter1: TUniSplitter
@@ -226,6 +242,14 @@ object fFramePopedom: TfFramePopedom
       Tag = 30
       Caption = #21015#20840#37096#21453#36873
       OnClick = N5Click
+    end
+  end
+  object PMenu2: TUniPopupMenu
+    Left = 104
+    Top = 120
+    object N8: TUniMenuItem
+      Caption = #31435#21363#29983#25928
+      OnClick = N8Click
     end
   end
 end

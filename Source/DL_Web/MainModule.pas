@@ -213,6 +213,7 @@ begin
     begin
       if FFooter.FKind = fkSum then //sum
       begin
+        if Column.AuxValue = Null then Exit;
         nF := Column.AuxValue;
         Result := FormatFloat(FFooter.FFormat, nF );
 
@@ -222,6 +223,7 @@ begin
 
       if FFooter.FKind = fkCount then //count
       begin
+        if Column.AuxValue = Null then Exit;
         nI := Column.AuxValue;
         Result := FormatFloat(FFooter.FFormat, nI);
 

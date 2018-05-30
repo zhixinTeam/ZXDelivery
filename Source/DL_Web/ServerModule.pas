@@ -13,6 +13,7 @@ uses
 type
   TUniServerModule = class(TUniGUIServerModule)
     procedure UniGUIServerModuleBeforeInit(Sender: TObject);
+    procedure UniGUIServerModuleBeforeShutdown(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -81,6 +82,12 @@ begin
   //注册对象池对象
   ReloadSystemMemory(False);
   //初始化缓存数据
+end;
+
+procedure TUniServerModule.UniGUIServerModuleBeforeShutdown(Sender: TObject);
+begin
+  gMG.FObjectPool.RegistMe(False);
+  //关闭对象池
 end;
 
 initialization
