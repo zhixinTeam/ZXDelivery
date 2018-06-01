@@ -107,7 +107,8 @@ begin
 
     if Radio2.Checked  then
     begin
-      Result := 'select L_Type,L_StockNo,L_StockName,Sum(L_Value) as L_Value,' +
+      Result := 'select '''' as L_CusID,'''' as L_CusName,L_Type,' +
+                'L_StockNo,L_StockName,Sum(L_Value) as L_Value,' +
                 'Sum(L_Value * L_Price) as L_Money From $Bill ';
       //xxxxx
     end else
