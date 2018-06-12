@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameQueryOrderDetail;
 
+{$I Link.inc}
 interface
 
 uses
@@ -93,6 +94,10 @@ end;
 
 function TfFrameOrderDetailQuery.InitFormDataSQL(const nWhere: string): string;
 begin
+  {$IFDEF SpecialControl}
+  MakeOrderViewData;
+  {$ENDIF}
+
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
   Result := 'Select *,(D_MValue-D_PValue-D_KZValue) as D_NetWeight ' +
             'From $OD od Inner Join $OO oo on od.D_OID=oo.O_ID ';

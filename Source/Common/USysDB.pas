@@ -184,7 +184,7 @@ const
   sFlag_WXFactory     = 'WXFactoryID';               //微信标识
   sFlag_WXServiceMIT  = 'WXServiceMIT';              //微信工厂服务
   sFlag_WXSrvRemote   = 'WXServiceRemote';           //微信远程服务
-  
+
   sFlag_PDaiWuChaZ    = 'PoundDaiWuChaZ';            //袋装正误差
   sFlag_PDaiWuChaF    = 'PoundDaiWuChaF';            //袋装负误差
   sFlag_PDaiPercent   = 'PoundDaiPercent';           //按比例计算误差
@@ -210,10 +210,11 @@ const
   sFlag_ZhiKaItem     = 'ZhiKaItem';                 //纸卡信息项
   sFlag_BillItem      = 'BillItem';                  //提单信息项
   sFlag_TruckQueue    = 'TruckQueue';                //车辆队列
-                                                               
+
   sFlag_PaymentItem   = 'PaymentItem';               //付款方式信息项
   sFlag_PaymentItem2  = 'PaymentItem2';              //销售回款信息项
   sFlag_LadingItem    = 'LadingItem';                //提货方式信息项
+  sFlag_OrderItem     = 'OrderItem';                 //采购订单信息项
 
   sFlag_ProviderItem  = 'ProviderItem';              //供应商信息项
   sFlag_MaterailsItem = 'MaterailsItem';             //原材料信息项
@@ -231,6 +232,7 @@ const
   sFlag_PoundQueue    = 'PoundQueue';                //延迟排队(厂内依据过皮时间)
   sFlag_NetPlayVoice  = 'NetPlayVoice';              //使用网络语音播发
   sFlag_BatchAuto     = 'BatchAuto';                 //使用自动批次号
+  sFlag_FobiddenInMul = 'FobiddenInMul';             //禁止多次进厂
 
   sFlag_BusGroup      = 'BusFunction';               //业务编码组
   sFlag_BillNo        = 'Bus_Bill';                  //交货单号

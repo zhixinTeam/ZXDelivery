@@ -76,6 +76,10 @@ const
   cBC_SaveCountData           = $0064;   //保存计数结果
   cBC_RemoteExecSQL           = $0065;
 
+  cBC_ShowLedTxt              = $0066;   //向led屏幕发送内容
+  cBC_GetLimitValue           = $0067;   //获取车辆最大限载值
+  cBC_LineClose               = $0068;   //关闭放灰
+
   cBC_IsTunnelOK              = $0075;
   cBC_TunnelOC                = $0076;
   cBC_PlayVoice               = $0077;
@@ -171,6 +175,7 @@ type
     FPrintHY    : Boolean;         //打印化验单
     FHYDan      : string;          //化验单号
     FMemo       : string;          //动作备注
+    FLadeTime   : string;          //提货时间
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -315,6 +320,7 @@ begin
         FPrintHY := Values['PrintHY'] = sFlag_Yes;
         FHYDan   := Values['HYDan'];
         FMemo    := Values['Memo'];
+        FLadeTime:= Values['LadeTime'];
       end;
 
       Inc(nInt);
@@ -399,6 +405,7 @@ begin
              Values['PrintHY'] := sFlag_Yes
         else Values['PrintHY'] := sFlag_No;
         Values['HYDan']    := FHYDan;
+        Values['LadeTime'] := FLadeTime;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));

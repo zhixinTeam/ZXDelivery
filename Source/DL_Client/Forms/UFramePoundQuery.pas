@@ -44,6 +44,7 @@ type
     dxLayout1Item9: TdxLayoutItem;
     N7: TMenuItem;
     N8: TMenuItem;
+    N6: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
@@ -54,6 +55,7 @@ type
     procedure Check1Click(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
     procedure N4Click(Sender: TObject);
+    procedure N6Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -67,6 +69,8 @@ type
     procedure AfterInitFormData; override;
     function InitFormDataSQL(const nWhere: string): string; override;
     {*查询SQL*}
+    function GetVal(const nRow: Integer; const nField: string): string;
+    //获取指定字段
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -98,6 +102,20 @@ procedure TfFramePoundQuery.OnDestroyFrame;
 begin
   SaveDateRange(Name, FStart, FEnd);
   inherited;
+end;
+
+//Desc: 获取nRow行nField字段的内容
+function TfFramePoundQuery.GetVal(const nRow: Integer;
+ const nField: string): string;
+var nVal: Variant;
+begin
+  nVal := cxView1.ViewData.Rows[nRow].Values[
+            cxView1.GetColumnByFieldName(nField).Index];
+  //xxxxx
+
+  if VarIsNull(nVal) then
+       Result := ''
+  else Result := nVal;
 end;
 
 function TfFramePoundQuery.InitFormDataSQL(const nWhere: string): string;
@@ -344,6 +362,40 @@ begin
     nPic.Free;
     CloseWaitForm;
     FDM.SqlTemp.Close;
+  end;
+end;
+
+procedure TfFramePoundQuery.N6Click(Sender: TObject);
+var nStr: string;
+    nIdx: Integer;
+    nList: TStrings;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then
+  begin
+    ShowMsg('请选择要编辑的记录', sHint); Exit;
+  end;
+
+  nList := TStringList.Create;
+  try
+    for nIdx := 0 to cxView1.DataController.RowCount - 1  do
+    begin
+
+      nStr := GetVal(nIdx,'P_ID');
+      if nStr = '' then
+        Continue;
+
+      if GetVal(nIdx,'P_PValue') = '' then
+      begin
+        ShowMsg(nStr + '未一次过磅,无法批量打印', sHint); Exit;
+      end;
+
+      nList.Add(nStr);
+    end;
+
+    nStr := AdjustListStrFormat2(nList, '''', True, ',', False);
+    PrintPoundReport(nStr, False, True);
+  finally
+    nList.Free;
   end;
 end;
 

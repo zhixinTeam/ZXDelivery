@@ -685,6 +685,9 @@ begin
                 SF('L_MMan', FIn.FBase.FFrom.FUser),
                 SF('L_OutFact', sField_SQLServer_Now, sfVal),
                 SF('L_OutMan', FIn.FBase.FFrom.FUser),
+                {$IFDEF BDAUDIT}
+                SF('L_Audit', sFlag_Yes),
+                {$ENDIF}
                 SF('L_Card', '')
                 ], sTable_Bill, SF('L_ID', nOut.FData), False);
         gDBConnManager.WorkerExec(FDBConn, nStr);
@@ -1419,53 +1422,56 @@ begin
   end;
 
   //----------------------------------------------------------------------------
-  nSQL := 'Select T_HKBills From %s Where T_Truck=''%s'' ';
-  nSQL := Format(nSQL, [sTable_ZTTrucks, nTruck]);
-
-  //还在队列中车辆
-  nStr := '';
-  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
-  if RecordCount > 0 then
+  if not AllowedSanMultiBill then
   begin
-    First;
+    nSQL := 'Select T_HKBills From %s Where T_Truck=''%s'' ';
+    nSQL := Format(nSQL, [sTable_ZTTrucks, nTruck]);
 
-    while not Eof do
-    try
-      nStr := nStr + Fields[0].AsString;
-    finally
-      Next;
-    end;
-
-    nStr := Copy(nStr, 1, Length(nStr)-1);
-    nStr := StringReplace(nStr, '.', ',', [rfReplaceAll]);
-  end; 
-
-  nStr := AdjustListStrFormat(nStr, '''', True, ',', False);
-  //队列中交货单列表
-
-  nSQL := 'Select L_Card From %s Where L_ID In (%s)';
-  nSQL := Format(nSQL, [sTable_Bill, nStr]);
-
-  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
-  if RecordCount > 0 then
-  begin
-    First;
-
-    while not Eof do
+    //还在队列中车辆
+    nStr := '';
+    with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+    if RecordCount > 0 then
     begin
-      if (Fields[0].AsString <> '') and
-         (Fields[0].AsString <> FIn.FExtParam) then
-      begin
-        nData := '车辆[ %s ]的磁卡号不一致,不能并单.' + #13#10#13#10 +
-                 '*.本单磁卡: [%s]' + #13#10 +
-                 '*.其它磁卡: [%s]' + #13#10#13#10 +
-                 '相同磁卡号才能并单,请修改车牌号,或者单独办卡.';
-        nData := Format(nData, [nTruck, FIn.FExtParam, Fields[0].AsString]);
-        Exit;
+      First;
+
+      while not Eof do
+      try
+        nStr := nStr + Fields[0].AsString;
+      finally
+        Next;
       end;
 
-      Next;
-    end;  
+      nStr := Copy(nStr, 1, Length(nStr)-1);
+      nStr := StringReplace(nStr, '.', ',', [rfReplaceAll]);
+    end;
+
+    nStr := AdjustListStrFormat(nStr, '''', True, ',', False);
+    //队列中交货单列表
+
+    nSQL := 'Select L_Card From %s Where L_ID In (%s)';
+    nSQL := Format(nSQL, [sTable_Bill, nStr]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+    if RecordCount > 0 then
+    begin
+      First;
+
+      while not Eof do
+      begin
+        if (Fields[0].AsString <> '') and
+           (Fields[0].AsString <> FIn.FExtParam) then
+        begin
+          nData := '车辆[ %s ]的磁卡号不一致,不能并单.' + #13#10#13#10 +
+                   '*.本单磁卡: [%s]' + #13#10 +
+                   '*.其它磁卡: [%s]' + #13#10#13#10 +
+                   '相同磁卡号才能并单,请修改车牌号,或者单独办卡.';
+          nData := Format(nData, [nTruck, FIn.FExtParam, Fields[0].AsString]);
+          Exit;
+        end;
+
+        Next;
+      end;
+    end;
   end;
 
   FDBConn.FConn.BeginTrans;
@@ -1800,7 +1806,7 @@ begin
   nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
           'L_StockName,L_Truck,L_Value,L_Price,L_ZKMoney,L_Status,' +
           'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue,L_PrintHY,' +
-          'L_HYDan, L_EmptyOut From $Bill b ';
+          'L_HYDan, L_EmptyOut, L_LadeTime From $Bill b ';
   //xxxxx
 
   if nIsBill then
@@ -1848,6 +1854,7 @@ begin
 
       FHYDan      := FieldByName('L_HYDan').AsString;
       FPrintHY    := FieldByName('L_PrintHY').AsString = sFlag_Yes;
+      FLadeTime   := FieldByName('L_LadeTime').AsString;
 
       if FIsVIP = sFlag_TypeShip then
       begin

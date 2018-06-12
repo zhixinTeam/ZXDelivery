@@ -73,6 +73,10 @@ type
     //车辆检测控制器业务
     function OpenDoorByReader(var nData: string): Boolean;
     //通过读卡器打开道闸
+    function ShowLedText(var nData: string): Boolean;
+    //定制放灰调用小屏显示
+    function LineClose(var nData: string): Boolean;
+    //定制放灰
   public
     constructor Create; override;
     destructor destroy; override;
@@ -87,7 +91,7 @@ implementation
 uses
 	{$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   UMgrHardHelper, UMgrCodePrinter, UMgrQueue, UTaskMonitor,
-  UMgrTruckProbe;
+  UMgrTruckProbe, UMgrERelay;
 
 //Date: 2012-3-13
 //Parm: 如参数护具
@@ -250,6 +254,9 @@ begin
    cBC_ShowTxt              : Result := TruckProbe_ShowTxt(nData);
    
    cBC_OpenDoorByReader     : Result := OpenDoorByReader(nData);
+
+   cBC_ShowLedTxt           : Result := ShowLedText(nData);
+   cBC_LineClose            : Result := LineClose(nData);
    //xxxxxx
    else
     begin
@@ -730,6 +737,28 @@ begin
 
   nData := Format('ShowTxt -> %s:%s', [FIn.FData, FIn.FExtParam]);
   WriteLog(nData);
+end;
+
+function THardwareCommander.ShowLedText(var nData: string): Boolean;
+var
+  nTunnel, nStr:string;
+begin
+  nTunnel := FIn.FData;
+  nStr := fin.FExtParam;
+  gERelayManager.ShowTxt(nTunnel, nStr);
+  Result := True;
+end;
+
+function THardwareCommander.LineClose(var nData: string): Boolean;
+var
+  nTunnel:string;
+begin
+  nTunnel := FIn.FData;
+  if FIn.FExtParam = sFlag_No then
+    gERelayManager.LineOpen(nTunnel)
+  else
+    gERelayManager.LineClose(nTunnel);
+  Result := True;
 end;
 
 initialization

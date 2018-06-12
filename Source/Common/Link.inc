@@ -14,7 +14,7 @@
 {$DEFINE cxLibrary42}
 //Ver4.2编译环境
 
-{.$DEFINE EnableBackupDB}
+{$DEFINE EnableBackupDB}
 //备用数据库支持
 {.$DEFINE EnableDoubleDB}
 //双数据库支持
@@ -137,6 +137,12 @@
   //自助机原材料开卡不检查订单剩余量
   {$DEFINE ProberShow}
   //车检发送小屏
+  {$DEFINE SpecialControl}
+  //春江特殊要求
+  {$DEFINE FixLoad}
+  //定制放灰
+  {$DEFINE OrderNoMulCard}
+  //采购禁止一车多单
 {$ENDIF}
 
 //郑州上街

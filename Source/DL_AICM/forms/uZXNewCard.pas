@@ -147,8 +147,10 @@ begin
   dxLayout1Item11.Visible := False;
   {$IFDEF PrintHYEach}
   PrintHY.Checked := True;
+  PrintHY.Enabled := False;
   {$ELSE}
   PrintHY.Checked := False;
+  PrintHY.Enabled := True;
   {$ENDIF}
 end;
 

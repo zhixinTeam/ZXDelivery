@@ -165,21 +165,21 @@ function SaveTruckPoundItem(const nTunnel: PPTTunnelItem;
 //保存车辆过磅记录
 function ReadPoundCard(const nTunnel: string; var nReader: string): string;
 //读取指定磅站读头上的卡号
-function ReadPoundCardEx(var nReader: string;
-  const nTunnel: string; nReadOnly: String = ''): string;
-//读取指定磅站读头上的卡号(电子标签)
-function GetTruckRealLabel(const nTruck: string): string;
-//获取车辆绑定的电子标签
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
 
 procedure GetPoundAutoWuCha(var nWCValZ,nWCValF: Double; const nVal: Double;
  const nStation: string = '');
 //获取误差范围
-
-function GetTruckNO(const nTruck: WideString; const nLong: Integer=12): string;
-function GetValue(const nValue: Double): string;
-//显示格式化
+function AddManualEventRecord(const nEID,nKey,nEvent:string;
+ const nFrom: string = sFlag_DepBangFang ;
+ const nSolution: string = sFlag_Solution_YN;
+ const nDepartmen: string = sFlag_DepDaTing;
+ const nReset: Boolean = False; const nMemo: string = ''): Boolean;
+//添加待处理事项记录
+function VerifyManualEventRecord(const nEID: string; var nHint: string;
+ const nWant: string = sFlag_Yes): Boolean;
+//检查事件是否通过处理
 
 function IsTunnelOK(const nTunnel: string): Boolean;
 //查询通道光栅是否正常
@@ -187,8 +187,6 @@ procedure TunnelOC(const nTunnel: string; const nOpen: Boolean);
 //控制通道红绿灯开合
 function PlayNetVoice(const nText,nCard,nContent: string): Boolean;
 //经中间件播发语音
-procedure ProberShowTxt(const nTunnel, nText: string);
-//车检发送小屏
 
 function SaveOrderBase(const nOrderData: string): string;
 //保存采购申请单
@@ -231,10 +229,7 @@ function OpenDoorByReader(const nReader: string; nType: string = 'Y'): Boolean;
 function GetHYMaxValue: Double;
 function GetHYValueByStockNo(const nNo: string): Double;
 //获取化验单已开量
-function IsEleCardVaid(const nTruckNo: string): Boolean;
-//验证车辆电子标签
-function IfStockHasLs(const nStockNo: string): Boolean;
-//验证物料是否需要输入流水
+
 function IsWeekValid(const nWeek: string; var nHint: string): Boolean;
 //周期是否有效
 function IsWeekHasEnable(const nWeek: string): Boolean;
@@ -260,8 +255,7 @@ function PrintOrderReport(const nOrder: string;  const nAsk: Boolean): Boolean;
 //打印采购单
 function PrintRCOrderReport(const nID: string;  const nAsk: Boolean): Boolean;
 //打印采购单
-function PrintPoundReport(const nPound: string; nAsk: Boolean;
-                          const nMul: Boolean = False): Boolean;
+function PrintPoundReport(const nPound: string; nAsk: Boolean): Boolean;
 //打印榜单
 function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
 function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
@@ -279,45 +273,27 @@ function GetFQValueByStockNo(const nStock: string): Double;
 //获取封签号已发量
 function VerifyFQSumValue: Boolean;
 //是否校验封签号
-function AddManualEventRecord(const nEID,nKey,nEvent:string;
- const nFrom: string = sFlag_DepBangFang ;
- const nSolution: string = sFlag_Solution_YN;
- const nDepartmen: string = sFlag_DepDaTing;
- const nReset: Boolean = False; const nMemo: string = ''): Boolean;
-//添加待处理事项记录
-function VerifyManualEventRecord(const nEID: string; var nHint: string;
- const nWant: string = sFlag_Yes; const nUpdateHint: Boolean = True): Boolean;
-//检查事件是否通过处理
 
-function getCustomerInfo(const nData: string): string;
 //获取客户注册信息
-function get_Bindfunc(const nData: string): string;
-//客户与微信账号绑定
-function send_event_msg(const nData: string): string;
-//发送消息
-function edit_shopclients(const nData: string): string;
-//新增商城用户
-function edit_shopgoods(const nData: string): string;
-//添加商品
-function get_shoporders(const nData: string): string;
-//获取订单信息
-function complete_shoporders(const nData: string): string;
-//更新订单状态
-function getAuditTruck(const nData: string): string;
-//获取审核车辆
-function UploadAuditTruck(const nData: string): string;
-//审核车辆结果上传
-function DownLoadPic(const nData: string): string;
-//下载照片
-function GetshoporderbyTruck(const nData: string): string;
-//根据车牌号获取订单
-procedure SaveWebOrderDelMsg(const nLID, nBillType: string);
-//插入推送消息
+function getCustomerInfo(const nXmlStr: string): string;
 
-function MakeSaleViewData: Boolean;
-//生成销售特定字段数据(特定使用)
-function MakeOrderViewData: Boolean;
-//生成采购特定字段数据(特定使用)
+//客户与微信账号绑定
+function get_Bindfunc(const nXmlStr: string): string;
+
+//发送消息
+function send_event_msg(const nXmlStr: string): string;
+
+//新增商城用户
+function edit_shopclients(const nXmlStr: string): string;
+
+//添加商品
+function edit_shopgoods(const nXmlStr: string): string;
+
+//获取订单信息
+function get_shoporders(const nXmlStr: string): string;
+
+//更新订单状态
+function complete_shoporders(const nXmlStr: string): string;
 implementation
 
 //Desc: 记录日志
@@ -503,42 +479,6 @@ begin
     //自动称重时不提示
     
     nWorker := gBusinessWorkerManager.LockWorker(sCLI_HardwareCommand);
-    //get worker
-    Result := nWorker.WorkActive(@nIn, nOut);
-
-    if not Result then
-      WriteLog(nOut.FBase.FErrDesc);
-    //xxxxx
-  finally
-    gBusinessWorkerManager.RelaseWorker(nWorker);
-  end;
-end;
-
-
-//Date: 2017-10-26
-//Parm: 命令;数据;参数;服务地址;输出
-//Desc: 调用中间件上的销售单据对象
-function CallBusinessWechat(const nCmd: Integer; const nData,nExt,nSrvURL: string;
-  const nOut: PWorkerWebChatData; const nWarn: Boolean = True): Boolean;
-var nIn: TWorkerWebChatData;
-    nWorker: TBusinessWorkerBase;
-begin
-  nWorker := nil;
-  try
-    nIn.FCommand := nCmd;
-    nIn.FData := nData;
-    nIn.FExtParam := nExt;
-    nIn.FRemoteUL := nSrvURL;
-
-    if nWarn then
-         nIn.FBase.FParam := ''
-    else nIn.FBase.FParam := sParam_NoHintOnError;
-
-    if gSysParam.FAutoPound and (not gSysParam.FIsManual) then
-      nIn.FBase.FParam := sParam_NoHintOnError;
-    //close hint param
-    
-    nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessWebchat);
     //get worker
     Result := nWorker.WorkActive(@nIn, nOut);
 
@@ -826,7 +766,7 @@ begin
 
   nStr := 'Select * From %s Where E_ID=''%s''';
   nStr := Format(nStr, [sTable_ManualEvent, nEID]);
-
+  
   with FDM.QuerySQL(nStr) do
   if RecordCount > 0 then
   begin
@@ -844,7 +784,7 @@ begin
           SF('E_From', nFrom),
           SF('E_Memo', nMemo),
           SF('E_Result', 'Null', sfVal),
-
+          
           SF('E_Event', nEvent),
           SF('E_Solution', nSolution),
           SF('E_Departmen', nDepartmen),
@@ -860,7 +800,7 @@ end;
 //Parm: 事件ID;预期结果;错误返回
 //Desc: 判断事件是否处理
 function VerifyManualEventRecord(const nEID: string; var nHint: string;
- const nWant: string; const nUpdateHint: Boolean): Boolean;
+ const nWant: string): Boolean;
 var nStr: string;
 begin
   Result := False;
@@ -873,15 +813,13 @@ begin
     nStr := Trim(FieldByName('E_Result').AsString);
     if nStr = '' then
     begin
-      if nUpdateHint then
-        nHint := FieldByName('E_Event').AsString;
+      nHint := FieldByName('E_Event').AsString;
       Exit;
     end;
 
     if nStr <> nWant then
     begin
-      if nUpdateHint then
-        nHint := '请联系管理员，做换票处理';
+      nHint := '请联系管理员，做换票处理';
       Exit;
     end;
 
@@ -1328,43 +1266,6 @@ begin
     Result := Trim(nOut.FData);
     nReader:= Trim(nOut.FExtParam);
   end;
-end;
-
-//Date: 2018-04-27
-//Parm: 通道号
-//Desc: 读取nTunnel读头上的卡号(电子标签)
-function ReadPoundCardEx(var nReader: string;
-    const nTunnel: string; nReadOnly: String = ''): string;
-var nOut: TWorkerBusinessCommand;
-begin
-  Result := '';
-  nReader:= '';
-  //卡号
-
-  if CallBusinessHardware(cBC_GetPoundCard, nTunnel, nReadOnly, @nOut)  then
-  begin
-    Result := Trim(nOut.FData);
-    nReader:= Trim(nOut.FExtParam);
-  end;
-end;
-
-//Date: 2017/5/18
-//Parm: 车牌号码
-//Desc: 获取车辆在用的电子标签
-function GetTruckRealLabel(const nTruck: string): string;
-var nStr: string;
-begin
-  Result := '';
-  //默认允许
-
-  nStr := 'Select Top 1 T_Card From %s ' +
-          'Where T_Truck=''%s'' And T_CardUse=''%s'' And T_Card Is not NULL';
-  nStr := Format(nStr, [sTable_Truck, nTruck, sFlag_Yes]);
-  //选择该车提一条有电子标签的记录
-
-  with FDM.QueryTemp(nStr) do
-  if RecordCount > 0 then
-    Result := Fields[0].AsString;
 end;
 
 //------------------------------------------------------------------------------
@@ -2335,10 +2236,9 @@ begin
 end;
 
 //Date: 2012-4-15
-//Parm: 过磅单号;是否询问;是否批量打印
+//Parm: 过磅单号;是否询问
 //Desc: 打印nPound过磅记录
-function PrintPoundReport(const nPound: string; nAsk: Boolean;
-                          const nMul: Boolean = False): Boolean;
+function PrintPoundReport(const nPound: string; nAsk: Boolean): Boolean;
 var nStr: string;
     nParam: TReportParamItem;
 begin
@@ -2349,10 +2249,8 @@ begin
     nStr := '是否要打印过磅单?';
     if not QueryDlg(nStr, sAsk) then Exit;
   end;
-  if nMul then
-    nStr := 'Select * From %s Where P_ID In (%s)'
-  else
-    nStr := 'Select * From %s Where P_ID=''%s''';
+
+  nStr := 'Select * From %s Where P_ID=''%s''';
   nStr := Format(nStr, [sTable_PoundLog, nPound]);
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
@@ -2745,399 +2643,68 @@ var nOut: TWorkerBusinessCommand;
 begin
   Result := CallBusinessHardware(cBC_OpenDoorByReader, nReader, nType,
             @nOut, False);
-end;
+end;  
 
-//------------------------------------------------------------------------------
 //获取客户注册信息
-function getCustomerInfo(const nData: string): string;
+function getCustomerInfo(const nXmlStr: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
-  if CallBusinessWechat(cBC_WX_getCustomerInfo, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
+  Result := '';
+  if CallBusinessCommand(cBC_WeChat_getCustomerInfo, nXmlStr, '', @nOut) then
+    Result := nOut.FData;
 end;
 
 //客户与微信账号绑定
-function get_Bindfunc(const nData: string): string;
+function get_Bindfunc(const nXmlStr: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
-  if CallBusinessWechat(cBC_WX_get_Bindfunc, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
+  Result := '';
+  if CallBusinessCommand(cBC_WeChat_get_Bindfunc, nXmlStr, '', @nOut) then
+    Result := nOut.FData;
 end;
 
 //发送消息
-function send_event_msg(const nData: string): string;
+function send_event_msg(const nXmlStr: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
-  if CallBusinessWechat(cBC_WX_send_event_msg, nData, '', '', @nOut,false) then
-       Result := nOut.FData
-  else Result := '';
+  Result := '';
+  if CallBusinessCommand(cBC_WeChat_send_event_msg, nXmlStr, '', @nOut,false) then
+    Result := nOut.FData;
 end;
 
 //新增商城用户
-function edit_shopclients(const nData: string): string;
+function edit_shopclients(const nXmlStr: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
-  if CallBusinessWechat(cBC_WX_edit_shopclients, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
+  Result := '';
+  if CallBusinessCommand(cBC_WeChat_edit_shopclients, nXmlStr, '', @nOut) then
+    Result := nOut.FData;
 end;
 
 //添加商品
-function edit_shopgoods(const nData: string): string;
+function edit_shopgoods(const nXmlStr: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
-  if CallBusinessWechat(cBC_WX_edit_shopgoods, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
+  Result := '';
+  if CallBusinessCommand(cBC_WeChat_edit_shopgoods, nXmlStr, '', @nOut) then
+    Result := nOut.FData;
 end;
 
 //获取订单信息
-function get_shoporders(const nData: string): string;
+function get_shoporders(const nXmlStr: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
-  if CallBusinessWechat(cBC_WX_get_shoporders, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
+  Result := '';
+  if CallBusinessCommand(cBC_WeChat_get_shoporders, nXmlStr, '', @nOut) then
+    Result := nOut.FData;
 end;
 
 //更新订单状态
-function complete_shoporders(const nData: string): string;
+function complete_shoporders(const nXmlStr: string): string;
 var nOut: TWorkerBusinessCommand;
 begin
-  if CallBusinessWechat(cBC_WX_complete_shoporders, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
+  Result := '';
+  if CallBusinessCommand(cBC_WeChat_complete_shoporders, nXmlStr, '', @nOut) then
+    Result := nOut.FData;  
 end;
-
-//------------------------------------------------------------------------------
-//获取车辆审核信息
-function getAuditTruck(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
-begin
-  if CallBusinessWechat(cBC_WX_GetAuditTruck, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
-end;
-
-//------------------------------------------------------------------------------
-//车辆审核结果上传
-function UpLoadAuditTruck(const nData: string): string;
-var nOut: TWorkerWebChatData;
-begin
-  if CallBusinessWechat(cBC_WX_UpLoadAuditTruck, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
-end;
-
-//------------------------------------------------------------------------------
-//下载图片
-function DownLoadPic(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
-begin
-  if CallBusinessWechat(cBC_WX_DownLoadPic, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
-end;
-
-//------------------------------------------------------------------------------
-//根据车牌号获取订单
-function GetshoporderbyTruck(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
-begin
-  if CallBusinessWechat(cBC_WX_get_shoporderbyTruck, nData, '', '', @nOut) then
-       Result := nOut.FData
-  else Result := '';
-end;
-
-//Date: 2017-11-22
-//Parm: 交货单号,商城申请单
-//Desc: 插入删除推送消息
-procedure SaveWebOrderDelMsg(const nLID, nBillType: string);
-var nStr, nWebOrderID: string;
-    nBool: Boolean;
-begin
-  nStr := 'Select WOM_WebOrderID From %s Where WOM_LID=''%s'' ';
-  nStr := Format(nStr, [sTable_WebOrderMatch, nLID]);
-
-  with FDM.QueryTemp(nStr) do
-  begin
-    if RecordCount <= 0 then
-      Exit;
-    //手工单
-    nWebOrderID := Fields[0].AsString;
-  end;
-
-  nBool := FDM.ADOConn.InTransaction;
-  if not nBool then FDM.ADOConn.BeginTrans;
-  try
-    nStr := 'Insert Into %s(WOM_WebOrderID,WOM_LID,WOM_StatusType,' +
-            'WOM_MsgType,WOM_BillType) Values(''%s'',''%s'',%d,' +
-            '%d,''%s'')';
-    nStr := Format(nStr, [sTable_WebOrderMatch, nWebOrderID, nLID, c_WeChatStatusDeleted,
-            cSendWeChatMsgType_DelBill, nBillType]);
-    FDM.ExecuteSQL(nStr);
-
-    if not nBool then
-      FDM.ADOConn.CommitTrans;
-  except
-    if not nBool then FDM.ADOConn.RollbackTrans;
-  end;
-end;
-
-//------------------------------------------------------------------------------
-//Date: 2017-10-17
-//Parm: 车牌号;保留长度
-//Desc: 将nTruck整合为长度为nLen的字符串
-function GetTruckNO(const nTruck: WideString; const nLong: Integer): string;
-var nStr: string;
-    nIdx,nLen,nPos: Integer;
-begin
-  nPos := 0;
-  nLen := 0;
-
-  for nIdx:=Length(nTruck) downto 1 do
-  begin
-    nStr := nTruck[nIdx];
-    nLen := nLen + Length(nStr);
-
-    if nLen >= nLong then Break;
-    nPos := nIdx;
-  end;
-
-  Result := Copy(nTruck, nPos, Length(nTruck));
-  nIdx := nLong - Length(Result);
-  Result := Result + StringOfChar(' ', nIdx);
-end;
-
-function GetValue(const nValue: Double): string;
-var nStr: string;
-begin
-  nStr := Format('      %.2f', [nValue]);
-  Result := Copy(nStr, Length(nStr) - 6 + 1, 6);
-end;
-
-//验证车辆电子标签
-function IsEleCardVaid(const nTruckNo: string): Boolean;
-var
-  nSql:string;
-begin
-  Result := True;
-
-  nSql := 'select * from %s where T_Truck = ''%s'' ';
-  nSql := Format(nSql,[sTable_Truck,nTruckNo]);
-
-  with FDM.QueryTemp(nSql) do
-  begin
-    if recordcount>0 then
-    begin
-      if FieldByName('T_CardUse').AsString = sFlag_Yes then//启用
-      begin
-        if (FieldByName('T_Card').AsString = '') and (FieldByName('T_Card2').AsString = '') then
-        begin
-          Result := False;
-          Exit;
-        end;
-      end;
-    end;
-  end;
-end;
-
-//验证物料是否需要输入流水
-function IfStockHasLs(const nStockNo: string): Boolean;
-var
-  nSql:string;
-begin
-  Result := False;
-
-  nSql := 'select * from %s where M_ID = ''%s'' ';
-  nSql := Format(nSql,[sTable_Materails,nStockNo]);
-
-  with FDM.QueryTemp(nSql) do
-  begin
-    if recordcount>0 then
-    begin
-      if FieldByName('M_HasLs').AsString = sFlag_Yes then//启用
-      begin
-        Result := True;
-      end;
-    end;
-  end;
-end;
-
-procedure ProberShowTxt(const nTunnel, nText: string);
-var nOut: TWorkerBusinessCommand;
-begin
-  CallBusinessHardware(cBC_ShowTxt, nTunnel, nText, @nOut);
-end;
-
-//Desc: 生成销售特定字段数据(特定使用)
-function MakeSaleViewData: Boolean;
-var nID: string;
-    nStr: string;
-    nList : TStrings;
-    nIdx: Integer;
-begin
-  nList := TStringList.Create;
-  try
-    nStr := 'Select top 1000 L_ID , L_MValue From %s ' +
-            'Where L_MValueView is null';
-    nStr := Format(nStr, [sTable_Bill]);
-
-    with FDM.QueryTemp(nStr) do
-    if RecordCount > 0 then
-    begin
-      First;
-
-      while not Eof do
-      begin
-        nID := Fields[0].AsString;
-
-        if Fields[1].AsString = '' then
-        begin
-          Next;
-          Continue;
-        end;
-
-        if Fields[1].AsFloat <= 49 then
-        begin
-          nStr := 'Update %s Set L_MValueview = L_MValue Where L_ID=''%s''';
-          nStr := Format(nStr, [sTable_Bill, nID]);
-          nList.Add(nStr);
-
-          nStr := 'Update %s Set L_Valueview = L_Value Where L_ID=''%s''';
-          nStr := Format(nStr, [sTable_Bill, nID]);
-          nList.Add(nStr);
-
-          nStr := 'Update a set a.P_MValueView = b.L_MValueView,'+
-                  ' a.P_ValueView = b.L_ValueView from %s a, %s b'+
-                  ' where  a.P_Bill = b.L_ID and b.L_ID=''%s''';
-          nStr := Format(nStr, [sTable_PoundLog, sTable_Bill, nID]);
-          nList.Add(nStr);
-        end
-        else
-        begin
-          nStr := 'Update %s Set L_MValueview = (40 + 899*rand() / 100) Where L_ID=''%s''';
-          nStr := Format(nStr, [sTable_Bill, nID]);
-          nList.Add(nStr);
-
-          nStr := 'Update %s Set L_Valueview = L_MValueView - L_PValue Where L_ID=''%s''';
-          nStr := Format(nStr, [sTable_Bill, nID]);
-          nList.Add(nStr);
-
-          nStr := 'Update a set a.P_MValueView = b.L_MValueView,'+
-                  ' a.P_ValueView = b.L_ValueView from %s a, %s b'+
-                  ' where  a.P_Bill = b.L_ID and b.L_ID=''%s''';
-          nStr := Format(nStr, [sTable_PoundLog, sTable_Bill, nID]);
-          nList.Add(nStr);
-        end;
-        Next;
-      end;
-    end;
-
-    FDM.ADOConn.BeginTrans;
-    try
-      for nIdx:=0 to nList.Count - 1 do
-      begin
-        FDM.ExecuteSQL(nList[nIdx]);
-      end;
-      FDM.ADOConn.CommitTrans;
-    except
-      On E: Exception do
-      begin
-        Result := False;
-        FDM.ADOConn.RollbackTrans;
-        WriteLog(E.Message);
-      end;
-    end;
-  finally
-    nList.Free;
-  end;
-end;
-
-//Desc: 生成采购特定字段数据(特定使用)
-function MakeOrderViewData: Boolean;
-var nID: string;
-    nStr: string;
-    nList : TStrings;
-    nIdx: Integer;
-begin
-  nList := TStringList.Create;
-  try
-    nStr := 'Select top 1000 D_ID ,D_MValue From %s ' +
-            'Where D_MValueView is null';
-    nStr := Format(nStr, [sTable_OrderDtl]);
-
-    with FDM.QueryTemp(nStr) do
-    if RecordCount > 0 then
-    begin
-      First;
-
-      while not Eof do
-      begin
-        nID := Fields[0].AsString;
-
-        if Fields[1].AsString = '' then
-        begin
-          Next;
-          Continue;
-        end;
-
-        if Fields[1].AsFloat <= 49 then
-        begin
-          nStr := 'Update %s Set D_MValueview = D_MValue Where D_ID=''%s''';
-          nStr := Format(nStr, [sTable_OrderDtl, nID]);
-          nList.Add(nStr);
-
-          nStr := 'Update %s Set D_Valueview = D_MValue - D_PValue Where D_ID=''%s''';
-          nStr := Format(nStr, [sTable_OrderDtl, nID]);
-          nList.Add(nStr);
-
-          nStr := 'Update a set a.P_MValueView = b.D_MValueView,'+
-                  ' a.P_ValueView = b.D_ValueView from %s a, %s b'+
-                  ' where  a.P_Order = b.D_ID and b.D_ID=''%s''';
-          nStr := Format(nStr, [sTable_PoundLog, sTable_OrderDtl, nID]);
-          nList.Add(nStr);
-        end
-        else
-        begin
-          nStr := 'Update %s Set D_MValueview = (40 + 899*rand() / 100) Where D_ID=''%s''';
-          nStr := Format(nStr, [sTable_OrderDtl, nID]);
-          nList.Add(nStr);
-
-          nStr := 'Update %s Set D_Valueview = D_MValueView - D_PValue Where D_ID=''%s''';
-          nStr := Format(nStr, [sTable_OrderDtl, nID]);
-          nList.Add(nStr);
-
-          nStr := 'Update a set a.P_MValueView = b.D_MValueView,'+
-                  ' a.P_ValueView = b.D_ValueView from %s a, %s b'+
-                  ' where  a.P_Order = b.D_ID and b.D_ID=''%s''';
-          nStr := Format(nStr, [sTable_PoundLog, sTable_OrderDtl, nID]);
-          nList.Add(nStr);
-        end;
-        Next;
-      end;
-    end;
-
-    FDM.ADOConn.BeginTrans;
-    try
-      for nIdx:=0 to nList.Count - 1 do
-      begin
-        FDM.ExecuteSQL(nList[nIdx]);
-      end;
-      FDM.ADOConn.CommitTrans;
-    except
-      On E: Exception do
-      begin
-        Result := False;
-        FDM.ADOConn.RollbackTrans;
-        WriteLog(E.Message);
-      end;
-    end;
-  finally
-    nList.Free;
-  end;
-end;
-
 end.

@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFramePurchaseOrder;
 
+{$I Link.inc}
 interface
 
 uses
@@ -42,6 +43,8 @@ type
     Check1: TcxCheckBox;
     N4: TMenuItem;
     N5: TMenuItem;
+    N7: TMenuItem;
+    N8: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
@@ -55,6 +58,8 @@ type
     procedure N3Click(Sender: TObject);
     procedure Check1Click(Sender: TObject);
     procedure N5Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
+    procedure N8Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -90,6 +95,13 @@ begin
   FTimeE := Str2DateTime(Date2Str(Now) + ' 00:00:00');
 
   InitDateRange(Name, FStart, FEnd);
+  {$IFDEF KuangFa}
+  N7.Visible := True;
+  N8.Visible := True;
+  {$ELSE}
+  N7.Visible := False;
+  N8.Visible := False;
+  {$ENDIF}
 end;
 
 procedure TfFramePurchaseOrder.OnDestroyFrame;
@@ -279,6 +291,54 @@ begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
     PrintRCOrderReport(SQLQuery.FieldByName('O_ID').AsString, False);
+  end;
+end;
+
+procedure TfFramePurchaseOrder.N7Click(Sender: TObject);
+var nStr,nTruck: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('O_KFLS').AsString;
+    nTruck := nStr;
+    if not ShowInputBox('请输入新的矿发流水:', '修改', nTruck, 15) then Exit;
+
+    if (nTruck = '') or (nStr = nTruck) then Exit;
+    //无效或一致
+
+    nStr := SQLQuery.FieldByName('O_ID').AsString;
+
+    nStr := 'Update %s Set O_KFLS=''%s'' Where O_ID=''%s''';
+    nStr := Format(nStr, [sTable_Order, nTruck,
+            SQLQuery.FieldByName('O_ID').AsString]);
+    FDM.ExecuteSQL(nStr);
+
+    InitFormData(FWhere);
+    ShowMsg('矿发流水修改成功', sHint);
+  end;
+end;
+
+procedure TfFramePurchaseOrder.N8Click(Sender: TObject);
+var nStr,nTruck: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('O_KFValue').AsString;
+    nTruck := nStr;
+    if not ShowInputBox('请输入新的矿发数量:', '修改', nTruck, 15) then Exit;
+
+    if (nTruck = '') or (nStr = nTruck) then Exit;
+    //无效或一致
+
+    nStr := SQLQuery.FieldByName('O_ID').AsString;
+
+    nStr := 'Update %s Set O_KFValue=''%s'' Where O_ID=''%s''';
+    nStr := Format(nStr, [sTable_Order, nTruck,
+            SQLQuery.FieldByName('O_ID').AsString]);
+    FDM.ExecuteSQL(nStr);
+
+    InitFormData(FWhere);
+    ShowMsg('矿发数量修改成功', sHint);
   end;
 end;
 

@@ -118,6 +118,10 @@ begin
   FEnableBackDB := True;
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
+  {$IFDEF SpecialControl}
+  MakeSaleViewData;
+  {$ENDIF}
+
   {$IFDEF CastMoney}
   Result := 'Select *,CAST((L_Value * L_Price) as decimal(38, 2)) as L_Money, ' +
             '(P_MValue-P_PValue) As P_NetWeight From $Bill b ' +

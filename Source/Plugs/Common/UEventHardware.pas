@@ -37,7 +37,7 @@ uses
   UMgrQueue, UMgrLEDCard, UMgrHardHelper, UMgrRemotePrint, U02NReader,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100,
-  UMgrRFID102, UMgrVoiceNet, UBlueReader;
+  UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
 begin
@@ -90,7 +90,7 @@ begin
       if not Assigned(gNetVoiceHelper) then
         gNetVoiceHelper := TNetVoiceManager.Create;
       gNetVoiceHelper.LoadConfig(nCfg + 'NetVoice.xml');
-    end;     
+    end;
 
     nStr := '喷码机';
     gCodePrinterManager.LoadConfig(nCfg + 'CodePrinter.xml');
@@ -113,12 +113,17 @@ begin
     end;
     {$ENDIF}
 
-    nStr := '车辆检测器';    
+    nStr := '车辆检测器';
     if FileExists(nCfg + 'TruckProber.xml') then
     begin
       gProberManager := TProberManager.Create;
       gProberManager.LoadConfig(nCfg + 'TruckProber.xml');
-    end; 
+    end;
+
+    {$IFDEF FixLoad}
+    nStr := '定置装车';
+    gSendCardNo.LoadConfig(nCfg + 'PLCController.xml');
+    {$ENDIF}
   except
     on E:Exception do
     begin
@@ -158,6 +163,10 @@ begin
 
   gHardShareData := WhenBusinessMITSharedDataIn;
   //hard monitor share
+
+  {$IFDEF FixLoad}
+  gSendCardNo := TReaderHelper.Create;
+  {$ENDIF}
 end;
 
 procedure THardwareWorker.BeforeStartServer;
@@ -216,6 +225,12 @@ begin
     gM100ReaderManager.StartReader;
   end; //三合一读卡器
   {$ENDIF}
+
+  {$IFDEF FixLoad}
+  if Assigned(gSendCardNo) then
+  gSendCardNo.StartPrinter;
+  //sendcard
+  {$ENDIF}
 end;
 
 procedure THardwareWorker.AfterStopServer;
@@ -226,7 +241,7 @@ begin
   //printer
   if Assigned(gNetVoiceHelper) then
     gNetVoiceHelper.StopVoice;
-  //NetVoice  
+  //NetVoice
 
   gERelayManager.ControlStop;
   //erelay
@@ -270,6 +285,12 @@ begin
 
   gTruckQueueManager.StopQueue;
   //queue
+
+  {$IFDEF FixLoad}
+  if Assigned(gSendCardNo) then
+  gSendCardNo.StopPrinter;
+  //sendcard
+  {$ENDIF}
 end;
 
 end.

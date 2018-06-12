@@ -466,6 +466,14 @@ begin
   end;
   {$ENDIF}
 
+  {$IFDEF OrderNoMulCard}
+  if IFHasOrder(EditTruck.Text) then
+  begin
+    ShowMsg('车辆存在未完成的提货单,无法开单,请联系管理员',sHint);
+    Exit;
+  end;
+  {$ENDIF}
+
   if not VerifyCtrl(EditValue,nHint) then
   begin
     ShowMsg(nHint,sHint);
