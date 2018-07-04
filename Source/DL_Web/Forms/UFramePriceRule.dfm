@@ -70,6 +70,7 @@ inherited fFramePriceRule: TfFramePriceRule
       end
     end
     inherited DBGridMain: TUniDBGrid
+      OnMouseDown = DBGridMainMouseDown
       Columns = <
         item
           Width = 64
@@ -77,6 +78,14 @@ inherited fFramePriceRule: TfFramePriceRule
           Font.Height = -12
           Font.Name = #23435#20307
         end>
+    end
+  end
+  object PMenu1: TUniPopupMenu
+    Left = 42
+    Top = 182
+    object MenuItem1: TUniMenuItem
+      Caption = #21482#26174#31034#35813#21697#31181
+      OnClick = MenuItem1Click
     end
   end
 end

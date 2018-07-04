@@ -19,9 +19,14 @@ type
     EditDate: TUniEdit;
     BtnDateFilter: TUniBitBtn;
     Check1: TUniCheckBox;
+    PMenu1: TUniPopupMenu;
+    MenuItem1: TUniMenuItem;
     procedure BtnDateFilterClick(Sender: TObject);
     procedure Check1Click(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
+    procedure DBGridMainMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure MenuItem1Click(Sender: TObject);
   private
     { Private declarations }
     FStart,FEnd: TDate;
@@ -91,6 +96,10 @@ begin
       Result := Result + 'Where R_Valid=''$Yes''';
     end;
 
+    if nWhere <> '' then
+      Result := Result + ' And (' + nWhere + ')';
+    //xxxxx
+
     Result := MacroValue(Result, [MI('$R', sTable_PriceRule),
               MI('$Yes', sFlag_Yes),
               MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
@@ -135,6 +144,23 @@ begin
       //refresh
     end);
   //show form
+end;
+
+procedure TfFramePriceRule.DBGridMainMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  if Button = mbRight then PMenu1.Popup(X, Y, DBGridMain);
+end;
+
+procedure TfFramePriceRule.MenuItem1Click(Sender: TObject);
+var nStr: string;
+begin
+  if DBGridMain.SelectedRows.Count > 0 then
+  begin
+    nStr := 'R_StockNo=''%s''';
+    nStr := Format(nStr, [ClientDS.FieldByName('R_StockNo').AsString]);
+    InitFormData(nStr);
+  end;
 end;
 
 initialization

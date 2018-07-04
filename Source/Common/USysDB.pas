@@ -699,7 +699,7 @@ const
        'Z_Verified Char(1), Z_InValid Char(1), Z_Freeze Char(1),' +
        'Z_YFMoney $Float, Z_FixedMoney $Float, Z_OnlyMoney Char(1),' +
        'Z_TJStatus Char(1), Z_Memo varChar(200), Z_Man varChar(32),' +
-       'Z_Date DateTime)';
+       'Z_Date DateTime, Z_VerifyMan varChar(32), Z_VerifyDate DateTime)';
   {-----------------------------------------------------------------------------
    纸卡办理: ZhiKa
    *.R_ID:记录编号
@@ -716,6 +716,8 @@ const
    *.Z_Password: 密码
    *.Z_OnlyPwd: 统一密码
    *.Z_Verified:已审核
+   *.Z_VerifyMan: 审核人
+   *.Z_VerifyDate: 审核时间
    *.Z_InValid:已无效
    *.Z_Freeze:已冻结
    *.Z_YFMoney:预付金额
