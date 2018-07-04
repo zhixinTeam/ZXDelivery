@@ -17,7 +17,8 @@ uses
   UFormSalesMan, UFormSysLog, UFormGetCustomer, UFrameInvoiceWeek,
   UFormInvoiceWeek, UFormInvoiceGetWeek, UFrameInvoiceZZ, UFormInvoiceZZAll,
   UFormInvoiceFLSet, UFrameInvoiceSettle, UFormInvoiceSettle, UFormGetWXAccount,
-  UFramePopedom, UFormPopedomGroup, UFormPopedomUser,
+  UFramePopedom, UFormPopedomGroup, UFormPopedomUser, UFramePriceRule,
+  UFormPriceRule,
 //--------------------------------- report -------------------------------------
   UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
   UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal,

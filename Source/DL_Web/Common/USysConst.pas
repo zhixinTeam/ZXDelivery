@@ -203,6 +203,17 @@ type
   TEntityItems = array of TEntityItemData;
   //实体列表
 
+  //----------------------------------------------------------------------------
+  TStockItem = record
+    FID: string;                                    //编号
+    FName: string;                                  //名称
+    FType: string;                                  //类型
+    FSelected: Boolean;                             //被选中
+  end;
+
+  TStockItems = array of TStockItem;
+  //物料列表
+
 //------------------------------------------------------------------------------
 var
   gPath: string;                                     //程序所在路径
@@ -293,6 +304,7 @@ begin
   AddMenuModuleItem('MAIN_B02', 'TfFrameCustomer');
   AddMenuModuleItem('MAIN_B03', 'TfFrameSalesMan');
   AddMenuModuleItem('MAIN_B04', 'TfFrameContract');
+  AddMenuModuleItem('MAIN_B05', 'TfFramePriceRule');
 
   AddMenuModuleItem('MAIN_C02', 'TfFramePayment');
   AddMenuModuleItem('MAIN_C03', 'TfFrameCustomerCredit');

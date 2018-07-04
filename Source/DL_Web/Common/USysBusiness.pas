@@ -65,6 +65,9 @@ procedure ReloadSystemMemory(const nResetAllSession: Boolean);
 
 procedure LoadSysDictItem(const nItem: string; const nList: TStrings);
 //读取系统字典项
+procedure LoadStockFromDict(var nStock: TStockItems; const nQuery: TADOQuery=nil;
+  const nType: TAdoConnectionType = ctMain);
+//读取物料列表
 function LoadSaleMan(const nList: TStrings; const nWhere: string = ''): Boolean;
 //读取业务员列表
 function LoadCustomer(const nList: TStrings; const nWhere: string = ''): Boolean;
@@ -713,6 +716,53 @@ begin
   finally
     nList.EndUpdate;
     ReleaseDBQuery(nQuery);
+  end;
+end;
+
+//Date: 2018-07-03
+//Parm: 物料列表
+//Desc: 从字典配置中读取物料列表
+procedure LoadStockFromDict(var nStock: TStockItems; const nQuery: TADOQuery;
+  const nType: TAdoConnectionType);
+var nStr: string;
+    nIdx: Integer;
+    nTmp: TADOQuery;
+begin
+  nTmp := nil;
+  try
+    if Assigned(nQuery) then
+         nTmp := nQuery
+    else nTmp := LockDBQuery(nType);
+
+    SetLength(nStock, 0);
+    nStr := 'Select * From %s Where D_Name=''%s'' Order By D_Index DESC';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
+
+    with DBQuery(nStr, nTmp) do
+    if nTmp.RecordCount > 0 then
+    begin
+      SetLength(nStock, RecordCount);
+      nIdx := 0;
+      First;
+
+      while not Eof do
+      begin
+        with nStock[nIdx] do
+        begin
+          FID := FieldByName('D_ParamB').AsString;
+          FName := FieldByName('D_Value').AsString;
+          FType := FieldByName('D_Memo').AsString;
+          FSelected := True;
+        end;
+
+        Inc(nIdx);
+        Next;
+      end;
+    end;
+  finally
+    if not Assigned(nQuery) then
+      ReleaseDBQuery(nTmp);
+    //xxxxx
   end;
 end;
 
