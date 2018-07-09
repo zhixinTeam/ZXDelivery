@@ -14,7 +14,7 @@
 {$DEFINE cxLibrary42}
 //Ver4.2编译环境
 
-{$DEFINE EnableBackupDB}
+{.$DEFINE EnableBackupDB}
 //备用数据库支持
 {.$DEFINE EnableDoubleDB}
 //双数据库支持
@@ -50,7 +50,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE XXCJ}
+{$DEFINE SXSW}
 //特定系统
 
 //山西声威
