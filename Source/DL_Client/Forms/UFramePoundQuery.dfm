@@ -22,6 +22,7 @@ inherited fFramePoundQuery: TfFramePoundQuery
     Height = 377
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
+      OnDblClick = cxView1DblClick
     end
   end
   inherited dxLayout1: TdxLayoutControl
@@ -101,14 +102,14 @@ inherited fFramePoundQuery: TfFramePoundQuery
       TabOrder = 8
       Width = 125
     end
-    object Check1: TcxCheckBox [7]
+    object CheckDelete: TcxCheckBox [7]
       Left = 835
       Top = 36
       Caption = #26597#35810#24050#21024#38500
       ParentFont = False
       TabOrder = 4
       Transparent = True
-      OnClick = Check1Click
+      OnClick = CheckDeleteClick
       Width = 110
     end
     object EditPID: TcxButtonEdit [8]
@@ -150,7 +151,7 @@ inherited fFramePoundQuery: TfFramePoundQuery
         object dxLayout1Item8: TdxLayoutItem
           Caption = 'cxCheckBox1'
           ShowCaption = False
-          Control = Check1
+          Control = CheckDelete
           ControlOptions.ShowBorder = False
         end
       end

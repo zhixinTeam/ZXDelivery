@@ -36,7 +36,7 @@ type
     N3: TMenuItem;
     N1: TMenuItem;
     N2: TMenuItem;
-    Check1: TcxCheckBox;
+    CheckDelete: TcxCheckBox;
     dxLayout1Item8: TdxLayoutItem;
     N4: TMenuItem;
     N5: TMenuItem;
@@ -52,10 +52,11 @@ type
     procedure N3Click(Sender: TObject);
     procedure N2Click(Sender: TObject);
     procedure PMenu1Popup(Sender: TObject);
-    procedure Check1Click(Sender: TObject);
+    procedure CheckDeleteClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
     procedure N4Click(Sender: TObject);
     procedure N6Click(Sender: TObject);
+    procedure cxView1DblClick(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -81,7 +82,7 @@ implementation
 {$R *.dfm}
 uses
   ShellAPI, ULibFun, UMgrControl, UDataModule, USysBusiness, UFormDateFilter,
-  UFormWait, USysConst, USysDB;
+  UFormBase, UFormWait, USysConst, USysDB;
 
 class function TfFramePoundQuery.FrameID: integer;
 begin
@@ -138,7 +139,7 @@ begin
     Result := Result + ' Where (' + FJBWhere + ')';
   end;
 
-  if Check1.Checked then
+  if CheckDelete.Checked then
        Result := MacroValue(Result, [MI('$PL', sTable_PoundBak)])
   else Result := MacroValue(Result, [MI('$PL', sTable_PoundLog)]);
 
@@ -206,7 +207,7 @@ begin
   end;
 end;
 
-procedure TfFramePoundQuery.Check1Click(Sender: TObject);
+procedure TfFramePoundQuery.CheckDeleteClick(Sender: TObject);
 begin
   BtnRefresh.Click;
 end;
@@ -215,7 +216,7 @@ end;
 //Desc: 权限控制
 procedure TfFramePoundQuery.PMenu1Popup(Sender: TObject);
 begin
-  N3.Enabled := BtnPrint.Enabled and (not Check1.Checked);
+  N3.Enabled := BtnPrint.Enabled and (not CheckDelete.Checked);
 end;
 
 //Desc: 打印磅单
@@ -259,6 +260,7 @@ end;
 procedure TfFramePoundQuery.BtnDelClick(Sender: TObject);
 var nIdx: Integer;
     nStr,nID,nP: string;
+    nParm: TFormCommandParam;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
@@ -267,8 +269,20 @@ begin
   end;
 
   nID := SQLQuery.FieldByName('P_ID').AsString;
-  nStr := Format('确定要删除编号为[ %s ]的过磅单吗?', [nID]);
-  if not QueryDlg(nStr, sAsk) then Exit;
+  with nParm do
+  begin
+    FCommand := cCmd_EditData;
+    FParamA := Format('请填写删除[ %s ]磅单的原因', [nID]);
+    FParamB := 320;
+    FParamD := 10;
+
+    nStr := SQLQuery.FieldByName('R_ID').AsString;
+    FParamC := 'Update %s Set P_Memo=''$Memo'' Where R_ID=%s';
+    FParamC := Format(FParamC, [sTable_PoundLog, nStr]);
+
+    CreateBaseFormItem(cFI_FormMemo, '', @nParm);
+    if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
+  end;
 
   nStr := Format('Select * From %s Where 1<>1', [sTable_PoundLog]);
   //only for fields
@@ -396,6 +410,30 @@ begin
     PrintPoundReport(nStr, False, True);
   finally
     nList.Free;
+  end;
+end;
+
+procedure TfFramePoundQuery.cxView1DblClick(Sender: TObject);
+var nStr: string;
+    nP: TFormCommandParam;
+begin
+  if (not CheckDelete.Checked) or
+     (cxView1.DataController.GetSelectedCount < 1) then Exit;
+  //只修改删除记录的备注信息
+
+  with nP do
+  begin
+    FCommand := cCmd_EditData;
+    FParamA := SQLQuery.FieldByName('P_Memo').AsString;
+    FParamB := 320;
+    FParamD := 10;
+
+    nStr := SQLQuery.FieldByName('R_ID').AsString;
+    FParamC := 'Update %s Set P_Memo=''$Memo'' Where R_ID=%s';
+    FParamC := Format(nP.FParamC, [sTable_PoundLog, nStr]);
+
+    CreateBaseFormItem(cFI_FormMemo, '', @nP);
+    //display
   end;
 end;
 

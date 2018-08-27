@@ -66,6 +66,7 @@ type
     procedure CheckDeleteClick(Sender: TObject);
     procedure N10Click(Sender: TObject);
     procedure N11Click(Sender: TObject);
+    procedure cxView1DblClick(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -226,15 +227,30 @@ end;
 //Desc: 删除
 procedure TfFrameBill.BtnDelClick(Sender: TObject);
 var nStr: string;
+    nP: TFormCommandParam;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
     ShowMsg('请选择要删除的记录', sHint); Exit;
   end;
 
-  nStr := '确定要删除编号为[ %s ]的单据吗?';
-  nStr := Format(nStr, [SQLQuery.FieldByName('L_ID').AsString]);
-  if not QueryDlg(nStr, sAsk) then Exit;
+  with nP do
+  begin
+    nStr := SQLQuery.FieldByName('L_ID').AsString;
+    nStr := Format('请填写删除[ %s ]单据的原因', [nStr]);
+
+    FCommand := cCmd_EditData;
+    FParamA := nStr;
+    FParamB := 320;
+    FParamD := 10;
+
+    nStr := SQLQuery.FieldByName('R_ID').AsString;
+    FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
+    FParamC := Format(FParamC, [sTable_Bill, nStr]);
+
+    CreateBaseFormItem(cFI_FormMemo, '', @nP);
+    if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
+  end;
 
   if DeleteBill(SQLQuery.FieldByName('L_ID').AsString) then
   begin
@@ -411,6 +427,30 @@ begin
   begin
     nStr := SQLQuery.FieldByName('L_ID').AsString;
     PrintBillFYDReport(nStr, False);
+  end;
+end;
+
+procedure TfFrameBill.cxView1DblClick(Sender: TObject);
+var nStr: string;
+    nP: TFormCommandParam;
+begin
+  if (not CheckDelete.Checked) or
+     (cxView1.DataController.GetSelectedCount < 1) then Exit;
+  //只修改删除记录的备注信息
+
+  with nP do
+  begin
+    FCommand := cCmd_EditData;
+    FParamA := SQLQuery.FieldByName('L_Memo').AsString;
+    FParamB := 320;
+    FParamD := 10;
+
+    nStr := SQLQuery.FieldByName('R_ID').AsString;
+    FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
+    FParamC := Format(nP.FParamC, [sTable_Bill, nStr]);
+
+    CreateBaseFormItem(cFI_FormMemo, '', @nP);
+    //display
   end;
 end;
 

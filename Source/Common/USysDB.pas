@@ -777,9 +777,11 @@ const
        'L_DaiTotal Integer , L_DaiNormal Integer, L_DaiBuCha Integer,' +
        'L_OutFact DateTime, L_OutMan varChar(32), L_PrintGLF Char(1),' +
        'L_Lading Char(1), L_IsVIP varChar(1), L_Seal varChar(100),' +
-       'L_HYDan varChar(15), L_PrintHY Char(1),L_Audit char(1) not null default(''N''),' +
-       'L_Man varChar(32), L_Date DateTime,L_EmptyOut char(1) not null default(''N''),' +
-       'L_DelMan varChar(32), L_DelDate DateTime)';
+       'L_HYDan varChar(15), L_PrintHY Char(1),' +
+       'L_Audit char(1) not null default(''N''),' +
+       'L_EmptyOut char(1) not null default(''N''),' +
+       'L_Man varChar(32), L_Date DateTime,' +
+       'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320))';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号
@@ -811,13 +813,13 @@ const
    *.L_Seal: 封签号
    *.L_HYDan: 化验单
    *.L_PrintHY:自动打印化验单
+   *.L_Audit: 补单审核状态Y待审核N已审核
+   *.L_EmptyOut: 空车出厂标记
    *.L_Man:操作人
    *.L_Date:创建时间
    *.L_DelMan: 交货单删除人员
    *.L_DelDate: 交货单删除时间
    *.L_Memo: 动作备注
-   *.L_EmptyOut: 空车出厂标记
-   *.L_Audit: 补单审核状态Y待审核N已审核
   -----------------------------------------------------------------------------}
 
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +
@@ -1006,8 +1008,8 @@ const
        'P_MValue $Float, P_MDate DateTime, P_MMan varChar(32), ' +
        'P_FactID varChar(32), P_PStation varChar(10), P_MStation varChar(10),' +
        'P_Direction varChar(10), P_PModel varChar(10), P_Status Char(1),' +
-       'P_Valid Char(1), P_PrintNum Integer Default 1,' +
-       'P_DelMan varChar(32), P_DelDate DateTime, P_KZValue $Float)';
+       'P_Valid Char(1), P_PrintNum Integer Default 1, P_KZValue $Float' +
+       'P_DelMan varChar(32), P_DelDate DateTime, P_Memo varChar(320))';
   {-----------------------------------------------------------------------------
    过磅记录: Materails
    *.P_ID: 编号
@@ -1030,8 +1032,9 @@ const
    *.P_Status: 记录状态
    *.P_Valid: 是否有效
    *.P_PrintNum: 打印次数
-   *.P_DelMan,P_DelDate: 删除记录
    *.P_KZValue: 供应扣杂
+   *.P_DelMan,P_DelDate: 删除记录
+   *.P_Memo: 动作备注
   -----------------------------------------------------------------------------}
 
   sSQL_NewPicture = 'Create Table $Table(R_ID $Inc, P_ID varChar(15),' +

@@ -20,6 +20,7 @@ inherited fFrameBill: TfFrameBill
     Height = 288
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
+      OnDblClick = cxView1DblClick
     end
   end
   inherited dxLayout1: TdxLayoutControl

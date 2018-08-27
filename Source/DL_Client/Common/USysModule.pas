@@ -10,7 +10,7 @@ unit USysModule;
 interface
 
 uses
-  UClientWorker, UMITPacker, UFormBase,
+  UClientWorker, UMITPacker, UFormBase, UFormMemo,
   UFrameLog, UFrameSysLog, UFormIncInfo, UFormBackupSQL, UFormRestoreSQL,
   UFormPassword, UFormBaseInfo, UFrameAuthorize, UFormAuthorize, UFormOptions,
   UFrameCustomer, UFormCustomer, UFormGetCustom, UFrameSalesMan, UFormSalesMan,
