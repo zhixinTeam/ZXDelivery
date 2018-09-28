@@ -37,11 +37,13 @@ type
     dxLayout1Item4: TdxLayoutItem;
     EditBill: TcxButtonEdit;
     dxLayout1Item7: TdxLayoutItem;
+    N1: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure mniN1Click(Sender: TObject);
+    procedure N1Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -61,6 +63,8 @@ type
     procedure SummaryItemsGetText(Sender: TcxDataSummaryItem;
       const AValue: Variant; AIsFooter: Boolean; var AText: String);
     //处理摘要
+    function GetVal(const nRow: Integer; const nField: string): string;
+    //获取指定字段
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -236,6 +240,48 @@ begin
   except
     //ignor any error
   end;
+end;
+
+procedure TfFrameSaleDetailQuery.N1Click(Sender: TObject);
+var nStr: string;
+    nIdx: Integer;
+    nList: TStrings;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then
+  begin
+    ShowMsg('请选择要编辑的记录', sHint); Exit;
+  end;
+
+  nList := TStringList.Create;
+  try
+    for nIdx := 0 to cxView1.DataController.RowCount - 1  do
+    begin
+
+      nStr := GetVal(nIdx,'L_ID');
+      if nStr = '' then
+        Continue;
+
+      nList.Add(nStr);
+    end;
+    nStr := AdjustListStrFormat2(nList, '''', True, ',', False);
+    PrintBillReport(nStr, False);
+  finally
+    nList.Free;
+  end;
+end;
+
+//Desc: 获取nRow行nField字段的内容
+function TfFrameSaleDetailQuery.GetVal(const nRow: Integer;
+ const nField: string): string;
+var nVal: Variant;
+begin
+  nVal := cxView1.ViewData.Rows[nRow].Values[
+            cxView1.GetColumnByFieldName(nField).Index];
+  //xxxxx
+
+  if VarIsNull(nVal) then
+       Result := ''
+  else Result := nVal;
 end;
 
 initialization

@@ -98,6 +98,8 @@
   //自动收卡票箱
   {$DEFINE MITTruckProber}
   //车检由中间件控制
+  {$DEFINE TruckProberEx}
+  //车检光栅状态判断扩展(此开关启用时建议同时启用MITTruckProber开关)
   {$DEFINE MultiReplay}
   //计数器应答模式
   {$DEFINE PrintHYEach}
@@ -143,6 +145,8 @@
   //定制放灰
   {$DEFINE OrderNoMulCard}
   //采购禁止一车多单
+  {$DEFINE CapturePictureEx}
+  //磅房抓拍模式扩展
 {$ENDIF}
 
 //郑州上街

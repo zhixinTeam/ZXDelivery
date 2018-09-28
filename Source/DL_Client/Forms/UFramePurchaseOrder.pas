@@ -313,6 +313,10 @@ begin
             SQLQuery.FieldByName('O_ID').AsString]);
     FDM.ExecuteSQL(nStr);
 
+    nStr := '修改矿发流水[ %s -> %s ].';
+    nStr := Format(nStr, [SQLQuery.FieldByName('O_KFLS').AsString, nTruck]);
+    FDM.WriteSysLog(sFlag_OrderItem, SQLQuery.FieldByName('O_ID').AsString, nStr, False);
+
     InitFormData(FWhere);
     ShowMsg('矿发流水修改成功', sHint);
   end;
@@ -336,6 +340,10 @@ begin
     nStr := Format(nStr, [sTable_Order, nTruck,
             SQLQuery.FieldByName('O_ID').AsString]);
     FDM.ExecuteSQL(nStr);
+
+    nStr := '修改矿发数量[ %s -> %s ].';
+    nStr := Format(nStr, [SQLQuery.FieldByName('O_KFValue').AsString, nTruck]);
+    FDM.WriteSysLog(sFlag_OrderItem, SQLQuery.FieldByName('O_ID').AsString, nStr, False);
 
     InitFormData(FWhere);
     ShowMsg('矿发数量修改成功', sHint);

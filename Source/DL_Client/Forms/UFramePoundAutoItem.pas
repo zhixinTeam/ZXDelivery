@@ -89,9 +89,13 @@ type
     //虚拟地磅编号
     FBarrierGate: Boolean;
     //是否采用道闸
+    FSaveResult: Boolean;
+    //保存结果
     FEmptyPoundInit, FDoneEmptyPoundInit: Int64;
     //空磅计时,过磅保存后空磅
     FEmptyPoundIdleLong, FEmptyPoundIdleShort: Int64;
+    FLogin: Integer;
+    //摄像机登陆
     procedure SetUIData(const nReset: Boolean; const nOnlyData: Boolean = False);
     //界面数据
     procedure SetImageStatus(const nImage: TImage; const nOff: Boolean);
@@ -152,12 +156,16 @@ begin
 
   FLEDContent := '';
   FEmptyPoundInit := 0;
+  FLogin := -1;
 end;
 
 procedure TfFrameAutoPoundItem.OnDestroyFrame;
 begin
   gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
   //关闭表头端口
+  {$IFDEF CapturePictureEx}
+  FreeCapture(FLogin);
+  {$ENDIF}
   inherited;
 end;
 
@@ -242,6 +250,13 @@ begin
 
   FPoundTunnel := nTunnel;
   SetUIData(True);
+
+  {$IFDEF CapturePictureEx}
+  if not InitCapture(FPoundTunnel,FLogin) then
+    WriteLog('通道:'+ FPoundTunnel.FID+'初始化失败,错误码:'+IntToStr(FLogin))
+  else
+    WriteLog('通道:'+ FPoundTunnel.FID+'初始化成功,登陆ID:'+IntToStr(FLogin));
+  {$ENDIF}
 
   if Assigned(FPoundTunnel.FOptions) then
   with FPoundTunnel.FOptions do
@@ -524,6 +539,7 @@ begin
   Timer_ReadCard.Enabled := False;
   FDoneEmptyPoundInit := 0;
   FIsWeighting := True;
+  FSaveResult := True;
   //停止读卡,开始称重
 
   if FBarrierGate then
@@ -820,7 +836,8 @@ begin
 
     FPoundID := sFlag_Yes;
     //标记该项有称重数据
-    Result := SaveLadingBills(FNextStatus, FBillItems, FPoundTunnel);
+    FSaveResult := SaveLadingBills(FNextStatus, FBillItems, FPoundTunnel, FLogin);
+    Result := FSaveResult;
     //保存称重
   end;
 end;
@@ -848,18 +865,19 @@ begin
   SetLength(FBillItems, 1);
   FBillItems[0] := FUIData;
   //复制用户界面数据
-  
+
   with FBillItems[0] do
   begin
     FFactory := gSysParam.FFactNum;
     //xxxxx
-    
+
     if FNextStatus = sFlag_TruckBFP then
          FPData.FStation := FPoundTunnel.FID
     else FMData.FStation := FPoundTunnel.FID;
   end;
 
-  Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel)
+  FSaveResult := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel, FLogin);
+  Result := FSaveResult;
   //保存称重
 end;
 
@@ -974,14 +992,18 @@ begin
     {$IFDEF HR1847}
     if not gKRMgrProber.IsTunnelOK(FPoundTunnel.FID) then
     {$ELSE}
-    if not gProberManager.IsTunnelOK(FPoundTunnel.FID) then
+      {$IFNDEF TruckProberEx}
+      if not gProberManager.IsTunnelOK(FPoundTunnel.FID) then
+      {$ELSE}
+      if not gProberManager.IsTunnelOKEx(FPoundTunnel.FID) then
+      {$ENDIF}
     {$ENDIF}
   {$ENDIF}
   begin
     nStr := '车辆未停到位,请移动车辆.';
     PlayVoice(nStr);
     LEDDisplay(nStr);
-
+    WriteSysLog(nStr);
     {$IFDEF ProberShow}
       {$IFDEF MITTruckProber}
       ProberShowTxt(FPoundTunnel.FID, nStr);
@@ -1019,9 +1041,24 @@ begin
 
     TimerDelay.Enabled := True
   end
-  else Timer_SaveFail.Enabled := True;
+  else
+  begin
+    if not FSaveResult then
+    begin
+      nStr := GetTruckNO(FUIData.FTruck) + '数据保存失败';
+      {$IFDEF MITTruckProber}
+      ProberShowTxt(FPoundTunnel.FID, nStr);
+      {$ELSE}
+      gProberManager.ShowTxt(FPoundTunnel.FID, nStr);
+      {$ENDIF}
+      nStr := '数据保存失败,请重新过磅.';
+      PlayVoice(nStr);
+    end;
 
-  if FBarrierGate then
+    Timer_SaveFail.Enabled := True;
+  end;
+
+  if FBarrierGate and FSaveResult then
     OpenDoorByReader(FLastReader, sFlag_No);
   //打开副道闸
 end;

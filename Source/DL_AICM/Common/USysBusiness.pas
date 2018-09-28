@@ -1673,7 +1673,9 @@ begin
           Exit;
         end;
       end;
-    end;
+    end
+    else
+      Result := False;
   end;
 end;
 

@@ -144,6 +144,8 @@ begin
 
   SetUIData(False);
 
+  ControlTimer.Tag := 20;//init;
+
   if not FPoundTunnel.FUserInput then
   if not gPoundTunnelManager.ActivePort(FPoundTunnel.FID,
          OnPoundDataEvent, True) then
@@ -301,6 +303,10 @@ begin
       LblWarn.Caption := FUIData.FTruck + '提货时间:' + FUIData.FLadeTime
                          + '提货超时';
   except
+    on E: Exception do
+    begin
+      WriteLog(E.Message);
+    end;
   end;
 end;
 
