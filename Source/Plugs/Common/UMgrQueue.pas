@@ -34,6 +34,7 @@ type
   PTruckItem = ^TTruckItem;
   TTruckItem = record
     FEnable     : Boolean;
+    FCusName    : string;
     FTruck      : string;      //车牌号
     FStockNo    : string;      //物料号
     FStockName  : string;      //品种名
