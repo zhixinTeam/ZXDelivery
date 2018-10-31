@@ -447,9 +447,11 @@ begin
 
     nStr := SQLQuery.FieldByName('R_ID').AsString;
     FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
-    FParamC := Format(nP.FParamC, [sTable_Bill, nStr]);
+    FParamC := Format(nP.FParamC, [sTable_BillBak, nStr]);
 
     CreateBaseFormItem(cFI_FormMemo, '', @nP);
+    if (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK) then
+      InitFormData(FWhere);
     //display
   end;
 end;

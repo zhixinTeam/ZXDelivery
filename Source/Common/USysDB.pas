@@ -1008,7 +1008,7 @@ const
        'P_MValue $Float, P_MDate DateTime, P_MMan varChar(32), ' +
        'P_FactID varChar(32), P_PStation varChar(10), P_MStation varChar(10),' +
        'P_Direction varChar(10), P_PModel varChar(10), P_Status Char(1),' +
-       'P_Valid Char(1), P_PrintNum Integer Default 1, P_KZValue $Float' +
+       'P_Valid Char(1), P_PrintNum Integer Default 1, P_KZValue $Float,' +
        'P_DelMan varChar(32), P_DelDate DateTime, P_Memo varChar(320))';
   {-----------------------------------------------------------------------------
    ¹ý°õ¼ÇÂ¼: Materails
