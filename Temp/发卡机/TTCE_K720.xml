@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="gb2312"?>
+<!--++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+节点: config
+*.enable: N,关闭;其它开启.
+*.thread: 线程个数(1-10)
+*.monitor: 负责扫描不活动读头的线程个数,不超过线程总数
+
+节点: dispensers.dispenser
+*.id: 节点标识
+*.enable: N,关闭;其它开启.
+*.conn: 链路(com,tcp)
+*.hostip,hostport: 网络地址
+*.comport: 串口端口
+*.rate: 波特率
+*.databit: 数据位
+*.stopbit: 停止位
+*.paritybit: 校验位(None,Odd,Even,Mark,Space)
+*.paritycheck: 启用校验,Y为启用
+*.timeout: 超时收卡,单位秒
+*.param: type(sender,发卡机;receiver,吞卡机);H,L(多机通讯地址)
+*.options: 附加参数,用于特定业务
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-->
+<TTCE_K720>
+  <config>
+    <enable>Y</enable>
+    <thread>2</thread>
+    <monitor>1</monitor>
+  </config>
+  <dispensers>
+    <dispenser id="gateA">
+      <enable>Y</enable> 
+      <conn>com</conn>
+      <hostip>192.168.0.220</hostip>
+      <hostport>8000</hostport>
+      <comport>com1</comport>
+      <rate>9600</rate>
+      <databit>9</databit>
+      <stopbit>1</stopbit>
+      <paritybit>None</paritybit>
+      <paritycheck>N</paritycheck>
+      <timeout>10</timeout>
+      <param H="30" L="30" type="sender"></param>
+      <options>key1=value;key2=value</options>
+    </dispenser>
+  </dispensers>
+</TTCE_K720>
