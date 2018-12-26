@@ -332,6 +332,23 @@ begin
   begin
     EditName.SetFocus;
     ShowMsg('请填写原材料名称', sHint); Exit;
+  end
+  else
+  begin
+    {$IFDEF InfoOnly}
+    nStr := 'Select Count(*) From %s Where M_Name=''%s''';
+    nStr := Format(nStr, [sTable_Materails, EditName.Text]);
+    //xxxxx
+
+    with FDM.QueryTemp(nStr) do
+    if Fields[0].AsInteger > 0 then
+    begin
+      nStr := '物料名称[ %s ]重复';
+      nStr := Format(nStr, [EditName.Text]);
+      ShowMsg(nStr, sHint);
+      Exit;
+    end;
+    {$ENDIF}
   end;
 
   if not IsNumber(EditPrice.Text, True) then

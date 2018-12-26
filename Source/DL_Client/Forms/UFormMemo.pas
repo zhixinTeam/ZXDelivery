@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormMemo;
 
+{$I Link.inc}
 interface
 
 uses
@@ -59,6 +60,12 @@ begin
       Memo1.Text := nP.FParamA;
       Memo1.Properties.MaxLength := nP.FParamB;
 
+      {$IFDEF ForceMemo}
+      Memo1.Text := '';
+      {$ELSE}
+      Memo1.SelectAll;
+      {$ENDIF}
+
       nP.FCommand := cCmd_ModalResult;
       nP.FParamA := ShowModal;
       if nP.FParamA = mrOK then
@@ -71,6 +78,12 @@ begin
       Caption := '±¸×¢ - ¸üÐÂ';
       Memo1.Text := nP.FParamA;
       Memo1.Properties.MaxLength := nP.FParamB;
+
+      {$IFDEF ForceMemo}
+      Memo1.Text := '';
+      {$ELSE}
+      Memo1.SelectAll;
+      {$ENDIF}
 
       FSQL := nP.FParamC;
       if not VarIsEmpty(nP.FParamD) then

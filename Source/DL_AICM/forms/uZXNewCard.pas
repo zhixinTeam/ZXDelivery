@@ -464,7 +464,11 @@ begin
   end;
 
   {$IFDEF ForceEleCard}
+  {$IFDEF XXCJ}
+  if not IsEleCardVaidEx(EditTruck.Text) then
+  {$ELSE}
   if not IsEleCardVaid(EditTruck.Text) then
+  {$ENDIF}
   begin
     ShowMsg('车辆未办理电子标签或电子标签未启用！请联系管理员', sHint); Exit;
   end;

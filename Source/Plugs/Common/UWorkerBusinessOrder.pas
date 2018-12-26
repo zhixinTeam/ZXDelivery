@@ -323,6 +323,23 @@ begin
   TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo,nStr, '',@nOut);
   //保存车牌号
 
+  {$IFDEF BusinessOnly}
+  nStr := 'Select R_ID,T_Bill,T_StockNo,T_Type,T_InFact,T_Valid From %s ' +
+          'Where T_Truck=''%s'' ';
+  nStr := Format(nStr, [sTable_ZTTrucks, FListA.Values['Truck']]);
+  //还在队列中车辆
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nStr := '车辆[ %s ]在未完成[ %s ]交货单之前禁止开单.';
+      nData := Format(nStr, [FListA.Values['Truck'], FieldByName('T_Bill').AsString]);
+      Exit;
+    end;
+  end;
+  {$ENDIF}
+
   //----------------------------------------------------------------------------
   FDBConn.FConn.BeginTrans;
   try

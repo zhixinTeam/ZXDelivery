@@ -176,6 +176,7 @@ inherited fFormMaterails: TfFormMaterails
     object cxbLs: TcxComboBox
       Left = 81
       Top = 136
+      ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.Items.Strings = (
         'N'#12289#21542

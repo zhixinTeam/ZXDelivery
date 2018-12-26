@@ -85,6 +85,7 @@ begin
       nIdx := Integer(ListQuery.Selected.Data);
       nP.FParamB := FUsers[nIdx].FBindID;
       nP.FParamC := FUsers[nIdx].FCusName;
+      nP.FParamD := FUsers[nIdx].FPhone;
     end;
   finally
     Free;

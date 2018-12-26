@@ -50,7 +50,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SXSW}
+{$DEFINE XXCJ}
 //特定系统
 
 //山西声威
@@ -147,6 +147,14 @@
   //采购禁止一车多单
   {$DEFINE CapturePictureEx}
   //磅房抓拍模式扩展
+  {$DEFINE BusinessOnly}
+  //车辆同一时间只能进行1种业务
+  {$DEFINE ForceMemo}
+  //强制输入备注
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE AlwaysUseDate}
+  //报表查询始终使用日期条件
 {$ENDIF}
 
 //郑州上街

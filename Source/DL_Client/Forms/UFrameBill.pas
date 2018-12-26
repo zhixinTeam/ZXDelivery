@@ -120,11 +120,16 @@ begin
   Result := 'Select * From $Bill ';
   //提货单
 
+  {$IFDEF AlwaysUseDate}
+  Result := Result + 'Where (L_Date>=''$ST'' and L_Date <''$End'')';
+  nStr := ' And ';
+  {$ELSE}
   if (nWhere = '') or FUseDate then
   begin
     Result := Result + 'Where (L_Date>=''$ST'' and L_Date <''$End'')';
     nStr := ' And ';
   end else nStr := ' Where ';
+  {$ENDIF}
 
   if nWhere <> '' then
     Result := Result + nStr + '(' + nWhere + ')';
@@ -242,7 +247,7 @@ begin
     FCommand := cCmd_EditData;
     FParamA := nStr;
     FParamB := 320;
-    FParamD := 10;
+    FParamD := 2;
 
     nStr := SQLQuery.FieldByName('R_ID').AsString;
     FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
@@ -291,9 +296,30 @@ end;
 //Desc: 修改未进厂车牌号
 procedure TfFrameBill.N5Click(Sender: TObject);
 var nStr,nTruck: string;
+    nP: TFormCommandParam;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
+    {$IFDEF ForceMemo}
+    with nP do
+    begin
+      nStr := SQLQuery.FieldByName('L_ID').AsString;
+      nStr := Format('请填写修改[ %s ]单据车牌号的原因', [nStr]);
+
+      FCommand := cCmd_EditData;
+      FParamA := nStr;
+      FParamB := 320;
+      FParamD := 2;
+
+      nStr := SQLQuery.FieldByName('R_ID').AsString;
+      FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
+      FParamC := Format(FParamC, [sTable_Bill, nStr]);
+
+      CreateBaseFormItem(cFI_FormMemo, '', @nP);
+      if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
+    end;
+    {$ENDIF}
+
     nStr := SQLQuery.FieldByName('L_Truck').AsString;
     nTruck := nStr;
     if not ShowInputBox('请输入新的车牌号码:', '修改', nTruck, 15) then Exit;
@@ -317,9 +343,30 @@ end;
 //Desc: 修改封签号
 procedure TfFrameBill.N7Click(Sender: TObject);
 var nStr,nID,nSeal,nSave: string;
+    nP: TFormCommandParam;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
+    {$IFDEF ForceMemo}
+    with nP do
+    begin
+      nStr := SQLQuery.FieldByName('L_ID').AsString;
+      nStr := Format('请填写修改[ %s ]单据封签号的原因', [nStr]);
+
+      FCommand := cCmd_EditData;
+      FParamA := nStr;
+      FParamB := 320;
+      FParamD := 2;
+
+      nStr := SQLQuery.FieldByName('R_ID').AsString;
+      FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
+      FParamC := Format(FParamC, [sTable_Bill, nStr]);
+
+      CreateBaseFormItem(cFI_FormMemo, '', @nP);
+      if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
+    end;
+    {$ENDIF}
+
     {$IFDEF BatchInHYOfBill}
     nSave := 'L_HYDan';
     {$ELSE}
@@ -395,17 +442,45 @@ begin
               SQLQuery.FieldByName('L_StockName').AsString,
               SQLQuery.FieldByName('L_Value').AsFloat]);
       if not QueryDlg(nStr, sAsk) then Exit;
-    end;
 
-    nStr := SQLQuery.FieldByName('L_ID').AsString;
-    if BillSaleAdjust(nStr, nP.FParamB) then
-    begin
-      nTmp := '销售调拨给纸卡[ %s ].';
-      nTmp := Format(nTmp, [nP.FParamB]);
+      {$IFDEF ForceMemo}
+      with nP do
+      begin
+        nStr := SQLQuery.FieldByName('L_ID').AsString;
+        nStr := Format('请填写调拨[ %s ]单据的原因', [nStr]);
 
-      FDM.WriteSysLog(sFlag_BillItem, nStr, nTmp, False);
-      InitFormData(FWhere);
-      ShowMsg('调拨成功', sHint);
+        FCommand := cCmd_EditData;
+        FParamA := nStr;
+        FParamB := 320;
+        FParamD := 2;
+
+        nStr := SQLQuery.FieldByName('R_ID').AsString;
+        FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
+        FParamC := Format(FParamC, [sTable_Bill, nStr]);
+
+        CreateBaseFormItem(cFI_FormMemo, '', @nP);
+        if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
+      end;
+      {$ENDIF}
+
+      nStr := SQLQuery.FieldByName('L_ID').AsString;
+      if BillSaleAdjust(nStr, nP.FParamB) then
+      begin
+        nTmp := '执行提货调拨操作,明细:提货单[ %s ]销售调拨给纸卡[ %s ].'+
+                '从客户: %s.%s.到客户: %s.%s.品  种: %s.%s.调拨量: %.2f吨.';
+        nTmp := Format(nTmp, [nStr, nP.FParamB,
+                SQLQuery.FieldByName('L_CusID').AsString,
+                SQLQuery.FieldByName('L_CusName').AsString,
+                FieldByName('C_ID').AsString,
+                FieldByName('C_Name').AsString,
+                SQLQuery.FieldByName('L_StockNo').AsString,
+                SQLQuery.FieldByName('L_StockName').AsString,
+                SQLQuery.FieldByName('L_Value').AsFloat]);
+
+        FDM.WriteSysLog(sFlag_BillItem, nStr, nTmp, False);
+        InitFormData(FWhere);
+        ShowMsg('调拨成功', sHint);
+      end;
     end;
   end;
 end;
@@ -443,7 +518,7 @@ begin
     FCommand := cCmd_EditData;
     FParamA := SQLQuery.FieldByName('L_Memo').AsString;
     FParamB := 320;
-    FParamD := 10;
+    FParamD := 2;
 
     nStr := SQLQuery.FieldByName('R_ID').AsString;
     FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';

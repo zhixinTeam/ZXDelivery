@@ -1004,13 +1004,6 @@ begin
     PlayVoice(nStr);
     LEDDisplay(nStr);
     WriteSysLog(nStr);
-    {$IFDEF ProberShow}
-      {$IFDEF MITTruckProber}
-      ProberShowTxt(FPoundTunnel.FID, nStr);
-      {$ELSE}
-      gProberManager.ShowTxt(FPoundTunnel.FID, nStr);
-      {$ENDIF}
-    {$ENDIF}
 
     InitSamples;
     Exit;

@@ -314,6 +314,23 @@ begin
   begin
     EditName.SetFocus;
     ShowMsg('请填写供应商名称', sHint); Exit;
+  end
+  else
+  begin
+    {$IFDEF InfoOnly}
+    nStr := 'Select Count(*) From %s Where P_Name=''%s''';
+    nStr := Format(nStr, [sTable_Provider, EditName.Text]);
+    //xxxxx
+
+    with FDM.QueryTemp(nStr) do
+    if Fields[0].AsInteger > 0 then
+    begin
+      nStr := '供应商名称[ %s ]重复';
+      nStr := Format(nStr, [EditName.Text]);
+      ShowMsg(nStr, sHint);
+      Exit;
+    end;
+    {$ENDIF}
   end;
 
   nList := nil;

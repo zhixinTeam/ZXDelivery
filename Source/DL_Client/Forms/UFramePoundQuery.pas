@@ -274,7 +274,7 @@ begin
     FCommand := cCmd_EditData;
     FParamA := Format('请填写删除[ %s ]磅单的原因', [nID]);
     FParamB := 320;
-    FParamD := 10;
+    FParamD := 2;
 
     nStr := SQLQuery.FieldByName('R_ID').AsString;
     FParamC := 'Update %s Set P_Memo=''$Memo'' Where R_ID=%s';
@@ -426,7 +426,7 @@ begin
     FCommand := cCmd_EditData;
     FParamA := SQLQuery.FieldByName('P_Memo').AsString;
     FParamB := 320;
-    FParamD := 10;
+    FParamD := 2;
 
     nStr := SQLQuery.FieldByName('R_ID').AsString;
     FParamC := 'Update %s Set P_Memo=''$Memo'' Where R_ID=%s';

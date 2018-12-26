@@ -173,7 +173,7 @@ procedure TfFrameProvider.N2Click(Sender: TObject);
 var
   nWechartAccount:string;
   nParam: TFormCommandParam;
-  nPID,nPName:string;
+  nPID,nPName,nPhone:string;
   nBindcustomerid:string;
   nStr:string;
 begin
@@ -194,7 +194,8 @@ begin
   if (nParam.FCommand <> cCmd_ModalResult) or (nParam.FParamA <> mrOK) then Exit;
 
   nBindcustomerid  := nParam.FParamB;
-  nWechartAccount := nParam.FParamC;
+  nWechartAccount  := nParam.FParamC;
+  nPhone           := nParam.FParamD;
   nPID      := SQLQuery.FieldByName('P_ID').AsString;
   nPName    := SQLQuery.FieldByName('P_Name').AsString;
 
@@ -211,8 +212,8 @@ begin
 
   if edit_shopclients(PackerEncodeStr(FListA.Text)) <> sFlag_Yes then Exit;
   //call remote
-  nStr := 'update %s set P_WechartAccount=''%s'' where P_ID=''%s''';
-  nStr := Format(nStr,[sTable_Provider,nWechartAccount,nPID]);
+  nStr := 'update %s set P_WechartAccount=''%s'',P_Phone=''%s'' where P_ID=''%s''';
+  nStr := Format(nStr,[sTable_Provider,nWechartAccount, nPhone, nPID]);
   FDM.ADOConn.BeginTrans;
   try
     FDM.ExecuteSQL(nStr);
@@ -260,7 +261,7 @@ begin
   if edit_shopclients(PackerEncodeStr(FListA.Text)) <> sFlag_Yes then Exit;
   //call remote
 
-  nStr := 'update %s set P_WechartAccount='''' where P_ID=''%s''';
+  nStr := 'update %s set P_WechartAccount='''',P_Phone='''' where P_ID=''%s''';
   nStr := Format(nStr,[sTable_Provider,nPID]);
   FDM.ADOConn.BeginTrans;
   try

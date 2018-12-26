@@ -233,8 +233,28 @@ end;
 
 //Desc: 保存数据
 procedure TfFormOrderDtl.BtnOKClick(Sender: TObject);
-var nSQL: string;
+var nSQL, nStr: string;
+    nP: TFormCommandParam;
 begin
+  {$IFDEF ForceMemo}
+  with nP do
+  begin
+    nStr := FDetailID;
+    nStr := Format('请填写修改[ %s ]单据的原因', [nStr]);
+
+    FCommand := cCmd_EditData;
+    FParamA := nStr;
+    FParamB := 320;
+    FParamD := 2;
+
+    FParamC := 'Update %s Set D_Memo=''$Memo'' Where D_ID=''%s''';
+    FParamC := Format(FParamC, [sTable_OrderDtl, FDetailID]);
+
+    CreateBaseFormItem(cFI_FormMemo, '', @nP);
+    if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
+  end;
+  {$ENDIF}
+
   nSQL := MakeSQLByForm(Self, sTable_OrderDtl, SF('D_ID', FDetailID), False);
 
   FDM.ADOConn.BeginTrans;

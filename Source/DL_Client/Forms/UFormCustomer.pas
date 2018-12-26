@@ -351,6 +351,21 @@ begin
     ShowMsg('请填写客户名称', sHint); Exit;
   end;
 
+  {$IFDEF InfoOnly}
+  nStr := 'Select Count(*) From %s Where C_Name=''%s''';
+  nStr := Format(nStr, [sTable_Customer, EditName.Text]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  if Fields[0].AsInteger > 0 then
+  begin
+    nStr := '客户[ %s ]已存在!!' + #13#10#13#10 +
+            '客户重名可能会导致回款、办卡等操作错误';
+    nStr := Format(nStr, [EditName.Text]);
+    ShowMsg(nStr, sHint);
+    Exit;
+  end;
+  {$ELSE}
   nStr := 'Select Count(*) From %s Where C_Name=''%s''';
   nStr := Format(nStr, [sTable_Customer, EditName.Text]);
 
@@ -366,6 +381,7 @@ begin
     nStr := Format(nStr, [EditName.Text]);
     if not QueryDlg(nStr, sAsk, Handle) then Exit;
   end;
+  {$ENDIF}
 
   nList := TStringList.Create;
   nList.Text := SF('C_PY', GetPinYinOfStr(EditName.Text));

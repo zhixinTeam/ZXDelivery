@@ -233,8 +233,12 @@ function GetHYValueByStockNo(const nNo: string): Double;
 //获取化验单已开量
 function IsEleCardVaid(const nTruckNo: string): Boolean;
 //验证车辆电子标签
+function IsEleCardVaidEx(const nTruckNo: string): Boolean;
+//验证车辆电子标签
 function IfStockHasLs(const nStockNo: string): Boolean;
 //验证物料是否需要输入流水
+function IFHasOrder(const nTruck: string): Boolean;
+//车辆是否存在未完成采购单
 function IsWeekValid(const nWeek: string; var nHint: string): Boolean;
 //周期是否有效
 function IsWeekHasEnable(const nWeek: string): Boolean;
@@ -2774,7 +2778,7 @@ end;
 //------------------------------------------------------------------------------
 //获取客户注册信息
 function getCustomerInfo(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_getCustomerInfo, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2783,7 +2787,7 @@ end;
 
 //客户与微信账号绑定
 function get_Bindfunc(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_get_Bindfunc, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2792,7 +2796,7 @@ end;
 
 //发送消息
 function send_event_msg(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_send_event_msg, nData, '', '', @nOut,false) then
        Result := nOut.FData
@@ -2801,7 +2805,7 @@ end;
 
 //新增商城用户
 function edit_shopclients(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_edit_shopclients, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2810,7 +2814,7 @@ end;
 
 //添加商品
 function edit_shopgoods(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_edit_shopgoods, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2819,7 +2823,7 @@ end;
 
 //获取订单信息
 function get_shoporders(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_get_shoporders, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2828,7 +2832,7 @@ end;
 
 //更新订单状态
 function complete_shoporders(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_complete_shoporders, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2838,7 +2842,7 @@ end;
 //------------------------------------------------------------------------------
 //获取车辆审核信息
 function getAuditTruck(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_GetAuditTruck, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2858,7 +2862,7 @@ end;
 //------------------------------------------------------------------------------
 //下载图片
 function DownLoadPic(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_DownLoadPic, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2868,7 +2872,7 @@ end;
 //------------------------------------------------------------------------------
 //根据车牌号获取订单
 function GetshoporderbyTruck(const nData: string): string;
-var nOut: TWorkerBusinessCommand;
+var nOut: TWorkerWebChatData;
 begin
   if CallBusinessWechat(cBC_WX_get_shoporderbyTruck, nData, '', '', @nOut) then
        Result := nOut.FData
@@ -2968,6 +2972,31 @@ begin
   end;
 end;
 
+//验证车辆电子标签
+function IsEleCardVaidEx(const nTruckNo: string): Boolean;
+var
+  nSql:string;
+begin
+  Result := False;
+
+  nSql := 'select * from %s where T_Truck = ''%s'' ';
+  nSql := Format(nSql,[sTable_Truck,nTruckNo]);
+
+  with FDM.QueryTemp(nSql) do
+  begin
+    if recordcount>0 then
+    begin
+      if FieldByName('T_CardUse').AsString = sFlag_Yes then//启用
+      begin
+        if (FieldByName('T_Card').AsString <> '') or (FieldByName('T_Card2').AsString <> '') then
+        begin
+          Result := True;
+        end;
+      end;
+    end;
+  end;
+end;
+
 //验证物料是否需要输入流水
 function IfStockHasLs(const nStockNo: string): Boolean;
 var
@@ -2987,6 +3016,21 @@ begin
         Result := True;
       end;
     end;
+  end;
+end;
+
+//车辆是否存在未完成采购单
+function IFHasOrder(const nTruck: string): Boolean;
+var nStr: string;
+begin
+  Result := False;
+
+  nStr :='select D_ID from %s where D_Status <> ''%s'' and D_Truck =''%s'' ';
+  nStr := Format(nStr, [sTable_OrderDtl, sFlag_TruckOut, nTruck]);
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    Result := True;
   end;
 end;
 

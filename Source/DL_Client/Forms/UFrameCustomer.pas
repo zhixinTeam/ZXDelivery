@@ -265,7 +265,7 @@ end;
 procedure TfFrameCustomer.N6Click(Sender: TObject);
 var nStr:string;
     nP: TFormCommandParam;
-    nID,nName,nBindID,nAccount:string;
+    nID,nName,nBindID,nAccount,nPhone:string;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
@@ -286,6 +286,7 @@ begin
 
   nBindID  := nP.FParamB;
   nAccount := nP.FParamC;
+  nPhone   := nP.FParamD;
   nID      := SQLQuery.FieldByName('C_ID').AsString;
   nName    := SQLQuery.FieldByName('C_Name').AsString;
 
@@ -303,8 +304,8 @@ begin
   if edit_shopclients(PackerEncodeStr(FListA.Text)) <> sFlag_Yes then Exit;
   //call remote
 
-  nStr := 'update %s set C_WeiXin=''%s'' where C_ID=''%s''';
-  nStr := Format(nStr,[sTable_Customer, nAccount, nID]);
+  nStr := 'update %s set C_WeiXin=''%s'',C_Phone=''%s'' where C_ID=''%s''';
+  nStr := Format(nStr,[sTable_Customer, nAccount, nPhone, nID]);
   FDM.ExecuteSQL(nStr);
 
   ShowMsg('关联商城账户成功',sHint);
@@ -339,7 +340,7 @@ begin
   if edit_shopclients(PackerEncodeStr(FListA.Text)) <> sFlag_Yes then Exit;
   //call remote
 
-  nStr := 'update %s set C_WeiXin=Null where C_ID=''%s''';
+  nStr := 'update %s set C_WeiXin=Null,C_Phone=Null where C_ID=''%s''';
   nStr := Format(nStr,[sTable_Customer, nID]);
   FDM.ExecuteSQL(nStr);
 

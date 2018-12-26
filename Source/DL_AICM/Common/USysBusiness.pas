@@ -193,6 +193,8 @@ function IFHasOrder(const nTruck: string): Boolean;
 //车辆是否存在未完成采购单
 function IsEleCardVaid(const nTruckNo: string): Boolean;
 //验证车辆电子标签
+function IsEleCardVaidEx(const nTruckNo: string): Boolean;
+//验证车辆电子标签
 function IfStockHasLs(const nStockNo: string): Boolean;
 //验证物料是否需要输入流水
 
@@ -1676,6 +1678,31 @@ begin
     end
     else
       Result := False;
+  end;
+end;
+
+//验证车辆电子标签
+function IsEleCardVaidEx(const nTruckNo: string): Boolean;
+var
+  nSql:string;
+begin
+  Result := False;
+
+  nSql := 'select * from %s where T_Truck = ''%s'' ';
+  nSql := Format(nSql,[sTable_Truck,nTruckNo]);
+
+  with FDM.QueryTemp(nSql) do
+  begin
+    if recordcount>0 then
+    begin
+      if FieldByName('T_CardUse').AsString = sFlag_Yes then//启用
+      begin
+        if (FieldByName('T_Card').AsString <> '') or (FieldByName('T_Card2').AsString <> '') then
+        begin
+          Result := True;
+        end;
+      end;
+    end;
   end;
 end;
 

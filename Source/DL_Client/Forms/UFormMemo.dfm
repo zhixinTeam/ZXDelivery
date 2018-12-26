@@ -11,15 +11,15 @@ inherited fFormMemo: TfFormMemo
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 341
-    Height = 198
+    Height = 199
     inherited BtnOK: TButton
       Left = 195
-      Top = 165
+      Top = 166
       TabOrder = 1
     end
     inherited BtnExit: TButton
       Left = 265
-      Top = 165
+      Top = 166
       TabOrder = 2
     end
     object Memo1: TcxMemo [2]

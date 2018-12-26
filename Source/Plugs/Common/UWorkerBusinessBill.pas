@@ -316,6 +316,21 @@ begin
         Exit;
       end;
   end;
+
+  {$IFDEF BusinessOnly}
+  nStr := 'Select D_OID From %s Where D_Truck=''%s'' and D_Status<>''%s''';
+  nStr := Format(nStr, [sTable_OrderDtl, nTruck, sFlag_TruckOut]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nStr := '车辆[ %s ]在未完成[ %s ]采购单之前禁止开单.';
+      nData := Format(nStr, [nTruck, FieldByName('D_OID').AsString]);
+      Exit;
+    end;
+  end;
+  {$ENDIF}
   //----------------------------------------------------------------------------
   SetLength(FStockItems, 0);
   SetLength(FMatchItems, 0);
