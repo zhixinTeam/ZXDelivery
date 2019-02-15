@@ -13,6 +13,9 @@
 
 {$DEFINE cxLibrary42}
 //Ver4.2编译环境
+{$DEFINE RemObjects}
+{$DEFINE RO_v90}
+//XE.Lib启用RO支持
 
 {.$DEFINE EnableBackupDB}
 //备用数据库支持
@@ -50,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE XXCJ}
+{$DEFINE LNYK}
 //特定系统
 
 //山西声威

@@ -243,7 +243,7 @@ begin
   end;
 
   Result := gMG.FObjectPool.Lock(TADOConnection, nil, @nCD,
-    function(const nObj: TObject; const nData: Pointer): Boolean
+    function(const nObj: TObject; const nData: Pointer; var nTimes: Integer): Boolean
     begin
       Result := (not Assigned(nData)) or
                 (PAdoConnectionData(nData).FConnUser = nStr);
