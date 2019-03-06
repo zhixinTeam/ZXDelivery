@@ -173,6 +173,8 @@ const
   cFI_FormAuditTruck    = $1095;                     //车辆审核
 
   cFI_Form_HT_SalePlan  = $1100;                     //销售计划(红塔)
+  cFI_FrameTransBase    = $1101;                     //短倒办理
+  cFI_FormTransBase     = $1102;                     //短倒办理
 
   {*Command*}
   cCmd_RefreshData      = $0002;                     //刷新数据

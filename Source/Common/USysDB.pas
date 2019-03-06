@@ -266,6 +266,11 @@ const
   sFlag_InOutBegin    = 'BeginTime';                 //进出厂查询起始时间
   sFlag_InOutEnd      = 'EndTime';                   //进出厂查询结束时间
 
+  sFlag_DuanDao       = 'D';                         //短倒(First=>Second)
+  sFlag_Transfer      = 'Bus_Transfer';              //短倒单号
+  sFlag_TransBase     = 'Bus_TransBase';             //短倒申请单号
+  sFlag_TransferPound = 'TransferPound';             //短倒是否过磅
+
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
   sTable_User         = 'Sys_User';                  //用户表
@@ -345,6 +350,11 @@ const
   sTable_K3_SyncItem  = 'DL_SyncItem';               //数据同步项
   sTable_K3_Customer  = 'T_Organization';            //组织结构(客户)
   sTable_K3_SalePlan  = 'S_K3_SalePlan';             //销售计划
+
+  sTable_TransBase    = 'P_TransBase';               //短倒单
+  sTable_TransBaseBak = 'P_TransBaseBak';            //短倒单
+  sTable_Transfer     = 'P_Transfer';                //短倒明细单
+  sTable_TransferBak  = 'P_TransferBak';             //短倒明细单
 
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
@@ -1523,6 +1533,69 @@ const
    *.WOM_SyncNum: 发送次数
    *.WOM_BillType: 业务类型  采购 销售
   -----------------------------------------------------------------------------}
+  sSQL_NewTransBase = 'Create Table $Table(R_ID $Inc, B_ID varChar(20),' +
+       'B_CType Char(1), B_Card varChar(32), B_Truck varChar(15), ' +
+       'B_TID varChar(15), B_SrcAddr varChar(160), B_DestAddr varChar(160),' +
+       'B_Type Char(1), B_StockNo varChar(32), B_StockName varChar(160),' +
+       'B_PValue $Float, B_PDate DateTime, B_PMan varChar(32),' +
+       'B_MValue $Float, B_MDate DateTime, B_MMan varChar(32),' +
+       'B_Status Char(1), B_NextStatus Char(1), B_IsUsed Char(1),' +
+       'B_Value $Float, B_Man varChar(32), B_Date DateTime,' +
+       'B_DelMan varChar(32), B_DelDate DateTime, B_Memo varChar(500),'+
+       'B_IsNei char(1) Default ''N'')';
+  {-----------------------------------------------------------------------------
+   短倒基础表: TransBase
+   *.R_ID: 编号
+   *.B_ID: 短倒基础编号
+   *.B_Card: 磁卡号
+   *.B_Truck: 车牌号
+   *.B_SrcAddr:倒出地点
+   *.B_DestAddr:倒入地点
+   *.B_Type: 类型(袋,散)
+   *.B_StockNo: 物料编号
+   *.B_StockName: 物料描述
+   *.B_PValue,B_PDate,B_PMan: 称皮重
+   *.B_MValue,B_MDate,B_MMan: 称毛重
+   *.B_Status: 当前车辆状态
+   *.B_NextStus: 下一状态
+   *.B_IsUsed: 订单是否占用(Y、正在使用;N、未占用)
+   *.B_Value: 收货量
+   *.B_Man,B_Date: 单据信息
+   *.B_DelMan,B_DelDate: 删除信息
+   *.B_IsNei : 厂内倒料车辆   Y、N
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewTransfer = 'Create Table $Table(R_ID $Inc, T_ID varChar(20),' +
+       'T_Card varChar(32), T_Truck varChar(15), T_PID varChar(15),' +
+       'T_SrcAddr varChar(160), T_DestAddr varChar(160),' +
+       'T_Type Char(1), T_StockNo varChar(32), T_StockName varChar(160),' +
+       'T_PValue $Float, T_PDate DateTime, T_PMan varChar(32),' +
+       'T_MValue $Float, T_MDate DateTime, T_MMan varChar(32),' +
+       'T_Status Char(1), T_NextStatus Char(1), ' +
+       'T_Value $Float, T_Man varChar(32), T_Date DateTime,' +
+       'T_InTime DateTime, T_InMan varChar(32),' +
+       'T_OutFact DateTime, T_OutMan varChar(32),' +
+       'T_DelMan varChar(32), T_DelDate DateTime, T_Memo varChar(500))';
+  {-----------------------------------------------------------------------------
+   入厂表: Transfer
+   *.R_ID: 编号
+   *.T_ID: 短倒业务号
+   *.T_PID: 磅单编号
+   *.T_Card: 磁卡号
+   *.T_Truck: 车牌号
+   *.T_SrcAddr:倒出地点
+   *.T_DestAddr:倒入地点
+   *.T_Type: 类型(袋,散)
+   *.T_StockNo: 物料编号
+   *.T_StockName: 物料描述
+   *.T_PValue,T_PDate,T_PMan: 称皮重
+   *.T_MValue,T_MDate,T_MMan: 称毛重
+   *.T_Value: 收货量
+   *.T_Man,T_Date: 单据信息
+   *.T_InMan,T_InTime:进场信息
+   *.T_OutMan,T_OutFact:出厂信息
+   *.T_DelMan,T_DelDate: 删除信息
+  -----------------------------------------------------------------------------}
 
 function CardStatusToStr(const nStatus: string): string;
 //磁卡状态
@@ -1532,6 +1605,8 @@ function BillTypeToStr(const nType: string): string;
 //订单类型
 function PostTypeToStr(const nPost: string): string;
 //岗位类型
+function BusinessToStr(const nBus: string): string;
+//业务类型
 
 implementation
 
@@ -1661,6 +1736,12 @@ begin
   AddSysTableItem(sTable_K3_SalePlan, sSQL_NewK3SalePlan);
   AddSysTableItem(sTable_WebOrderMatch,sSQL_NewWebOrderMatch);
   AddSysTableItem(sTable_AuditTruck, sSQL_NewAuditTruck);
+
+  //内倒业务表
+  AddSysTableItem(sTable_TransBase, sSQL_NewTransBase);
+  AddSysTableItem(sTable_TransBaseBak, sSQL_NewTransBase);
+  AddSysTableItem(sTable_Transfer, sSQL_NewTransfer);
+  AddSysTableItem(sTable_TransferBak, sSQL_NewTransfer);
 end;
 
 //Desc: 清理系统表
@@ -1674,6 +1755,17 @@ begin
   end;
 
   FreeAndNil(gSysTableList);
+end;
+
+//Desc: 业务类型转为可识别内容
+function BusinessToStr(const nBus: string): string;
+begin
+  if nBus = sFlag_Sale       then Result := '销售' else
+  if nBus = sFlag_Provide    then Result := '供应' else
+  if nBus = sFlag_Returns    then Result := '退货' else
+  if nBus = sFlag_DuanDao    then Result := '短倒' else
+  //if nBus = sFlag_WaiXie     then Result := '外协' else
+  if nBus = sFlag_Other      then Result := '其它';
 end;
 
 initialization

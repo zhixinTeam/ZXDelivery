@@ -176,6 +176,9 @@ type
     FHYDan      : string;          //化验单号
     FMemo       : string;          //动作备注
     FLadeTime   : string;          //提货时间
+
+    FPrePData   : string;          //预置皮重
+    FIsNei      : string;          //厂内倒料
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -228,6 +231,9 @@ resourcestring
   sCLI_HardwareCommand        = 'CLI_HardwareCommand';  //硬件指令
   sCLI_BusinessWebchat        = 'CLI_BusinessWebchat';  //Web平台服务
   sCLI_BusinessPurchaseOrder  = 'CLI_BusinessPurchaseOrder'; //采购单相关
+
+  sCLI_BusinessDuanDao        = 'CLI_BusinessDuanDao';  //短倒业务相关
+  sBus_BusinessDuanDao        = 'Bus_BusinessDuanDao';  //短倒业务相关
 
 implementation
 

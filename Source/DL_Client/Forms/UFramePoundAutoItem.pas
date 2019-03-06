@@ -402,9 +402,15 @@ begin
   WriteLog(nStr);
 
   FCardUsed := GetCardUsed(nCard);
-  if FCardUsed=sFlag_Provide then
-       nRet := GetPurchaseOrders(nCard, sFlag_TruckBFP, nBills)
-  else nRet := GetLadingBills(nCard, sFlag_TruckBFP, nBills);
+  if FCardUsed = sFlag_Provide then
+     nRet := GetPurchaseOrders(nCard, sFlag_TruckBFP, nBills) else
+  if FCardUsed=sFlag_DuanDao then
+     nRet := GetDuanDaoItems(nCard, sFlag_TruckBFP, nBills) else
+  if FCardUsed=sFlag_Sale then
+     nRet := GetLadingBills(nCard, sFlag_TruckBFP, nBills) else nRet := False;
+//  if FCardUsed=sFlag_Provide then
+//       nRet := GetPurchaseOrders(nCard, sFlag_TruckBFP, nBills)
+//  else nRet := GetLadingBills(nCard, sFlag_TruckBFP, nBills);
 
   if (not nRet) or (Length(nBills) < 1)
   then
@@ -875,9 +881,12 @@ begin
          FPData.FStation := FPoundTunnel.FID
     else FMData.FStation := FPoundTunnel.FID;
   end;
-
-  FSaveResult := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel, FLogin);
-  Result := FSaveResult;
+  
+  if FCardUsed = sFlag_Provide then
+       Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel, FLogin)
+  else Result := SaveDuanDaoItems(nNextStatus, FBillItems, FPoundTunnel, FLogin);
+  //保存称重
+  //Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel)
   //保存称重
 end;
 
@@ -956,7 +965,9 @@ begin
   if Length(FBillItems) < 1 then Exit;
   //无称重数据
 
-  if FCardUsed = sFlag_Provide then
+  //if FCardUsed = sFlag_Provide then
+  //临时过磅也对调重量
+  if FCardUsed <> sFlag_Sale then
   begin
     if FInnerData.FPData.FValue > 0 then
     begin
@@ -1010,9 +1021,13 @@ begin
   end;
 
   FIsSaving := True;
-  if FCardUsed = sFlag_Provide then
-       nRet := SavePoundData
-  else nRet := SavePoundSale;
+//  if FCardUsed = sFlag_Provide then
+//       nRet := SavePoundData
+//  else nRet := SavePoundSale;
+
+  if FCardUsed = sFlag_Sale then
+       nRet := SavePoundSale
+  else nRet := SavePoundData;
 
   if nRet then
   begin

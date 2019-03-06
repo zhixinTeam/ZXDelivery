@@ -323,6 +323,30 @@ function MakeSaleViewData: Boolean;
 //生成销售特定字段数据(特定使用)
 function MakeOrderViewData: Boolean;
 //生成采购特定字段数据(特定使用)
+
+function SaveDDBases(const nDDData: string): string;
+//保存短倒基本信息
+function DeleteDDBase(const nBase: string): Boolean;
+//删除短倒基本信息
+
+function LogoutDDCard(const nCard: string): Boolean;
+//注销短倒磁卡
+
+function SaveDDCard(const nBID, nCard: string): Boolean;
+//绑定短倒磁卡
+function GetDuanDaoItems(const nCard,nPost: string;
+  var nBills: TLadingBillItems): Boolean;
+//获取指定岗位的短倒明细列表
+function SaveDuanDaoItems(const nPost: string; const nData: TLadingBillItems;
+ const nTunnel: PPTTunnelItem=nil;const nLogin: Integer = -1): Boolean;
+//保存指定岗位的短倒明细
+function DeleteDDDetial(const nDID: string): Boolean;
+//删除短倒明细
+function SetDDCard(const nBill,nTruck: string; nVerify: Boolean): Boolean;
+//为交货单办理磁卡
+function PrintDuanDaoReport(const nID: string; nAsk: Boolean): Boolean;
+//打印短倒单
+
 procedure CapturePictureEx(const nTunnel: PPTTunnelItem;
                          const nLogin: Integer; nList: TStrings);
 //抓拍nTunnel的图像Ex
@@ -336,6 +360,40 @@ implementation
 procedure WriteLog(const nEvent: string);
 begin
   gSysLoger.AddLog(nEvent);
+end;
+
+//Date: 2017-09-22
+//Parm: 命令;数据;参数;输出
+//Desc: 调用中间件上的短倒单据对象
+function CallBusinessDuanDao(const nCmd: Integer; const nData,nExt: string;
+  const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
+var nIn: TWorkerBusinessCommand;
+    nWorker: TBusinessWorkerBase;
+begin
+  nWorker := nil;
+  try
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+
+    if nWarn then
+         nIn.FBase.FParam := ''
+    else nIn.FBase.FParam := sParam_NoHintOnError;
+
+    if gSysParam.FAutoPound and (not gSysParam.FIsManual) then
+      nIn.FBase.FParam := sParam_NoHintOnError;
+    //自动称重时不提示
+
+    nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessDuanDao);
+    //get worker
+    Result := nWorker.WorkActive(@nIn, nOut);
+
+    if not Result then
+      WriteLog(nOut.FBase.FErrDesc);
+    //xxxxx
+  finally
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
 end;
 
 //------------------------------------------------------------------------------
@@ -3206,6 +3264,165 @@ begin
   finally
     nList.Free;
   end;
+end;
+
+//Date: 2017-09-22
+//Parm: 开短倒数据
+//Desc: 保存短倒单,返回短倒单号列表
+function SaveDDBases(const nDDData: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessDuanDao(cBC_SaveBills, nDDData, '', @nOut) then
+       Result := nOut.FData
+  else Result := '';
+end;
+
+//Date: 2017-09-22
+//Parm: 短倒单号
+//Desc: 删除nBillID单据
+function DeleteDDBase(const nBase: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessDuanDao(cBC_DeleteBill, nBase, '', @nOut);
+end;
+
+//Date: 2017-09-22
+//Parm: 磁卡号
+//Desc: 注销nCard
+function LogoutDDCard(const nCard: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessDuanDao(cBC_LogoffCard, nCard, '', @nOut);
+end;
+
+//Date: 2019-07-22
+//Parm: 短倒编号,磁卡号
+//Desc: 绑定磁卡nCard
+function SaveDDCard(const nBID, nCard: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessDuanDao(cBC_SaveBillCard, nBID, nCard, @nOut);
+end;
+
+//Date: 2017-09-22
+//Parm: 磁卡号;岗位;短倒单列表
+//Desc: 获取nPost岗位上磁卡为nCard的短倒单列表
+function GetDuanDaoItems(const nCard,nPost: string;
+  var nBills: TLadingBillItems): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessDuanDao(cBC_GetPostBills, nCard, nPost, @nOut);
+  if Result then
+    AnalyseBillItems(nOut.FData, nBills);
+  //xxxxx
+end;
+
+function DeleteDDDetial(const nDID: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessDuanDao(cBC_DeleteOrder, nDID, '', @nOut);
+end;
+
+function SetDDCard(const nBill,nTruck: string; nVerify: Boolean): Boolean;
+var nStr: string;
+    nP: TFormCommandParam;
+begin
+  Result := True;
+  if nVerify then
+  begin
+    nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_ViaBillCard]);
+
+    with FDM.QueryTemp(nStr) do
+     if (RecordCount < 1) or (Fields[0].AsString <> sFlag_Yes) then Exit;
+    //no need do card
+  end;
+
+  nP.FParamA := nBill;
+  nP.FParamB := nTruck;
+  nP.FParamC := sFlag_DuanDao;
+  CreateBaseFormItem(cFI_FormMakeCard, '', @nP);
+  Result := (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK);
+end;
+
+//Date: 2017-09-22
+//Parm: 短倒ID;是否打印
+//Desc: 打印短倒明细
+function PrintDuanDaoReport(const nID: string; nAsk: Boolean): Boolean;
+var nStr: string;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印短倒单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+
+  nStr := 'Select * From %s Where T_ID=''%s''';
+  nStr := Format(nStr, [sTable_Transfer, nID]);
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '短倒记录[ %s ] 已无效!!';
+    nStr := Format(nStr, [nID]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + sReportDir + 'DuanDao.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nParam.FName := 'UserName';
+  nParam.FValue := gSysParam.FUserID;
+  FDR.AddParamItem(nParam);
+
+  nParam.FName := 'Company';
+  nParam.FValue := gSysParam.FHintText;
+  FDR.AddParamItem(nParam);
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+end;
+
+//Date: 2017-09-22
+//Parm: 岗位;短倒单列表;磅站通道
+//Desc: 保存nPost岗位上的短倒单数据
+function SaveDuanDaoItems(const nPost: string; const nData: TLadingBillItems;
+ const nTunnel: PPTTunnelItem;const nLogin: Integer): Boolean;
+var nStr: string;
+    nIdx: Integer;
+    nList: TStrings;
+    nOut: TWorkerBusinessCommand;
+begin
+  nStr := CombineBillItmes(nData);
+  Result := CallBusinessDuanDao(cBC_SavePostBills, nStr, nPost, @nOut);
+  if (not Result) or (nOut.FData = '') then Exit;
+
+  if Assigned(nTunnel) then //过磅称重
+  begin
+    nList := TStringList.Create;
+    try
+      {$IFDEF CapturePictureEx}
+      CapturePictureEx(nTunnel, nLogin, nList);
+      {$ELSE}
+      CapturePicture(nTunnel, nList);
+      //capture file
+      {$ENDIF}
+
+      for nIdx:=0 to nList.Count - 1 do
+        SavePicture(nOut.FData, nData[0].FTruck,
+                                nData[0].FStockName, nList[nIdx]);
+      //save file
+    finally
+      nList.Free;
+    end;
+  end; 
 end;
 
 //Date: 2018-09-25

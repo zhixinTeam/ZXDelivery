@@ -139,6 +139,38 @@ begin
   end;
 end;
 
+//Date: 2017-09-22
+//Parm: 命令;数据;参数;输出
+//Desc: 调用中间件上的短倒单据对象
+function CallBusinessDuanDao(const nCmd: Integer;
+  const nData, nExt: string; const nOut: PWorkerBusinessCommand): Boolean;
+var nStr: string;
+    nIn: TWorkerBusinessCommand;
+    nPacker: TBusinessPackerBase;
+    nWorker: TBusinessWorkerBase;
+begin
+  nPacker := nil;
+  nWorker := nil;
+  try
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+
+    nPacker := gBusinessPackerManager.LockPacker(sBus_BusinessCommand);
+    nStr := nPacker.PackIn(@nIn);
+    nWorker := gBusinessWorkerManager.LockWorker(sBus_BusinessDuanDao);
+    //get worker
+
+    Result := nWorker.WorkActive(nStr);
+    if Result then
+         nPacker.UnPackOut(nStr, nOut)
+    else nOut.FData := nStr;
+  finally
+    gBusinessPackerManager.RelasePacker(nPacker);
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
 //Date: 2014-10-16
 //Parm: 命令;数据;参数;输出
 //Desc: 调用硬件守护上的业务对象
@@ -240,7 +272,35 @@ begin
     gSysLoger.AddLog(TBusinessWorkerManager, '业务对象', nOut.FData);
   //xxxxx
 end;
-                                                             
+
+//Date: 2017-10-24
+//Parm: 磁卡号;岗位;短倒单列表
+//Desc: 获取nPost岗位上磁卡为nCard的短倒单列表
+function GetDuanDaoItems(const nCard,nPost: string;
+ var nData: TLadingBillItems): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessDuanDao(cBC_GetPostBills, nCard, nPost, @nOut);
+  if Result then
+       AnalyseBillItems(nOut.FData, nData)
+  else gSysLoger.AddLog(TBusinessWorkerManager, '业务对象', nOut.FData);
+end;
+
+//Date: 2017-10-24
+//Parm: 岗位;短倒单列表
+//Desc: 保存nPost岗位上的短倒单数据
+function SaveDuanDaoItems(const nPost: string; nData: TLadingBillItems): Boolean;
+var nStr: string;
+    nOut: TWorkerBusinessCommand;
+begin
+  nStr := CombineBillItmes(nData);
+  Result := CallBusinessDuanDao(cBC_SavePostBills, nStr, nPost, @nOut);
+
+  if not Result then
+    gSysLoger.AddLog(TBusinessWorkerManager, '业务对象', nOut.FData);
+  //xxxxx
+end;
+
 //------------------------------------------------------------------------------
 //Date: 2013-07-21
 //Parm: 事件描述;岗位标识
@@ -306,9 +366,16 @@ begin
   nCardType := '';
   if not GetCardUsed(nCard, nCardType) then Exit;
 
+//  if nCardType = sFlag_Provide then
+//        nRet := GetLadingOrders(nCard, sFlag_TruckIn, nTrucks)
+//  else  nRet := GetLadingBills(nCard, sFlag_TruckIn, nTrucks);
+
   if nCardType = sFlag_Provide then
-        nRet := GetLadingOrders(nCard, sFlag_TruckIn, nTrucks)
-  else  nRet := GetLadingBills(nCard, sFlag_TruckIn, nTrucks);
+    nRet := GetLadingOrders(nCard, sFlag_TruckIn, nTrucks) else
+  if nCardType = sFlag_Sale then
+    nRet := GetLadingBills(nCard, sFlag_TruckIn, nTrucks) else
+  if nCardType = sFlag_DuanDao then
+    nRet := GetDuanDaoItems(nCard, sFlag_TruckIn, nTrucks) else nRet := False;
 
   if not nRet then
   begin
@@ -368,12 +435,26 @@ begin
       end;
     end;
 
+    if nCardType = sFlag_DuanDao then
+    begin
+      nStr := '%s进厂';
+      nStr := Format(nStr, [nTrucks[0].FTruck]);
+      WriteHardHelperLog(nStr, sPost_In);
+      gDisplayManager.Display(nReader, nStr);
+    end;
     Exit;
   end;
 
-  if nCardType = sFlag_Provide then
+  if nCardType <> sFlag_Sale then
   begin
-    if not SaveLadingOrders(sFlag_TruckIn, nTrucks) then
+    if nCardType = sFlag_Provide then
+      nRet := SaveLadingOrders(sFlag_TruckIn, nTrucks) else
+    if nCardType = sFlag_DuanDao then
+      nRet := SaveDuanDaoItems(sFlag_TruckIn, nTrucks) else nRet := False;
+    //xxxxx
+
+    //if not SaveLadingOrders(sFlag_TruckIn, nTrucks) then
+    if not nRet then
     begin
       nStr := '车辆[ %s ]进厂放行失败.';
       nStr := Format(nStr, [nTrucks[0].FTruck]);
@@ -392,9 +473,21 @@ begin
       //抬杆
     end;
 
-    nStr := '原材料卡[%s]进厂抬杆成功';
-    nStr := Format(nStr, [nCard]);
+//    nStr := '原材料卡[%s]进厂抬杆成功';
+//    nStr := Format(nStr, [nCard]);
+//    WriteHardHelperLog(nStr, sPost_In);
+
+    nStr := '%s磁卡[%s]进厂抬杆成功';
+    nStr := Format(nStr, [BusinessToStr(nCardType), nCard]);
     WriteHardHelperLog(nStr, sPost_In);
+
+    if nCardType = sFlag_DuanDao then
+    begin
+      nStr := '%s进厂';
+      nStr := Format(nStr, [nTrucks[0].FTruck]);
+      WriteHardHelperLog(nStr, sPost_In);
+      gDisplayManager.Display(nReader, nStr);
+    end;
     Exit;
   end;
   //采购磁卡直接抬杆
@@ -477,6 +570,7 @@ begin
   end;
 end;
 
+
 //Date: 2012-4-22
 //Parm: 卡号;读头;打印机;化验单打印机
 //Desc: 对nCard放行出厂
@@ -494,9 +588,16 @@ begin
   nCardType := '';
   if not GetCardUsed(nCard, nCardType) then Exit;
 
+//  if nCardType = sFlag_Provide then
+//        nRet := GetLadingOrders(nCard, sFlag_TruckOut, nTrucks)
+//  else  nRet := GetLadingBills(nCard, sFlag_TruckOut, nTrucks);
+
   if nCardType = sFlag_Provide then
-        nRet := GetLadingOrders(nCard, sFlag_TruckOut, nTrucks)
-  else  nRet := GetLadingBills(nCard, sFlag_TruckOut, nTrucks);
+    nRet := GetLadingOrders(nCard, sFlag_TruckOut, nTrucks) else
+  if nCardType = sFlag_Sale then
+    nRet := GetLadingBills(nCard, sFlag_TruckOut, nTrucks) else
+  if nCardType = sFlag_DuanDao then
+    nRet := GetDuanDaoItems(nCard, sFlag_TruckOut, nTrucks) else nRet := False;
 
   if not nRet then
   begin
@@ -527,9 +628,16 @@ begin
     Exit;
   end;
 
+//  if nCardType = sFlag_Provide then
+//        nRet := SaveLadingOrders(sFlag_TruckOut, nTrucks)
+//  else  nRet := SaveLadingBills(sFlag_TruckOut, nTrucks);
+
   if nCardType = sFlag_Provide then
-        nRet := SaveLadingOrders(sFlag_TruckOut, nTrucks)
-  else  nRet := SaveLadingBills(sFlag_TruckOut, nTrucks);
+    nRet := SaveLadingOrders(sFlag_TruckOut, nTrucks) else
+  if nCardType = sFlag_Sale then
+    nRet := SaveLadingBills(sFlag_TruckOut, nTrucks) else
+  if nCardType = sFlag_DuanDao then
+    nRet := SaveDuanDaoItems(sFlag_TruckOut, nTrucks);
 
   if not nRet then
   begin
