@@ -75,6 +75,9 @@ type
     EditWX: TcxComboBox;
     dxLayoutControl1Item22: TdxLayoutItem;
     dxLayoutControl1Group14: TdxLayoutGroup;
+    EditType: TcxComboBox;
+    dxLayoutControl1Item23: TdxLayoutItem;
+    dxLayoutControl1Group9: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnAddClick(Sender: TObject);
@@ -183,7 +186,7 @@ var nIni: TIniFile;
 begin
   {$IFNDEF MicroMsg}
   EditWX.Hint := '';
-  EditWX.Visible := False; 
+  EditWX.Visible := False;
   {$ENDIF}
 
   nIni := TIniFile.Create(gPath + sFormConfig);
@@ -249,16 +252,26 @@ var nStr: string;
 begin
   LoadSysDictItem(sFlag_CustomerItem, InfoItems.Properties.Items);
   LoadSysDictItem(sFlag_BankItem, EditBank.Properties.Items);
-  
+
   if EditSaleMan.Properties.Items.Count < 1 then
     LoadSaleMan(EditSaleMan.Properties.Items);
   //xxxxx
 
   nStr := 'M_ID=Select M_ID,M_WXName From %s Order By M_ID DESC';
   nStr := Format(nStr, [sTable_WeixinMatch]);
-  
+
   FDM.FillStringsData(EditWX.Properties.Items, nStr, 6, '.');
   AdjustStringsItem(EditWX.Properties.Items, False);
+
+  {$IFDEF CustomerType}
+  nStr := 'D_Value=Select D_Value,D_Memo From %s Where D_Name=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_CustomerType]);
+
+  FDM.FillStringsData(EditType.Properties.Items, nStr, -1, '.');
+  AdjustStringsItem(EditType.Properties.Items, False);
+  {$ELSE}
+  dxLayoutControl1Item23.Visible := False;
+  {$ENDIF}
 
   if nID <> '' then
   begin
@@ -350,6 +363,15 @@ begin
     EditName.SetFocus;
     ShowMsg('请填写客户名称', sHint); Exit;
   end;
+
+  {$IFDEF CustomerType}
+  EditType.Text := Trim(EditType.Text);
+  if EditType.Text = '' then
+  begin
+    EditType.SetFocus;
+    ShowMsg('请选择客户类型', sHint); Exit;
+  end;
+  {$ENDIF}
 
   {$IFDEF InfoOnly}
   nStr := 'Select Count(*) From %s Where C_Name=''%s''';

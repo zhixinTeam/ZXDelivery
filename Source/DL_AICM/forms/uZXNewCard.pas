@@ -71,7 +71,6 @@ type
     procedure btnClearClick(Sender: TObject);
   private
     { Private declarations }
-    FSzttceApi:TSzttceApi; //发卡机驱动
     FAutoClose:Integer; //窗口自动关闭倒计时（分钟）
     FWebOrderIndex:Integer; //商城订单索引
     FWebOrderItems:array of stMallOrderItem; //商城订单数组
@@ -90,7 +89,6 @@ type
   public
     { Public declarations }
     procedure SetControlsClear;
-    property SzttceApi:TSzttceApi read FSzttceApi write FSzttceApi;
   end;
 
 var
@@ -99,7 +97,7 @@ var
 implementation
 uses
   ULibFun,UBusinessPacker,USysLoger,UBusinessConst,UFormMain,USysBusiness,USysDB,
-  UAdjustForm,UFormBase,UDataReport,UDataModule,NativeXml,UMgrK720Reader,UFormWait,
+  UAdjustForm,UFormBase,UDataReport,UDataModule,NativeXml,UMgrTTCEDispenser,UFormWait,
   DateUtils;
 {$R *.dfm}
 
@@ -433,7 +431,7 @@ end;
 
 function TfFormNewCard.SaveBillProxy: Boolean;
 var
-  nHint:string;
+  nHint,nMsg:string;
   nList,nTmp,nStocks: TStrings;
   nPrint,nInFact:Boolean;
   nBillData:string;
@@ -444,6 +442,7 @@ var
   i:Integer;
   nRet: Boolean;
   nOrderItem:stMallOrderItem;
+  nCard:string;
 begin
   Result := False;
   nOrderItem := FWebOrderItems[FWebOrderIndex];
@@ -478,6 +477,33 @@ begin
   begin
     ShowMsg(nHint,sHint);
     Writelog(nHint);
+    Exit;
+  end;
+
+  for nIdx:=0 to 3 do
+  begin
+    nCard := gDispenserManager.GetCardNo(gSysParam.FTTCEK720ID, nHint, False);
+    if nCard <> '' then
+      Break;
+    Sleep(500);
+  end;
+  //连续三次读卡,成功则退出。
+
+  if nCard = '' then
+  begin
+    nMsg := '卡箱异常,请查看是否有卡.';
+    ShowMsg(nMsg, sWarn);
+    Exit;
+  end;
+
+  WriteLog('读取到卡片: ' + nCard);
+  //解析卡片
+  if not IsCardValid(nCard) then
+  begin
+    gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
+    nMsg := '卡号' + nCard + '非法,回收中,请稍后重新取卡';
+    WriteLog(nMsg);
+    ShowMsg(nMsg, sWarn);
     Exit;
   end;
 
@@ -541,18 +567,34 @@ begin
     nTmp.Free;
   end;
 
-  ShowMsg('提货单保存成功', sHint);
+  nRet := SaveBillCard(nBillID, nCard);
 
-  //发卡
-  if not FSzttceApi.IssueOneCard(nNewCardNo) then
+  if not nRet then
   begin
-    nHint := '出卡失败,请到开票窗口补办磁卡：[errorcode=%d,errormsg=%s]';
-    nHint := Format(nHint,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg]);
-    ShowMsg(nHint,sHint);
+    nMsg := '办理磁卡失败,请重试.';
+    ShowMsg(nMsg, sHint);
+    Exit;
+  end;
+
+  nRet := gDispenserManager.SendCardOut(gSysParam.FTTCEK720ID, nHint);
+  //发卡
+
+  if nRet then
+  begin
+    nMsg := '提货单[ %s ]发卡成功,卡号[ %s ],请收好您的卡片';
+    nMsg := Format(nMsg, [nBillID, nCard]);
+
+    WriteLog(nMsg);
+    ShowMsg(nMsg,sWarn);
   end
   else begin
-    ShowMsg('发卡成功,卡号['+nNewCardNo+'],请收好您的卡片',sHint);
-    SaveBillCard(nBillID,nNewCardNo);
+    gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
+
+    nMsg := '卡号[ %s ]关联订单失败,请到开票窗口重新关联.';
+    nMsg := Format(nMsg, [nCard]);
+
+    WriteLog(nMsg);
+    ShowMsg(nMsg,sWarn);
   end;
   Result := True;
   if nPrint then

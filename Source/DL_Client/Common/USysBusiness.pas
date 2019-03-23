@@ -354,6 +354,9 @@ function InitCapture(const nTunnel: PPTTunnelItem; var nLogin: Integer): Boolean
 //初始化抓拍，与CapturePictureEx配套使用
 function FreeCapture(nLogin: Integer): Boolean;
 //释放抓拍
+function IsSealInfoDone(const nCardUse : string; nBill: TLadingBillItem): Boolean;
+function ShowLedText(nTunnel, nStr:string):Boolean;
+//发送led显示内容
 implementation
 
 //Desc: 记录日志
@@ -3556,6 +3559,92 @@ begin
   except
 
   end;
+end;
+
+function IsSealInfoDone(const nCardUse : string; nBill: TLadingBillItem): Boolean;
+var nStr : string ;
+    nCount, nInt: Integer;
+    nVerifySeal: Boolean;//是否校验
+begin
+  Result := True;
+  nVerifySeal := False;
+
+  if nCardUse <> sFlag_Sale then
+    Exit;
+
+  if nBill.FType <> sFlag_San then
+    Exit;
+
+  if nBill.FNextStatus <> sFlag_TruckBFM then
+    Exit;
+
+  nCount := 1;
+
+  nStr := 'Select D_Value,D_ParamB From %s Where D_Name=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SealCount]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nCount := Fields[0].AsInteger;
+      nVerifySeal := Fields[1].AsString = sFlag_Yes;
+    end;
+  end;
+
+  if not nVerifySeal then
+    Exit;
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_NoSealStock]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      First;
+      while not Eof do
+      begin
+        if nBill.FStockNo = Fields[0].AsString then
+          Exit;
+        Next;
+      end;
+    end;
+  end;
+
+  nInt := 0;
+
+  nStr := 'Select L_Seal1,L_Seal2,L_Seal3 From %s Where L_ID=''%s''';
+  nStr := Format(nStr, [sTable_Bill, nBill.FID]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      if Trim(Fields[0].AsString) <> '' then
+       Inc(nInt);
+      if Trim(Fields[1].AsString) <> '' then
+       Inc(nInt);
+      if Trim(Fields[2].AsString) <> '' then
+       Inc(nInt);
+    end;
+  end;
+
+  if nInt < nCount then
+  begin
+    WriteLog('提货单号' + nBill.FID + '铅封信息不完整,禁止过磅');
+    Result := False;
+  end;
+end;
+
+function ShowLedText(nTunnel, nStr:string):Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessHardware(cBC_ShowLedTxt, nTunnel, nStr,
+            @nOut, False);
 end;
 
 end.

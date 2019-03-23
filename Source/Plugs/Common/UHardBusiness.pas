@@ -30,6 +30,8 @@ function GetJSTruck(const nTruck,nBill: string): string;
 //获取计数器显示车牌
 procedure WhenSaveJS(const nTunnel: PMultiJSTunnel);
 //保存计数结果
+procedure SaveGrabCard(const nCard: string; nTunnel: string; nDelete: Boolean);
+//保存抓斗称刷卡信息
 
 implementation
 
@@ -1259,6 +1261,15 @@ begin
   for nIdx:=Low(nTrucks) to High(nTrucks) do
   with nTrucks[nIdx] do
   begin
+    {$IFDEF AllowMultiM}
+    if FStatus = sFlag_TRuckBFM then
+    begin
+      FStatus := sFlag_TruckBFP;
+      FNextStatus := sFlag_TruckFH;
+    end;
+    //过重后允许返回(状态回溯至成皮重,防止过快出厂)
+    {$ENDIF}
+
     if (FStatus = sFlag_TruckFH) or (FNextStatus = sFlag_TruckFH) then Continue;
     //未装或已装
 
@@ -1335,6 +1346,14 @@ begin
 
   if nHost.FType = rtKeep then
   begin
+    if Assigned(nHost.FOptions) then
+    begin
+      if nHost.FOptions.Values['IsGrab'] = sFlag_Yes then
+      begin
+        SaveGrabCard(nCard, nHost.FTunnel,False);
+        Exit;
+      end;
+    end;
     MakeTruckLadingSan(nCard, nHost.FTunnel);
   end;
 end;
@@ -1350,6 +1369,15 @@ begin
 
   gERelayManager.LineClose(nHost.FTunnel);
   Sleep(100);
+
+  if Assigned(nHost.FOptions) then
+  begin
+    if nHost.FOptions.Values['IsGrab'] = sFlag_Yes then
+    begin
+      SaveGrabCard(nCard, nHost.FTunnel,True);
+      Exit;
+    end;
+  end;
 
   {$IFDEF FixLoad}
   WriteHardHelperLog('停止定置装车::'+nHost.FTunnel+'@Close');
@@ -1449,6 +1477,29 @@ begin
 
     nStr := PackerEncodeStr(nList.Text);
     CallHardwareCommand(cBC_SaveCountData, nStr, '', @nOut)
+  finally
+    nList.Free;
+  end;
+end;
+
+//Date: 2017-8-17
+//Parm: 卡号;通道号;动作
+//Desc: 保存抓斗称刷卡信息
+procedure SaveGrabCard(const nCard: string; nTunnel: string; nDelete: Boolean);
+var nStr: string;
+    nList: TStrings;
+    nOut: TWorkerBusinessCommand;
+begin
+  nList := nil;
+  try
+    nList := TStringList.Create;
+    nList.Values['Card'] := nCard;
+    nList.Values['Tunnel'] := nTunnel;
+    IF nDelete then
+    nList.Values['Delete'] := sFlag_Yes;
+
+    nStr := nList.Text;
+    CallBusinessCommand(cBC_SaveGrabCard, nStr, '', @nOut);
   finally
     nList.Free;
   end;

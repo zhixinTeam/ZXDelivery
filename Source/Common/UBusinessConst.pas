@@ -61,6 +61,7 @@ const
   cBC_SavePostBills           = $0031;   //保存岗位交货单
   cBC_MakeSanPreHK            = $0032;   //执行散装预合卡
 
+  cBC_GetStockBatcodeByCusType= $0052;   //获取批次编号
   cBC_ChangeDispatchMode      = $0053;   //切换调度模式
   cBC_GetPoundCard            = $0054;   //获取磅站卡号
   cBC_GetQueueData            = $0055;   //获取队列数据
@@ -93,6 +94,8 @@ const
   cBC_SyncStockOrder          = $0084;   //同步采购单据到远程
   cBC_SyncProvider            = $0085;   //远程同步供应商
   cBC_SyncMaterails           = $0086;   //远程同步原材料
+
+  cBC_SaveGrabCard            = $0090;   //保存抓斗称刷卡信息
 
   cBC_WX_VerifPrintCode       = $0501;   //微信：验证喷码信息
   cBC_WX_WaitingForloading    = $0502;   //微信：工厂待装查询

@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormBatcodeJ;
 
+{$I Link.inc}
 interface
 
 uses
@@ -59,6 +60,8 @@ type
     dxLayout1Item3: TdxLayoutItem;
     Check3: TcxCheckBox;
     dxLayout1Group4: TdxLayoutGroup;
+    EditType: TcxComboBox;
+    dxLayout1Item20: TdxLayoutItem;
     procedure BtnOKClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesEditValueChanged(Sender: TObject);
@@ -127,6 +130,20 @@ end;
 procedure TfFormBatcode.LoadFormData(const nID: string);
 var nStr: string;
 begin
+  {$IFDEF TXGY}
+  EditPrefix.Properties.MaxLength := 10;
+  {$ENDIF}
+
+  {$IFDEF CustomerType}
+  nStr := 'D_Value=Select D_Value,D_Memo From %s Where D_Name=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_CustomerType]);
+
+  FDM.FillStringsData(EditType.Properties.Items, nStr, -1, '.');
+  AdjustStringsItem(EditType.Properties.Items, False);
+  {$ELSE}
+  dxLayoutControl1Item20.Visible := False;
+  {$ENDIF}
+
   nStr := 'D_ParamB=Select D_ParamB,D_Value From %s Where D_Name=''%s'' ' +
           'And D_Index>=0 Order By D_Index DESC';
   nStr := Format(nStr, [sTable_SysDict, sFlag_StockItem]);
@@ -160,6 +177,11 @@ begin
       EditHigh.Text := FieldByName('B_High').AsString;
       EditWeek.Text := FieldByName('B_Interval').AsString;
       Check2.Checked := FieldByName('B_AutoNew').AsString = sFlag_Yes;
+
+      {$IFDEF CustomerType}
+      nStr := FieldByName('B_Type').AsString;
+      SetCtrlData(EditType, nStr);
+      {$ENDIF}
     end;
   end;
 
@@ -187,8 +209,20 @@ begin
     nHint := '请选择物料';
     if not Result then Exit;
 
+    {$IFDEF CustomerType}
+    Result := EditType.ItemIndex >= 0;
+    nHint := '请选择分类';
+    if not Result then Exit;
+    {$ENDIF}
+
+    {$IFDEF CustomerType}
+    nStr := 'Select R_ID From %s Where B_Stock=''%s'' and B_Type=''%s''';
+    nStr := Format(nStr, [sTable_StockBatcode, GetCtrlData(EditStock),
+                                               GetCtrlData(EditType)]);
+    {$ELSE}
     nStr := 'Select R_ID From %s Where B_Stock=''%s''';
     nStr := Format(nStr, [sTable_StockBatcode, GetCtrlData(EditStock)]);
+    {$ENDIF}
 
     with FDM.QueryTemp(nStr) do
     if RecordCount > 0 then
@@ -238,6 +272,12 @@ begin
   begin
     Result := IsNumber(EditWeek.Text, False) and (StrToFloat(EditWeek.Text) >= 0);
     nHint := '请输入周期值';
+  end else
+  if Sender = EditType then
+  begin
+    Result := EditType.ItemIndex >= 0;
+    nHint := '请选择分类';
+    if not Result then Exit;
   end;
 end;
 
@@ -278,6 +318,9 @@ begin
           SF('B_High', EditHigh.Text, sfVal),
           SF('B_Interval', EditWeek.Text, sfVal),
           SF('B_AutoNew', nN),
+          {$IFDEF CustomerType}
+          SF('B_Type', GetCtrlData(EditType)),
+          {$ENDIF}
           SF('B_LastDate', sField_SQLServer_Now, sfVal)
           ], sTable_StockBatcode, nStr, FRecordID = '');
   FDM.ExecuteSQL(nStr);

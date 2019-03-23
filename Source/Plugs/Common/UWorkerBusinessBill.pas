@@ -53,6 +53,10 @@ type
     function GetMatchRecord(const nStock: string): string;
     //物料分组
     function AllowedSanMultiBill: Boolean;
+    function GetStockKuWei(const nStockNo: string): string;
+    //读取物料库位
+    function GetCusType(const nCusID: string): string;
+    //读取客户分类
     function VerifyBeforSave(var nData: string): Boolean;
     function SaveBills(var nData: string): Boolean;
     //保存交货单
@@ -318,16 +322,25 @@ begin
   end;
 
   {$IFDEF BusinessOnly}
-  nStr := 'Select D_OID From %s Where D_Truck=''%s'' and D_Status<>''%s''';
-  nStr := Format(nStr, [sTable_OrderDtl, nTruck, sFlag_TruckOut]);
+  nStr := 'Select top 10 * From %s Where O_Truck=''%s'' order by O_Date desc';
+  nStr := Format(nStr, [sTable_Order, nTruck]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   begin
     if RecordCount > 0 then
     begin
-      nStr := '车辆[ %s ]在未完成[ %s ]采购单之前禁止开单.';
-      nData := Format(nStr, [nTruck, FieldByName('D_OID').AsString]);
-      Exit;
+      First;
+
+      while not Eof do
+      begin
+        if Trim(FieldByName('O_Card').AsString) <> '' then
+        begin
+          nStr := '车辆[ %s ]在未完成[ %s ]采购单之前禁止开单.';
+          nData := Format(nStr, [nTruck, FieldByName('O_ID').AsString]);
+          Exit;
+        end;
+        Next;
+      end;
     end;
   end;
   {$ENDIF}
@@ -591,9 +604,19 @@ begin
       FListC.Text := PackerDecodeStr(FListB[nIdx]);
       //get bill info
 
+      {$IFDEF CustomerType}
+      FListC.Values['CustomerType'] := GetCusType(FListA.Values['CusID']);
+      if FListC.Values['CustomerType'] = '' then
+        raise Exception.Create('客户' + FListA.Values['CusID'] + '分类为空');
+
+      if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcodeByCusType,
+         FListC.Values['StockNO'], FListC.Text, @nTmp) then
+         raise Exception.Create(nTmp.FData);
+      {$ELSE}
       if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
          FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then
          raise Exception.Create(nTmp.FData);
+      {$ENDIF}
 
       {$IFDEF BatchInHYOfBill}
       if nTmp.FData = '' then
@@ -611,6 +634,8 @@ begin
         FOut.FBase.FErrDesc := PBWDataBase(@nTmp).FErrDesc;
       end;
       //获取批次号信息
+
+      FListC.Values['StockKuWei'] := GetStockKuWei(FListC.Values['StockNO']);
 
       nStr := MakeSQLByStr([SF('L_ID', nOut.FData),
               SF('L_ZhiKa', FListA.Values['ZhiKa']),
@@ -635,6 +660,14 @@ begin
 
               {$IFDEF PrintHYEach}
               SF('L_PrintHY', FListC.Values['PrintHY']),
+              {$ENDIF} //随车打印化验单
+
+              {$IFDEF StockKuWei}
+              SF('L_KuWei', FListC.Values['StockKuWei']),
+              {$ENDIF} //随车打印化验单
+
+              {$IFDEF CustomerType}
+              SF('L_CusType', FListC.Values['CustomerType']),
               {$ENDIF} //随车打印化验单
 
               SF('L_ZKMoney', nFixMoney),
@@ -2613,6 +2646,36 @@ begin
     gWXPlatFormHelper.WXSendMsg(cWXBus_OutFact, FListA.Text);
   end;
   {$ENDIF}
+end;
+
+//Date: 2019-03-17
+//Desc: 读取物料库位
+function TWorkerBusinessBills.GetStockKuWei(const nStockNo: string): string;
+var nStr: string;
+begin
+  Result := '';
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_StockKuWei, nStockNo]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    Result := Fields[0].AsString;
+  end;
+end;
+
+function TWorkerBusinessBills.GetCusType(const nCusID: string): string;
+var nStr: string;
+begin
+  Result := '';
+  nStr := 'Select C_Type From %s Where C_ID=''%s''';
+  nStr := Format(nStr, [sTable_Customer, nCusID]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    Result := Fields[0].AsString;
+  end;
 end;
 
 initialization

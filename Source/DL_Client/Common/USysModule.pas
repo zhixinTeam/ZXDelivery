@@ -35,12 +35,15 @@ uses
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
   {$ENDIF}
+  UFormSealInfo,//铅封输入
   {.$IFDEF XAZL}
   UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
   UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,
   UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,
   UFormGetPOrderBase, UFormOrderDtl,
   {.$ENDIF}
+  UFramePoundMtAuto,UFramePoundMtAutoItem,UFramePoundMtQuery,
+  //桐乡码头抓斗秤
   //----------------------------------------------------------------------------
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo,

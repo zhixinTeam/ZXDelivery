@@ -96,6 +96,7 @@ type
     FEmptyPoundIdleLong, FEmptyPoundIdleShort: Int64;
     FLogin: Integer;
     //摄像机登陆
+    FIsChkPoundStatus : Boolean;
     procedure SetUIData(const nReset: Boolean; const nOnlyData: Boolean = False);
     //界面数据
     procedure SetImageStatus(const nImage: TImage; const nOff: Boolean);
@@ -120,6 +121,7 @@ type
     //播放语音
     procedure LEDDisplay(const nContent: string);
     //LED显示
+    function ChkPoundStatus:Boolean;
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -525,6 +527,16 @@ begin
   end;
   //判断车辆是否就位
 
+  if not IsSealInfoDone(FCardUsed, FUIData) then
+  begin
+    nStr := '铅封信息不完整,无法过磅.';
+    PlayVoice(nStr);
+
+    SetUIData(True);
+    Exit;
+  end;
+  //铅封信息校验
+
   InitSamples;
   //初始化样本
 
@@ -614,6 +626,9 @@ begin
       WriteSysLog(nStr);
       Exit;
     end;
+
+    if Not ChkPoundStatus then Exit;
+    //检查地磅状态 如不为空磅，则喊话 退出称重
 
     FCardTmp := nCard;
     EditBill.Text := nCard;
@@ -1218,6 +1233,42 @@ begin
     gDisplayManager.Display(FPoundTunnel.FID, nContent);
   end;
   {$ENDIF}
+end;
+
+function TfFrameAutoPoundItem.ChkPoundStatus:Boolean;
+var nIdx:Integer;
+    nHint : string;
+begin
+  Result:= True;
+  try
+    FIsChkPoundStatus:= True;
+    if not FPoundTunnel.FUserInput then
+    if not gPoundTunnelManager.ActivePort(FPoundTunnel.FID,
+           OnPoundDataEvent, True) then
+    begin
+      nHint := '检查地磅：连接地磅表头失败，请联系管理员检查硬件连接';
+      WriteSysLog(nHint);
+      PlayVoice(nHint);
+    end;
+
+    for nIdx:= 0 to 5 do
+    begin
+      Sleep(500);  Application.ProcessMessages;
+      if StrToFloatDef(Trim(EditValue.Text), -1) > FPoundTunnel.FPort.FMinValue then
+      begin
+        Result:= False;
+        nHint := '检查地磅：地磅称重重量 %s ,不能进行称重作业';
+        nhint := Format(nHint, [EditValue.Text]);
+        WriteSysLog(nHint);
+
+        PlayVoice('不能进行称重作业,相关车辆或人员请下榜');
+        Break;
+      end;
+    end;
+  finally
+    FIsChkPoundStatus:= False;
+    SetUIData(True);
+  end;
 end;
 
 end.

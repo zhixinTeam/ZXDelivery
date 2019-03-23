@@ -50,6 +50,9 @@ const
   cFI_FramePoundManual  = $0035;                     //手动称重
   cFI_FramePoundAuto    = $0036;                     //自动称重
 
+  cFI_FramePoundMtAuto  = $0040;                     //码头抓斗秤
+  cFI_FramePoundMtQuery = $0041;                     //码头抓斗秤查询
+
   cFI_FrameStock        = $0042;                     //品种管理
   cFI_FrameStockRecord  = $0043;                     //检验记录
   cFI_FrameStockHuaYan  = $0045;                     //开化验单
@@ -171,6 +174,7 @@ const
   cFI_FormTodo          = $1093;                     //需干预事件
   cFI_FormTodoSend      = $1094;                     //推送事件
   cFI_FormAuditTruck    = $1095;                     //车辆审核
+  cFI_FormSealInfo      = $1096;                     //铅封信息录入
 
   cFI_Form_HT_SalePlan  = $1100;                     //销售计划(红塔)
   cFI_FrameTransBase    = $1101;                     //短倒办理
@@ -361,11 +365,14 @@ begin
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);
   AddMenuModuleItem('MAIN_E03', cFI_FramePoundQuery);
-
+  AddMenuModuleItem('MAIN_E06', cFI_FramePoundMtAuto);
+  AddMenuModuleItem('MAIN_E07', cFI_FramePoundMtQuery);
+  
   AddMenuModuleItem('MAIN_F01', cFI_FormLadDai, mtForm);
   AddMenuModuleItem('MAIN_F03', cFI_FrameZhanTaiQuery);
   AddMenuModuleItem('MAIN_F04', cFI_FrameZTDispatch);
   AddMenuModuleItem('MAIN_F05', cFI_FormPurchase, mtForm);
+  AddMenuModuleItem('MAIN_F06', cFI_FormSealInfo, mtForm);
 
   AddMenuModuleItem('MAIN_G01', cFI_FormLadSan, mtForm);
   AddMenuModuleItem('MAIN_G02', cFI_FrameFangHuiQuery);

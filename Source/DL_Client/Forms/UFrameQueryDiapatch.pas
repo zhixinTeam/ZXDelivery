@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameQueryDiapatch;
 
+{$I Link.inc}
 interface
 
 uses
@@ -90,8 +91,8 @@ end;
 
 function TfFrameQueryDispatch.InitFormDataSQL(const nWhere: string): string;
 begin
-  Result := ' Select zt.*,Z_Name,L_CusID,L_CusName,L_Status,L_Value,L_LadeTime ' +
-            'From $ZT zt ' +
+  Result := ' Select zt.*,Z_Name,L_CusID,L_CusName,L_Status,L_Value,L_LadeTime, ' +
+            'L_SaleMan From $ZT zt ' +
             ' Left Join $ZL zl On zl.Z_ID=zt.T_Line ' +
             ' Left Join $Bill b On b.L_ID=zt.T_Bill ';
   //xxxxx
@@ -125,7 +126,7 @@ end;
 //Desc: 车辆插队
 procedure TfFrameQueryDispatch.SetTruckQueue(const nFirst: Boolean);
 var nDate: TDateTime;
-    nStr,nTruck,nStock: string;
+    nStr,nTruck,nStock,nMemo: string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
@@ -142,6 +143,18 @@ begin
     nTruck := SQLQuery.FieldByName('T_Truck').AsString;
     nStr := Format(nStr, [nTruck]);
     if not QueryDlg(nStr, sAsk) then Exit;
+
+    {$IFDEF ForceMemo}
+    if nFirst then
+      nStr := Format('请填写车辆[ %s ]插队首的原因', [nTruck])
+    else
+      nStr := Format('请填写车辆[ %s ]插队尾的原因', [nTruck]);
+
+    nMemo := '';
+    if not ShowInputBox(nStr, '修改', nMemo, 100) then Exit;
+
+    if Trim(nMemo) = '' then Exit;
+    {$ENDIF}
 
     if nFirst then
     begin
@@ -175,8 +188,13 @@ begin
     FDM.ExecuteSQL(nStr);
     if nFirst then
     begin
-      nStr := SQLQuery.FieldByName('T_Truck').AsString;
-      FDM.WriteSysLog(sFlag_TruckQueue, nStr, '车辆插入队首.');
+      nStr := SQLQuery.FieldByName('T_Bill').AsString;
+      FDM.WriteSysLog(sFlag_TruckQueue, nStr, '车辆' + nTruck + '插入队首.原因:' + nMemo);
+    end
+    else
+    begin
+      nStr := SQLQuery.FieldByName('T_Bill').AsString;
+      FDM.WriteSysLog(sFlag_TruckQueue, nStr, '车辆' + nTruck + '插入队尾.原因:' + nMemo);
     end;
 
     InitFormData(FWhere);
@@ -198,7 +216,7 @@ end;
 
 //Desc: 定道装车
 procedure TfFrameQueryDispatch.N3Click(Sender: TObject);
-var nStr,nLine,nTmp: string;
+var nStr,nLine,nTmp,nMemo,nTruck: string;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
@@ -237,6 +255,16 @@ begin
     end;
   end;
 
+  nTruck := SQLQuery.FieldByName('T_Truck').AsString;
+  nMemo := '';
+  {$IFDEF ForceMemo}
+  nStr := Format('请填写车辆[ %s ]定道的原因', [nTruck]);
+
+  if not ShowInputBox(nStr, '修改', nMemo, 100) then Exit;
+
+  if Trim(nMemo) = '' then Exit;
+  {$ENDIF}
+
   nStr := 'Update %s Set T_Line=''%s'' Where R_ID=%s';
   nStr := Format(nStr, [sTable_ZTTrucks, nLine,
           SQLQuery.FieldByName('R_ID').AsString]);
@@ -245,10 +273,13 @@ begin
   nTmp := SQLQuery.FieldByName('T_Line').AsString;
   if nTmp = '' then nTmp := '空';
 
-  nStr := '指定装车道[ %s ]->[ %s ]';
-  nStr := Format(nStr, [nTmp, nLine]);
+  nStr := '车辆[ %s ]指定装车道[ %s ]->[ %s ]';
+  nStr := Format(nStr, [nTruck, nTmp, nLine]);
 
-  nTmp := SQLQuery.FieldByName('T_Truck').AsString;
+  if nMemo <> '' then
+    nStr := nStr + '原因:' + nMemo;
+
+  nTmp := SQLQuery.FieldByName('T_Bill').AsString;
   FDM.WriteSysLog(sFlag_TruckQueue, nTmp, nStr);
   InitFormData(FWhere);
 end;
@@ -281,7 +312,7 @@ end;
 
 //Desc: 交货单出队入队
 procedure TfFrameQueryDispatch.N9Click(Sender: TObject);
-var nStr,nFlag,nEvent: string;
+var nStr,nFlag,nEvent,nTruck,nMemo: string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
@@ -298,6 +329,16 @@ begin
       end;
     end;
 
+    nTruck := SQLQuery.FieldByName('T_Truck').AsString;
+    nMemo := '';
+    {$IFDEF ForceMemo}
+    nStr := '请填写原因';
+
+    if not ShowInputBox(nStr, '修改', nMemo, 100) then Exit;
+
+    if Trim(nMemo) = '' then Exit;
+    {$ENDIF}
+
     nStr := 'Update %s Set T_Valid=''%s'' Where T_Bill=''%s''';
     nStr := Format(nStr, [sTable_ZTTrucks, nFlag,
             SQLQuery.FieldByName('T_Bill').AsString]);
@@ -305,6 +346,9 @@ begin
 
     nStr := SQLQuery.FieldByName('T_Truck').AsString;
     nEvent := Format(nEvent, [SQLQuery.FieldByName('T_Bill').AsString]);
+
+    if nMemo <> '' then
+      nEvent := nEvent + '原因:' + nMemo;
 
     FDM.WriteSysLog(sFlag_TruckQueue, nStr, nEvent);
     InitFormData(FWhere);

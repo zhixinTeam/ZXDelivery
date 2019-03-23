@@ -197,6 +197,7 @@ function IsEleCardVaidEx(const nTruckNo: string): Boolean;
 //验证车辆电子标签
 function IfStockHasLs(const nStockNo: string): Boolean;
 //验证物料是否需要输入流水
+function IsCardValid(const nCard: string): Boolean;
 
 function CallBusinessCommand(const nCmd: Integer; const nData,nExt: string;
   const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
@@ -1650,6 +1651,28 @@ begin
   if RecordCount > 0 then
   begin
     Result := True;
+    Exit;
+  end;
+
+  nStr := 'Select top 10 * From %s Where O_Truck=''%s'' order by O_Date desc';
+  nStr := Format(nStr, [sTable_Order, nTruck]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      First;
+
+      while not Eof do
+      begin
+        if Trim(FieldByName('O_Card').AsString) <> '' then
+        begin
+          Result := True;
+          Exit;
+        end;
+        Next;
+      end;
+    end;
   end;
 end;
 
@@ -1721,6 +1744,27 @@ begin
     if recordcount>0 then
     begin
       if FieldByName('M_HasLs').AsString = sFlag_Yes then//启用
+      begin
+        Result := True;
+      end;
+    end;
+  end;
+end;
+
+function IsCardValid(const nCard: string): Boolean;
+var
+  nSql:string;
+begin
+  Result := False;
+
+  nSql := 'select C_Card2,C_Card3 from %s where C_Card = ''%s'' ';
+  nSql := Format(nSql,[sTable_Card,nCard]);
+
+  with FDM.QueryTemp(nSql) do
+  begin
+    if recordcount>0 then
+    begin
+      if (Trim(Fields[0].AsString) <> '') or (Trim(Fields[1].AsString) <> '')then
       begin
         Result := True;
       end;

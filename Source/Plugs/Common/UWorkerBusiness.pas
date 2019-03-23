@@ -93,6 +93,8 @@ type
     //存取车辆称重数据
     function GetStockBatcode(var nData: string): Boolean;
     //获取品种批次号
+    function GetStockBatcodeByCusType(var nData: string): Boolean;
+    //获取品种批次号(按照客户分类)
     {$IFDEF UseERP_K3}
     function SyncRemoteSaleMan(var nData: string): Boolean;
     function SyncRemoteCustomer(var nData: string): Boolean;
@@ -114,6 +116,8 @@ type
     procedure SaveHyDanEvent(const nStockno,nEvent,
           nFrom,nSolution,nDepartment: string);
     //生成化验单推送事件
+    function SaveGrabCard(var nData: string): Boolean;
+    //保存抓斗称刷卡信息
   public
     constructor Create; override;
     destructor destroy; override;
@@ -349,7 +353,9 @@ begin
    cBC_UserLogin           : Result := Login(nData);
    cBC_UserLogOut          : Result := LogOut(nData);
    cBC_GetStockBatcode     : Result := GetStockBatcode(nData);
+   cBC_GetStockBatcodeByCusType : Result := GetStockBatcodeByCusType(nData);
 
+   cBC_SaveGrabCard        : Result := SaveGrabCard(nData);
    {$IFDEF UseERP_K3}
    cBC_SyncCustomer        : Result := SyncRemoteCustomer(nData);
    cBC_SyncSaleMan         : Result := SyncRemoteSaleMan(nData);
@@ -2429,6 +2435,228 @@ begin
       WriteLog(e.message);
     end;
   end;
+end;
+
+function TWorkerBusinessCommander.SaveGrabCard(var nData: string): Boolean;
+var nStr, nLs: string;
+begin
+  Result := False;
+  FListA.Clear;
+  FListA.Text := FIn.FData;
+
+  nStr := 'Delete From $TB Where P_Tunnel=''$T''';
+  nStr := MacroValue(nStr, [MI('$TB', sTable_CardGrab), MI('$T', FListA.Values['Tunnel'])]);
+
+  gDBConnManager.WorkerExec(FDBConn, nStr);
+
+  if FListA.Values['Delete'] = sFlag_Yes then
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  nLs := Date2Str(Now,False) + Time2Str(Now,False);
+  //生成此次刷卡流水号
+  nStr := 'Insert Into %s(P_Ls, P_Card, P_Tunnel) Values(''%s'', ''%s'', ''%s'')';
+  nStr := Format(nStr, [sTable_CardGrab, nLs, FListA.Values['Card'], FListA.Values['Tunnel']]);
+  gDBConnManager.WorkerExec(FDBConn, nStr);
+
+  Result := True;
+end;
+
+//Date: 2019-03-23
+//Parm: 物料编号[FIn.FData];其他参数;
+//Desc: 按规则生成指定品种的批次编号
+function TWorkerBusinessCommander.GetStockBatcodeByCusType(var nData: string): Boolean;
+var nStr,nP,nType: string;
+    nNew: Boolean;
+    nInt,nInc: Integer;
+    nVal,nPer,nKDValue: Double;
+
+    //生成新批次号
+    function NewBatCode: string;
+    begin
+      nStr := 'Select * From %s Where B_Stock=''%s'' and B_Type=''%s''';
+      nStr := Format(nStr, [sTable_StockBatcode, FIn.FData, nType]);
+
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      begin
+        nP := FieldByName('B_Prefix').AsString;
+        nStr := FieldByName('B_UseYear').AsString;
+
+        if nStr = sFlag_Yes then
+        begin
+          nStr := Copy(Date2Str(Now()), 3, 2);
+          nP := nP + nStr;
+          //前缀后两位年份
+        end;
+
+        nStr := FieldByName('B_Base').AsString;
+        nInt := FieldByName('B_Length').AsInteger;
+        nInt := nInt - Length(nP + nStr);
+
+        if nInt > 0 then
+             Result := nP + StringOfChar('0', nInt) + nStr
+        else Result := nP + nStr;
+
+        nStr := '物料[ %s.%s.%s ]将立即使用批次号[ %s ],请通知化验室确认已采样.';
+        nStr := Format(nStr, [FieldByName('B_Stock').AsString,
+                              FieldByName('B_Name').AsString, nType, Result]);
+        //xxxxx
+
+        FOut.FBase.FErrCode := sFlag_ForceHint;
+        FOut.FBase.FErrDesc := nStr;
+      end;
+
+      nStr := Format('B_Stock=''%s'' And B_Type=''%s''', [FIn.FData, nType]);
+      nStr := MakeSQLByStr([SF('B_Batcode', Result),
+                SF('B_FirstDate', sField_SQLServer_Now, sfVal),
+                SF('B_HasUse', 0, sfVal),
+                SF('B_LastDate', sField_SQLServer_Now, sfVal)
+                ], sTable_StockBatcode, nStr, False);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+    end;
+begin
+  Result := True;
+  FOut.FData := '';
+  FListB.Clear;
+  FListB.Text := FIn.FExtParam;
+  nKDValue := StrToFloat(FListB.Values['Value']);
+  nType := FListB.Values['CustomerType'];
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_BatchAuto]);
+  
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := Fields[0].AsString;
+    if nStr <> sFlag_Yes then Exit;
+  end  else Exit;
+  //默认不使用批次号
+
+  Result := False; //Init
+  nStr := 'Select *,%s as ServerNow From %s Where B_Stock=''%s'' and B_Type=''%s''';
+  nStr := Format(nStr, [sField_SQLServer_Now, sTable_StockBatcode, FIn.FData, nType]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      nData := '物料[ %s ][ %s ]未配置批次号规则.';
+      nData := Format(nData, [FIn.FData, nType]);
+      {$IFDEF SaveHyDanEvent}
+      SaveHyDanEvent(FIn.FData,nData,sFlag_DepDaTing,sFlag_Solution_OK,sFlag_DepHuaYan);
+      {$ENDIF}
+      Exit;
+    end;
+
+    FOut.FData := FieldByName('B_Batcode').AsString;
+    nInc := FieldByName('B_Incement').AsInteger;
+    nNew := False;
+
+    if FieldByName('B_UseDate').AsString = sFlag_Yes then
+    begin
+      nP := FieldByName('B_Prefix').AsString;
+      nStr := Date2Str(FieldByName('ServerNow').AsDateTime, False);
+
+      nInt := FieldByName('B_Length').AsInteger;
+      nInt := Length(nP + nStr) - nInt;
+
+      if nInt > 0 then
+      begin
+        System.Delete(nStr, 1, nInt);
+        FOut.FData := nP + nStr;
+      end else
+      begin
+        nStr := StringOfChar('0', -nInt) + nStr;
+        FOut.FData := nP + nStr;
+      end;
+
+      nNew := True;
+    end;
+
+    if (not nNew) and (FieldByName('B_AutoNew').AsString = sFlag_Yes) then      //元旦重置
+    begin
+      nStr := Date2Str(FieldByName('ServerNow').AsDateTime);
+      nStr := Copy(nStr, 1, 4);
+      nP := Date2Str(FieldByName('B_LastDate').AsDateTime);
+      nP := Copy(nP, 1, 4);
+
+      if nStr <> nP then
+      begin
+        nStr := 'Update %s Set B_Base=1 Where B_Stock=''%s'' and B_Type=''%s''';
+        nStr := Format(nStr, [sTable_StockBatcode, FIn.FData, nType]);
+
+        gDBConnManager.WorkerExec(FDBConn, nStr);
+        FOut.FData := NewBatCode;
+        nNew := True;
+      end;
+    end;
+
+    if not nNew then //编号超期
+    begin
+      nStr := Date2Str(FieldByName('ServerNow').AsDateTime);
+      nP := Date2Str(FieldByName('B_FirstDate').AsDateTime);
+
+      if (Str2Date(nP) > Str2Date('2000-01-01')) and
+         (Str2Date(nStr) - Str2Date(nP) > FieldByName('B_Interval').AsInteger) then
+      begin
+        nStr := 'Update %s Set B_Base=B_Base+%d Where B_Stock=''%s'' and B_Type=''%s''';
+        nStr := Format(nStr, [sTable_StockBatcode, nInc, FIn.FData, nType]);
+
+        gDBConnManager.WorkerExec(FDBConn, nStr);
+        FOut.FData := NewBatCode;
+        nNew := True;
+      end;
+    end;
+
+    if not nNew then //编号超发
+    begin
+      nVal := FieldByName('B_HasUse').AsFloat + nKDValue;
+      //已使用+预使用
+      nPer := FieldByName('B_Value').AsFloat * FieldByName('B_High').AsFloat / 100;
+      //可用上限
+
+      if nVal >= nPer then //超发
+      begin
+        nStr := 'Update %s Set B_Base=B_Base+%d Where B_Stock=''%s'' and B_Type=''%s''';
+        nStr := Format(nStr, [sTable_StockBatcode, nInc, FIn.FData, nType]);
+
+        gDBConnManager.WorkerExec(FDBConn, nStr);
+        FOut.FData := NewBatCode;
+      end else
+      begin
+        nPer := FieldByName('B_Value').AsFloat * FieldByName('B_Low').AsFloat / 100;
+        //提醒
+      
+        if nVal >= nPer then //超发提醒
+        begin
+          nStr := '物料[ %s.%s.%s ]即将更换批次号,请通知化验室准备取样.';
+          nStr := Format(nStr, [FieldByName('B_Stock').AsString,
+                                FieldByName('B_Name').AsString, nType]);
+          //xxxxx
+
+          FOut.FBase.FErrCode := sFlag_ForceHint;
+          FOut.FBase.FErrDesc := nStr;
+        end;
+      end;
+    end;
+  end;
+
+  if FOut.FData = '' then
+    FOut.FData := NewBatCode;
+  //xxxxx
+
+  if FOut.FBase.FErrCode = sFlag_ForceHint then
+  begin
+    {$IFDEF SaveHyDanEvent}
+    SaveHyDanEvent(FIn.FData,FOut.FBase.FErrDesc,
+                   sFlag_DepDaTing,sFlag_Solution_OK,sFlag_DepHuaYan);
+    {$ENDIF}
+  end;
+  Result := True;
+  FOut.FBase.FResult := True;
 end;
 
 initialization

@@ -9,12 +9,12 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
-  cxContainer, cxEdit, cxLabel, ExtCtrls, CPort, StdCtrls, Buttons,Uszttce_api,
+  cxContainer, cxEdit, cxLabel, ExtCtrls, CPort, StdCtrls, Buttons,
   UHotKeyManager,uReadCardThread;
 
 type
   TCardType = (ctTTCE,ctRFID);
-  
+
   TfFormMain = class(TForm)
     LabelStock: TcxLabel;
     LabelNum: TcxLabel;
@@ -53,7 +53,6 @@ type
     //上次查询
     FTimeCounter: Integer;
     //计时
-    FSzttceApi:TSzttceApi;
     FHotKeyMgr: THotKeyManager;
     FHotKey: Cardinal;
 
@@ -153,15 +152,6 @@ begin
   except
   end;
 
-  FSzttceApi := TSzttceApi.Create;
-  if FSzttceApi.ErrorCode<>0 then
-  begin
-    nStr := '初始化自助发卡机失败，[ErrorCode=%d,ErrorMsg=%s]';
-    nStr := Format(nStr,[FSzttceApi.ErrorCode,FSzttceApi.ErrorMsg]);
-    ShowMsg(nStr,sHint);
-  end;
-  FSzttceApi.ParentWnd := Self.Handle;
-
   FHotKeyMgr := THotKeyManager.Create(Self);
   FHotKeyMgr.OnHotKeyPressed := DoHotKeyHotKeyPressed;
 
@@ -181,7 +171,6 @@ begin
     ActionComPort(True);
   except
   end;
-  FSzttceApi.Free;
   FHotKeyMgr.Free;
 end;
 
@@ -267,7 +256,6 @@ begin
     LabelNum.Caption := '开放道数:';
     LabelTon.Caption := '提货数量:';
     LabelHint.Caption := '请您刷卡';
-    if FCardType=ctttce then FSzttceApi.ResetMachine;
   end else
   begin
     LabelDec.Caption := IntToStr(FTimeCounter) + ' ';
@@ -586,7 +574,6 @@ begin
     if not Assigned(fFormNewCard) then
     begin
       fFormNewCard := TfFormNewCard.Create(nil);
-      fFormNewCard.SzttceApi := FSzttceApi;
       fFormNewCard.SetControlsClear;
     end;
     fFormNewCard.BringToFront;
@@ -601,7 +588,6 @@ begin
    if not Assigned(fFormNewPurchaseCard) then
     begin
       fFormNewPurchaseCard := TfFormNewPurchaseCard.Create(nil);
-      fFormNewPurchaseCard.SzttceApi := FSzttceApi;
       fFormNewPurchaseCard.SetControlsClear;
     end;
     fFormNewPurchaseCard.BringToFront;

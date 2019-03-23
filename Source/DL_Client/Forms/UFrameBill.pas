@@ -401,7 +401,7 @@ end;
 //Desc: 调拨提货单
 procedure TfFrameBill.N3Click(Sender: TObject);
 var nStr,nTmp: string;
-    nP: TFormCommandParam;
+    nP,nPMemo: TFormCommandParam;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
@@ -444,7 +444,7 @@ begin
       if not QueryDlg(nStr, sAsk) then Exit;
 
       {$IFDEF ForceMemo}
-      with nP do
+      with nPMemo do
       begin
         nStr := SQLQuery.FieldByName('L_ID').AsString;
         nStr := Format('请填写调拨[ %s ]单据的原因', [nStr]);
@@ -458,7 +458,7 @@ begin
         FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
         FParamC := Format(FParamC, [sTable_Bill, nStr]);
 
-        CreateBaseFormItem(cFI_FormMemo, '', @nP);
+        CreateBaseFormItem(cFI_FormMemo, '', @nPMemo);
         if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
       end;
       {$ENDIF}

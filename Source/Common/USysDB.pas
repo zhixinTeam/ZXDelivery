@@ -233,6 +233,8 @@ const
   sFlag_NetPlayVoice  = 'NetPlayVoice';              //使用网络语音播发
   sFlag_BatchAuto     = 'BatchAuto';                 //使用自动批次号
   sFlag_FobiddenInMul = 'FobiddenInMul';             //禁止多次进厂
+  sFlag_StockKuWei    = 'StockKuWei';                //物料库位
+  sFlag_CustomerType  = 'CustomerType';              //客户分类
 
   sFlag_BusGroup      = 'BusFunction';               //业务编码组
   sFlag_BillNo        = 'Bus_Bill';                  //交货单号
@@ -248,6 +250,7 @@ const
   sFlag_Order         = 'Bus_Order';                 //采购单号
   sFlag_OrderDtl      = 'Bus_OrderDtl';              //采购单号
   sFlag_OrderBase     = 'Bus_OrderBase';             //采购申请单号
+  sFlag_Grab          = 'Bus_Grab';                  //抓斗称单据号
 
   sFlag_Departments   = 'Departments';               //部门列表
   sFlag_DepDaTing     = '大厅';                      //服务大厅
@@ -265,6 +268,8 @@ const
   sFlag_WxItem        = 'WxItem';                    //微信相关
   sFlag_InOutBegin    = 'BeginTime';                 //进出厂查询起始时间
   sFlag_InOutEnd      = 'EndTime';                   //进出厂查询结束时间
+  sFlag_SealCount     = 'SealCount';                 //铅封录入个数
+  sFlag_NoSealStock   = 'NoSealStock';               //无需录入铅封
 
   sFlag_DuanDao       = 'D';                         //短倒(First=>Second)
   sFlag_Transfer      = 'Bus_Transfer';              //短倒单号
@@ -350,6 +355,10 @@ const
   sTable_K3_SyncItem  = 'DL_SyncItem';               //数据同步项
   sTable_K3_Customer  = 'T_Organization';            //组织结构(客户)
   sTable_K3_SalePlan  = 'S_K3_SalePlan';             //销售计划
+
+  sTable_CardGrab     = 'P_CardGrab';                //抓斗秤刷卡记录表
+  sTable_Grab         = 'P_Grab';                    //抓斗秤称重记录表
+  sTable_GrabBak      = 'P_GrabBak';                 //抓斗秤称重记录表
 
   sTable_TransBase    = 'P_TransBase';               //短倒单
   sTable_TransBaseBak = 'P_TransBaseBak';            //短倒单
@@ -550,7 +559,7 @@ const
        'C_FaRen varChar(50), C_LiXiRen varChar(50), C_WeiXin varChar(15),' +
        'C_Phone varChar(15), C_Fax varChar(15), C_Tax varChar(32),' +
        'C_Bank varChar(35), C_Account varChar(18), C_SaleMan varChar(15),' +
-       'C_Param varChar(32), C_Memo varChar(50), C_XuNi Char(1))';
+       'C_Param varChar(32), C_Memo varChar(50), C_Type char(1), C_XuNi Char(1))';
   {-----------------------------------------------------------------------------
    客户信息表: Customer
    *.R_ID: 记录号
@@ -569,6 +578,7 @@ const
    *.C_SaleMan: 业务员
    *.C_Param: 备用参数
    *.C_Memo: 备注信息
+   *.C_Type: 客户分类
    *.C_XuNi: 虚拟(临时)客户
   -----------------------------------------------------------------------------}
   
@@ -791,6 +801,8 @@ const
        'L_Audit char(1) not null default(''N''),' +
        'L_EmptyOut char(1) not null default(''N''),' +
        'L_Man varChar(32), L_Date DateTime,' +
+       'L_Seal1 varChar(32), L_Seal2 varChar(32), L_Seal3 varChar(32),' +
+       'L_KuWei varChar(20), L_CusType char(1),' +
        'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320))';
   {-----------------------------------------------------------------------------
    交货单表: Bill
@@ -830,6 +842,11 @@ const
    *.L_DelMan: 交货单删除人员
    *.L_DelDate: 交货单删除时间
    *.L_Memo: 动作备注
+   *.L_Seal1: 铅封号1
+   *.L_Seal2: 铅封号2
+   *.L_Seal3: 铅封号3
+   *.L_KuWei: 物料所属库位
+   *.L_CusType: 提货单分类
   -----------------------------------------------------------------------------}
 
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +
@@ -1390,6 +1407,7 @@ const
        'R_3DYa4 varChar(20), R_3DYa5 varChar(20), R_3DYa6 varChar(20),' +
        'R_28Ya1 varChar(20), R_28Ya2 varChar(20), R_28Ya3 varChar(20),' +
        'R_28Ya4 varChar(20), R_28Ya5 varChar(20), R_28Ya6 varChar(20),' +
+       'R_FMH varChar(20), R_ZMJ varChar(20), R_RMLZ varChar(20), R_KF varChar(20),' +
        'R_Date DateTime, R_Man varChar(32))';
   {-----------------------------------------------------------------------------
    检验记录:StockRecord
@@ -1436,6 +1454,10 @@ const
    *.R_28Ya6:28抗压强度6
    *.R_Date:取样日期
    *.R_Man:录入人
+   *.R_FMH:粉煤灰
+   *.R_ZMJ:助磨剂
+   *.R_RMLZ:燃煤炉渣
+   *.R_KF:矿粉
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockHuaYan = 'Create Table $Table(H_ID $Inc, H_No varChar(15),' +
@@ -1459,7 +1481,7 @@ const
 
   sSQL_NewStockBatcode = 'Create Table $Table(R_ID $Inc, B_Stock varChar(32),' +
        'B_Name varChar(80), B_Prefix varChar(5), B_UseYear Char(1),' +
-       'B_Base Integer, B_Incement Integer, B_Length Integer, ' +
+       'B_Base Integer, B_Incement Integer, B_Length Integer, B_Type char(1), ' +
        'B_Value $Float, B_Low $Float, B_High $Float, B_Interval Integer,' +
        'B_AutoNew Char(1), B_UseDate Char(1), B_FirstDate DateTime,' +
        'B_LastDate DateTime, B_HasUse $Float Default 0, B_Batcode varChar(32))';
@@ -1482,6 +1504,7 @@ const
    *.B_LastDate: 上次基数更新时间
    *.B_HasUse: 已使用
    *.B_Batcode: 当前批次号
+   *.B_Type: 批次分类
   -----------------------------------------------------------------------------}
 
   sSQL_NewK3SalePlan = 'Create Table $Table(R_ID $Inc, S_InterID Integer,' +
@@ -1493,6 +1516,39 @@ const
    *.S_EntryID:附表号
    *.S_Truck:车牌号
    *.S_Date: 使用时间
+  -----------------------------------------------------------------------------}
+
+  sSQL_CardGrab = 'Create Table $Table(R_ID $Inc,P_Ls varChar(32), P_Card varChar(32),' +
+       'P_Tunnel varChar(50))';
+  {-----------------------------------------------------------------------------
+   抓斗秤刷卡记录:
+   *.P_Card: 磁卡编号
+   *.P_Ls: 刷卡流水号
+   *.P_Tunnel: 抓斗秤通道
+  -----------------------------------------------------------------------------}
+
+  sSQL_Grab = 'Create Table $Table(R_ID $Inc, ' +
+       'G_ID varChar(32),G_Order varChar(32), G_Card varChar(32), G_Num Integer, ' +
+       'G_Truck varChar(20),G_CusID varChar(32), G_CusName varChar(128), ' +
+       'G_StockNo varChar(32),G_StockName varChar(128), G_EachWeight $Float,'+
+       'G_TunnelID varChar(20),G_TunnelName varChar(32),'+
+       'G_WeightTime DateTime, G_DelMan varChar(32), G_DelDate DateTime)';
+  {-----------------------------------------------------------------------------
+   商城发送模板消息表: WebSendMsgInfo
+   *.R_ID: 编号
+   *.G_ID: 每条船流水号
+   *.G_Order: 采购单号
+   *.G_Card: 卡号
+   *.G_Num: 第Num次称重
+   *.G_Truck: 车船号
+   *.G_CusID: 客户编号
+   *.G_CusName: 客户名称
+   *.G_StockNo: 物料编号
+   *.G_StockName: 物料名称
+   *.G_TunnelID,G_TunnelName: 通道
+   *.G_EachWeight: 第Num次称重重量
+   *.G_WeightTime: 第Num次称重时间
+   *.G_DelMan,G_DelDate: 删除记录
   -----------------------------------------------------------------------------}
 
 //------------------------------------------------------------------------------
@@ -1736,6 +1792,10 @@ begin
   AddSysTableItem(sTable_K3_SalePlan, sSQL_NewK3SalePlan);
   AddSysTableItem(sTable_WebOrderMatch,sSQL_NewWebOrderMatch);
   AddSysTableItem(sTable_AuditTruck, sSQL_NewAuditTruck);
+
+  AddSysTableItem(sTable_CardGrab, sSQL_CardGrab);
+  AddSysTableItem(sTable_Grab, sSQL_Grab);
+  AddSysTableItem(sTable_GrabBak, sSQL_Grab);
 
   //内倒业务表
   AddSysTableItem(sTable_TransBase, sSQL_NewTransBase);
