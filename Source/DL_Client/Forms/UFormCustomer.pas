@@ -374,18 +374,21 @@ begin
   {$ENDIF}
 
   {$IFDEF InfoOnly}
-  nStr := 'Select Count(*) From %s Where C_Name=''%s''';
-  nStr := Format(nStr, [sTable_Customer, EditName.Text]);
-  //xxxxx
-
-  with FDM.QueryTemp(nStr) do
-  if Fields[0].AsInteger > 0 then
+  if FCustomerID = '' then
   begin
-    nStr := '客户[ %s ]已存在!!' + #13#10#13#10 +
-            '客户重名可能会导致回款、办卡等操作错误';
-    nStr := Format(nStr, [EditName.Text]);
-    ShowMsg(nStr, sHint);
-    Exit;
+    nStr := 'Select Count(*) From %s Where C_Name=''%s''';
+    nStr := Format(nStr, [sTable_Customer, EditName.Text]);
+    //xxxxx
+
+    with FDM.QueryTemp(nStr) do
+    if Fields[0].AsInteger > 0 then
+    begin
+      nStr := '客户[ %s ]已存在!!' + #13#10#13#10 +
+              '客户重名可能会导致回款、办卡等操作错误';
+      nStr := Format(nStr, [EditName.Text]);
+      ShowMsg(nStr, sHint);
+      Exit;
+    end;
   end;
   {$ELSE}
   nStr := 'Select Count(*) From %s Where C_Name=''%s''';

@@ -280,6 +280,7 @@ procedure TfFormBill.LoadFormData;
 var nStr,nTmp: string;
     nDB: TDataSet;
     nIdx: integer;
+    nFreight:Double;  //тк╥я
 begin
   BtnOK.Enabled := False;
   nDB := LoadZhiKaInfo(gInfo.FZhiKa, ListInfo, nStr);
@@ -301,6 +302,18 @@ begin
   if not BtnOK.Enabled then Exit;
   //to verify credit
 
+  nFreight := 0;
+  {$IFDEF UseFreight}
+  nstr := 'select a.Z_Lading,b.C_Freight from %s a,'+
+          '%s b where Z_CID=C_ID and a.Z_ID=''%s''';
+  nStr := Format(nStr,[sTable_ZhiKa, sTable_SaleContract,gInfo.FZhiKa]);
+  with FDM.QueryTemp(nStr) do
+  begin
+    if FieldByName('Z_Lading').AsString = sFlag_SongH then
+      nFreight := FieldByName('C_Freight').AsFloat;
+  end;
+  {$ENDIF}
+
   SetLength(gStockList, 0);
   nStr := 'Select * From %s Where D_ZID=''%s''';
   nStr := Format(nStr, [sTable_ZhiKaDtl, gInfo.FZhiKa]);
@@ -319,7 +332,7 @@ begin
       FType := FieldByName('D_Type').AsString;
       FStockNO := FieldByName('D_StockNo').AsString;
       FStockName := FieldByName('D_StockName').AsString;
-      FPrice := FieldByName('D_Price').AsFloat;
+      FPrice := FieldByName('D_Price').AsFloat + nFreight;
 
       FValue := 0;
       FSelecte := False;

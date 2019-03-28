@@ -117,7 +117,11 @@ begin
 
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
+  {$IFDEF UseFreight}
+  Result := 'Select *,L_Value*L_Freight as TotalFreight From $Bill ';
+  {$ELSE}
   Result := 'Select * From $Bill ';
+  {$ENDIF}
   //提货单
 
   {$IFDEF AlwaysUseDate}

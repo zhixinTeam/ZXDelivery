@@ -71,6 +71,7 @@ const
   {*数据库标识*}
   sFlag_DB_K3         = 'King_K3';                   //金蝶数据库
   sFlag_DB_NC         = 'YonYou_NC';                 //用友数据库
+  sFlag_BakDB         = 'BakDB';                     //备用数据库
 
   {*相关标记*}
   sFlag_Yes           = 'Y';                         //是
@@ -677,7 +678,8 @@ const
        'C_Project varChar(100),C_SaleMan varChar(15), C_Customer varChar(15),' +
        'C_Date varChar(20), C_Area varChar(50), C_Addr varChar(50),' +
        'C_Delivery varChar(50), C_Payment varChar(20), C_Approval varChar(30),' +
-       'C_ZKDays Integer, C_XuNi Char(1), C_Freeze Char(1), C_Memo varChar(50))';
+       'C_ZKDays Integer, C_XuNi Char(1), C_Freeze Char(1), C_Memo varChar(50),'+
+       'C_Freight Decimal(15,5))';
   {-----------------------------------------------------------------------------
    销售合同: SalesContract
    *.R_ID: 编号
@@ -694,6 +696,7 @@ const
    *.C_XuNi: 虚拟合同
    *.C_Freeze: 是否冻结
    *.C_Memo: 备注信息
+   *.C_Freight: 运费
   -----------------------------------------------------------------------------}
 
   sSQL_NewSContractExt = 'Create Table $Table(R_ID $Inc,' +
@@ -803,6 +806,7 @@ const
        'L_Man varChar(32), L_Date DateTime,' +
        'L_Seal1 varChar(32), L_Seal2 varChar(32), L_Seal3 varChar(32),' +
        'L_KuWei varChar(20), L_CusType char(1),' +
+       'L_Freight $Float,'+
        'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320))';
   {-----------------------------------------------------------------------------
    交货单表: Bill
@@ -847,6 +851,7 @@ const
    *.L_Seal3: 铅封号3
    *.L_KuWei: 物料所属库位
    *.L_CusType: 提货单分类
+   *.L_Freight: 运费
   -----------------------------------------------------------------------------}
 
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +

@@ -17,7 +17,7 @@
 {$DEFINE RO_v90}
 //XE.Lib启用RO支持
 
-{.$DEFINE EnableBackupDB}
+{$DEFINE EnableBackupDB}
 //备用数据库支持
 {.$DEFINE EnableDoubleDB}
 //双数据库支持
@@ -430,5 +430,7 @@
   //允许多次过重车
   {$DEFINE CustomerType}
   //客户分类
+  {$DEFINE UseFreight}
+  //启用运费选项
 {$ENDIF}
 

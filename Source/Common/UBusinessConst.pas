@@ -182,6 +182,7 @@ type
 
     FPrePData   : string;          //预置皮重
     FIsNei      : string;          //厂内倒料
+    FCusType    : string;          //客户类型
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -330,6 +331,7 @@ begin
         FHYDan   := Values['HYDan'];
         FMemo    := Values['Memo'];
         FLadeTime:= Values['LadeTime'];
+        FCusType:= Values['CusType'];
       end;
 
       Inc(nInt);
@@ -384,6 +386,7 @@ begin
         Values['PModel']     := FPModel;
         Values['PType']      := FPType;
         Values['PoundID']    := FPoundID;
+        Values['CusType']    := FCusType;
 
         with FPData do
         begin

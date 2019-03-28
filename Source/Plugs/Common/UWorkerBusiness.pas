@@ -113,6 +113,10 @@ type
     function GetSalePlan(var nData: string): Boolean;
     //读取销售计划
     {$ENDIF}
+    {$IFDEF SXDY}
+    function SyncRemoteStockBill(var nData: string): Boolean;
+    //东义  同步交货单到备用库
+    {$ENDIF}
     procedure SaveHyDanEvent(const nStockno,nEvent,
           nFrom,nSolution,nDepartment: string);
     //生成化验单推送事件
@@ -367,6 +371,10 @@ begin
    cBC_SyncStockOrder      : Result := SyncRemoteStockOrder(nData);
    {$ENDIF}
 
+   {$IFDEF SXDY}
+   cBC_SyncStockBill       : Result := SyncRemoteStockBill(nData);
+   {$ENDIF}
+   
    {$IFDEF UseK3SalePlan}
    cBC_LoadSalePlan        : Result := GetSalePlan(nData);
    {$ENDIF}
@@ -2658,6 +2666,167 @@ begin
   Result := True;
   FOut.FBase.FResult := True;
 end;
+
+{$IFDEF SXDY}
+function TWorkerBusinessCommander.SyncRemoteStockBill(
+  var nData: string): Boolean;
+var
+  nBakWork:PDBWorker;
+  nStr, nSQL:string;
+  nIdx: Integer;
+begin
+  Result := False;
+  nBakWork := nil;
+  nStr := AdjustListStrFormat(FIn.FData , '''' , True , ',' , True);
+
+  FListA.Clear;
+  try
+    nBakWork := gDBConnManager.GetConnection(sFlag_BakDB, FErrNum);
+    if not Assigned(nBakWork) then
+    begin
+      nData := '连接数据库失败(DBConn Is Null).';
+      Exit;
+    end;
+
+    if not nBakWork.FConn.Connected then
+      nBakWork.FConn.Connected := True;
+    //conn db
+
+    nSQL := 'select * From $BL where L_ID In ($IN)';
+    nSQL := MacroValue(nSQL, [MI('$BL', sTable_Bill) , MI('$IN', nStr)]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nSQL)  do
+    begin
+      if RecordCount < 1 then
+      begin
+        nData := '编号为[ %s ]的交货单不存在.';
+        nData := Format(nData, [FIn.FData]);
+        Exit;
+      end;
+
+      First;
+      while not Eof do
+      begin
+        nSQL := MakeSQLByStr([
+                    SF('L_ID',              FieldByName('L_ID').AsString),
+                    SF('L_ZhiKa',           FieldByName('L_ZhiKa').AsString),
+                    SF('L_Project',         FieldByName('L_Project').AsString),
+                    SF('L_Area',            FieldByName('L_Area').AsString),
+                    SF('L_CusID',           FieldByName('L_CusID').AsString),
+                    SF('L_CusName',         FieldByName('L_CusName').AsString),
+                    SF('L_CusPY',           FieldByName('L_CusPY').AsString),
+                    SF('L_SaleID',          FieldByName('L_SaleID').AsString),
+                    SF('L_SaleMan',         FieldByName('L_SaleMan').AsString),
+                    SF('L_Type',            FieldByName('L_Type').AsString),
+                    SF('L_StockNo',         FieldByName('L_StockNo').AsString),
+                    SF('L_StockName',       FieldByName('L_StockName').AsString),
+                    SF('L_Value',           FieldByName('L_Value').AsFloat),
+                    SF('L_Price',           FieldByName('L_Price').AsFloat),
+                    //SF('L_ZKMoney',         FieldByName('L_ZKMoney').AsFloat),
+                    SF('L_Truck',           FieldByName('L_Truck').AsString),
+                    SF('L_Status',          FieldByName('L_Status').AsString),
+                    SF('L_NextStatus',      FieldByName('L_NextStatus').AsString),
+                    SF('L_InTime',          FieldByName('L_InTime').AsDateTime),
+                    SF('L_InMan',           FieldByName('L_InMan').AsString),
+                    SF('L_PValue',          FieldByName('L_PValue').AsFloat),
+                    SF('L_PDate',           FieldByName('L_PDate').AsDateTime),
+                    SF('L_PMan',            FieldByName('L_PMan').AsString),
+                    SF('L_MValue',          FieldByName('L_MValue').AsFloat),
+                    SF('L_MDate',           FieldByName('L_MDate').AsDateTime),
+                    SF('L_MMan',            FieldByName('L_MMan').AsString),
+                    SF('L_LadeTime',        FieldByName('L_LadeTime').AsDateTime),
+                    SF('L_LadeMan',         FieldByName('L_LadeMan').AsString),
+                    SF('L_LadeLine',        FieldByName('L_LadeLine').AsString),
+                    SF('L_LineName',        FieldByName('L_LineName').AsString),
+                    SF('L_DaiTotal',        FieldByName('L_DaiTotal').AsFloat),
+                    SF('L_DaiNormal',       FieldByName('L_DaiNormal').AsFloat),
+                    SF('L_OutFact',         sField_SQLServer_Now, sfVal),
+                    SF('L_OutMan',          FieldByName('L_OutMan').AsString),
+                    SF('L_PrintGLF',        FieldByName('L_PrintGLF').AsString),
+                    SF('L_Lading',          FieldByName('L_Lading').AsString),
+                    SF('L_IsVIP',           FieldByName('L_IsVIP').AsString),
+                    SF('L_Seal',            FieldByName('L_Seal').AsString),
+                    SF('L_HYDan',           FieldByName('L_HYDan').AsString),
+                    SF('L_PrintHY',         FieldByName('L_PrintHY').AsString),
+                    SF('L_EmptyOut',        FieldByName('L_EmptyOut').AsString),
+                    SF('L_Man',             FieldByName('L_Man').AsString),
+                    SF('L_Date',            FieldByName('L_Date').AsDateTime),
+                    SF('L_CusType',         FieldByName('L_CusType').AsString),
+                    SF('L_DelMan',          FieldByName('L_DelMan').AsString),
+                    SF('L_DelDate',         FieldByName('L_DelDate').AsString),
+                    SF('L_Memo',            FieldByName('L_Memo').AsString)
+                    ], sTable_Bill,         '',      True);
+        FListA.Add(nSQL);
+
+        Next;
+      end;
+    end;
+
+    nSQL := 'select * From $PL where P_Bill In ($IN)';
+    nSQL := MacroValue(nSQL, [MI('$PL', sTable_PoundLog) , MI('$IN', nStr)]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nSQL)  do
+    begin
+      if RecordCount > 0 then
+      begin
+        First;
+        while not Eof do
+        begin
+          nSQL := MakeSQLByStr([
+                    SF('P_ID',              FieldByName('P_ID').AsString),
+                    SF('P_Type',            FieldByName('P_Type').AsString),
+                    SF('P_Order',           FieldByName('P_Order').AsString),
+                    SF('P_Bill',            FieldByName('P_Bill').AsString),
+                    SF('P_Truck',           FieldByName('P_Truck').AsString),
+                    SF('P_CusID',           FieldByName('P_CusID').AsString),
+                    SF('P_CusName',         FieldByName('P_CusName').AsString),
+                    SF('P_MID',             FieldByName('P_MID').AsString),
+                    SF('P_MName',           FieldByName('P_MName').AsString),
+                    SF('P_MType',           FieldByName('P_MType').AsString),
+                    SF('P_LimValue',        FieldByName('P_LimValue').AsString),
+                    SF('P_PValue',          FieldByName('P_PValue').AsFloat),
+                    SF('P_PDate',           FieldByName('P_PDate').AsDateTime),
+                    SF('P_PMan',            FieldByName('P_PMan').AsString),
+                    SF('P_MValue',          FieldByName('P_MValue').AsFloat),
+                    SF('P_MDate',           FieldByName('P_MDate').AsDateTime),
+                    SF('P_MMan',            FieldByName('P_MMan').AsString),
+                    SF('P_FactID',          FieldByName('P_FactID').AsString),
+                    SF('P_PStation',        FieldByName('P_PStation').AsString),
+                    SF('P_MStation',        FieldByName('P_MStation').AsString),
+                    SF('P_Direction',       FieldByName('P_Direction').AsString),
+                    SF('P_PModel',          FieldByName('P_PModel').AsString),
+                    SF('P_Status',          FieldByName('P_Status').AsString),
+                    SF('P_Valid',           FieldByName('P_Valid').AsString),
+                    SF('P_KZValue',         FieldByName('P_KZValue').AsFloat),
+                    SF('P_DelMan',          FieldByName('P_DelMan').AsString),
+                    SF('P_DelDate',         FieldByName('P_DelDate').AsDateTime),
+                    SF('P_Memo',            FieldByName('P_Memo').AsString)
+                    ], sTable_PoundLog,        '',      True);
+                    
+          FListA.Add(nSQL);
+          Next;
+        end;
+      end;
+    end;
+
+    nBakWork.FConn.BeginTrans;
+    try
+      for nIdx:=0 to FListA.Count - 1 do
+        gDBConnManager.WorkerExec(nBakWork, FListA[nIdx]);
+      //xxxxx
+
+      nBakWork.FConn.CommitTrans;
+      Result := True;
+    except
+      nBakWork.FConn.RollbackTrans;
+      nStr := '同步交货单数据到K3系统失败.';
+      raise Exception.Create(nStr);
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nBakWork);
+  end;
+end;
+{$ENDIF}
 
 initialization
   gBusinessWorkerManager.RegisteWorker(TBusWorkerQueryField, sPlug_ModuleBus);

@@ -1,5 +1,5 @@
 unit UFrame;
-
+{$I Link.inc}
 interface
 
 uses
@@ -51,16 +51,21 @@ type
     IncMin: TcxSpinEdit;
     BtnStart: TButton;
     LblWarn: TcxLabel;
+    BtnSaveMValue: TButton;
+    BtnClean: TButton;
     procedure ControlTimerTimer(Sender: TObject);
     procedure BtnStopClick(Sender: TObject);
     procedure IncMinPropertiesChange(Sender: TObject);
     procedure BtnStartClick(Sender: TObject);
+    procedure BtnCleanClick(Sender: TObject);
+    procedure BtnSaveMValueClick(Sender: TObject);
   private
     { Private declarations }
     FUserCtrl: Boolean;           //手动控制
     FCardUsed: string;            //卡片类型
     FUIData: TLadingBillItem;     //界面数据
     FPoundTunnel: PPTTunnelItem;  //磅站通道
+    FSaveMValue: Boolean;         //是否已经保存毛重
     FCard : string;
     procedure SetUIData(const nReset: Boolean; const nOnlyData: Boolean = False);
     //设置界面数据
@@ -169,6 +174,7 @@ begin
   end;
 
   FIsBusy := True;
+  FSaveMValue := False;
 
 end;
 
@@ -280,7 +286,9 @@ end;
 procedure TFrame1.StopPound;
 begin
   LineClose(FPoundTunnel.FID, sFlag_Yes);
+  {$IFNDEF SXDY}
   SetUIData(true);
+  {$ENDIF}
   FIsBusy := False;
   ControlTimer.Enabled := False;
   BtnStop.Caption := '停止';
@@ -344,6 +352,39 @@ begin
   if not ShowInputBox('请输入磁卡号:', '提示', nStr) then Exit;
   LineClose(FPoundTunnel.FID, sFlag_No);
   LoadBillItems(nStr);
+end;
+
+procedure TFrame1.BtnCleanClick(Sender: TObject);
+begin
+  if not FSaveMValue then
+    if not QueryDlg('数据尚未保存,确定要清屏吗？', sAsk) then Exit;
+  SetUIData(True);
+end;
+
+procedure TFrame1.BtnSaveMValueClick(Sender: TObject);
+var
+  nRet: Boolean;
+  nBills: TLadingBillItems;
+  nStr:string;
+begin
+  SetLength(nBills, 1);
+  nBills[0] := FUIData;
+  with nBills[0].FMData do
+  begin
+    FValue := StrToFloat(EditValue.Text);
+    FDate := Now;
+    FOperator := FPoundTunnel.FName;
+  end;
+
+  nRet := SaveLadingBills(nstr,sFlag_TruckBFM, nBills, FPoundTunnel);
+  if not nRet then
+  begin
+    nStr := '重量保存失败, 代码: '+nstr;
+    ShowMessage(nstr);
+    writelog(nstr);
+    exit;
+  end;
+  FSaveMValue := True;
 end;
 
 end.

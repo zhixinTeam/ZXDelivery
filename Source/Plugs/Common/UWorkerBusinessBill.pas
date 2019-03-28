@@ -428,7 +428,7 @@ begin
   //保存车牌号
 
   //----------------------------------------------------------------------------
-  nStr := 'Select zk.*,ht.C_Area,cus.C_Name,cus.C_PY,sm.S_Name From $ZK zk ' +
+  nStr := 'Select zk.*,ht.C_Area,ht.C_Freight,cus.C_Name,cus.C_PY,sm.S_Name From $ZK zk ' +
           ' Left Join $HT ht On ht.C_ID=zk.Z_CID ' +
           ' Left Join $Cus cus On cus.C_ID=zk.Z_Customer ' +
           ' Left Join $SM sm On sm.S_ID=Z_SaleMan ' +
@@ -498,8 +498,8 @@ begin
     Values['SaleID'] := FieldByName('Z_SaleMan').AsString;
     Values['SaleMan'] := FieldByName('S_Name').AsString;
     Values['ZKMoney'] := FieldByName('Z_OnlyMoney').AsString;
+    Values['Freight'] := FieldByName('C_Freight').AsString;
   end;
-
   Result := True;
   //verify done
 end;
@@ -508,7 +508,7 @@ end;
 //Desc: 保存交货单
 function TWorkerBusinessBills.SaveBills(var nData: string): Boolean;
 var nIdx: Integer;
-    nVal,nMoney: Double;
+    nVal,nMoney, nPrice: Double;
     nStr,nSQL,nFixMoney: string;
     {$IFDEF TruckInNow}
     nStatus, nNextStatus: string;
@@ -539,10 +539,27 @@ begin
     FListC.Text := PackerDecodeStr(FListB[nIdx]);
     //get bill info
 
+    {$IFDEF UseFreight}
+    if FListA.Values['Lading']= sFlag_SongH then
+      nPrice := StrToFloat(FListC.Values['Price'])+StrToFloat(FListA.Values['Freight'])
+    else
+    begin
+      nPrice := StrToFloat(FListC.Values['Price']);
+      FListA.Values['Freight'] := '0';
+    end;
+
+    FListC.Values['Price'] := FloatToStr(nPrice);
+
     with FListC do
       nVal := nVal + Float2Float(StrToFloat(Values['Price']) *
                      StrToFloat(Values['Value']), cPrecision, True);
     //xxxx
+    {$ELSE}
+    with FListC do
+      nVal := nVal + Float2Float(StrToFloat(Values['Price']) *
+                     StrToFloat(Values['Value']), cPrecision, True);
+    //xxxx
+    {$ENDIF}
   end;
 
   if FloatRelation(nVal, nMoney, rtGreater) then
@@ -652,7 +669,13 @@ begin
               SF('L_StockNo', FListC.Values['StockNO']),
               SF('L_StockName', FListC.Values['StockName']),
               SF('L_Value', FListC.Values['Value'], sfVal),
+
+              {$IFDEF UseFreight}
+              SF('L_Freight', FListA.Values['Freight']),
+              SF('L_Price', nPrice, sfVal),
+              {$ELSE}//启用运费
               SF('L_Price', FListC.Values['Price'], sfVal),
+              {$ENDIF}
 
               {$IFDEF PrintGLF}
               SF('L_PrintGLF', FListC.Values['PrintGLF']),
@@ -1854,7 +1877,7 @@ begin
   nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
           'L_StockName,L_Truck,L_Value,L_Price,L_ZKMoney,L_Status,' +
           'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue,L_PrintHY,' +
-          'L_HYDan, L_EmptyOut, L_LadeTime From $Bill b ';
+          'L_HYDan, L_EmptyOut, L_LadeTime,L_CusType From $Bill b ';
   //xxxxx
 
   if nIsBill then
@@ -1903,6 +1926,7 @@ begin
       FHYDan      := FieldByName('L_HYDan').AsString;
       FPrintHY    := FieldByName('L_PrintHY').AsString = sFlag_Yes;
       FLadeTime   := FieldByName('L_LadeTime').AsString;
+      FCusType    := FieldByName('L_CusType').AsString;
 
       if FIsVIP = sFlag_TypeShip then
       begin
@@ -2491,6 +2515,18 @@ begin
     begin
       nData := nOut.FData;
       Exit;
+    end;
+    {$ENDIF}
+
+    {$IFDEF SXDY}
+    if nBills[0].FCusType = 'A' then    //A:开票客户
+    begin
+      nStr := CombinStr(FListB, ',', True);
+      if not TWorkerBusinessCommander.CallMe(cBC_SyncStockBill, nStr, '', @nOut) then
+      begin
+        nData := nOut.FData;
+        Exit;
+      end;
     end;
     {$ENDIF}
 

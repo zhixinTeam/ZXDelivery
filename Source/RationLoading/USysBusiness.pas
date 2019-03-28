@@ -154,7 +154,7 @@ function GetLadingBills(const nCard,nPost: string;
 procedure LoadBillItemToMC(const nItem: TLadingBillItem; const nMC: TStrings;
  const nDelimiter: string);
 //载入单据信息到列表
-function SaveLadingBills(const nPost: string; const nData: TLadingBillItems;
+function SaveLadingBills(nOutStr:string; const nPost: string; const nData: TLadingBillItems;
  const nTunnel: PPTTunnelItem = nil): Boolean;
 //保存指定岗位的交货单
 
@@ -1631,7 +1631,7 @@ end;
 //Date: 2014-09-18
 //Parm: 岗位;交货单列表;磅站通道
 //Desc: 保存nPost岗位上的交货单数据
-function SaveLadingBills(const nPost: string; const nData: TLadingBillItems;
+function SaveLadingBills(nOutStr:string; const nPost: string; const nData: TLadingBillItems;
  const nTunnel: PPTTunnelItem): Boolean;
 var nStr: string;
     nIdx: Integer;
@@ -1641,6 +1641,7 @@ begin
   nStr := CombineBillItmes(nData);
   Result := CallBusinessSaleBill(cBC_SavePostBills, nStr, nPost, @nOut);
   if (not Result) or (nOut.FData = '') then Exit;
+  nOutStr := nOut.FData;
 
   if Assigned(nTunnel) then //过磅称重
   begin

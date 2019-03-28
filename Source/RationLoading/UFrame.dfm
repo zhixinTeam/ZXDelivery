@@ -396,7 +396,7 @@ object Frame1: TFrame1
     end
     object LblWarn: TcxLabel
       Left = 8
-      Top = 432
+      Top = 435
       AutoSize = False
       Height = 17
       Width = 321
@@ -434,9 +434,9 @@ object Frame1: TFrame1
     Width = 63
   end
   object BtnStop: TButton
-    Left = 171
-    Top = 397
-    Width = 168
+    Left = 97
+    Top = 403
+    Width = 71
     Height = 30
     Caption = #20572#27490
     Font.Charset = GB2312_CHARSET
@@ -449,8 +449,8 @@ object Frame1: TFrame1
     OnClick = BtnStopClick
   end
   object cxLabel11: TcxLabel
-    Left = 17
-    Top = 398
+    Left = 176
+    Top = 368
     Caption = #25163#21160#21152#26102':'
     ParentFont = False
     Style.Font.Charset = GB2312_CHARSET
@@ -462,8 +462,8 @@ object Frame1: TFrame1
     Style.IsFontAssigned = True
   end
   object IncMin: TcxSpinEdit
-    Left = 107
-    Top = 398
+    Left = 266
+    Top = 368
     AutoSize = False
     ParentFont = False
     Properties.MaxValue = 1500.000000000000000000
@@ -480,9 +480,9 @@ object Frame1: TFrame1
     Width = 63
   end
   object BtnStart: TButton
-    Left = 171
-    Top = 366
-    Width = 168
+    Left = 17
+    Top = 403
+    Width = 71
     Height = 30
     Caption = #21551#21160#25918#28784
     Font.Charset = GB2312_CHARSET
@@ -494,10 +494,42 @@ object Frame1: TFrame1
     TabOrder = 6
     OnClick = BtnStartClick
   end
+  object BtnSaveMValue: TButton
+    Left = 178
+    Top = 403
+    Width = 71
+    Height = 30
+    Caption = #20445#23384#27611#37325
+    Font.Charset = GB2312_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = #20223#23435
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 7
+    Visible = False
+    OnClick = BtnSaveMValueClick
+  end
+  object BtnClean: TButton
+    Left = 259
+    Top = 403
+    Width = 71
+    Height = 30
+    Caption = #28165#23631
+    Font.Charset = GB2312_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = #20223#23435
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 8
+    Visible = False
+    OnClick = BtnCleanClick
+  end
   object ControlTimer: TTimer
     Enabled = False
     OnTimer = ControlTimerTimer
-    Left = 192
-    Top = 376
+    Left = 232
+    Top = 304
   end
 end

@@ -94,6 +94,11 @@ begin
         FTCPSer := IdTCPServer1;
         IdTCPServer1.Active := True;
 
+        {$IFDEF SXDY}
+        BtnSaveMValue.Visible := True;
+        BtnClean.Visible := True;
+        {$ENDIF}
+
         FSysLoger:= gSysLoger;
       end;
     end;

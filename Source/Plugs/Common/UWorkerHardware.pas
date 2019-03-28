@@ -453,7 +453,11 @@ begin
   end else
   begin
     {$IFDEF BatchInHYOfBill}
-    nPrint := 'L_HYDan';
+      {$IFDEF SXDY}
+      nPrint := 'L_HYDan,L_Area';
+      {$ELSE}
+      nPrint := 'L_HYDan';
+      {$ENDIF}
     {$ELSE}
     nPrint := 'L_Seal';
     {$ENDIF}
@@ -485,6 +489,22 @@ begin
       System.Delete(nCode, 1, Length('TH170707'));
       nCode := Date2Str(Now) + Fields[1].AsString + nCode;
       //上街: 年月日 + 水泥批次号 + 流水号
+      {$ENDIF}
+
+      {$IFDEF SXDY}
+      nCode := Fields[0].AsString;
+      System.Delete(nCode, 1, Length('TH170707'));
+
+      nStr := Fields[1].AsString;
+      nStr := Copy(nstr,Length(nstr)-3,4);
+
+      nCode := nStr + FormatDateTime('yymmdd',Now) + nCode;
+
+      nStr := UpperCase(GetPinYinOfStr(Fields[2].AsString));
+      nStr := Copy(nstr,Length(nstr)-2,3);
+
+      nCode := nCode + nStr;
+      //东义: 批次编号后四位+年月日 + 提货单号后三位 + 区域英文码
       {$ENDIF}
     end;
   end;
