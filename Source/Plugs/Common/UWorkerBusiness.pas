@@ -2819,7 +2819,7 @@ begin
       Result := True;
     except
       nBakWork.FConn.RollbackTrans;
-      nStr := '同步交货单数据到K3系统失败.';
+      nStr := '同步交货单数据到备用数据库失败.';
       raise Exception.Create(nStr);
     end;
   finally

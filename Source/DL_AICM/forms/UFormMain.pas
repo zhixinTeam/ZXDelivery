@@ -162,7 +162,7 @@ begin
   begin
     FDR := TFDR.Create(Application);
   end;
-  imgPrint.Visible := False;
+  //imgPrint.Visible := False;
 end;
 
 procedure TfFormMain.FormClose(Sender: TObject; var Action: TCloseAction);

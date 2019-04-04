@@ -375,7 +375,7 @@
   //车检由中间件控制
   {$DEFINE MultiReplay}
   //计数器应答模式
-  {$DEFINE PrintHYEach}
+  {.$DEFINE PrintHYEach}
   //随车开化验单
   {.$DEFINE PrintHeGeZheng}
   {$DEFINE PrintHuaYanDan}
@@ -390,7 +390,7 @@
   //包装阶梯误差
   {$DEFINE NoShowPriceChange}
   //不显示价格调整提示
-  {.$DEFINE NoCheckOnPayment}
+  {$DEFINE NoCheckOnPayment}
   //退款时不校验资金余额
   {$DEFINE MicroMsg}
   //使用微信
@@ -400,7 +400,7 @@
   //出厂打印化验单
   {$DEFINE SaveHyDanEvent}
   //生成推送化验单事件
-  {$DEFINE ForceEleCard}
+  {.$DEFINE ForceEleCard}
   //强制车辆办理和启用电子标签
   {$DEFINE WxShowCusMoney}
   //微信端显示客户金额
@@ -410,8 +410,6 @@
   //自助机原材料开卡不检查订单剩余量
   {$DEFINE ProberShow}
   //车检发送小屏
-  {$DEFINE SpecialControl}
-  //春江特殊要求
   {$DEFINE FixLoad}
   //定制放灰
   {$DEFINE OrderNoMulCard}
@@ -430,7 +428,9 @@
   //允许多次过重车
   {$DEFINE CustomerType}
   //客户分类
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
   {$DEFINE UseFreight}
-  //启用运费选项
+  //使用运费
 {$ENDIF}
 

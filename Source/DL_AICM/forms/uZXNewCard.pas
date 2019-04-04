@@ -422,10 +422,13 @@ procedure TfFormNewCard.BtnOKClick(Sender: TObject);
 begin
   BtnOK.Enabled := False;
   try
-    if not SaveBillProxy then Exit;
+    if not SaveBillProxy then
+    begin
+      BtnOK.Enabled := True;
+      Exit;
+    end;
     Close;
-  finally
-    BtnOK.Enabled := True;
+  except
   end;
 end;
 

@@ -724,6 +724,7 @@ begin
 
         NodeNew('SetDate').ValueAsString    := FieldByName('Z_Date').AsString;
         NodeNew('BillNumber').ValueAsString := FieldByName('D_ZID').AsString;
+        NodeNew('BillName').ValueAsString := FieldByName('Z_Name').AsString;
         NodeNew('StockNo').ValueAsString    := FieldByName('D_StockNo').AsString;
         NodeNew('StockName').ValueAsString  := FieldByName('D_StockName').AsString;
 

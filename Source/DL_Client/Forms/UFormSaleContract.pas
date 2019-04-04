@@ -3,7 +3,7 @@
   描述: 销售合同管理
 *******************************************************************************}
 unit UFormSaleContract;
-{$I Link.Inc}
+
 interface
 
 uses
@@ -11,8 +11,7 @@ uses
   UDataModule, UFormBase, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, dxLayoutControl, cxLabel,
   cxCheckBox, cxTextEdit, cxDropDownEdit, cxMCListBox, cxMaskEdit,
-  cxButtonEdit, StdCtrls, cxMemo, dxSkinsCore, dxSkinsDefaultPainters,
-  dxLayoutcxEditAdapters;
+  cxButtonEdit, StdCtrls, cxMemo;
 
 type
   TfFormSaleContract = class(TBaseForm)
@@ -73,8 +72,6 @@ type
     dxLayoutControl1Group12: TdxLayoutGroup;
     dxLayoutControl1Group4: TdxLayoutGroup;
     dxLayoutControl1Group13: TdxLayoutGroup;
-    editFreight: TcxTextEdit;
-    dxLayoutControl1Item22: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
@@ -199,12 +196,6 @@ begin
   finally
     nIni.Free;
   end;
-
-  {$IFNDEF UseFreight}
-  dxLayoutControl1Item22.Visible := False;
-  cxButtonEdit1.Width := 145;
-  //启用运费
-  {$ENDIF}
 
   EditDate.Text := DateTime2Str(Now);
   ResetHintAllForm(Self, 'T', sTable_SaleContract);
@@ -401,13 +392,7 @@ begin
 
   with ShowBaseInfoEditForm(nBool, nSelected, '区域', '', sFlag_AreaItem) do
   begin
-    if nSelected then
-    begin
-      {$IFDEF UseFreight}
-      editFreight.Text := FMemo;
-      {$ENDIF}
-      TcxButtonEdit(Sender).Text := FText;
-    end;
+    if nSelected then TcxButtonEdit(Sender).Text := FText;
   end;
 end;
 

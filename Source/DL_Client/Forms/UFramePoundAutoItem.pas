@@ -410,9 +410,6 @@ begin
      nRet := GetDuanDaoItems(nCard, sFlag_TruckBFP, nBills) else
   if FCardUsed=sFlag_Sale then
      nRet := GetLadingBills(nCard, sFlag_TruckBFP, nBills) else nRet := False;
-//  if FCardUsed=sFlag_Provide then
-//       nRet := GetPurchaseOrders(nCard, sFlag_TruckBFP, nBills)
-//  else nRet := GetLadingBills(nCard, sFlag_TruckBFP, nBills);
 
   if (not nRet) or (Length(nBills) < 1)
   then
@@ -527,6 +524,7 @@ begin
   end;
   //判断车辆是否就位
 
+  {$IFDEF SpecialControl}
   if not IsSealInfoDone(FCardUsed, FUIData) then
   begin
     nStr := '铅封信息不完整,无法过磅.';
@@ -535,7 +533,7 @@ begin
     SetUIData(True);
     Exit;
   end;
-  //铅封信息校验
+  {$ENDIF}  //铅封信息校验
 
   InitSamples;
   //初始化样本

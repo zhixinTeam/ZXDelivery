@@ -51,6 +51,7 @@ type
     CheckDelete: TcxCheckBox;
     N10: TMenuItem;
     N11: TMenuItem;
+    N12: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnDelClick(Sender: TObject);
@@ -67,6 +68,7 @@ type
     procedure N10Click(Sender: TObject);
     procedure N11Click(Sender: TObject);
     procedure cxView1DblClick(Sender: TObject);
+    procedure N12Click(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -101,6 +103,7 @@ begin
   inherited;
   FUseDate := True;
   InitDateRange(Name, FStart, FEnd);
+  N12.Enabled := gSysParam.FIsAdmin;
 end;
 
 procedure TfFrameBill.OnDestroyFrame;
@@ -235,7 +238,7 @@ end;
 
 //Desc: 删除
 procedure TfFrameBill.BtnDelClick(Sender: TObject);
-var nStr: string;
+var nStr, nID: string;
     nP: TFormCommandParam;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
@@ -261,15 +264,19 @@ begin
     if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
   end;
 
-  if DeleteBill(SQLQuery.FieldByName('L_ID').AsString) then
+  nID := SQLQuery.FieldByName('L_ID').AsString;
+
+  if DeleteBill(nID) then
   begin
     InitFormData(FWhere);
     ShowMsg('提货单已删除', sHint);
   end;
 
   try
-    SaveWebOrderDelMsg(SQLQuery.FieldByName('L_ID').AsString,sFlag_Sale);
+    SaveWebOrderDelMsg(nID,sFlag_Sale);
   except
+    ShowMsg('插入微信端消息推送失败.',sHint);
+    Exit;
   end;
   //插入删除推送
 end;
@@ -532,6 +539,93 @@ begin
     if (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK) then
       InitFormData(FWhere);
     //display
+  end;
+end;
+
+procedure TfFrameBill.N12Click(Sender: TObject);
+var
+  nStr, nID, nValue, nCusID: string;
+  nDblValue,nMoney: Double;
+  nP: TFormCommandParam;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nID := SQLQuery.FieldByName('L_ID').AsString;
+    nCusID := SQLQuery.FieldByName('L_CusId').AsString;
+    
+    nStr := '确定要对交货单[ %s ]进行回单操作吗?';
+    nStr := Format(nStr, [nID]);
+    if not QueryDlg(nStr, sAsk) then Exit;
+    
+    {$IFDEF ForceMemo}
+    with nP do
+    begin
+      nStr := Format('请填写单据[ %s ]回单的原因', [nID]);
+
+      FCommand := cCmd_EditData;
+      FParamA := nStr;
+      FParamB := 320;
+      FParamD := 2;
+
+      nStr := SQLQuery.FieldByName('R_ID').AsString;
+      FParamC := 'Update %s Set L_Memo=''$Memo'' Where R_ID=%s';
+      FParamC := Format(FParamC, [sTable_Bill, nStr]);
+
+      CreateBaseFormItem(cFI_FormMemo, '', @nP);
+      if (FCommand <> cCmd_ModalResult) or (FParamA <> mrOK) then Exit;
+    end;
+    {$ENDIF}
+
+    if not ShowInputBox('请输入回单吨数,注意：回单实际吨数:',
+                        '修改', nValue, 100) then Exit;
+
+    if not IsNumber(nValue, True) then
+    begin
+      ShowMessage('请输入正确的回单吨数');
+      Exit;
+    end;
+    //无效
+
+    nDblValue := strtofloat(nValue) - SQLQuery.FieldByName('L_Value').asfloat;
+    nMoney := nDblValue * SQLQuery.FieldByName('L_Price').asfloat;
+    nValue := FloatToStr(nDblValue);
+
+    FDM.ADOConn.BeginTrans;
+    try
+      nStr := 'insert into S_Bill(L_Value,L_MValue,L_ID,L_ZhiKa,L_Project,'+
+              'L_Area,L_CusID,L_CusName,L_CusPY,L_SaleMan,L_Type,L_StockNo,'+
+              'L_StockName,L_Price,L_Truck,L_Status,L_NextStatus,L_InTime,'+
+              'L_InMan,L_PValue,L_PDate,L_PMan,L_MDate,L_MMan,L_LadeTime,'+
+              'L_LadeMan,L_LadeLine,L_LineName,L_DaiTotal,L_DaiNormal,'+
+              'L_DaiBuCha,L_OutFact,L_OutMan,L_Lading,L_IsVIP,L_HYDan,'+
+              'L_PrintHY,L_EmptyOut,L_Man,L_Date,L_CusType) select '+nValue+
+              ' as L_Value,L_PValue+'+nValue+' as L_MValue,'+
+              'L_ID,L_ZhiKa,L_Project,L_Area,L_CusID,L_CusName,L_CusPY,'+
+              'L_SaleMan,L_Type,L_StockNo,L_StockName,'+
+              'L_Price,L_Truck,L_Status,L_NextStatus,L_InTime,L_InMan,L_PValue,'+
+              'L_PDate,L_PMan,L_MDate,L_MMan,L_LadeTime,L_LadeMan,L_LadeLine,'+
+              'L_LineName,L_DaiTotal,L_DaiNormal,L_DaiBuCha,L_OutFact,L_OutMan,'+
+              'L_Lading,L_IsVIP,L_HYDan,L_PrintHY,L_EmptyOut,L_Man,L_Date,'+
+              'L_CusType from S_Bill where L_ID=''%s''';
+      nStr := Format(nStr,[nID]);
+      FDM.ExecuteSQL(nStr);
+
+      nStr := 'Update %s set A_OutMoney=A_OutMoney+%s where A_CID=''%s''';
+      nStr := Format(nStr,[sTable_CusAccount ,FloatToStr(nMoney) ,nCusID]);
+      FDM.ExecuteSQL(nStr);
+ 
+      nStr := '单据['+nID+']进行回单操作.';
+      FDM.WriteSysLog(sFlag_BillItem, nID, nStr, False);
+
+      FDM.ADOConn.CommitTrans;
+    except
+      FDM.ADOConn.RollbackTrans;
+      ShowMessage('回单操作失败.');
+      Exit;
+    end;
+
+    InitFormData(FWhere);
+    ShowMsg('回单成功', sHint);
   end;
 end;
 

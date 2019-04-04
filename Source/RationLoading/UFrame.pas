@@ -369,6 +369,7 @@ var
 begin
   SetLength(nBills, 1);
   nBills[0] := FUIData;
+  nBills[0].FPoundID := sFlag_Yes;
   with nBills[0].FMData do
   begin
     FValue := StrToFloat(EditValue.Text);

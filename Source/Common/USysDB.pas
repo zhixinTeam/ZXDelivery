@@ -678,8 +678,7 @@ const
        'C_Project varChar(100),C_SaleMan varChar(15), C_Customer varChar(15),' +
        'C_Date varChar(20), C_Area varChar(50), C_Addr varChar(50),' +
        'C_Delivery varChar(50), C_Payment varChar(20), C_Approval varChar(30),' +
-       'C_ZKDays Integer, C_XuNi Char(1), C_Freeze Char(1), C_Memo varChar(50),'+
-       'C_Freight Decimal(15,5))';
+       'C_ZKDays Integer, C_XuNi Char(1), C_Freeze Char(1), C_Memo varChar(50))';
   {-----------------------------------------------------------------------------
    销售合同: SalesContract
    *.R_ID: 编号
@@ -696,7 +695,6 @@ const
    *.C_XuNi: 虚拟合同
    *.C_Freeze: 是否冻结
    *.C_Memo: 备注信息
-   *.C_Freight: 运费
   -----------------------------------------------------------------------------}
 
   sSQL_NewSContractExt = 'Create Table $Table(R_ID $Inc,' +
@@ -722,7 +720,8 @@ const
        'Z_Verified Char(1), Z_InValid Char(1), Z_Freeze Char(1),' +
        'Z_YFMoney $Float, Z_FixedMoney $Float, Z_OnlyMoney Char(1),' +
        'Z_TJStatus Char(1), Z_Memo varChar(200), Z_Man varChar(32),' +
-       'Z_Date DateTime, Z_VerifyMan varChar(32), Z_VerifyDate DateTime)';
+       'Z_Date DateTime, Z_VerifyMan varChar(32), Z_VerifyDate DateTime,'+
+       'Z_Area varchr(30), Z_XHSpot varchar(30), Z_Freight $Float)';
   {-----------------------------------------------------------------------------
    纸卡办理: ZhiKa
    *.R_ID:记录编号
@@ -749,6 +748,9 @@ const
    *.Z_TJStatus:调价状态
    *.Z_Man:操作人
    *.Z_Date:创建时间
+   *.Z_Area:区域
+   *.Z_XHSpot:卸货地点
+   *.Z_Freight:运费
   -----------------------------------------------------------------------------}
 
   sSQL_NewZhiKaDtl = 'Create Table $Table(R_ID $Inc, D_ZID varChar(15),' +
@@ -806,7 +808,7 @@ const
        'L_Man varChar(32), L_Date DateTime,' +
        'L_Seal1 varChar(32), L_Seal2 varChar(32), L_Seal3 varChar(32),' +
        'L_KuWei varChar(20), L_CusType char(1),' +
-       'L_Freight $Float,'+
+       'L_XHSpot varChar(30), L_Freight $Float,' +
        'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320))';
   {-----------------------------------------------------------------------------
    交货单表: Bill
@@ -851,7 +853,8 @@ const
    *.L_Seal3: 铅封号3
    *.L_KuWei: 物料所属库位
    *.L_CusType: 提货单分类
-   *.L_Freight: 运费
+   *.L_XHSpot:卸货点
+   *.L_Freight:运费
   -----------------------------------------------------------------------------}
 
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +

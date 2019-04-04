@@ -3,7 +3,7 @@
   描述: 纸卡办理
 *******************************************************************************}
 unit UFormZhiKa;
-
+{$I Link.Inc}
 interface
 
 uses
@@ -75,6 +75,14 @@ type
     EditName: TcxTextEdit;
     dxLayout1Item13: TdxLayoutItem;
     dxLayout1Group5: TdxLayoutGroup;
+    editArea: TcxButtonEdit;
+    dxLayout1Item14: TdxLayoutItem;
+    dxLayout1Group6: TdxLayoutGroup;
+    editXHSpot: TcxTextEdit;
+    dxLayout1Item19: TdxLayoutItem;
+    editFreight: TcxCurrencyEdit;
+    dxLayout1Item20: TdxLayoutItem;
+    dxLayout1Group7: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditSManPropertiesEditValueChanged(Sender: TObject);
@@ -87,6 +95,8 @@ type
     procedure BtnOKClick(Sender: TObject);
     procedure EditCustomKeyPress(Sender: TObject; var Key: Char);
     procedure EditPricePropertiesEditValueChanged(Sender: TObject);
+    procedure editAreaPropertiesButtonClick(Sender: TObject;
+      AButtonIndex: Integer);
   protected
     { Protected declarations }
     FRecordID: string;
@@ -118,7 +128,7 @@ implementation
 
 uses
   IniFiles, ULibFun, UMgrControl, UAdjustForm, UFormCtrl, UFormBase, UFrameBase,
-  USysGrid, USysDB, USysConst, USysBusiness, UDataModule;
+  USysGrid, USysDB, USysConst, USysBusiness, UDataModule, UFormBaseInfo;
 
 var
   gForm: TfFormZhiKa = nil;
@@ -274,15 +284,18 @@ begin
       end;
 
       EditName.Text := FieldByName('Z_Name').AsString;
-      SetLength(nDStr, 4);
+      SetLength(nDStr, 5);
       
       nDStr[0] := FieldByName('Z_Project').AsString;
       nDStr[1] := FieldByName('Z_Lading').AsString;
       nDStr[2] := FieldByName('Z_Payment').AsString;
       nDStr[3] := Date2Str(FieldByName('Z_ValidDays').AsDateTime);
+      nDStr[4] := FieldByName('Z_Area').AsString;
 
       EditMoney.Text := FieldByName('Z_YFMoney').AsString;
       //预付金
+      editXHSpot.Text := FieldByName('Z_XHSpot').AsString;
+      editFreight.Value := FieldByName('Z_Freight').AsFloat;
 
       nStr := 'Select * From %s Where D_ZID=''%s''';
       nStr := Format(nStr, [sTable_ZhiKaDtl, nID]);
@@ -322,6 +335,7 @@ begin
 
       EditCID.Text := FZhiKa.FContract;
       EditPName.Text := nDStr[0];
+      editArea.Text := nDStr[4];
 
       if FZhiKa.FIsXuNi then
       begin
@@ -460,7 +474,9 @@ begin
     EditDays.Date := FieldByName('S_Now').AsFloat +
                      FieldByName('C_ZKDays').AsInteger;
     //当前 + 时长
-    
+
+    editArea.Text := FieldByName('C_Area').AsString;
+
     //EditPName.Properties.ReadOnly := not FZhiKa.FIsXuNi;
     EditSMan.Properties.ReadOnly := not FZhiKa.FIsXuNi;
     EditCustom.Properties.ReadOnly := not FZhiKa.FIsXuNi;
@@ -740,6 +756,18 @@ var nIdx: integer;
     nStr,nSQL,nZID,nCID: string;
 begin
   if not IsDataValid then Exit;
+
+  {$IFDEF UseFreight}
+  if GetCtrlData(EditLading) = sFlag_SongH then
+  begin
+    if (editXHSpot.Text = '') or (editFreight.Text = '') then
+    begin
+      ShowMsg('送货纸卡请输入卸货点和运费.',sHint);
+      Exit;
+    end;
+  end;
+  {$ENDIF}
+
   if FZhiKa.FIsXuNi then
   begin
     if EditCustom.ItemIndex > -1 then
@@ -775,6 +803,10 @@ begin
     nList.Add(Format('Z_Lading=''%s''', [GetCtrlData(EditLading)]));
     nList.Add(Format('Z_ValidDays=''%s''', [Date2Str(EditDays.Date)]));
     nList.Add(Format('Z_YFMoney=%s', [EditMoney.Text]));
+    nList.Add(Format('Z_Area=''%s''', [editArea.Text]));
+    nList.Add(Format('Z_XHSpot=''%s''', [editXHSpot.Text]));
+    if GetCtrlData(EditLading) = sFlag_SongH then
+      nList.Add(Format('Z_Freight=''%s''', [editFreight.Text]));
 
     if FRecordID = '' then
     begin
@@ -867,6 +899,19 @@ begin
 
   ModalResult := mrOK;
   ShowMsg('纸卡已保存', sHint);
+end;
+
+procedure TfFormZhiKa.editAreaPropertiesButtonClick(Sender: TObject;
+  AButtonIndex: Integer);
+var nBool,nSelected: Boolean;
+begin
+  nBool := True;
+  nSelected := True;
+
+  with ShowBaseInfoEditForm(nBool, nSelected, '区域', '', sFlag_AreaItem) do
+  begin
+    if nSelected then TcxButtonEdit(Sender).Text := FText;
+  end;
 end;
 
 initialization
