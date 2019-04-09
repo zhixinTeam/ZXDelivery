@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE SXDY}
+{$DEFINE XXCJ}
 //特定系统
 
 //山西声威
