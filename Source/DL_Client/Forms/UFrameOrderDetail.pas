@@ -105,7 +105,10 @@ begin
 
   if FJBWhere = '' then
   begin
-    Result := Result + 'Where (D_InTime>=''$S'' and D_InTime <''$End'')';
+    if Check1.Checked then
+      Result := Result + 'Where (D_DelDate>=''$S'' and D_DelDate <''$End'')'
+    else
+      Result := Result + 'Where (D_InTime>=''$S'' and D_InTime <''$End'')';
 
     if nWhere <> '' then
       Result := Result + ' And (' + nWhere + ')';

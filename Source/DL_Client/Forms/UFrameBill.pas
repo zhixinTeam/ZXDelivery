@@ -128,12 +128,18 @@ begin
   //提货单
 
   {$IFDEF AlwaysUseDate}
-  Result := Result + 'Where (L_Date>=''$ST'' and L_Date <''$End'')';
+  if CheckDelete.Checked then
+    Result := Result + 'Where (L_DelDate>=''$ST'' and L_DelDate <''$End'')'
+  else
+    Result := Result + 'Where (L_Date>=''$ST'' and L_Date <''$End'')';
   nStr := ' And ';
   {$ELSE}
   if (nWhere = '') or FUseDate then
   begin
-    Result := Result + 'Where (L_Date>=''$ST'' and L_Date <''$End'')';
+    if CheckDelete.Checked then
+      Result := Result + 'Where (L_DelDate>=''$ST'' and L_DelDate <''$End'')'
+    else
+      Result := Result + 'Where (L_Date>=''$ST'' and L_Date <''$End'')';
     nStr := ' And ';
   end else nStr := ' Where ';
   {$ENDIF}
@@ -411,7 +417,7 @@ end;
 
 //Desc: 调拨提货单
 procedure TfFrameBill.N3Click(Sender: TObject);
-var nStr,nTmp: string;
+var nStr,nTmp,nOldZhiKa: string;
     nP,nPMemo: TFormCommandParam;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
@@ -420,7 +426,8 @@ begin
     CreateBaseFormItem(cFI_FormGetZhika, PopedomItem, @nP);
     if (nP.FCommand <> cCmd_ModalResult) or (nP.FParamA <> mrOK) then Exit;
 
-    nStr := SQLQuery.FieldByName('L_ZhiKa').AsString;
+    nStr      := SQLQuery.FieldByName('L_ZhiKa').AsString;
+    nOldZhiKa := SQLQuery.FieldByName('L_ZhiKa').AsString;
     if nStr = nP.FParamB then
     begin
       ShowMsg('相同纸卡不能调拨', sHint);
@@ -477,9 +484,9 @@ begin
       nStr := SQLQuery.FieldByName('L_ID').AsString;
       if BillSaleAdjust(nStr, nP.FParamB) then
       begin
-        nTmp := '执行提货调拨操作,明细:提货单[ %s ]销售调拨给纸卡[ %s ].'+
+        nTmp := '执行提货调拨操作,明细:提货单[ %s ]纸卡[ %s ]销售调拨给纸卡[ %s ].'+
                 '从客户: %s.%s.到客户: %s.%s.品  种: %s.%s.调拨量: %.2f吨.';
-        nTmp := Format(nTmp, [nStr, nP.FParamB,
+        nTmp := Format(nTmp, [nStr, nOldZhiKa, nP.FParamB,
                 SQLQuery.FieldByName('L_CusID').AsString,
                 SQLQuery.FieldByName('L_CusName').AsString,
                 FieldByName('C_ID').AsString,

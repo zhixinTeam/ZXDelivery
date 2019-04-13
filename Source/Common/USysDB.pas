@@ -92,6 +92,8 @@ const
   sFlag_Sale          = 'S';                         //销售
   sFlag_Returns       = 'R';                         //退货
   sFlag_Other         = 'O';                         //其它
+  sFlag_Mul           = 'M';                         //多物料过磅
+  sFlag_Tx            = 'T';                         //通行
   
   sFlag_TiHuo         = 'T';                         //自提
   sFlag_SongH         = 'S';                         //送货
@@ -181,6 +183,8 @@ const
   sFlag_SaleManDept   = 'SaleManDepartment';         //业务员部门编号
   sFlag_VerifyFQValue = 'VerifyFQValue';             //禁止封签号超发
   sFlag_VerifyTruckP  = 'VerifyTruckP';              //校验预置皮重
+  sFlag_AutoPurchaseID= 'AutoPurchaseID';            //是否自动生成原材料编号
+  sFlag_AutoProviderID= 'AutoProviderID';            //是否自动生成供应商编号
 
   sFlag_WXFactory     = 'WXFactoryID';               //微信标识
   sFlag_WXServiceMIT  = 'WXServiceMIT';              //微信工厂服务
@@ -244,6 +248,8 @@ const
   sFlag_SaleMan       = 'Bus_SaleMan';               //业务员编号
   sFlag_Contract      = 'Bus_Contract';              //合同编号
   sFlag_ZhiKa         = 'Bus_ZhiKa';                 //纸卡编号
+  sFlag_Purchase      = 'Bus_Purchase';              //原材料编号
+  sFlag_Provider      = 'Bus_Provider';              //供应商编号
   sFlag_InvWeek       = 'Bus_InvoiceWeek';           //结算周期
   sFlag_WeiXin        = 'Bus_WeiXin';                //微信映射编号
   sFlag_HYDan         = 'Bus_HYDan';                 //化验单号
@@ -329,7 +335,8 @@ const
   sTable_OrderBaseBak = 'P_OrderBaseBak';            //已删除采购申请订单
   sTable_OrderDtl     = 'P_OrderDtl';                //采购订单明细
   sTable_OrderDtlBak  = 'P_OrderDtlBak';             //采购订单明细
-  
+  sTable_CardOther    = 'S_CardOther';               //临时称重
+
   sTable_CusAccount   = 'Sys_CustomerAccount';       //客户账户
   sTable_InOutMoney   = 'Sys_CustomerInOutMoney';    //资金明细
   sTable_CusCredit    = 'Sys_CustomerCredit';        //客户信用

@@ -64,6 +64,8 @@ type
     function MakeProID : string;
     //生成供应商编号
     function IsRepeatProID(const nID:string):Boolean;
+    function GetAutoProvider : Boolean;
+    //判断是否自动生成供应商编号
   public
     { Public declarations }
     class function CreateForm(const nPopedom: string = '';
@@ -76,7 +78,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, ULibFun, UMgrControl, UFormCtrl, UAdjustForm, USysGrid,
-  USysDB, USysConst;
+  USysDB, USysConst, USysBusiness;
 
 var
   gForm: TfFormProvider = nil;
@@ -202,6 +204,11 @@ end;
 procedure TfFormProvider.InitFormData(const nID: string);
 var nStr: string;
 begin
+  if GetAutoProvider then
+    dxLayoutControl1Item3.Visible := False
+  else
+    dxLayoutControl1Item3.Visible := True;
+    
   if InfoItems.Properties.Items.Count < 1 then
   begin
     InfoItems.Clear;
@@ -293,14 +300,23 @@ var nList: TStrings;
     i,nPos,nCount: Integer;
 begin
   EditID.Text := Trim(EditID.Text);
-  if EditID.Text = '' then
+  if not GetAutoProvider then
   begin
-    {$IFDEF AutoProId}
-    EditID.Text := MakeProID;
-    {$ELSE}
-    EditID.SetFocus;
-    ShowMsg('请填写供应商编号', sHint); Exit;
-    {$ENDIF}
+    if EditID.Text = '' then
+    begin
+      {$IFDEF AutoProId}
+      EditID.Text := MakeProID;
+      {$ELSE}
+      EditID.SetFocus;
+      ShowMsg('请填写供应商编号', sHint); Exit;
+      {$ENDIF}
+    end;
+  end
+  else
+  begin
+    nID := GetSerialNo(sFlag_BusGroup, sFlag_Provider, False);
+    if nID = '' then Exit;
+    EditID.Text := Trim(nID);
   end;
 
   if IsRepeatProID(EditID.Text) then
@@ -419,6 +435,21 @@ begin
     begin
       Result := True;
     end;
+  end;
+end;
+
+function TfFormProvider.GetAutoProvider: Boolean;
+var nStr: string;
+begin
+  Result := False;
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_AutoProviderID]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    if Fields[0].AsString = sFlag_Yes then
+      Result := True;
   end;
 end;
 

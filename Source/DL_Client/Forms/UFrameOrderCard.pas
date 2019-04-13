@@ -187,6 +187,8 @@ begin
        nStr := nStr + ' And ((O_Date>=''$S'' and O_Date<''$End'') ' +
                'or O_CType=''$CTYPE'') '
   else nStr := nStr + ' And (' + FWhereNo + ')';
+  //过滤已完成订单
+  nStr := nStr + ' And not exists(Select R_ID from P_OrderDtl od where o.O_ID=od.D_OID and od.D_Status = ''O'' )';
 
   nStr := MacroValue(nStr, [MI('$Order', sTable_Order),
           MI('$CUSED', sFlag_Provide), MI('$CTYPE', sFlag_OrderCardG),

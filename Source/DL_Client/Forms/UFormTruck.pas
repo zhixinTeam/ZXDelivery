@@ -132,6 +132,20 @@ begin
     ShowMsg('请输入车牌号码', sHint);
     Exit;
   end;
+  if FTruckID = '' then
+  begin
+    nStr := ' select T_Truck from %s where T_Truck=''%s''';
+    nStr := Format(nStr,[sTable_Truck, nTruck]);
+    with FDM.QuerySQL(nStr) do
+    begin
+      if RecordCount>0 then
+      begin
+        ActiveControl := EditTruck;
+        ShowMsg('已存在此车牌号码', sHint);
+        Exit;
+      end;
+    end;
+  end;
 
   if CheckValid.Checked then
        nV := sFlag_Yes

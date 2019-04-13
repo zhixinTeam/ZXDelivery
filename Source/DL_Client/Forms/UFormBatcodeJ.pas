@@ -141,7 +141,7 @@ begin
   FDM.FillStringsData(EditType.Properties.Items, nStr, -1, '.');
   AdjustStringsItem(EditType.Properties.Items, False);
   {$ELSE}
-  dxLayoutControl1Item20.Visible := False;
+    dxLayout1Item20.Visible := False;
   {$ENDIF}
 
   nStr := 'D_ParamB=Select D_ParamB,D_Value From %s Where D_Name=''%s'' ' +

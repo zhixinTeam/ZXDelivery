@@ -119,13 +119,21 @@ begin
   //xxxxx
 
   {$IFDEF AlwaysUseDate}
-  Result := Result + ' Where (O_Date >=''$ST'' and O_Date<''$End'') ' ;
+  if Check1.Checked then
+    Result := Result + ' Where (O_DelDate >=''$ST'' and O_DelDate<''$End'') '
+  else
+    Result := Result + ' Where (O_Date >=''$ST'' and O_Date<''$End'') ' ;
 
   if nWhere <> '' then
     Result := Result + ' And (' + nWhere + ')';
   {$ELSE}
   if nWhere = '' then
-       Result := Result + ' Where (O_Date >=''$ST'' and O_Date<''$End'') '
+  begin
+    if Check1.Checked then
+      Result := Result + ' Where (O_DelDate >=''$ST'' and O_DelDate<''$End'') '
+    else
+      Result := Result + ' Where (O_Date >=''$ST'' and O_Date<''$End'') ';
+  end
   else Result := Result + ' Where (' + nWhere + ')';
   {$ENDIF}
 

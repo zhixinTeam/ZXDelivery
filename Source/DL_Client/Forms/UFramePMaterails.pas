@@ -128,8 +128,9 @@ begin
   begin
     EditName.Text := Trim(EditName.Text);
     if EditName.Text = '' then Exit;
-
-    FWhere := Format('M_Name Like ''%%%s%%''', [EditName.Text]);
+    
+    FWhere := 'M_Name like ''%%%s%%'' Or M_PY like ''%%%s%%''';
+    FWhere := Format(FWhere, [EditName.Text, EditName.Text]);
     InitFormData(FWhere);
   end;
 end;

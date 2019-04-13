@@ -41,6 +41,7 @@ type
   private
     { Private declarations }
     FListA: TStrings;
+    function IsCanDel(const nID:string) : Boolean;
   protected
     function InitFormDataSQL(const nWhere: string): string; override;
     {*查询SQL*}
@@ -121,6 +122,12 @@ begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
     nStr := SQLQuery.FieldByName('P_Name').AsString;
+
+    if not IsCanDel(SQLQuery.FieldByName('P_ID').AsString) then
+    begin
+      ShowMsg('供应商[ '+nStr+' ]已绑定品种，请删除品种绑定后再删除供应商',sWarn);
+      Exit;
+    end;
     nStr := Format('确定要删除供应商[ %s ]吗?', [nStr]);
     if not QueryDlg(nStr, sAsk) then Exit;
 
@@ -141,7 +148,8 @@ begin
     EditName.Text := Trim(EditName.Text);
     if EditName.Text = '' then Exit;
 
-    FWhere := Format('P_Name Like ''%%%s%%''', [EditName.Text]);
+    FWhere := 'P_Name like ''%%%s%%'' Or P_PY like ''%%%s%%''';
+    FWhere := Format(FWhere, [EditName.Text, EditName.Text]);
     InitFormData(FWhere);
   end;
 end;
@@ -272,6 +280,22 @@ begin
   except
     FDM.ADOConn.RollbackTrans;
     ShowMsg('取消商城账户关联 失败', '未知错误');
+  end;
+end;
+
+function TfFrameProvider.IsCanDel(const nID:string): Boolean;
+var
+  nStr:string;
+begin
+  Result := True;
+  nStr := ' select R_ID from %s where B_ProID = ''%s'' ';
+  nStr := Format(nStr,[sTable_OrderBase,nID]);
+  with fdm.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      Result := False;
+    end;
   end;
 end;
 

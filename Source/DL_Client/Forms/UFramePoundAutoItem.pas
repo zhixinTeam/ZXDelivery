@@ -743,7 +743,13 @@ begin
                                          cPrecision, False);
         end;
         {$ENDIF}
-
+        //增加输出日志
+        if (FType = sFlag_Dai) then
+        begin
+          nStr := '单号[ %s ]车辆[%s]开单量: %.2f吨,装车量: %.2f吨,误差量: %.2f公斤,误差范围:%.2f ~ %.2f';
+          nStr := Format(nStr, [FID, FTruck, FInnerData.FValue, nNet, nVal,FPoundDaiF,FPoundDaiZ]);
+          WriteSysLog(nStr);
+        end;
         if ((FType = sFlag_Dai) and (
             ((nVal > 0) and (FPoundDaiZ > 0) and (nVal > FPoundDaiZ)) or
             ((nVal < 0) and (FPoundDaiF > 0) and (-nVal > FPoundDaiF)))) then

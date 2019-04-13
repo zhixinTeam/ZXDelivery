@@ -74,6 +74,8 @@ type
     procedure GetData(Sender: TObject; var nData: string);
     function SetData(Sender: TObject; const nData: string): Boolean;
     //数据处理
+    function GetAutoPurchase : Boolean;
+    //判断是否自动生成原材料编号
   public
     { Public declarations }
     class function CreateForm(const nPopedom: string = '';
@@ -86,7 +88,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, ULibFun, UMgrControl, UFormCtrl, UAdjustForm, USysGrid,
-  USysDB, USysConst;
+  USysDB, USysConst, USysBusiness;
 
 var
   gForm: TfFormMaterails = nil;
@@ -240,6 +242,11 @@ end;
 procedure TfFormMaterails.InitFormData(const nID: string);
 var nStr: string;
 begin
+  if GetAutoPurchase then
+    dxLayoutControl1Item13.Visible := False
+  else
+    dxLayoutControl1Item13.Visible := True;
+    
   if nID = '' then Exit;
   nStr := 'Select * From %s Where M_ID=''%s''';
   nStr := Format(nStr, [sTable_Materails, nID]);
@@ -321,10 +328,13 @@ var nStr,nID,nTmp,nSQL: string;
     nList: TStrings;
 begin
   EditID.Text := Trim(EditID.Text);
-  if EditID.Text = '' then
+  if not GetAutoPurchase then
   begin
-    EditID.SetFocus;
-    ShowMsg('请填写原料编号', sHint); Exit;
+    if EditID.Text = '' then
+    begin
+      EditID.SetFocus;
+      ShowMsg('请填写原料编号', sHint); Exit;
+    end;
   end;
 
   EditName.Text := Trim(EditName.Text);
@@ -375,6 +385,23 @@ begin
 
   if FRecordID = '' then
   begin
+    if GetAutoPurchase then
+    begin
+      nID := GetSerialNo(sFlag_BusGroup, sFlag_Purchase, False);
+      if nID = '' then Exit;
+      EditID.Text := Trim(nID);
+      nStr := 'Select Count(*) From %s Where M_ID=''%s''';
+      nStr := Format(nStr, [sTable_Materails, EditID.Text]);
+      
+      with FDM.QueryTemp(nStr) do
+      if Fields[0].AsInteger > 0 then
+      begin
+        nStr := '物料编号[ %s ]重复';
+        nStr := Format(nStr, [EditID.Text]);
+        ShowMsg(nStr, sHint);
+        Exit;
+      end;
+    end;
     nSQL := MakeSQLByForm(Self, sTable_Materails, '', True, GetData, nList);
   end else
   begin
@@ -418,6 +445,21 @@ begin
   except
     FDM.ADOConn.RollbackTrans;
     ShowMsg('数据保存失败', '未知原因');
+  end;
+end;
+
+function TfFormMaterails.GetAutoPurchase: Boolean;
+var nStr: string;
+begin
+  Result := False;
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_AutoPurchaseID]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    if Fields[0].AsString = sFlag_Yes then
+      Result := True;
   end;
 end;
 

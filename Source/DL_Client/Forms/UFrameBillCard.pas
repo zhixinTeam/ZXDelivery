@@ -177,7 +177,7 @@ begin
   end;
 
   if not FQueryNo then Exit;
-  nStr := 'Select * From $Bill Where (L_Card Is Null)';
+  nStr := 'Select * From $Bill Where (L_Card Is Null and L_Status <> ''O'' )';
 
   if FWhereNo = '' then
        nStr := nStr + ' And (L_Date>=''$S'' and L_Date<''$End'')'

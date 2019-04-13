@@ -320,6 +320,19 @@ begin
     Exit;
   end;
 
+  nStr := ' select R_ID from %s where B_ProName=''%s'' and B_StockName=''%s'' ';
+  nStr := Format(nStr,[sTable_OrderBase, Trim(EditProvider.Text),Trim(EditMate.Text)]);
+  with FDM.QuerySQL(nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      ShowMsg('供应商已绑定此原材料', sWarn);
+      if EditMate.CanFocus then
+        EditMate.SetFocus;
+      Exit;
+    end;
+  end;
+
   with FListA do
   begin
     Clear;

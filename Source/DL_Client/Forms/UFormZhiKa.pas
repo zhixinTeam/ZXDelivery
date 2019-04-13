@@ -11,7 +11,8 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, ComCtrls, cxContainer, cxEdit, Menus,
   cxDropDownEdit, cxCalendar, cxCheckBox, cxLabel, cxMaskEdit,
-  cxButtonEdit, cxTextEdit, cxListView, dxLayoutControl, StdCtrls;
+  cxButtonEdit, cxTextEdit, cxListView, dxLayoutControl, StdCtrls,
+  cxCurrencyEdit;
 
 type
   TStockItem = record
