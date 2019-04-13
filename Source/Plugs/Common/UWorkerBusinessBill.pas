@@ -2670,6 +2670,24 @@ begin
     gWXPlatFormHelper.WXSendMsg(cWXBus_OutFact, FListA.Text);
   end;
   {$ENDIF}
+
+  {$IFDEF SaveCusMoneyByOutFact}
+  if FIn.FExtParam = sFlag_TruckOut then //³ö³§
+  begin
+    for nIdx:=Low(nBills) to High(nBills) do
+    with nBills[nIdx] do
+    begin
+      if TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
+                FZhiKa, '', @nOut) then
+      begin
+        nSQL := MakeSQLByStr([
+                SF('L_NowValidMoney', nOut.FData)
+                ], sTable_Bill, SF('L_ID', FID), False);
+        gDBConnManager.WorkerExec(FDBConn, nSQL);
+      end;
+    end;
+  end;
+  {$ENDIF}
 end;
 
 //Date: 2019-03-17

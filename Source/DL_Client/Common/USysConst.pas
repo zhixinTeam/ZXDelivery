@@ -175,6 +175,7 @@ const
   cFI_FormTodoSend      = $1094;                     //推送事件
   cFI_FormAuditTruck    = $1095;                     //车辆审核
   cFI_FormSealInfo      = $1096;                     //铅封信息录入
+  CFI_FormSearchCard    = $1157;                     //磁卡查询
 
   cFI_Form_HT_SalePlan  = $1100;                     //销售计划(红塔)
   cFI_FrameTransBase    = $1101;                     //短倒办理
@@ -340,6 +341,7 @@ begin
   AddMenuModuleItem('MAIN_B02', cFI_FrameCustomer);
   AddMenuModuleItem('MAIN_B03', cFI_FrameSalesMan);
   AddMenuModuleItem('MAIN_B04', cFI_FrameSaleContract);
+  AddMenuModuleItem('MAIN_B06', CFI_FormSearchCard, mtForm);
 
   AddMenuModuleItem('MAIN_C01', cFI_FrameZhiKaVerify);
   AddMenuModuleItem('MAIN_C02', cFI_FramePayment);
