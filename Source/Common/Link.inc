@@ -158,7 +158,7 @@
   //档案信息唯一
   {$DEFINE AlwaysUseDate}
   //报表查询始终使用日期条件
-   {$DEFINE L_NowValidMoney}
+   {$DEFINE SaveCusMoneyByOutFact}
    //出厂随车保存可用余额
 {$ENDIF}
 
