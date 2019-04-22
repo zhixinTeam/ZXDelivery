@@ -695,10 +695,18 @@ begin
     FOut.FExtParam := FieldByName('Z_OnlyMoney').AsString;
     nMoney := FieldByName('Z_FixedMoney').AsFloat;
 
+
+    {$IFDEF SaveCusMoneyByOutFact}  
+    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
+            FieldByName('A_OutMoney').AsFloat -
+            FieldByName('A_Compensation').AsFloat +
+            FieldByName('A_FreezeMoney').AsFloat;
+    {$ELSE}
     nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
             FieldByName('A_OutMoney').AsFloat -
             FieldByName('A_Compensation').AsFloat -
             FieldByName('A_FreezeMoney').AsFloat;
+    {$ENDIF}
     //xxxxx
 
     nCredit := FieldByName('A_CreditLimit').AsFloat;

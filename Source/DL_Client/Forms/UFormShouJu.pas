@@ -326,7 +326,9 @@ end;
 
 //Desc: 验证数据
 function TfFormShouJu.OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean;
-var nStr: string;
+var
+  nStr : string;
+  nID: integer;
 begin
   Result := True;
 
@@ -343,7 +345,21 @@ begin
       nStr := nStr + ' And R_ID<>' + FRecordID;
     //xxxxx
 
-    Result := FDM.QueryTemp(nStr).Fields[0].AsInteger < 1;
+    if FDM.QueryTemp(nStr).Fields[0].AsInteger < 1 then
+      Result := True
+    else
+    begin
+      nID := FDM.GetFieldMax(sTable_SysShouJu, 'R_ID') + 1;
+      EditID.Text := FDM.GetSerialID2(FPrefixID, sTable_SysShouJu, 'R_ID', 'S_Code', nID);
+
+      nStr := 'Select Count(*) From %s Where S_Code=''%s''';
+      nStr := Format(nStr, [sTable_SysShouJu, EditID.Text]);
+
+      if FRecordID <> '' then
+        nStr := nStr + ' And R_ID<>' + FRecordID;
+
+      Result := FDM.QueryTemp(nStr).Fields[0].AsInteger < 1;
+    end;
     nHint := '该凭单号码已经存在';
   end else
 
