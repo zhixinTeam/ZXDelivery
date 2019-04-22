@@ -31,6 +31,7 @@ const
 
   cBC_GetCustomerMoney        = $0010;   //获取客户可用金
   cBC_GetZhiKaMoney           = $0011;   //获取纸卡可用金
+  cBC_GetZhiKaMoneyEx         = $0014;   //获取纸卡剩余余额
   cBC_CustomerHasMoney        = $0012;   //客户是否有余额
 
   cBC_SaveTruckInfo           = $0013;   //保存车辆信息

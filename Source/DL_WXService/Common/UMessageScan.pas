@@ -453,9 +453,9 @@ var nStr: string;
     nErr,nIdx: Integer;
     nOut: TWorkerWebChatData;
 begin
-  nStr:= 'select top 100 * from %s where WOM_StatusType =%d Order by R_ID desc';
+  nStr:= 'select top 1000 * from %s where WOM_StatusType =%d Order by R_ID desc';
   nStr:= Format(nStr,[sTable_WebOrderMatch, c_WeChatStatusCreateCard]);
-  //查询最近100条网上开单记录
+  //查询最近1000条网上开单记录
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   begin
     if RecordCount < 1 then

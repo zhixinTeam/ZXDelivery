@@ -83,6 +83,8 @@ type
     //获取客户可用金
     function GetZhiKaValidMoney(var nData: string): Boolean;
     //获取纸卡可用金
+    function GetZhiKaValidMoneyEx(var nData: string): Boolean;
+    //获取纸卡剩余金
     function CustomerHasMoney(var nData: string): Boolean;
     //验证客户是否有钱
     function SaveTruck(var nData: string): Boolean;
@@ -349,6 +351,7 @@ begin
    cBC_IsSystemExpired     : Result := IsSystemExpired(nData);
    cBC_GetCustomerMoney    : Result := GetCustomerValidMoney(nData);
    cBC_GetZhiKaMoney       : Result := GetZhiKaValidMoney(nData);
+   cBC_GetZhiKaMoneyEx     : Result := GetZhiKaValidMoneyEx(nData);
    cBC_CustomerHasMoney    : Result := CustomerHasMoney(nData);
    cBC_SaveTruckInfo       : Result := SaveTruck(nData);
    cBC_UpdateTruckInfo     : Result := UpdateTruck(nData);
@@ -672,6 +675,70 @@ end;
 //Date: 2014-09-05
 //Desc: 获取指定纸卡的可用金额
 function TWorkerBusinessCommander.GetZhiKaValidMoney(var nData: string): Boolean;
+var nStr: string;
+    nVal,nMoney,nCredit: Double;
+begin
+  nStr := 'Select ca.*,Z_OnlyMoney,Z_FixedMoney From $ZK,$CA ca ' +
+          'Where Z_ID=''$ZID'' and A_CID=Z_Customer';
+  nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa), MI('$ZID', FIn.FData),
+          MI('$CA', sTable_CusAccount)]);
+  //xxxxx
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      nData := '编号为[ %s ]的纸卡不存在,或客户账户无效.';
+      nData := Format(nData, [FIn.FData]);
+
+      Result := False;
+      Exit;
+    end;
+
+    FOut.FExtParam := FieldByName('Z_OnlyMoney').AsString;
+    nMoney := FieldByName('Z_FixedMoney').AsFloat;
+
+    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
+            FieldByName('A_OutMoney').AsFloat -
+            FieldByName('A_Compensation').AsFloat -
+            FieldByName('A_FreezeMoney').AsFloat;
+    //xxxxx
+
+    nCredit := FieldByName('A_CreditLimit').AsFloat;
+    nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
+
+    nStr := 'Select MAX(C_End) From %s ' +
+            'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
+    nStr := Format(nStr, [sTable_CusCredit, FieldByName('A_CID').AsString,
+            sFlag_Yes]);
+    //xxxxx
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    if (Fields[0].AsDateTime > Str2Date('2000-01-01')) and
+       (Fields[0].AsDateTime > Now()) then
+    begin
+      nVal := nVal + nCredit;
+      //信用未过期
+    end;
+
+    nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
+    //total money
+
+    if FOut.FExtParam = sFlag_Yes then
+    begin
+      if nMoney > nVal then
+        nMoney := nVal;
+      //enough money
+    end else nMoney := nVal;
+
+    FOut.FData := FloatToStr(nMoney);
+    Result := True;
+  end;
+end;
+
+//Date: 2014-09-05
+//Desc: 获取指定纸卡的可用金额
+function TWorkerBusinessCommander.GetZhiKaValidMoneyEx(var nData: string): Boolean;
 var nStr: string;
     nVal,nMoney,nCredit: Double;
 begin
@@ -1564,6 +1631,50 @@ begin
 
     nStr := FieldByName('Z_Customer').AsString;
     if not TWorkerBusinessCommander.CallMe(cBC_GetCustomerMoney, nStr,
+       sFlag_Yes, @nOut) then
+    begin
+      nData := nOut.FData;
+      Exit;
+    end;
+
+    nVal := StrToFloat(nOut.FData);
+    FOut.FExtParam := FieldByName('Z_OnlyMoney').AsString;
+    nMoney := FieldByName('Z_FixedMoney').AsFloat;
+                                
+    if FOut.FExtParam = sFlag_Yes then
+    begin
+      if nMoney > nVal then
+        nMoney := nVal;
+      //enough money
+    end else nMoney := nVal;
+
+    FOut.FData := FloatToStr(nMoney);
+    Result := True;
+  end;
+end;
+
+function TWorkerBusinessCommander.GetZhiKaValidMoneyEx(
+  var nData: string): Boolean;
+var nStr: string;
+    nVal,nMoney: Double;
+    nOut: TWorkerBusinessCommand;
+begin
+  Result := False;
+  nStr := 'Select Z_Customer,Z_OnlyMoney,Z_FixedMoney From $ZK ' +
+          'Where Z_ID=''$ZID''';
+  nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa), MI('$ZID', FIn.FData)]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      nData := '编号为[ %s ]的纸卡不存在.';
+      nData := Format(nData, [FIn.FData]);
+      Exit;
+    end;
+
+    nStr := FieldByName('Z_Customer').AsString;
+    if not TWorkerBusinessCommander.CallMe(cBC_GetCustomerMoneyEx, nStr,
        sFlag_Yes, @nOut) then
     begin
       nData := nOut.FData;

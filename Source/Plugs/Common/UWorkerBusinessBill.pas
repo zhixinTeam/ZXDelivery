@@ -2677,7 +2677,7 @@ begin
     for nIdx:=Low(nBills) to High(nBills) do
     with nBills[nIdx] do
     begin
-      if TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
+      if TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoneyEx,
                 FZhiKa, '', @nOut) then
       begin
         nSQL := MakeSQLByStr([
