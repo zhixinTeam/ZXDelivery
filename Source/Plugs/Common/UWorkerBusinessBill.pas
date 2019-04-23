@@ -2680,6 +2680,7 @@ begin
       if TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoneyEx,
                 FZhiKa, '', @nOut) then
       begin
+        WriteLog('客户剩余资金：'+nOut.FData);
         nSQL := MakeSQLByStr([
                 SF('L_NowValidMoney', nOut.FData)
                 ], sTable_Bill, SF('L_ID', FID), False);

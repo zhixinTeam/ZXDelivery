@@ -1,8 +1,8 @@
 inherited fFrameHYData: TfFrameHYData
-  Width = 839
+  Width = 964
   Height = 436
   inherited ToolBar1: TToolBar
-    Width = 839
+    Width = 964
     inherited BtnAdd: TToolButton
       Caption = #24320#21333
       OnClick = BtnAddClick
@@ -16,7 +16,7 @@ inherited fFrameHYData: TfFrameHYData
   end
   inherited cxGrid1: TcxGrid
     Top = 202
-    Width = 839
+    Width = 964
     Height = 234
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
@@ -24,7 +24,7 @@ inherited fFrameHYData: TfFrameHYData
     end
   end
   inherited dxLayout1: TdxLayoutControl
-    Width = 839
+    Width = 964
     Height = 135
     object EditNO: TcxButtonEdit [0]
       Left = 259
@@ -164,17 +164,27 @@ inherited fFrameHYData: TfFrameHYData
   end
   inherited cxSplitter1: TcxSplitter
     Top = 194
-    Width = 839
+    Width = 964
   end
   inherited TitlePanel1: TZnBitmapPanel
-    Width = 839
+    Width = 964
     inherited TitleBar: TcxLabel
       Caption = #21270#39564#21333#35760#24405
       Style.IsFontAssigned = True
-      Width = 839
-      AnchorX = 420
+      Width = 964
+      AnchorX = 482
       AnchorY = 11
     end
+  end
+  object Check1: TcxCheckBox [5]
+    Left = 809
+    Top = 92
+    Caption = #26597#35810#21253#21547#34917#21333#35760#24405
+    ParentFont = False
+    TabOrder = 5
+    Transparent = True
+    OnClick = Check1Click
+    Width = 142
   end
   inherited SQLQuery: TADOQuery
     Left = 4

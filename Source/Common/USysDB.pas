@@ -1478,7 +1478,7 @@ const
   sSQL_NewStockHuaYan = 'Create Table $Table(H_ID $Inc, H_No varChar(15),' +
        'H_Custom varChar(15), H_CusName varChar(80), H_SerialNo varChar(15),' +
        'H_Truck varChar(15), H_Value $Float, H_BillDate DateTime,' +
-       'H_EachTruck Char(1), H_ReportDate DateTime, H_Reporter varChar(32))';
+       'H_EachTruck Char(1), H_ReportDate DateTime, H_Reporter varChar(32),H_KindType char(1))';
   {-----------------------------------------------------------------------------
    开化验单:StockHuaYan
    *.H_ID:记录编号
@@ -1492,6 +1492,7 @@ const
    *.H_EachTruck: 随车开单
    *.H_ReportDate:报告日期
    *.H_Reporter:报告人
+   *.H_KindType:是否补单：Y：是
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockBatcode = 'Create Table $Table(R_ID $Inc, B_Stock varChar(32),' +

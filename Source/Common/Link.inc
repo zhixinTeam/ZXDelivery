@@ -160,6 +160,8 @@
   //报表查询始终使用日期条件
    {$DEFINE SaveCusMoneyByOutFact}
    //出厂随车保存可用余额
+   {$DEFINE HuaYanAddKindType}
+   //化验单增加是否补单类型
 {$ENDIF}
 
 //郑州上街

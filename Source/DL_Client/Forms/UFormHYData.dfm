@@ -16,12 +16,12 @@ inherited fFormHYData: TfFormHYData
       Left = 327
       Top = 230
       Caption = #30830#23450
-      TabOrder = 8
+      TabOrder = 9
     end
     inherited BtnExit: TButton
       Left = 397
       Top = 230
-      TabOrder = 9
+      TabOrder = 10
     end
     object EditTruck: TcxTextEdit [2]
       Left = 81
@@ -106,6 +106,16 @@ inherited fFormHYData: TfFormHYData
       Width = 466
       AnchorY = 126
     end
+    object chk_IsBD: TCheckBox [10]
+      Left = 23
+      Top = 181
+      Width = 97
+      Height = 17
+      Caption = #26159#21542#34917#21333
+      Color = clWindow
+      ParentColor = False
+      TabOrder = 8
+    end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Item13: TdxLayoutItem
@@ -165,6 +175,13 @@ inherited fFormHYData: TfFormHYData
             Control = EditValue
             ControlOptions.ShowBorder = False
           end
+        end
+        object dxLayout1Item10: TdxLayoutItem
+          Caption = 'CheckBox1'
+          ShowCaption = False
+          Control = chk_IsBD
+          ControlOptions.AutoColor = True
+          ControlOptions.ShowBorder = False
         end
       end
     end

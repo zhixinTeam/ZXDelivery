@@ -3,7 +3,7 @@
   描述: 开化验单
 *******************************************************************************}
 unit UFormHYData;
-
+{$I Link.inc}
 interface
 
 uses
@@ -33,6 +33,8 @@ type
     dxLayout1Item9: TdxLayoutItem;
     dxLayout1Item6: TdxLayoutItem;
     cxLabel2: TcxLabel;
+    chk_IsBD: TCheckBox;
+    dxLayout1Item10: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditCustomKeyPress(Sender: TObject; var Key: Char);
@@ -123,6 +125,11 @@ begin
   EditDate.Date := Now;
   EditValue.Text := '0';
   LoadSaleMan(EditSMan.Properties.Items);
+  {$IFDEF HuaYanAddKindType}
+    chk_IsBD.Visible := True;
+  {$ELSE}
+    chk_IsBD.Visible := False;
+  {$ENDIF}
 end;
 
 //Desc: 选择客户
@@ -260,8 +267,22 @@ end;
 
 //Desc: 保存SQL
 procedure TfFormHYData.GetSaveSQLList(const nList: TStrings);
-var nStr: string;
+var nStr,nKindType : string;
 begin
+  {$IFDEF HuaYanAddKindType}
+  if chk_IsBD.Checked then
+    nKindType := 'Y'
+  else
+    nKindType := 'N';
+  nStr := 'Insert Into $Table(H_Custom,H_CusName,H_SerialNo,H_Truck,H_Value,' +
+          'H_BillDate,H_ReportDate,H_Reporter,H_KindType) Values(''$Cus'',''$CName'',' +
+          '''$No'',''$TN'',$Val,''$BD'',$RD,''$RE'',''$HY'')';
+  nStr := MacroValue(nStr, [MI('$Table', sTable_StockHuaYan),
+          MI('$Cus', GetCtrlData(EditCustom)), MI('$CName', EditName.Text),
+          MI('$No', EditNo.Text), MI('$TN', EditTruck.Text),
+          MI('$Val', EditValue.Text), MI('$BD', DateTime2Str(EditDate.Date)),
+          MI('$RD', FDM.SQLServerNow), MI('$RE', gSysParam.FUserID), MI('$HY', nKindType)]);
+  {$ELSE}
   nStr := 'Insert Into $Table(H_Custom,H_CusName,H_SerialNo,H_Truck,H_Value,' +
           'H_BillDate,H_ReportDate,H_Reporter) Values(''$Cus'',''$CName'',' +
           '''$No'',''$TN'',$Val,''$BD'',$RD,''$RE'')';
@@ -270,6 +291,7 @@ begin
           MI('$No', EditNo.Text), MI('$TN', EditTruck.Text),
           MI('$Val', EditValue.Text), MI('$BD', DateTime2Str(EditDate.Date)),
           MI('$RD', FDM.SQLServerNow), MI('$RE', gSysParam.FUserID)]);
+  {$ENDIF}
   nList.Add(nStr);
 end;
 

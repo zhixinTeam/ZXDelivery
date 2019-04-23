@@ -3,7 +3,7 @@
   描述: 开化验单
 *******************************************************************************}
 unit UFrameHYData;
-
+{$I Link.inc}
 interface
 
 uses
@@ -13,7 +13,7 @@ uses
   dxLayoutControl, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, UBitmapPanel,
-  cxSplitter, Menus, cxLookAndFeels, cxLookAndFeelPainters;
+  cxSplitter, Menus, cxLookAndFeels, cxLookAndFeelPainters, cxCheckBox;
 
 type
   TfFrameHYData = class(TfFrameNormal)
@@ -37,6 +37,7 @@ type
     EditID: TcxButtonEdit;
     dxLayout1Item8: TdxLayoutItem;
     N3: TMenuItem;
+    Check1: TcxCheckBox;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -46,6 +47,7 @@ type
     procedure N2Click(Sender: TObject);
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
+    procedure Check1Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -76,6 +78,11 @@ procedure TfFrameHYData.OnCreateFrame;
 begin
   inherited;
   InitDateRange(Name, FStart, FEnd);
+  {$IFDEF HuaYanAddKindType}
+    Check1.Visible := True;
+  {$ELSE}
+    Check1.Visible := False;
+  {$ENDIF}
 end;
 
 procedure TfFrameHYData.OnDestroyFrame;
@@ -104,8 +111,14 @@ begin
   //xxxxx
   
   if nWhere = '' then
-       Result := Result + 'And (H_ReportDate>=''$Start'' and H_ReportDate<''$End'')'
-  else Result := Result + 'And (' + nWhere + ')';
+       Result := Result + ' And (H_ReportDate>=''$Start'' and H_ReportDate<''$End'')'
+  else Result := Result + ' And (' + nWhere + ')';
+
+  {$IFDEF HuaYanAddKindType}
+  if Check1.Checked = False then
+    Result := Result + ' And ( H_KindType <> ''Y'' ) ';
+  {$ENDIF}
+
 
   Result := MacroValue(Result, [MI('$HY', sTable_StockHuaYan),
             MI('$Cus', sTable_Customer), MI('$SR', nStr),
@@ -220,6 +233,12 @@ begin
     nStr := SQLQuery.FieldByName('H_ID').AsString;
     PrintHeGeReport(nStr, False);
   end;
+end;
+
+procedure TfFrameHYData.Check1Click(Sender: TObject);
+begin
+  inherited;
+  InitFormData('');
 end;
 
 initialization

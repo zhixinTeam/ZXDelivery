@@ -759,50 +759,13 @@ begin
       Exit;
     end;
 
-    FOut.FExtParam := FieldByName('Z_OnlyMoney').AsString;
-    nMoney := FieldByName('Z_FixedMoney').AsFloat;
-
-
-    {$IFDEF SaveCusMoneyByOutFact}  
     nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
-            FieldByName('A_OutMoney').AsFloat -
-            FieldByName('A_Compensation').AsFloat +
-            FieldByName('A_FreezeMoney').AsFloat;
-    {$ELSE}
-    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
-            FieldByName('A_OutMoney').AsFloat -
-            FieldByName('A_Compensation').AsFloat -
-            FieldByName('A_FreezeMoney').AsFloat;
-    {$ENDIF}
-    //xxxxx
-
-    nCredit := FieldByName('A_CreditLimit').AsFloat;
-    nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
-
-    nStr := 'Select MAX(C_End) From %s ' +
-            'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
-    nStr := Format(nStr, [sTable_CusCredit, FieldByName('A_CID').AsString,
-            sFlag_Yes]);
-    //xxxxx
-
-    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-    if (Fields[0].AsDateTime > Str2Date('2000-01-01')) and
-       (Fields[0].AsDateTime > Now()) then
-    begin
-      nVal := nVal + nCredit;
-      //信用未过期
-    end;
-
+            FieldByName('A_OutMoney').AsFloat;
+            
     nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
     //total money
 
-    if FOut.FExtParam = sFlag_Yes then
-    begin
-      if nMoney > nVal then
-        nMoney := nVal;
-      //enough money
-    end else nMoney := nVal;
-
+    nMoney := nVal;
     FOut.FData := FloatToStr(nMoney);
     Result := True;
   end;
