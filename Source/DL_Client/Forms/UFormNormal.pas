@@ -77,7 +77,10 @@ begin
       if not OnVerifyCtrl(nObj, nStr) then
       begin
         if nObj is TWinControl then
-          TWinControl(nObj).SetFocus;
+        begin
+          if TWinControl(nObj).CanFocus then
+            TWinControl(nObj).SetFocus;
+        end;
         //xxxxx
         
         if nStr <> '' then

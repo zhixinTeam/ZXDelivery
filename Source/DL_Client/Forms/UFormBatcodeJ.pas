@@ -275,9 +275,13 @@ begin
   end else
   if Sender = EditType then
   begin
-    Result := EditType.ItemIndex >= 0;
-    nHint := '请选择分类';
-    if not Result then Exit;
+    {$IFDEF CustomerType}
+      Result := EditType.ItemIndex >= 0;
+      nHint := '请选择分类';
+      if not Result then Exit;
+    {$ELSE}
+      Result := True;
+    {$ENDIF}
   end;
 end;
 
