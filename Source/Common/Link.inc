@@ -366,6 +366,8 @@
   //物料所属库位
   {$DEFINE AllowMultiM}
   //允许多次过重车
+ {$DEFINE UseWXServiceEx}
+  //使用二期微信中间件
 {$ENDIF}
 
 //山西东义

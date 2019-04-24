@@ -1654,24 +1654,16 @@ begin
     Exit;
   end;
 
-  nStr := 'Select top 10 * From %s Where O_Truck=''%s'' order by O_Date desc';
+  nStr := ' Select o.O_ID From %s o Where o.O_Truck=''%s'' ' +
+          ' And not exists(Select R_ID from P_OrderDtl od where o.O_ID=od.D_OID and od.D_Status = ''O'' )';
   nStr := Format(nStr, [sTable_Order, nTruck]);
 
   with FDM.QueryTemp(nStr) do
   begin
     if RecordCount > 0 then
     begin
-      First;
-
-      while not Eof do
-      begin
-        if Trim(FieldByName('O_Card').AsString) <> '' then
-        begin
-          Result := True;
-          Exit;
-        end;
-        Next;
-      end;
+      Result := True;
+      Exit;
     end;
   end;
 end;
