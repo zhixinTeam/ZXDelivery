@@ -648,7 +648,6 @@ begin
     ShowMsg(nMsg,sWarn);
   end;
   Result := True;
-  if nRet then Close;
 end;
 
 function TfFormNewPurchaseCard.SaveWebOrderMatch(const nBillID,

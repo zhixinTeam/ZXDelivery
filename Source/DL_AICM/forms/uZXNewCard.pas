@@ -13,7 +13,7 @@ uses
   cxContainer, cxEdit, cxLabel, Menus, StdCtrls, cxButtons, cxGroupBox,
   cxRadioGroup, cxTextEdit, cxCheckBox, ExtCtrls, dxLayoutcxEditAdapters,
   dxLayoutControl, cxDropDownEdit, cxMaskEdit, cxButtonEdit,
-  USysConst, cxListBox, ComCtrls,Uszttce_api,Contnrs,UFormCtrl;
+  USysConst, cxListBox, ComCtrls,Contnrs,UFormCtrl;
 
 type
 
@@ -417,7 +417,6 @@ begin
     EditTruck.Text := nOrderItem.Ftracknumber;
     EditCus.Text    := nOrderItem.FCusID;
     EditCName.Text  := nOrderItem.FCusName;
-    EditPrice.Text  := '0';
   {$ELSE}
     //填充界面信息
     //基本信息
@@ -687,8 +686,6 @@ begin
   if nPrint then
     PrintBillReport(nBillID, True);
   //print report
-
-  if nRet then Close;
 end;
 
 function TfFormNewCard.SaveWebOrderMatch(const nBillID,
