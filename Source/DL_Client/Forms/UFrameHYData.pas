@@ -97,12 +97,19 @@ begin
   nStr := MacroValue(nStr, [MI('$SR', sTable_StockRecord),
           MI('$SP', sTable_StockParam)]);
   //检验记录
+  {$IFDEF HuaYanAddKindType}
+    Result := ' Select hy.*,sr.*,C_PY,C_Name, ' +
+              ' case when isnull(hy.H_KindType, '''')<>''Y'' then ''正常'' else ''补单'' end H_KindTypeEx ' +
+              ' From $HY hy  Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
+              ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
+              ' Where H_EachTruck Is Null ';
+  {$ELSE}
+    Result := ' Select hy.*,sr.*,C_PY,C_Name ' +
+              ' From $HY hy  Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
+              ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
+              ' Where H_EachTruck Is Null ';
+  {$ENDIF}
 
-  Result := 'Select hy.*,sr.*,C_PY,C_Name, ' +
-            'case when isnull(hy.H_KindType, '''')<>''Y'' then ''正常'' else ''补单'' end H_KindTypeEx ' +
-            'From $HY hy  Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
-            ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
-            'Where H_EachTruck Is Null ';
   //xxxxx
   
   if nWhere = '' then
