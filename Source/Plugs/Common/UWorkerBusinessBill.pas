@@ -681,6 +681,10 @@ begin
               SF('L_XHSpot', FListA.Values['XHSpot']),
               {$ENDIF} //∆Ù”√‘À∑—
 
+              {$IFDEF IdentCard}
+              SF('L_Ident', FListA.Values['Ident']),
+              {$ENDIF}
+
               SF('L_ZKMoney', nFixMoney),
               SF('L_Truck', FListA.Values['Truck']),
               SF('L_Lading', FListA.Values['Lading']),

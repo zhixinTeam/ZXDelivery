@@ -816,7 +816,7 @@ const
        'L_Man varChar(32), L_Date DateTime,' +
        'L_Seal1 varChar(32), L_Seal2 varChar(32), L_Seal3 varChar(32),' +
        'L_KuWei varChar(20), L_CusType char(1),' +
-       'L_XHSpot varChar(30), L_Freight $Float,' +
+       'L_XHSpot varChar(30), L_Freight $Float, L_Ident varChar(30),' +
        'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320))';
   {-----------------------------------------------------------------------------
    交货单表: Bill
@@ -863,6 +863,7 @@ const
    *.L_CusType: 提货单分类
    *.L_XHSpot:卸货点
    *.L_Freight:运费
+   *.L_Ident:身份证号
   -----------------------------------------------------------------------------}
 
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +

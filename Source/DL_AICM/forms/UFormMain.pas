@@ -40,7 +40,6 @@ type
     procedure ComPort1RxChar(Sender: TObject; Count: Integer);
     procedure TimerReadCardTimer(Sender: TObject);
     procedure LabelTruckDblClick(Sender: TObject);
-    procedure TimerInsertCardTimer(Sender: TObject);
     procedure imgPrintClick(Sender: TObject);
     procedure imgCardClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
@@ -58,7 +57,6 @@ type
 
     FHYDan,FStockName:string;
     FHyDanPrinterName,FDefaultPrinterName:string;
-    FReadCardThread:TReadCardThread;
     Fbegin:TDateTime;
     procedure ActionComPort(const nStop: Boolean);
     //´®¿Ú´¦Àí
@@ -506,13 +504,6 @@ begin
   FDM.ADOConn.Connected := False;
 end;
 
-procedure TfFormMain.TimerInsertCardTimer(Sender: TObject);
-begin
-  FReadCardThread := TReadCardThread.Create(True);
-  FReadCardThread.FreeOnTerminate := True;
-  FReadCardThread.Resume;
-  WaitForSingleObject(FReadCardThread.Handle,INFINITE);
-end;
 
 procedure TfFormMain.DoHotKeyHotKeyPressed(HotKey: Cardinal; Index: Word);
 begin

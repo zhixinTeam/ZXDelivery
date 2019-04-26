@@ -44,7 +44,7 @@ inherited fFormBill: TfFormBill
     end
     object ListBill: TcxListView [3]
       Left = 23
-      Top = 296
+      Top = 314
       Width = 372
       Height = 113
       Columns = <
@@ -70,7 +70,7 @@ inherited fFormBill: TfFormBill
     end
     object EditValue: TcxTextEdit [4]
       Left = 81
-      Top = 271
+      Top = 289
       ParentFont = False
       TabOrder = 3
       OnKeyPress = EditLadingKeyPress
@@ -87,7 +87,7 @@ inherited fFormBill: TfFormBill
     end
     object EditStock: TcxComboBox [6]
       Left = 81
-      Top = 246
+      Top = 264
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 15
@@ -99,7 +99,7 @@ inherited fFormBill: TfFormBill
     end
     object BtnAdd: TButton [7]
       Left = 357
-      Top = 246
+      Top = 264
       Width = 39
       Height = 17
       Caption = #28155#21152
@@ -108,7 +108,7 @@ inherited fFormBill: TfFormBill
     end
     object BtnDel: TButton [8]
       Left = 357
-      Top = 271
+      Top = 289
       Width = 39
       Height = 18
       Caption = #21024#38500
@@ -171,6 +171,12 @@ inherited fFormBill: TfFormBill
       Transparent = True
       Width = 95
     end
+    object EditIdent: TcxTextEdit [14]
+      Left = 81
+      Top = 207
+      TabOrder = 17
+      Width = 121
+    end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Item3: TdxLayoutItem
@@ -214,6 +220,11 @@ inherited fFormBill: TfFormBill
             Control = EditTruck
             ControlOptions.ShowBorder = False
           end
+        end
+        object dxLayout1Item15: TdxLayoutItem
+          Caption = #36523#20221#35777#21495':'
+          Control = EditIdent
+          ControlOptions.ShowBorder = False
         end
       end
       object dxGroup2: TdxLayoutGroup [1]

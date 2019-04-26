@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE XXCJ}
+{$DEFINE TXGY}
 //特定系统
 
 //山西声威
@@ -362,10 +362,17 @@
   //档案信息唯一
   {$DEFINE AlwaysUseDate}
   //报表查询始终使用日期条件
-  {$DEFINE StockKuWei}
+  {$DEFINE StockKuWeiEx}
   //物料所属库位
   {$DEFINE AllowMultiM}
   //允许多次过重车
+  {$DEFINE IdentCard}
+  
+  //身份证信息
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
+  {$DEFINE UseFreight}
+  //使用运费
  {$DEFINE UseWXServiceEx}
   //使用二期微信中间件
 {$ENDIF}
@@ -439,4 +446,77 @@
   {$DEFINE UseFreight}
   //使用运费
 {$ENDIF}
+
+//当阳城堡
+{$IFDEF DYCB}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {.$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {.$DEFINE PrintHYEach}
+  //随车开化验单
+  {.$DEFINE PrintHeGeZheng}
+  {.$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE PrintHY}
+  //出厂打印化验单
+  {$DEFINE SaveHyDanEvent}
+  //生成推送化验单事件
+  {.$DEFINE ForceEleCard}
+  //强制车辆办理和启用电子标签
+  {$DEFINE WxShowCusMoney}
+  //微信端显示客户金额
+  {$DEFINE CastMoney}
+  //对吨位及金额小数位后2位四舍五入
+  {$DEFINE NoCheckOrderValue}
+  //自助机原材料开卡不检查订单剩余量
+  {$DEFINE ProberShow}
+  //车检发送小屏
+  {.$DEFINE FixLoad}
+  //定制放灰
+  {$DEFINE OrderNoMulCard}
+  //采购禁止一车多单
+  {$DEFINE CapturePictureEx}
+  //磅房抓拍模式扩展
+  {$DEFINE BusinessOnly}
+  //车辆同一时间只能进行1种业务
+  {$DEFINE ForceMemo}
+  //强制输入备注
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE AlwaysUseDate}
+  //报表查询始终使用日期条件
+  {$DEFINE AllowMultiM}
+  //允许多次过重车
+  {.$DEFINE CustomerType}
+  //客户分类
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
+  {.$DEFINE UseFreight}
+  //使用运费
+  {$DEFINE TruckAutoIn}
+  //自动进厂
+{$ENDIF}
+
 

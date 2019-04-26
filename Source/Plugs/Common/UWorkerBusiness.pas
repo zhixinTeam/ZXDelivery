@@ -90,6 +90,8 @@ type
     function SaveTruck(var nData: string): Boolean;
     function UpdateTruck(var nData: string): Boolean;
     //保存车辆到Truck表
+    function SaveStockKuWei(var nData: string): Boolean;
+    //保存车辆通道
     function GetTruckPoundData(var nData: string): Boolean;
     function SaveTruckPoundData(var nData: string): Boolean;
     //存取车辆称重数据
@@ -363,6 +365,8 @@ begin
    cBC_GetStockBatcodeByCusType : Result := GetStockBatcodeByCusType(nData);
 
    cBC_SaveGrabCard        : Result := SaveGrabCard(nData);
+
+   cBC_SaveStockKuWei      : Result := SaveStockKuWei(nData);
    {$IFDEF UseERP_K3}
    cBC_SyncCustomer        : Result := SyncRemoteCustomer(nData);
    cBC_SyncSaleMan         : Result := SyncRemoteSaleMan(nData);
@@ -837,6 +841,40 @@ begin
     nStr := Format(nStr, [sTable_Truck, FIn.FData, GetPinYinOfStr(FIn.FData)]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
   end;
+end;
+
+function TWorkerBusinessCommander.SaveStockKuWei(var nData: string): Boolean;
+var
+  nStr, nKuWei: string;
+begin
+  Result := True;
+
+  if FIn.FData = '' then
+    Exit;
+
+  FListA.Clear;
+
+  FListA.Text := FIn.FData;
+
+  if FListA.Values['ID'] = '' then
+    Exit;
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s'' And D_ParamB=''%s'' ';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_StockKuWei, FListA.Values['StockNo'],FListA.Values['LineID']]);
+  
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    nKuWei := Fields[0].AsString;
+  end
+  else
+    Exit;
+
+  nStr := 'Update %s Set L_KuWei=''%s''  Where L_ID=''%s''';
+  nStr := Format(nStr, [sTable_Bill, nKuWei,
+                                     FListA.Values['ID']]);
+  WriteLog('刷卡更新所属库位SQL:' + nStr);
+  gDBConnManager.WorkerExec(FDBConn, nStr);
 end;
 
 //Date: 2016-02-16

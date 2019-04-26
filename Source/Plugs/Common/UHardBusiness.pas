@@ -260,6 +260,24 @@ begin
   else gSysLoger.AddLog(TBusinessWorkerManager, '业务对象', nOut.FData);
 end;
 
+//Date: 2019-4-25
+//Parm: 提货单号;装车线ID;物料编码
+//Desc: 更新所属库位
+function SaveStockKuWei(const nID,nLineID,nStockNo: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+    nList: TStrings;
+begin
+  nList := TStringList.Create;
+  try
+    nList.Values['ID']      := nID;
+    nList.Values['LineID']  := nLineID;
+    nList.Values['StockNo'] := nStockNo;
+    Result := CallBusinessCommand(cBC_SaveStockKuWei, nList.Text, '', @nOut);
+  finally
+    nList.Free;
+  end;
+end;
+
 //Date: 2015-08-06
 //Parm: 岗位;采购单列表
 //Desc: 保存nPost岗位上的采购单数据
@@ -1291,6 +1309,13 @@ begin
     gERelayManager.ShowTxt(nTunnel, nStr);
     Exit;
   end; //检查通道
+  {$IFDEF StockKuWeiEx}
+  for nIdx:=Low(nTrucks) to High(nTrucks) do
+  with nTrucks[nIdx] do
+  begin
+    SaveStockKuWei(FID, nTunnel, FStockNo);
+  end;
+  {$ENDIF}
 
   if nTrucks[0].FStatus = sFlag_TruckFH then
   begin

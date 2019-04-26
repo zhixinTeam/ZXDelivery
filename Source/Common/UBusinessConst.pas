@@ -97,6 +97,7 @@ const
   cBC_SyncMaterails           = $0086;   //远程同步原材料
 
   cBC_SaveGrabCard            = $0090;   //保存抓斗称刷卡信息
+  cBC_SaveStockKuWei          = $0091;   //保存物料所属库位信息
 
   cBC_WX_VerifPrintCode       = $0501;   //微信：验证喷码信息
   cBC_WX_WaitingForloading    = $0502;   //微信：工厂待装查询

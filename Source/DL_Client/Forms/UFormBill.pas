@@ -46,6 +46,8 @@ type
     dxLayout1Item13: TdxLayoutItem;
     dxLayout1Item14: TdxLayoutItem;
     PrintHY: TcxCheckBox;
+    EditIdent: TcxTextEdit;
+    dxLayout1Item15: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -225,6 +227,14 @@ begin
   {$ELSE}
   dxLayout1Item14.Visible := False;
   PrintHY.Checked := False;
+  {$ENDIF}
+
+  {$IFDEF IdentCard}
+  dxLayout1Item15.Visible := True;
+  EditIdent.Text := '';
+  {$ELSE}
+  dxLayout1Item15.Visible := False;
+  EditIdent.Text := '';
   {$ENDIF}
 
   AdjustCtrlData(Self);
@@ -481,7 +491,17 @@ begin
     EditFQ.Text := Trim(EditFQ.Text);
     Result := (Length(EditFQ.Text) > 0) or (not VerifyFQSumValue);
     nHint := '出厂编号不能为空';
-  end;  
+  end;
+
+  {$IFDEF IdentCard}
+  if Sender = EditIdent then
+  begin
+    EditIdent.Text := Trim(EditIdent.Text);
+    Result := (Length(EditIdent.Text) = 18) and
+    (UpperCase(Copy(EditIdent.Text, 18, 1))=GetIDCardNumCheckCode(Copy(EditIdent.Text, 1, 17)));
+    nHint := '输入的身份证号非法,请重新输入';
+  end;
+  {$ENDIF}
 
   if Sender = EditValue then
   begin
@@ -667,6 +687,7 @@ begin
       Values['Bills'] := PackerEncodeStr(nList.Text);
       Values['ZhiKa'] := gInfo.FZhiKa;
       Values['Truck'] := EditTruck.Text;
+      Values['Ident'] := EditIdent.Text;
       Values['Lading'] := GetCtrlData(EditLading);
       Values['IsVIP'] := GetCtrlData(EditType);
       Values['BuDan'] := FBuDanFlag;

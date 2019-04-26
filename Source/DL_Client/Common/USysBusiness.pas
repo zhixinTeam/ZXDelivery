@@ -357,6 +357,8 @@ function FreeCapture(nLogin: Integer): Boolean;
 function IsSealInfoDone(const nCardUse : string; nBill: TLadingBillItem): Boolean;
 function ShowLedText(nTunnel, nStr:string):Boolean;
 //发送led显示内容
+function GetIDCardNumCheckCode(nIDCardNum: string): string;
+//身份证号校验算法
 implementation
 
 //Desc: 记录日志
@@ -3645,6 +3647,30 @@ var nOut: TWorkerBusinessCommand;
 begin
   Result := CallBusinessHardware(cBC_ShowLedTxt, nTunnel, nStr,
             @nOut, False);
+end;
+
+//Date: 2017/6/14
+//Parm: 身份证号的前17位
+//Desc: 获取身份证号校验码
+function GetIDCardNumCheckCode(nIDCardNum: string): string;
+const
+  cWIArray: Array[0..16] of Integer = (7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2);
+  cModCode: array [0..10] of string = ('1','0','X','9','8','7','6','5','4','3','2');
+var
+  nIdx, nSum, nModResult: Integer;
+begin
+  Result := '';
+
+  if Length(nIDCardNum) < 17 then
+    Exit;
+
+  nSum := 0;
+  for nIdx := 0 to Length(cWIArray) - 1 do
+  begin
+    nSum := nSum + StrToInt(nIDCardNum[nIdx + 1]) * cWIArray[nIdx];
+  end;  
+  nModResult := nSum mod 11;
+  Result := cModCode[nModResult];
 end;
 
 end.
