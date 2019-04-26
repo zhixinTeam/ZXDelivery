@@ -37,7 +37,6 @@ type
     EditID: TcxButtonEdit;
     dxLayout1Item8: TdxLayoutItem;
     N3: TMenuItem;
-    Check1: TcxCheckBox;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -78,11 +77,6 @@ procedure TfFrameHYData.OnCreateFrame;
 begin
   inherited;
   InitDateRange(Name, FStart, FEnd);
-  {$IFDEF HuaYanAddKindType}
-    Check1.Visible := True;
-  {$ELSE}
-    Check1.Visible := False;
-  {$ENDIF}
 end;
 
 procedure TfFrameHYData.OnDestroyFrame;
@@ -104,8 +98,9 @@ begin
           MI('$SP', sTable_StockParam)]);
   //检验记录
 
-  Result := 'Select hy.*,sr.*,C_PY,C_Name From $HY hy ' +
-            ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
+  Result := 'Select hy.*,sr.*,C_PY,C_Name, ' +
+            'case when isnull(hy.H_KindType, '''')<>''Y'' then ''正常'' else ''补单'' end H_KindTypeEx ' +
+            'From $HY hy  Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
             ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
             'Where H_EachTruck Is Null ';
   //xxxxx
@@ -113,12 +108,6 @@ begin
   if nWhere = '' then
        Result := Result + ' And (H_ReportDate>=''$Start'' and H_ReportDate<''$End'')'
   else Result := Result + ' And (' + nWhere + ')';
-
-  {$IFDEF HuaYanAddKindType}
-  if Check1.Checked = False then
-    Result := Result + ' And ( H_KindType <> ''Y'' ) ';
-  {$ENDIF}
-
 
   Result := MacroValue(Result, [MI('$HY', sTable_StockHuaYan),
             MI('$Cus', sTable_Customer), MI('$SR', nStr),

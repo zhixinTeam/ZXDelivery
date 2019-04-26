@@ -42,6 +42,7 @@ type
     procedure EditNoPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckKeyPress(Sender: TObject; var Key: Char);
+    procedure EditNameKeyPress(Sender: TObject; var Key: Char);
   protected
     { Protected declarations }
     FSelectVal: Double;
@@ -158,6 +159,13 @@ begin
       EditCustom.ItemIndex := InsertStringsItem(EditCustom.Properties.Items, nStr);
     end;
   end;
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+
+    if Sender = EditCustom then ActiveControl := EditName else
+      Perform(WM_NEXTDLGCTL, 0, 0);
+  end;
 end;
 
 //Desc: Ñ¡Ôñ³µÁ¾
@@ -173,6 +181,14 @@ begin
     if (nP.FCommand = cCmd_ModalResult) and(nP.FParamA = mrOk) then
       EditTruck.Text := nP.FParamB;
     EditTruck.SelectAll;
+  end;
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+
+    if Sender = EditTruck then
+         ActiveControl := EditValue
+    else Perform(WM_NEXTDLGCTL, 0, 0);
   end;
 end;
 
@@ -302,6 +318,25 @@ begin
   nStr := IntToStr(FDM.GetFieldMax(sTable_StockHuaYan, 'H_ID'));
   PrintHeGeReport(nStr, True);
   PrintHuaYanReport(nStr, True);
+end;
+
+procedure TfFormHYData.EditNameKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+
+    if Sender = EditSMan then ActiveControl := EditCustom else
+    if Sender = EditName then ActiveControl := EditDate else
+    if Sender = EditDate then ActiveControl := EditNo else
+
+    if Sender = EditNo then
+         ActiveControl := EditTruck else
+    if Sender = EditValue then
+       ActiveControl := BtnOK
+    else Perform(WM_NEXTDLGCTL, 0, 0);
+  end;
 end;
 
 initialization

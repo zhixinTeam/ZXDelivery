@@ -38,6 +38,7 @@ inherited fFormHYData: TfFormHYData
       ParentFont = False
       Properties.MaxLength = 100
       TabOrder = 7
+      OnKeyPress = EditNameKeyPress
       Width = 403
     end
     object EditSMan: TcxComboBox [4]
@@ -50,6 +51,7 @@ inherited fFormHYData: TfFormHYData
       Properties.MaxLength = 35
       Properties.OnEditValueChanged = EditSManPropertiesEditValueChanged
       TabOrder = 0
+      OnKeyPress = EditNameKeyPress
       Width = 121
     end
     object EditCustom: TcxComboBox [5]
@@ -74,7 +76,7 @@ inherited fFormHYData: TfFormHYData
         end>
       Properties.OnButtonClick = EditNoPropertiesButtonClick
       TabOrder = 5
-      OnKeyPress = OnCtrlKeyPress
+      OnKeyPress = EditNameKeyPress
       Width = 121
     end
     object EditDate: TcxDateEdit [7]
@@ -83,6 +85,7 @@ inherited fFormHYData: TfFormHYData
       ParentFont = False
       Properties.Kind = ckDateTime
       TabOrder = 4
+      OnKeyPress = EditNameKeyPress
       Width = 147
     end
     object EditName: TcxTextEdit [8]
@@ -91,6 +94,7 @@ inherited fFormHYData: TfFormHYData
       ParentFont = False
       Properties.MaxLength = 80
       TabOrder = 2
+      OnKeyPress = EditNameKeyPress
       Width = 121
     end
     object cxLabel2: TcxLabel [9]

@@ -176,16 +176,6 @@ inherited fFrameHYData: TfFrameHYData
       AnchorY = 11
     end
   end
-  object Check1: TcxCheckBox [5]
-    Left = 809
-    Top = 92
-    Caption = #26597#35810#21253#21547#34917#21333#35760#24405
-    ParentFont = False
-    TabOrder = 5
-    Transparent = True
-    OnClick = Check1Click
-    Width = 142
-  end
   inherited SQLQuery: TADOQuery
     Left = 4
     Top = 236
