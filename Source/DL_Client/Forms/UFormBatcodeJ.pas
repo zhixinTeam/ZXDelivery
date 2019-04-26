@@ -268,20 +268,18 @@ begin
     nHint := '请输入超发上限';
   end else
 
+  {$IFDEF CustomerType}
+  if Sender = EditType then
+  begin
+    Result := EditType.ItemIndex >= 0;
+    nHint := '请选择分类';
+  end else
+  {$ENDIF}
+
   if Sender = EditWeek then
   begin
     Result := IsNumber(EditWeek.Text, False) and (StrToFloat(EditWeek.Text) >= 0);
     nHint := '请输入周期值';
-  end else
-  if Sender = EditType then
-  begin
-    {$IFDEF CustomerType}
-      Result := EditType.ItemIndex >= 0;
-      nHint := '请选择分类';
-      if not Result then Exit;
-    {$ELSE}
-      Result := True;
-    {$ENDIF}
   end;
 end;
 

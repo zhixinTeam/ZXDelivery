@@ -298,6 +298,8 @@
   //使用UTF解包函数
   {$DEFINE MicroMsg}
   //使用微信
+  {$DEFINE UseMHICCard}
+  //制卡时写明华IC卡(骨料用)
 {$ENDIF}
 
 //桐乡羔羊

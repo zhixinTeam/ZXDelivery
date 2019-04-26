@@ -24,13 +24,19 @@ procedure FreeSystemObject;
 //入口函数
 
 implementation
+{$IFDEF Debug}
+uses
+  UPlugConst, UFormTest;
+{$ENDIF}
 
 type
   TMainEventWorker = class(TPlugEventWorker)
   protected
-    procedure GetExtendMenu(const nList: TList); override;
     procedure BeforeStartServer; override;
     procedure AfterStopServer; override;
+    {$IFDEF DEBUG}
+    procedure GetExtendMenu(const nList: TList); override;
+    {$ENDIF}
   public
     class function ModuleInfo: TPlugModuleInfo; override;
   end;
@@ -49,20 +55,20 @@ begin
   end;
 end;
 
+{$IFDEF DEBUG}
 procedure TMainEventWorker.GetExtendMenu(const nList: TList);
-//var nMenu: PPlugMenuItem;
+var nItem: PPlugMenuItem;
 begin
-{
-  New(nMenu);
-  nList.Add(nMenu);
+  New(nItem);
+  nList.Add(nItem);
+  nItem.FName := 'Menu_Param_2';
 
-  nMenu.FModule := ModuleInfo.FModuleID;
-  nMenu.FName := '';
-  nMenu.FCaption := '';
-  nMenu.FFormID := 0;
-  nMenu.FDefault := True;
-}
+  nItem.FModule := ModuleInfo.FModuleID;
+  nItem.FCaption := '硬件测试';
+  nItem.FFormID := cFI_FormTest1;
+  nItem.FDefault := True;
 end;
+{$ENDIF}
 
 procedure TMainEventWorker.BeforeStartServer;
 begin

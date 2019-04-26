@@ -4,13 +4,14 @@
 *******************************************************************************}
 unit UFormCard;
 
+{$I Link.Inc}
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   CPort, CPortTypes, UFormNormal, UFormBase, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxLabel, cxTextEdit,
-  dxLayoutControl, StdCtrls, cxGraphics;
+  dxLayoutControl, StdCtrls, cxGraphics, ExtCtrls;
 
 type
   TfFormCard = class(TfFormNormal)
@@ -23,10 +24,12 @@ type
     EditCard: TcxTextEdit;
     dxLayout1Item6: TdxLayoutItem;
     ComPort1: TComPort;
+    Timer1: TTimer;
     procedure BtnOKClick(Sender: TObject);
     procedure ComPort1RxChar(Sender: TObject; Count: Integer);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditCardKeyPress(Sender: TObject; var Key: Char);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
     FBuffer: string;
@@ -34,6 +37,7 @@ type
     FParam: PFormCommandParam;
     procedure InitFormData;
     procedure ActionComPort(const nStop: Boolean);
+    function WriteICCard(): Boolean;
   public
     { Public declarations }
     class function CreateForm(const nPopedom: string = '';
@@ -45,7 +49,8 @@ implementation
 
 {$R *.dfm}
 uses
-  IniFiles, ULibFun, UMgrControl, USysBusiness, USmallFunc, USysConst, USysDB;
+  IniFiles, ULibFun, UMgrControl, UMgrMHReader, USysBusiness, USmallFunc,
+  USysConst, USysDB, UDataModule;
 
 type
   TReaderType = (ptT800, pt8142);
@@ -119,6 +124,22 @@ procedure TfFormCard.ActionComPort(const nStop: Boolean);
 var nInt: Integer;
     nIni: TIniFile;
 begin
+  {$IFDEF UseMHICCard}
+  if not Assigned(gMHReaderManager) then
+  begin
+    gMHReaderManager := TMHReaderManager.Create;
+    gMHReaderManager.LoadConfig(gPath + 'Readers_35LT.XML');
+  end;
+
+  if not nStop then
+  begin
+    EditCard.Text := '请将IC卡放至读卡器';
+  end;
+
+  Timer1.Enabled := not nStop;
+  Exit;
+  {$ENDIF}
+
   if nStop then
   begin
     ComPort1.Close;
@@ -201,6 +222,66 @@ begin
   end else OnCtrlKeyPress(Sender, Key);
 end;
 
+procedure TfFormCard.Timer1Timer(Sender: TObject);
+var nStr: string;
+begin
+  nStr := gMHReaderManager.ReadCardID('0101');
+  if nStr <> '' then
+  begin
+    Timer1.Enabled := False;
+    EditCard.Text := nStr;
+  end;
+end;
+
+//Date: 2019-03-13
+//Desc: 按格式写IC卡(红滇水骨料用)
+function TfFormCard.WriteICCard(): Boolean;
+var nStr,nData: string;
+begin
+  nStr := 'Select L_Truck,L_Value,L_StockNo,T_TruckLong,T_TruckWidth,' +
+          'D_Sign From %s ' +
+          ' Left Join %s On T_Truck=L_Truck ' +
+          ' Left Join %s On D_Name=''%s'' And D_ParamB=L_StockNo ' +
+          'Where L_ID=''%s''';
+  //xxxxx
+
+  nStr := Format(nStr, [sTable_Bill, sTable_Truck, sTable_SysDict,
+          sFlag_StockItem, EditBill.Text]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      ShowMsg('交货单已丢失', sHint);
+      Exit;
+    end;
+
+    nData := StrWithWidth(FieldByName('L_Truck').AsString, 12, 1, #32, True);
+    //12位存放车牌
+
+    nStr := Format('%.2f', [FieldByName('L_Value').AsFloat]);
+    nStr := StringReplace(nStr, '.', '', [rfReplaceAll]);//去小数点
+    nData := nData + StrWithWidth(nStr, 4, 2, '0', True);
+    //4位存放装车量
+
+    nStr := IntToStr(FieldByName('T_TruckLong').AsInteger);
+    nData := nData + #32#32 + StrWithWidth(nStr, 6, 2, '0', True);
+    //8位存放车长
+
+    nStr := IntToStr(FieldByName('T_TruckWidth').AsInteger);
+    nData := nData + StrWithWidth(nStr, 4, 2, '0', True);
+    //4位存放车宽
+
+    nStr := FieldByName('D_Sign').AsString;
+    nData := nData + StrWithWidth(nStr, 2, 2, '0', True) + #32#32;
+    //4位存放仓位
+  end;
+
+  Result := gMHReaderManager.WriteCardData(nData, '0101');
+  //写卡
+end;
+
 //Desc: 保存磁卡
 procedure TfFormCard.BtnOKClick(Sender: TObject);
 var nRet: Boolean;
@@ -220,6 +301,17 @@ begin
     ModalResult := mrOk;
     Exit;
   end;
+
+  {$IFDEF UseMHICCard}
+  if WriteICCard() then //write ic
+  begin
+    ShowMsg('写卡成功', sHint);
+  end else
+  begin
+    ShowMsg('写卡失败', sHint);
+    Exit;
+  end; 
+  {$ENDIF}
 
   if FParam.FParamC = sFlag_Provide then
        nRet := SaveOrderCard(EditBill.Text, EditCard.Text)

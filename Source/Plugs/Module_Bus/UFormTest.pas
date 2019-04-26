@@ -25,6 +25,7 @@ type
     function GetZKMoney(const nZK: string): string;
     function CustomerHasMoney(const nCID: string): Boolean;
     function GetPostBills(const nCard, nPost: string): string;
+    function MakeBatCode(const nStock,nValue: string): string;
   public
     { Public declarations }
     class function CreateForm(const nPopedom: string = '';
@@ -73,7 +74,7 @@ end;
 
 procedure TBaseForm1.Button1Click(Sender: TObject);
 begin
-  Memo1.Text := GetPostBills(Edit1.Text, '');
+  Memo1.Text := MakeBatCode(Edit1.Text, '2001');
 end;
 
 //------------------------------------------------------------------------------
@@ -209,6 +210,14 @@ begin
   finally
     nList.Free;
   end;
+end;
+
+function TBaseForm1.MakeBatCode(const nStock, nValue: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessCommand(cBC_GetStockBatcode, nStock, nValue, @nOut) then
+    Result := nOut.FData;
+  //xxxxx
 end;
 
 initialization

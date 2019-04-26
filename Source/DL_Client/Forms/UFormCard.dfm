@@ -1,30 +1,30 @@
 inherited fFormCard: TfFormCard
-  Left = 633
+  Left = 844
   Top = 413
   Caption = #20851#32852#30913#21345
-  ClientHeight = 182
-  ClientWidth = 326
+  ClientHeight = 183
+  ClientWidth = 314
   Position = poMainFormCenter
   OnClose = FormClose
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 326
-    Height = 182
+    Width = 314
+    Height = 183
     inherited BtnOK: TButton
-      Left = 180
-      Top = 149
+      Left = 167
+      Top = 150
       Caption = #30830#23450
       TabOrder = 4
     end
     inherited BtnExit: TButton
-      Left = 250
-      Top = 149
+      Left = 238
+      Top = 150
       TabOrder = 5
     end
     object EditBill: TcxTextEdit [2]
-      Left = 81
-      Top = 36
+      Left = 84
+      Top = 29
       ParentFont = False
       Properties.ReadOnly = True
       Style.BorderColor = clWindowFrame
@@ -34,8 +34,8 @@ inherited fFormCard: TfFormCard
       Width = 121
     end
     object EditTruck: TcxTextEdit [3]
-      Left = 81
-      Top = 61
+      Left = 84
+      Top = 56
       ParentFont = False
       Properties.ReadOnly = True
       Style.BorderColor = clWindowFrame
@@ -45,8 +45,8 @@ inherited fFormCard: TfFormCard
       Width = 121
     end
     object cxLabel1: TcxLabel [4]
-      Left = 23
-      Top = 86
+      Left = 24
+      Top = 83
       AutoSize = False
       ParentFont = False
       Properties.LineOptions.Alignment = cxllaBottom
@@ -56,8 +56,8 @@ inherited fFormCard: TfFormCard
       Width = 287
     end
     object EditCard: TcxTextEdit [5]
-      Left = 81
-      Top = 111
+      Left = 84
+      Top = 109
       ParentFont = False
       Properties.MaxLength = 15
       Style.BorderColor = clWindowFrame
@@ -109,7 +109,13 @@ inherited fFormCard: TfFormCard
     Timeouts.ReadTotalMultiplier = 10
     Timeouts.ReadTotalConstant = 100
     OnRxChar = ComPort1RxChar
-    Left = 14
-    Top = 180
+    Left = 12
+    Top = 148
+  end
+  object Timer1: TTimer
+    Enabled = False
+    OnTimer = Timer1Timer
+    Left = 40
+    Top = 148
   end
 end
