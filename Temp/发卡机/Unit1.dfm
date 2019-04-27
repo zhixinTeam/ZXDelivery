@@ -76,4 +76,9 @@ object Form1: TForm1
     Left = 48
     Top = 88
   end
+  object Timer1: TTimer
+    OnTimer = Timer1Timer
+    Left = 288
+    Top = 8
+  end
 end

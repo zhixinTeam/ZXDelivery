@@ -14,11 +14,13 @@ type
     Button2: TButton;
     Button3: TButton;
     ComPort1: TComPort;
+    Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
     { Private declarations }
     procedure Dolog(const nStr: string);
@@ -87,6 +89,14 @@ begin
   gDispenserManager.SendCardOut('gateA', nStr);
   if nStr <> '' then
     memo1.Lines.Add(nStr);
+  //xxxxx
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+var nStr: string;
+begin
+  if gDispenserManager.GetCardNo('gateA', nStr, False) <> '' then
+    gDispenserManager.SendCardOut('gateA', nStr);
   //xxxxx
 end;
 
