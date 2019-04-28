@@ -135,6 +135,30 @@ begin
 
         AContext.Connection.IOHandler.Write(nBuf);
       end;
+
+      if nProtocol[3] = cERelay_RelaysOC then
+      begin
+        SetLength(nBuf, 0);
+        nBuf := ToBytes(cERelay_FrameBegin, Indy8BitEncoding);    //起始帧
+        AppendByte(nBuf, cERelay_RelaysOC);                       //功能码
+        AppendByte(nBuf, 1);                                      //数据长度
+        AppendByte(nBuf, $01);                                    //数据
+        AppendByte(nBuf, VerifyData(nBuf, Length(nBuf)-1));       //校验位
+
+        AContext.Connection.IOHandler.Write(nBuf);
+      end;
+
+      if nProtocol[3] = cERelay_DataForward then
+      begin
+        SetLength(nBuf, 0);
+        nBuf := ToBytes(cERelay_FrameBegin, Indy8BitEncoding);    //起始帧
+        AppendByte(nBuf, cERelay_DataForward);                    //功能码
+        AppendByte(nBuf, 1);                                      //数据长度
+        AppendByte(nBuf, $01);                                    //数据
+        AppendByte(nBuf, VerifyData(nBuf, Length(nBuf)-1));       //校验位
+
+        AContext.Connection.IOHandler.Write(nBuf);
+      end;
     end else Inc(nIdx);
   end;
 end;
