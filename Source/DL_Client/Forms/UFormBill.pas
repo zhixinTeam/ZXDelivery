@@ -48,6 +48,8 @@ type
     PrintHY: TcxCheckBox;
     EditIdent: TcxTextEdit;
     dxLayout1Item15: TdxLayoutItem;
+    dxLayout1Item16: TdxLayoutItem;
+    cbbXHSpot: TcxComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -237,6 +239,14 @@ begin
   EditIdent.Text := '';
   {$ENDIF}
 
+  {$IFDEF UseXHSpot}
+  dxLayout1Item16.Visible := True;
+  cbbXHSpot.Text := '';
+  {$ELSE}
+  dxLayout1Item16.Visible := False;
+  cbbXHSpot.Text := '';
+  {$ENDIF}
+
   AdjustCtrlData(Self);
 end;
 
@@ -322,7 +332,7 @@ begin
     nIdx := 0;
     SetLength(gStockList, RecordCount);
 
-    First;  
+    First;
     while not Eof do
     with gStockList[nIdx] do
     begin
@@ -393,6 +403,23 @@ begin
   end else
   begin
     ActiveControl := EditTruck;
+  end;
+
+  if cbbXHSpot.Properties.Items.Count < 1 then
+  begin
+    nStr := 'Select X_XHSpot From %s ';
+    nStr := Format(nStr, [sTable_XHSpot]);
+
+    with FDM.QueryTemp(nStr) do
+    if RecordCount > 0 then
+    begin
+      First;
+      while not Eof do
+      begin
+        cbbXHSpot.Properties.Items.Add(FieldByName('X_XHSpot').AsString);
+        Next;
+      end;
+    end;
   end;
 end;
 
@@ -500,6 +527,15 @@ begin
     Result := (Length(EditIdent.Text) = 18) and
     (UpperCase(Copy(EditIdent.Text, 18, 1))=GetIDCardNumCheckCode(Copy(EditIdent.Text, 1, 17)));
     nHint := '输入的身份证号非法,请重新输入';
+  end;
+  {$ENDIF}
+
+  {$IFDEF UseXHSpot}
+  if Sender = cbbXHSpot then
+  begin
+    cbbXHSpot.Text := Trim(cbbXHSpot.Text);
+    Result := Length(cbbXHSpot.Text) > 0;
+    nHint := '请选择卸货地点';
   end;
   {$ENDIF}
 
@@ -688,10 +724,11 @@ begin
       Values['ZhiKa'] := gInfo.FZhiKa;
       Values['Truck'] := EditTruck.Text;
       Values['Ident'] := EditIdent.Text;
+      Values['L_XHSpot']:= cbbXHSpot.Text;
       Values['Lading'] := GetCtrlData(EditLading);
       Values['IsVIP'] := GetCtrlData(EditType);
       Values['BuDan'] := FBuDanFlag;
-      Values['Card'] := gInfo.FCard;
+      Values['Card']  := gInfo.FCard;
     end;
 
     BtnOK.Enabled := False;

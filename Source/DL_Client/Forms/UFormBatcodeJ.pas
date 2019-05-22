@@ -62,12 +62,14 @@ type
     dxLayout1Group4: TdxLayoutGroup;
     EditType: TcxComboBox;
     dxLayout1Item20: TdxLayoutItem;
+    EditBatCode: TcxTextEdit;
+    dxLayout1Item21: TdxLayoutItem;
     procedure BtnOKClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesEditValueChanged(Sender: TObject);
   protected
     { Protected declarations }
-    FRecordID: string;
+    FRecordID, FOld_Batcode: string;
     //¼ÇÂ¼±àºÅ
     procedure LoadFormData(const nID: string);
     function OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean; override;
@@ -172,11 +174,13 @@ begin
       EditInc.Text := FieldByName('B_Incement').AsString;
       Check1.Checked := FieldByName('B_UseDate').AsString = sFlag_Yes;
 
-      EditValue.Text := FieldByName('B_Value').AsString;
-      EditLow.Text := FieldByName('B_Low').AsString;
-      EditHigh.Text := FieldByName('B_High').AsString;
-      EditWeek.Text := FieldByName('B_Interval').AsString;
-      Check2.Checked := FieldByName('B_AutoNew').AsString = sFlag_Yes;
+      EditValue.Text   := FieldByName('B_Value').AsString;
+      EditLow.Text     := FieldByName('B_Low').AsString;
+      EditHigh.Text    := FieldByName('B_High').AsString;
+      EditWeek.Text    := FieldByName('B_Interval').AsString;
+      FOld_Batcode     := FieldByName('B_Batcode').AsString;
+      EditBatCode.Text := FieldByName('B_Batcode').AsString;
+      Check2.Checked   := FieldByName('B_AutoNew').AsString = sFlag_Yes;
 
       {$IFDEF CustomerType}
       nStr := FieldByName('B_Type').AsString;
@@ -306,7 +310,9 @@ begin
        nStr := ''
   else nStr := SF('R_ID', FRecordID, sfVal);
 
-  nStr := MakeSQLByStr([SF('B_Stock', GetCtrlData(EditStock)),
+  if (FRecordID <> '') and (Trim(EditBatCode.Text) <> FOld_Batcode) then
+  begin
+    nStr := MakeSQLByStr([SF('B_Stock', GetCtrlData(EditStock)),
           SF('B_Name', EditName.Text),
           SF('B_Prefix', EditPrefix.Text),
           SF('B_UseYear', nY),
@@ -319,12 +325,38 @@ begin
           SF('B_Low', EditLow.Text, sfVal),
           SF('B_High', EditHigh.Text, sfVal),
           SF('B_Interval', EditWeek.Text, sfVal),
+          SF('B_Batcode', EditBatCode.Text),
+          SF('B_HasUse', '0', sfVal),
+          SF('B_AutoNew', nN),
+          {$IFDEF CustomerType}
+          SF('B_Type', GetCtrlData(EditType)),
+          {$ENDIF}
+          SF('B_LastDate', sField_SQLServer_Now, sfVal)
+          ], sTable_StockBatcode, nStr, False);
+  end
+  else
+  begin
+    nStr := MakeSQLByStr([SF('B_Stock', GetCtrlData(EditStock)),
+          SF('B_Name', EditName.Text),
+          SF('B_Prefix', EditPrefix.Text),
+          SF('B_UseYear', nY),
+          SF('B_Base', EditBase.Text, sfVal),
+          SF('B_Length', EditLen.Text, sfVal),
+          SF('B_Incement', EditInc.Text, sfVal),
+          SF('B_UseDate', nU),
+
+          SF('B_Value', EditValue.Text, sfVal),
+          SF('B_Low', EditLow.Text, sfVal),
+          SF('B_High', EditHigh.Text, sfVal),
+          SF('B_Interval', EditWeek.Text, sfVal),
+          SF('B_Batcode', EditBatCode.Text),
           SF('B_AutoNew', nN),
           {$IFDEF CustomerType}
           SF('B_Type', GetCtrlData(EditType)),
           {$ENDIF}
           SF('B_LastDate', sField_SQLServer_Now, sfVal)
           ], sTable_StockBatcode, nStr, FRecordID = '');
+  end;
   FDM.ExecuteSQL(nStr);
 
   ModalResult := mrOk;

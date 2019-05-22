@@ -76,6 +76,8 @@ const
 
   cFI_FrameTrucks       = $0070;                     //车辆档案
   cFI_FrameTodo         = $0071;                     //待处理事件
+  cFI_FrameXHSpot       = $2071;                     //卸货地点维护
+  cFI_FormXHSpot        = $2072;                     //卸货地点编辑
 
   cFI_FrameProvider     = $0102;                     //供应
   cFI_FrameProvideLog   = $0105;                     //供应日志
@@ -403,6 +405,8 @@ begin
   AddMenuModuleItem('MAIN_H03', cFI_FrameTruckQuery);
 
   AddMenuModuleItem('MAIN_J01', cFI_FrameTrucks);
+
+  AddMenuModuleItem('MAIN_X01', cFI_FrameXHSpot);
 
   AddMenuModuleItem('MAIN_M01', cFI_FrameProvider);
   AddMenuModuleItem('MAIN_M02', cFI_FrameMaterails);

@@ -52,6 +52,7 @@ type
     N10: TMenuItem;
     N11: TMenuItem;
     N12: TMenuItem;
+    N13: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnDelClick(Sender: TObject);
@@ -69,6 +70,7 @@ type
     procedure N11Click(Sender: TObject);
     procedure cxView1DblClick(Sender: TObject);
     procedure N12Click(Sender: TObject);
+    procedure N13Click(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -633,6 +635,31 @@ begin
 
     InitFormData(FWhere);
     ShowMsg('回单成功', sHint);
+  end;
+end;
+
+procedure TfFrameBill.N13Click(Sender: TObject);
+var
+  nStr : string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    FDM.ADOConn.BeginTrans;
+    try
+      nStr := ' update S_Bill set L_Area= C_Area From ( ' +
+        ' SELECT C_Area,Z_ID FROM S_ZhiKa lEFT JOIN S_Contract oN Z_CID=C_ID ' +
+        ' Where C_Area <> '''')B  where L_Area='''' AND L_ZhiKa=Z_ID ';
+      FDM.ExecuteSQL(nStr);
+
+      FDM.ADOConn.CommitTrans;
+    except
+      FDM.ADOConn.RollbackTrans;
+      ShowMessage('同步所属区域失败.');
+      Exit;
+    end;
+
+    InitFormData(FWhere);
+    ShowMsg('同步所属区域成功', sHint);
   end;
 end;
 

@@ -293,6 +293,9 @@ function AddManualEventRecord(const nEID,nKey,nEvent:string;
 function VerifyManualEventRecord(const nEID: string; var nHint: string;
  const nWant: string = sFlag_Yes; const nUpdateHint: Boolean = True): Boolean;
 //检查事件是否通过处理
+function VerifyManualEventRecordEx(const nEID: string; var nHint: string;
+ const nWant: string = sFlag_Yes; const nUpdateHint: Boolean = True): Boolean;
+//检查事件是否通过处理
 
 function getCustomerInfo(const nData: string): string;
 //获取客户注册信息
@@ -957,6 +960,41 @@ begin
     begin
       if nUpdateHint then
         nHint := '请联系管理员，做换票处理';
+      Exit;
+    end;
+
+    Result := True;
+  end;
+end;
+
+//Date: 2017-07-09
+//Parm: 事件ID;预期结果;错误返回
+//Desc: 判断事件是否处理
+function VerifyManualEventRecordEx(const nEID: string; var nHint: string;
+ const nWant: string; const nUpdateHint: Boolean): Boolean;
+var nStr: string;
+begin
+  Result := True;
+  nStr := 'Select E_Result, E_Event From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nEID]);
+
+  with FDM.QuerySQL(nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := Trim(FieldByName('E_Result').AsString);
+    if nStr = '' then
+    begin
+      if nUpdateHint then
+        nHint := FieldByName('E_Event').AsString;
+      Result := False;
+      Exit;
+    end;
+
+    if nStr <> nWant then
+    begin
+      if nUpdateHint then
+        nHint := '请联系管理员，做换票处理';
+      Result := False;
       Exit;
     end;
 

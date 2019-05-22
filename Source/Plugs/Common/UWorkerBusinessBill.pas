@@ -678,7 +678,11 @@ begin
 
               {$IFDEF UseFreight}
               SF('L_Freight', FListA.Values['Freight'],sfVal),
-              SF('L_XHSpot', FListA.Values['XHSpot']),
+                {$IFDEF UseXHSpot}
+                SF('L_XHSpot', FListA.Values['L_XHSpot']),
+                {$ELSE}
+                SF('L_XHSpot', FListA.Values['XHSpot']),
+                {$ENDIF}
               {$ENDIF} //启用运费
 
               {$IFDEF IdentCard}
@@ -2221,13 +2225,13 @@ begin
           nVal := FValue;
           FValue := nMVal - FPData.FValue;
           //新净重,实际提货量
-          f := Float2Float(FPrice * FValue, cPrecision, True) - m;
-          //实际所需金额与可用金差额
+          f := Float2Float(FPrice * FValue, cPrecision, False)+0.01 - m;
+          //实际所需金额与可用金差额,只入不舍
 
           if f > 0 then
           begin
             {$IFDEF SanPreHK}
-            f := Float2Float(f / FPrice, cPrecision, True);
+            f := Float2Float(f / FPrice, cPrecision, False)+0.01;
             //纸卡超发吨数
 
             FValue := FValue - f;

@@ -315,6 +315,7 @@ const
   sTable_Bill         = 'S_Bill';                    //提货单
   sTable_BillBak      = 'S_BillBak';                 //已删交货单
   sTable_BillHK       = 'S_BillPreHK';               //开单预合卡
+  sTable_XHSpot       = 'S_XHSpot';                  //卸货地点维护
 
   sTable_StockMatch   = 'S_StockMatch';              //品种映射
   sTable_StockParam   = 'S_StockParam';              //品种参数
@@ -326,7 +327,7 @@ const
   sTable_Truck        = 'S_Truck';                   //车辆表
   sTable_ZTLines      = 'S_ZTLines';                 //装车道
   sTable_ZTTrucks     = 'S_ZTTrucks';                //车辆队列
-  sTable_AuditTruck   = 'S_AuditTruck';                //车辆审核
+  sTable_AuditTruck   = 'S_AuditTruck';              //车辆审核
 
   sTable_Provider     = 'P_Provider';                //客户表
   sTable_Materails    = 'P_Materails';               //物料表
@@ -1012,7 +1013,7 @@ const
        'T_PValue $Float Default 0, T_PTime Integer Default 0,' +
        'T_PlateColor varChar(12),T_Type varChar(12), T_LastTime DateTime, ' +
        'T_Card varChar(32), T_CardUse Char(1), T_Card2 varChar(32),' +
-       'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), T_HasGPS Char(1))';
+       'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), T_HasGPS Char(1), T_GPSDate DateTime)';
   {-----------------------------------------------------------------------------
    车辆信息:Truck
    *.R_ID: 记录号
@@ -1038,6 +1039,7 @@ const
    *.T_Valid: 是否有效
    *.T_VIPTruck:是否VIP
    *.T_HasGPS:安装GPS(Y/N)
+   *.T_GPSDate:GPS有效日期
 
    有效平均皮重算法:
    T_PValue = (T_PValue * T_PTime + 新皮重) / (T_PTime + 1)
@@ -1290,6 +1292,13 @@ const
    *.S_OutFact: 出厂时间
    *.S_Man: 结算人
    *.S_Date: 结算时间
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewXHSpot = 'Create Table $Table(R_ID $Inc, X_XHSpot varChar(100) )';
+  {-----------------------------------------------------------------------------
+   卸货地点维护: S_XHSpot
+   *.R_ID: 编号
+   *.X_XHSpot: 卸货地点
   -----------------------------------------------------------------------------}
 
   sSQL_NewWXLog = 'Create Table $Table(R_ID $Inc, L_UserID varChar(50), ' +
@@ -1820,6 +1829,9 @@ begin
   AddSysTableItem(sTable_TransBaseBak, sSQL_NewTransBase);
   AddSysTableItem(sTable_Transfer, sSQL_NewTransfer);
   AddSysTableItem(sTable_TransferBak, sSQL_NewTransfer);
+
+  //卸货地点维护
+  AddSysTableItem(sTable_XHSpot, sSQL_NewXHSpot);
 end;
 
 //Desc: 清理系统表

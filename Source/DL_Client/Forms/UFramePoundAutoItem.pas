@@ -678,6 +678,8 @@ end;
 function TfFrameAutoPoundItem.SavePoundSale: Boolean;
 var nStr: string;
     nVal,nNet: Double;
+    nMoney: Double;
+    nFixMoney: Boolean;
 begin
   Result := False;
   //init
@@ -779,6 +781,31 @@ begin
           nStr := '单号[ %s ]车辆[%s]开单量: %.2f吨,装车量: %.2f吨,误差量: %.2f公斤,误差范围:%.2f ~ %.2f';
           nStr := Format(nStr, [FID, FTruck, FInnerData.FValue, nNet, nVal,FPoundDaiF,FPoundDaiZ]);
           WriteSysLog(nStr);
+          {$IFDEF DaiWCInManual}
+            nStr := '车辆[ %s ]存在未处理的误差量较大的信息:' + #13#10 +
+                    '检测完毕后,请点确认重新过磅.';
+            nStr := Format(nStr, [FTruck]);
+
+            if not VerifyManualEventRecordEx(FID + sFlag_ManualC, nStr) then
+            begin
+              nStr := '车辆[ %s ]存在未处理的误差量较大的信息:' + #13#10 +
+                    '检测完毕后,请点确认重新过磅.';
+              nStr := Format(nStr, [FTruck]);
+              PlayVoice(nStr);
+
+              nStr := GetTruckNO(FTruck) + '请去包装点包';
+              LEDDisplay(nStr);
+
+              {$IFDEF ProberShow}
+                {$IFDEF MITTruckProber}
+                ProberShowTxt(FPoundTunnel.FID, nStr);
+                {$ELSE}
+                gProberManager.ShowTxt(FPoundTunnel.FID, nStr);
+                {$ENDIF}
+              {$ENDIF}
+              Exit;
+            end;
+          {$ENDIF}
         end;
         if ((FType = sFlag_Dai) and (
             ((nVal > 0) and (FPoundDaiZ > 0) and (nVal > FPoundDaiZ)) or

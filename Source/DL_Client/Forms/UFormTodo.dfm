@@ -1,6 +1,6 @@
 inherited fFormTodo: TfFormTodo
-  Left = 530
-  Top = 295
+  Left = 704
+  Top = 144
   Width = 453
   Height = 517
   BorderStyle = bsSizeable
@@ -11,18 +11,18 @@ inherited fFormTodo: TfFormTodo
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 445
-    Height = 490
+    Height = 486
     inherited BtnOK: TButton
       Left = 299
-      Top = 457
+      Top = 453
       Caption = #30830#23450
-      TabOrder = 6
+      TabOrder = 7
     end
     inherited BtnExit: TButton
       Left = 369
-      Top = 457
+      Top = 453
       Caption = #20851#38381
-      TabOrder = 7
+      TabOrder = 8
     end
     object cxLabel1: TcxLabel [2]
       Left = 23
@@ -59,7 +59,7 @@ inherited fFormTodo: TfFormTodo
     end
     object EditDate: TcxTextEdit [4]
       Left = 57
-      Top = 225
+      Top = 127
       ParentFont = False
       Properties.ReadOnly = True
       TabOrder = 2
@@ -67,7 +67,7 @@ inherited fFormTodo: TfFormTodo
     end
     object EditFrom: TcxTextEdit [5]
       Left = 57
-      Top = 250
+      Top = 152
       ParentFont = False
       Properties.ReadOnly = True
       TabOrder = 3
@@ -75,7 +75,7 @@ inherited fFormTodo: TfFormTodo
     end
     object EditEvent: TcxMemo [6]
       Left = 57
-      Top = 275
+      Top = 177
       ParentFont = False
       Properties.ReadOnly = True
       Properties.ScrollBars = ssVertical
@@ -86,16 +86,26 @@ inherited fFormTodo: TfFormTodo
     end
     object cxRadio1: TcxRadioGroup [7]
       Left = 23
-      Top = 380
+      Top = 376
       Caption = #22788#29702#26041#26696':'
       ParentFont = False
       Properties.Items = <>
       Properties.OnEditValueChanged = cxRadio1PropertiesEditValueChanged
       Style.Edges = [bLeft, bTop, bRight, bBottom]
-      TabOrder = 5
+      TabOrder = 6
       Transparent = True
       Height = 65
       Width = 399
+    end
+    object EditMemo: TcxMemo [8]
+      Left = 57
+      Top = 282
+      ParentFont = False
+      Properties.ScrollBars = ssVertical
+      TabOrder = 5
+      OnEnter = EditMemoEnter
+      Height = 89
+      Width = 185
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -132,6 +142,11 @@ inherited fFormTodo: TfFormTodo
         object dxLayout1Item6: TdxLayoutItem
           Caption = #20869#23481':'
           Control = EditEvent
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item9: TdxLayoutItem
+          Caption = #22791#27880':'
+          Control = EditMemo
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item8: TdxLayoutItem

@@ -31,6 +31,8 @@ type
     Timer1: TTimer;
     ADOQuery1: TADOQuery;
     ImageBar: TcxImageList;
+    EditMemo: TcxMemo;
+    dxLayout1Item9: TdxLayoutItem;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnExitClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -38,6 +40,7 @@ type
     procedure ListTodoSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
     procedure cxRadio1PropertiesEditValueChanged(Sender: TObject);
+    procedure EditMemoEnter(Sender: TObject);
   private
     { Private declarations }
     function LoadEventFromDB: Boolean;
@@ -371,6 +374,13 @@ procedure TfFormTodo.cxRadio1PropertiesEditValueChanged(Sender: TObject);
 var nStr: string;
     nItem: PEventItem;
 begin
+  if  Trim(EditMemo.Text) = '' then
+  begin
+    ShowMsg('请填写备注,备注不能为空',sWarn);
+    if EditMemo.CanFocus then
+      EditMemo.SetFocus;
+    Exit;
+  end;
   if cxRadio1.Focused and Assigned(ListTodo.Selected) then
   begin
     nItem := ListTodo.Selected.Data;
@@ -384,6 +394,7 @@ begin
 
     nStr := GetSolution(nItem.FSolution, cxRadio1.ItemIndex);
     nStr := MakeSQLByStr([SF('E_Result', nStr),
+            SF('E_Memo', Trim(EditMemo.Text)),
             SF('E_ManDeal', gSysParam.FUserID),
             SF('E_DateDeal', sField_SQLServer_Now, sfVal)
             ], sTable_ManualEvent, SF('R_ID', nItem.FRecord), False);
@@ -391,6 +402,22 @@ begin
 
     FDM.ExecuteSQL(nStr);
     Timer1.Tag := cRefreshInterval - 1;
+  end;
+end;
+
+
+procedure TfFormTodo.EditMemoEnter(Sender: TObject);
+var
+  i: Integer;
+  nComp:TComponent;
+begin
+  for i:=0 to cxRadio1.ComponentCount -1 do
+  begin
+    nComp := cxRadio1.Components[i];
+    if nComp is TcxRadioButton then
+    begin
+      TcxRadioButton(nComp).Checked := not TcxRadioButton(nComp).Checked;
+    end;
   end;
 end;
 

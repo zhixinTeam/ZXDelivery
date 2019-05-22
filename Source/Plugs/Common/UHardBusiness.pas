@@ -807,8 +807,18 @@ begin
         if nReader.FID <> '' then
           BlueOpenDoor(nReader.FID, nReaderType);
         //Ì§¸Ë
-      end else
-
+      end
+      {$IFDEF PoundBlueOpen}
+      else
+      if nReader.FTYpe = rtPound then
+      begin
+        WriteHardHelperLog('¹ý°õÌ§¸Ë.');
+        if nReader.FID <> '' then
+          BlueOpenDoor(nReader.FID, nReaderType);
+        //Ì§¸Ë
+      end
+      {$ENDIF}
+      else
       if nReader.FType = rtQueueGate then
       begin
         if nReader.FID <> '' then
