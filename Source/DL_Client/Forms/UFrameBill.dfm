@@ -1,7 +1,6 @@
 inherited fFrameBill: TfFrameBill
   Width = 1028
   Height = 493
-  OnClick = FrameClick
   inherited ToolBar1: TToolBar
     Width = 1028
     inherited BtnAdd: TToolButton
