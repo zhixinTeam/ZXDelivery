@@ -284,6 +284,7 @@ const
   sFlag_TransBase     = 'Bus_TransBase';             //短倒申请单号
   sFlag_TransferPound = 'TransferPound';             //短倒是否过磅
 
+  sFlag_Between2BillsTime = 30;                       //同一车开单间隔，单位：分钟
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
   sTable_User         = 'Sys_User';                  //用户表
@@ -374,6 +375,8 @@ const
   sTable_TransBaseBak = 'P_TransBaseBak';            //短倒单
   sTable_Transfer     = 'P_Transfer';                //短倒明细单
   sTable_TransferBak  = 'P_TransferBak';             //短倒明细单
+  sTable_MonthSales   = 'S_MonthSales';              //月销售汇总
+  sTable_MonthPrice   = 'S_MonthPrice';              //月销售汇总
 
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
@@ -730,7 +733,7 @@ const
        'Z_YFMoney $Float, Z_FixedMoney $Float, Z_OnlyMoney Char(1),' +
        'Z_TJStatus Char(1), Z_Memo varChar(200), Z_Man varChar(32),' +
        'Z_Date DateTime, Z_VerifyMan varChar(32), Z_VerifyDate DateTime,'+
-       'Z_Area varchr(30), Z_XHSpot varchar(30), Z_Freight $Float)';
+       'Z_Area varchr(30), Z_XHSpot varchar(30), Z_Freight $Float Default 0)';
   {-----------------------------------------------------------------------------
    纸卡办理: ZhiKa
    *.R_ID:记录编号
@@ -1679,6 +1682,35 @@ const
    *.T_OutMan,T_OutFact:出厂信息
    *.T_DelMan,T_DelDate: 删除信息
   -----------------------------------------------------------------------------}
+
+  sSQL_NewMonthSales = 'Create Table $Table(R_ID $Inc, M_Area varChar(30),' +
+      'M_1M $Float, M_1P $Float, M_2M $Float, M_2P $Float,'+
+      'M_3M $Float, M_3P $Float, M_4M $Float, M_4P $Float,'+
+      'M_5M $Float, M_5P $Float, M_6M $Float, M_6P $Float,'+
+      'M_7M $Float, M_7P $Float, M_8M $Float, M_8P $Float,'+
+      'M_9M $Float, M_9P $Float, M_10M $Float, M_10P $Float,'+
+      'M_11M $Float, M_11P $Float, M_12M $Float, M_12P $Float,'+
+      'M_YearM $Float, M_YearP $Float,'+
+      'M_Valid varchar(1) Default ''Y'',M_Man varchar(20),M_Date DateTime)';
+  {-----------------------------------------------------------------------------
+  *.R_ID: 编号
+
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewMonthPrice = 'Create Table $Table(R_ID $Inc, M_Area varChar(30),' +
+      'M_1M $Float, M_2M $Float,'+
+      'M_3M $Float, M_4M $Float,'+
+      'M_5M $Float, M_6M $Float,'+
+      'M_7M $Float, M_8M $Float,'+
+      'M_9M $Float, M_10M $Float,'+
+      'M_11M $Float, M_12M $Float,'+
+      'M_YearM $Float,'+
+      'M_Valid varchar(1) Default ''Y'',M_Man varchar(20),M_Date DateTime)';
+  {-----------------------------------------------------------------------------
+  *.R_ID: 编号
+
+  -----------------------------------------------------------------------------}
+
 
 function CardStatusToStr(const nStatus: string): string;
 //磁卡状态
