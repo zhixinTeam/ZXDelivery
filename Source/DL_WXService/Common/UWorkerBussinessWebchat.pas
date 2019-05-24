@@ -126,6 +126,21 @@ type
 
 implementation
 
+function RightStr(Const Str: String; Size: Word): String;
+begin
+if Size > Length(Str) then Size := Length(Str) ;
+RightStr := Copy(Str, Length(Str)-Size+1, Size)
+end;
+///--------------------------------------
+function MidStr(Const Str: String; From, Size: Word): String;
+begin
+MidStr := Copy(Str, From, Size)
+end;
+///--------------------------------------
+function LeftStr(Const Str: String; Size: Word): String;
+begin
+LeftStr := Copy(Str, 1, Size)
+end;
 //Date: 2012-3-13
 //Parm: 如参数护具
 //Desc: 获取连接数据库所需的资源
@@ -824,6 +839,12 @@ begin
   nBill_id := nSprefix + Copy(nCode, Length(nCode) - nIdlen + 1, nIdlen);
   {$ENDIF}
 
+  {$IFDEF SXDY}
+  nCode:= RightStr(nCode, nIdlen+2);
+  nBill_id := nSprefix + LeftStr(nCode, Length(nCode)-2);
+
+  WriteLog('防伪码查询: '+ nBill_id);
+  {$ENDIF}
   //查询数据库
   nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
       'L_StockName,L_Truck,L_Value,L_Price,L_ZKMoney,L_Status,' +

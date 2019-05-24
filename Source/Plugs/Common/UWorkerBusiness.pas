@@ -1641,6 +1641,8 @@ begin
     nVal := StrToFloat(nOut.FData);
     FOut.FExtParam := FieldByName('Z_OnlyMoney').AsString;
     nMoney := FieldByName('Z_FixedMoney').AsFloat;
+
+    //writelog('zyww::GetZhiKaValidMoney冻结金，客户：['+nStr+'],冻结:'+floattostr(nmoney));
                                 
     if FOut.FExtParam = sFlag_Yes then
     begin

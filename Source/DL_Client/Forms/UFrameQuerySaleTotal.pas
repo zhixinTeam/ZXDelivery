@@ -122,14 +122,14 @@ begin
   {$IFDEF CastMoney}
   if Radio1.Checked then
   begin
-    Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
+    Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,l_custype,' +
               'CAST(Sum(L_Value) as decimal(38, 2)) as L_Value,' +
               'CAST(Sum(L_Value * L_Price) as decimal(38, 2)) as L_Money ' +
               'From $Bill ';
     //xxxxx
   end else
   begin
-    Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,L_Type,' +
+    Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,L_Type,l_custype,' +
               'L_StockNo,L_StockName,CAST(Sum(L_Value) as decimal(38, 2)) as L_Value,' +
               'CAST(Sum(L_Value * L_Price) as decimal(38, 2)) as L_Money From $Bill ';
     //xxxxx
@@ -164,11 +164,11 @@ begin
 
   if Radio1.Checked then
   begin
-    Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY';
+    Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,l_custype';
   end else
   begin
     Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
-              'L_Type,L_StockNo,L_StockName';
+              'L_Type,L_StockNo,L_StockName, l_custype';
     //xxxxx
   end;
 

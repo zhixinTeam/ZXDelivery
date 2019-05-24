@@ -376,15 +376,19 @@ begin
     FDate := Now;
     FOperator := FPoundTunnel.FName;
   end;
-
-  nRet := SaveLadingBills(nstr,sFlag_TruckBFM, nBills, FPoundTunnel);
-  if not nRet then
-  begin
-    nStr := '重量保存失败, 代码: '+nstr;
-    ShowMessage(nstr);
-    writelog(nstr);
-    exit;
+  try
+    nRet := SaveLadingBills(nstr,sFlag_TruckBFM, nBills, FPoundTunnel);
+    if not nRet then
+    begin
+      nStr := '重量保存失败, 代码: '+nstr;
+      ShowMessage(nstr);
+      writelog(nstr);
+      exit;
+    end;
+  finally
+    LoadBillItems(FCard);
   end;
+
   FSaveMValue := True;
 end;
 

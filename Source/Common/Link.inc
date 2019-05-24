@@ -452,6 +452,8 @@
   //纸卡调价时修改已提货单据价格
   {$DEFINE UseFreight}
   //使用运费
+  {$DEFINE Between2BillTime}
+  //同一车两次开单间隔
 {$ENDIF}
 
 

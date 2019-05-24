@@ -424,6 +424,25 @@ begin
     end;
   end;
 
+  //东义，出厂一小时禁止开单
+  {$IFDEF Between2BillTime}
+  nStr := 'select top 1 L_OutFact from %s where '+
+          'l_truck=''%s'' order by L_OutFact desc';
+  nStr := Format(nStr,[sTable_Bill,nTruck]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if recordcount > 0 then
+    begin
+      if (Now - FieldByName('L_OutFact').AsDateTime)*24*30 < sFlag_Between2BillsTime then
+      begin
+        nStr := '车辆[ %s ]出厂未到一个小时,禁止开单.';
+        nData := Format(nStr, [nTruck]);
+        Exit;
+      end;
+    end;
+  end;
+  {$ENDIF}
+
   TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo, nTruck, '', @nOut);
   //保存车牌号
 
@@ -496,6 +515,7 @@ begin
       Values['Freight'] := FieldByName('Z_Freight').AsString;
     {$ENDIF}  //运费
 
+    Values['Lading'] := FieldByName('Z_Lading').AsString;
     Values['Project'] := FieldByName('Z_Project').AsString;
     Values['Area'] := FieldByName('Z_Area').AsString;
     Values['CusID'] := FieldByName('Z_Customer').AsString;
@@ -1119,6 +1139,8 @@ begin
       Values['SaleID'] := FieldByName('Z_SaleMan').AsString;
       Values['SaleMan'] := FieldByName('S_Name').AsString;
       Values['ZKMoney'] := FieldByName('Z_OnlyMoney').AsString;
+      Values['ZArea']   := FieldByName('Z_Area').AsString;
+      Values['XHSpot']  := FieldByName('Z_XHSpot').AsString;
     end;
   end;
 
@@ -1185,14 +1207,15 @@ begin
 
     nStr := MakeSQLByStr([SF('L_ZhiKa', FIn.FExtParam),
             SF('L_Project', FListA.Values['Project']),
-            SF('L_Area', FListA.Values['Area']),
+            SF('L_Area', FListA.Values['ZArea']),
             SF('L_CusID', FListA.Values['CusID']),
             SF('L_CusName', FListA.Values['CusName']),
             SF('L_CusPY', FListA.Values['CusPY']),
             SF('L_SaleID', FListA.Values['SaleID']),
             SF('L_SaleMan', FListA.Values['SaleMan']),
             SF('L_Price', FieldByName('D_Price').AsFloat, sfVal),
-            SF('L_ZKMoney', FListA.Values['ZKMoney'])
+            SF('L_ZKMoney', FListA.Values['ZKMoney']),
+            SF('L_XHSpot', FListA.Values['XHSpot'])
             ], sTable_Bill, SF('L_ID', FIn.FData), False);
     FListC.Add(nStr); //增加调拨方出金
   end;
@@ -2260,6 +2283,8 @@ begin
           m := Float2Float(FPrice * FValue, cPrecision, True);
           m := m - Float2Float(FPrice * nVal, cPrecision, True);
           //新增冻结金额
+
+          WriteLog('zyww::保存毛重新增冻结金,客户：'+FCusID+',新增:'+floattostr(m));
 
           nSQL := 'Update %s Set A_FreezeMoney=A_FreezeMoney+(%.2f) ' +
                   'Where A_CID=''%s''';

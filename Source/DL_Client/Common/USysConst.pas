@@ -180,8 +180,19 @@ const
   CFI_FormSearchCard    = $1157;                     //磁卡查询
 
   cFI_Form_HT_SalePlan  = $1100;                     //销售计划(红塔)
-  cFI_FrameTransBase    = $1101;                     //短倒办理
-  cFI_FormTransBase     = $1102;                     //短倒办理
+  cFI_FrameTransBase    = $1103;                     //短倒办理
+  cFI_FormTransBase     = $1104;                     //短倒办理
+
+  cFI_FrameNotice       = $1105;                     //财务通知单
+  cFI_FrameDaySales     = $1106;                     //日销售明细
+  cFI_FrameMonthSales   = $1107;                     //月销售明细
+  cFI_FrameDayPrice     = $1108;                     //日裸价
+  cFI_FrameMonthPrice   = $1109;                     //月裸价
+  cFI_FrameAccReport    = $1110;                     //会计报表
+  cFI_FrameCollectMoney = $1111;                     //回款表
+  cFI_FrameSaleAndMoney = $1112;                     //销量回款表
+  cFI_FrameDaySalesHj   = $1113;                     //日销量合计
+  cFI_FrameDayReport    = $1114;                     //日报表
 
   {*Command*}
   cCmd_RefreshData      = $0002;                     //刷新数据
@@ -399,6 +410,17 @@ begin
   AddMenuModuleItem('MAIN_L08', cFI_FrameZhiKaDetail);
   AddMenuModuleItem('MAIN_L09', cFI_FrameSaleJS);
   AddMenuModuleItem('MAIN_L10', cFI_FrameOrderDetailQuery);
+  //财务报表
+  AddMenuModuleItem('MAIN_L11', cFI_FrameNotice);
+  AddMenuModuleItem('MAIN_L12', cFI_FrameDaySales);
+  AddMenuModuleItem('MAIN_L13', cFI_FrameMonthSales);
+  AddMenuModuleItem('MAIN_L14', cFI_FrameDayPrice);
+  AddMenuModuleItem('MAIN_L15', cFI_FrameMonthPrice);
+  AddMenuModuleItem('MAIN_L16', cFI_FrameCollectMoney);
+  AddMenuModuleItem('MAIN_L17', cFI_FrameAccReport);
+  AddMenuModuleItem('MAIN_L18', cFI_FrameSaleAndMoney);
+  AddMenuModuleItem('MAIN_L19', cFI_FrameDaySalesHj);
+  AddMenuModuleItem('MAIN_L20', cFI_FrameDayReport);
 
   AddMenuModuleItem('MAIN_H01', cFI_FormTruckIn, mtForm);
   AddMenuModuleItem('MAIN_H02', cFI_FormTruckOut, mtForm);

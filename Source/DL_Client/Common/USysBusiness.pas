@@ -2378,8 +2378,8 @@ begin
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //Ìí¼ÓÒýºÅ
 
-  nStr := 'Select * From %s b Where L_ID In(%s)';
-  nStr := Format(nStr, [sTable_Bill, nBill]);
+  nStr := 'Select b.*,c.* From %s b,%s c Where b.L_Truck=c.T_Truck and L_ID In(%s)';
+  nStr := Format(nStr, [sTable_Bill,sTable_Truck, nBill]);
   //xxxxx
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then

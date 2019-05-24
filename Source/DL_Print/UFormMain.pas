@@ -257,8 +257,9 @@ begin
   nHint := '';
   Result := False;
   
-  nStr := 'Select *,%s As L_ValidMoney From %s b Where L_ID=''%s''';
-  nStr := Format(nStr, [nMoney, sTable_Bill, nBill]);
+  nStr := 'Select *,%s As L_ValidMoney,c.* From %s b,%s c Where '+
+          ' b.L_Truck=c.T_Truck and L_ID=''%s''';
+  nStr := Format(nStr, [nMoney, sTable_Bill,sTable_Truck, nBill]);
 
   nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
   if not Assigned(nDS) then Exit;
