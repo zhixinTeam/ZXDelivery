@@ -1832,6 +1832,9 @@ begin
 
   //卸货地点维护
   AddSysTableItem(sTable_XHSpot, sSQL_NewXHSpot);
+  
+  AddSysTableItem(sTable_MonthSales, sSQL_NewMonthSales);
+  AddSysTableItem(sTable_MonthPrice, sSQL_NewMonthPrice);
 end;
 
 //Desc: 清理系统表

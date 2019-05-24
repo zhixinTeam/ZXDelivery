@@ -195,6 +195,15 @@ begin
       Exit;
     end;
     lvOrders.Items.Clear;
+
+    if IsRepeatCard(editWebOrderNo.Text) then
+    begin
+      nStr := '订单'+editWebOrderNo.Text+'已成功制单，请勿重复操作';
+      ShowMsg(nStr,sHint);
+      Writelog(nStr);
+      Exit;
+    end;
+
     if not DownloadOrder(nCardNo) then Exit;
     btnOK.Enabled := True;
   finally
