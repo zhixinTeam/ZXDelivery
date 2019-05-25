@@ -1046,7 +1046,11 @@ begin
 
       //ÏúÊÛ¾»ÖØ
       nSql := 'select L_Value, L_ZhiKa,l_status from %s where l_id=''%s''';
-      nSql := Format(nSql, [sTable_Bill, FListA.Values['WOM_LID']]);
+      if FListA.Values['WOM_StatusType'] = '2' then
+        nSql := Format(nSql, [sTable_BillBak, FListA.Values['WOM_LID']])
+      else
+       nSql := Format(nSql, [sTable_Bill, FListA.Values['WOM_LID']]);
+
       with gDBConnManager.WorkerQuery(nDBConn, nSql) do
       begin
         if recordcount > 0 then
@@ -1060,7 +1064,10 @@ begin
       if nNetWeight < 0.0001 then
       begin
         nSql := 'select a.d_mvalue, a.d_pvalue, a.d_status, b.O_BID  from %s a left join %s b on a.D_OID=b.O_ID where a.d_oid=''%s'' ';
-        nSql := Format(nSql, [sTable_OrderDtl, sTable_Order , FListA.Values['WOM_LID']]);
+        if FListA.Values['WOM_StatusType'] = '2' then
+          nSql := Format(nSql, [sTable_OrderDtlBak, sTable_OrderBak , FListA.Values['WOM_LID']])
+        else
+          nSql := Format(nSql, [sTable_OrderDtl, sTable_Order , FListA.Values['WOM_LID']]);
         with gDBConnManager.WorkerQuery(nDBConn, nSql) do
         begin
           if recordcount > 0 then
@@ -1103,7 +1110,9 @@ begin
     if FListA.Values['WOM_StatusType'] = '0' then
       BodyJo.S['status']        := '2'
     else if FListA.Values['WOM_StatusType'] = '1' then
-      BodyJo.S['status']        := '4';
+      BodyJo.S['status']        := '4'
+    else if FListA.Values['WOM_StatusType'] = '2' then
+      BodyJo.S['status']        := '6';
     BodyJo.S['facSerialNo']     := gSysParam.FFactID;
     BodyJo.S['realQuantity']    := FloatToStr(nNetWeight);
     BodyJo.O['billOrderDetail'] := JoA;
