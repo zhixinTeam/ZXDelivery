@@ -993,6 +993,8 @@ begin
   FLastBT := GetTickCount;
   EditValue.Text := Format('%.2f', [nValue]);
 
+  if FIsChkPoundStatus  then Exit;
+  //检查地磅状态
   if not FIsWeighting then Exit;
   //不在称重中
   if gSysParam.FIsManual then Exit;

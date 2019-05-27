@@ -191,7 +191,7 @@ begin
     Exit;
   end;
   {$IFDEF UseWXServiceEx}
-    nWechartAccount := SQLQuery.FieldByName('P_Phone').AsString;
+    nWechartAccount := SQLQuery.FieldByName('P_WechartAccount').AsString;
     if nWechartAccount<>'' then
     begin
       ShowMsg('商城账户['+nWechartAccount+']已存在', sHint);
@@ -289,7 +289,7 @@ begin
     Exit;
   end;
   {$IFDEF UseWXServiceEx}
-    nWechartAccount := SQLQuery.FieldByName('P_Phone').AsString;
+    nWechartAccount := SQLQuery.FieldByName('P_WechartAccount').AsString;
     if nWechartAccount='' then
     begin
       ShowMsg('商城账户不存在', sHint);

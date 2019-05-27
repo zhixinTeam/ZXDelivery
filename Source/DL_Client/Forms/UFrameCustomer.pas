@@ -274,7 +274,7 @@ begin
     Exit;
   end;
   {$IFDEF UseWXServiceEx}
-    nAccount := Trim(SQLQuery.FieldByName('C_Phone').AsString);
+    nAccount := Trim(SQLQuery.FieldByName('C_WeiXin').AsString);
     if nAccount <> '' then
     begin
       ShowMsg('商城账户[' + nAccount + ']已存在',sHint);
