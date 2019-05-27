@@ -1328,6 +1328,7 @@ begin
         FListB.Values['totalQuantity']:= ReBodyJo.S['totalQuantity'];
         FListB.Values['type']         := ReBodyJo.S['type'];
         FListB.Values['realTime']     := ReBodyJo.S['realTime'];
+        FListB.Values['orderRemark']  := ReBodyJo.S['orderRemark'];
 
         nStr := StringReplace(FListB.Text, '\n', #13#10, [rfReplaceAll]);
         FListA.Add(nStr);
