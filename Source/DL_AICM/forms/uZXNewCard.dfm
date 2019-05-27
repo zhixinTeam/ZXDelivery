@@ -126,7 +126,7 @@ object fFormNewCard: TfFormNewCard
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
-        TabOrder = 8
+        TabOrder = 9
         OnClick = BtnOKClick
       end
       object BtnExit: TButton
@@ -141,7 +141,7 @@ object fFormNewCard: TfFormNewCard
         Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
-        TabOrder = 9
+        TabOrder = 10
         OnClick = BtnExitClick
       end
       object EditValue: TcxTextEdit
@@ -291,6 +291,20 @@ object fFormNewCard: TfFormNewCard
         TabOrder = 5
         Width = 353
       end
+      object EditMemo: TcxTextEdit
+        Left = 637
+        Top = 230
+        ParentFont = False
+        Properties.ReadOnly = True
+        Style.Font.Charset = DEFAULT_CHARSET
+        Style.Font.Color = clWindowText
+        Style.Font.Height = -24
+        Style.Font.Name = 'MS Sans Serif'
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 8
+        Width = 185
+      end
       object dxLayoutGroup1: TdxLayoutGroup
         AutoAligns = [aaHorizontal]
         ShowCaption = False
@@ -369,6 +383,11 @@ object fFormNewCard: TfFormNewCard
               object dxLayout1Item8: TdxLayoutItem
                 Caption = #21150#29702#21544#25968':'
                 Control = EditValue
+                ControlOptions.ShowBorder = False
+              end
+              object dxLayout1Item1: TdxLayoutItem
+                Caption = #22791#27880#65306
+                Control = EditMemo
                 ControlOptions.ShowBorder = False
               end
             end

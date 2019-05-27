@@ -59,6 +59,8 @@ type
     TimerAutoClose: TTimer;
     dxLayout1Group2: TdxLayoutGroup;
     PrintHY: TcxCheckBox;
+    EditMemo: TcxTextEdit;
+    dxLayout1Item1: TdxLayoutItem;
     procedure BtnExitClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -257,6 +259,7 @@ begin
         FWebOrderItems[i].FdrvName      := nListA.Values['drvName'];
         FWebOrderItems[i].FdrvPhone     := nListA.Values['FdrvPhone'];
         FWebOrderItems[i].FType         := nListA.Values['type'];
+        FWebOrderItems[i].FXHSpot       := nListA.Values['orderRemark'];
         with nListC do
         begin
           FWebOrderItems[i].FCusID          := Values['clientNo'];
@@ -422,10 +425,11 @@ begin
     EditType.ItemIndex := 0;
     EditStock.Text  := nOrderItem.FGoodsID;
     EditSName.Text  := nOrderItem.FGoodsname;
-    EditValue.Text := nOrderItem.FData;
-    EditTruck.Text := nOrderItem.Ftracknumber;
+    EditValue.Text  := nOrderItem.FData;
+    EditTruck.Text  := nOrderItem.Ftracknumber;
     EditCus.Text    := nOrderItem.FCusID;
     EditCName.Text  := nOrderItem.FCusName;
+    EditMemo.Text   := nOrderItem.FXHSpot;
   {$ELSE}
     //填充界面信息
     //基本信息
@@ -641,6 +645,9 @@ begin
       Values['Seal'] := '';
       Values['HYDan'] := '';
       Values['WebOrderID'] := nWebOrderID;
+      {$IFDEF UseXHSpot}
+      Values['L_XHSpot'] := EditMemo.Text;
+      {$ENDIF}
     end;
     nBillData := PackerEncodeStr(nList.Text);
     FBegin := Now;
