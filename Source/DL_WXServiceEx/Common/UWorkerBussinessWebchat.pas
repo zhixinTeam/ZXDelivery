@@ -776,6 +776,10 @@ begin
     '  Z_Name,' +                           //客户名称
     '  Z_Lading,' +                         //提货方式
     '  Z_CID ' +                            //合同编号
+    {$IFDEF SXDY}
+    '  ,Z_Name ' +                          //纸卡名称
+    '  ,Z_XHSpot ' +                        //卸货地点
+    {$ENDIF}
     'from %s a join %s b on a.Z_ID = b.D_ZID ' + 'where Z_Verified=''%s'' and (Z_InValid<>''%s'' or Z_InValid is null) ' + 'and Z_Customer=''%s''';
         //订单已审核 有效
   nStr := Format(nStr, [sTable_ZhiKa, sTable_ZhiKaDtl, sFlag_Yes, sFlag_Yes, FIn.FData]);
@@ -824,7 +828,14 @@ begin
         NodeNew('StockNo').ValueAsString := FieldByName('D_StockNo').AsString;
         NodeNew('StockName').ValueAsString := FieldByName('D_StockName').AsString;
         NodeNew('StockType').ValueAsString := FieldByName('D_Type').AsString;
-
+        if FieldByName('Z_Lading').AsString  = 'T' then
+          NodeNew('ContractType').ValueAsString := '1'
+        else
+          NodeNew('ContractType').ValueAsString := '2';
+        {$IFDEF SXDY}
+        NodeNew('BillName').ValueAsString        := FieldByName('Z_Name').AsString;
+        NodeNew('UnloadingPlace').ValueAsString  := FieldByName('Z_XHSpot').AsString;
+        {$ENDIF}
         nValue := FieldByName('D_Value').AsFloat;
         {$IFDEF UseCustomertMoney}
         try
