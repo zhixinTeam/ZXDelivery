@@ -778,7 +778,7 @@ begin
     '  Z_CID ' +                            //合同编号
     {$IFDEF SXDY}
     '  ,Z_Name ' +                          //纸卡名称
-    '  ,Z_XHSpot ' +                        //卸货地点
+    '  ,a.Z_XHSpot ' +                        //卸货地点
     {$ENDIF}
     'from %s a join %s b on a.Z_ID = b.D_ZID ' + 'where Z_Verified=''%s'' and (Z_InValid<>''%s'' or Z_InValid is null) ' + 'and Z_Customer=''%s''';
         //订单已审核 有效
@@ -2234,85 +2234,110 @@ end;
 //Desc: 通过车牌号获取订单
 function TBusWorkerBusinessWebchat.Get_ShoporderByTruck(var nData: string): boolean;
 var
-  nStr, nTruck: string;
-  nNode, nTmp: TXmlNode;
-  nInt: Integer;
+  nStr, nWebOrder, szUrl: string;
+  ReJo, ParamJo, BodyJo, OneJo, ReBodyJo : ISuperObject;
+  ArrsJa: TSuperArray;
+  wParam, FListD, FListE : TStrings;
+  ReStream: TStringStream;
+  nIdx: Integer;
 begin
   Result := False;
-  nTruck := PackerDecodeStr(FIn.FData);
+  nWebOrder := PackerDecodeStr(FIn.FData);
+  wParam := TStringList.Create;
+  FListD := TStringList.Create;
+  FListE := TStringList.Create;
+  ReStream := TStringstream.Create('');
+  ParamJo := SO();
+  BodyJo := SO();
+  try
+    BodyJo.S['searchType'] := '2';             //  1 订单号   2 车牌号
+    BodyJo.S['queryWord']  := EncodeBase64(nWebOrder);
+    BodyJo.S['facSerialNo']:= gSysParam.FFactID; //'zxygc171223111220640999';
 
-  nStr := '<?xml version="1.0" encoding="UTF-8"?>' + '<DATA>' + '<head><Factory>%s</Factory>' + '<CarNumber>%s</CarNumber>' + '</head>' + '</DATA>';
-  nStr := Format(nStr, [gSysParam.FFactID, nTruck]);
-  WriteLog('获取订单信息入参:' + nStr);
+    ParamJo.S['activeCode']  := Cus_ShopOrder;
+    ParamJo.S['body'] := BodyJo.AsString;
+    nStr := ParamJo.AsString;
+    //nStr := Ansitoutf8(nStr);
+    WriteLog('获取订单信息入参:' + nStr);
 
-  FWXChannel := GetReviceWS(gSysParam.FSrvRemote);
-  nStr := FWXChannel.mainfuncs('getShopOrderByDriverNumber', nStr);
-  WriteLog('获取订单信息出参解码前:' + nStr);
+    wParam.Clear;
+    wParam.Add(nStr);
+    //FidHttp参数初始化
+    ReQuestInit;
+    
+    szUrl := gSysParam.FSrvUrl + '/order/searchShopOrder';
+    FidHttp.Post(szUrl, wParam, ReStream);
+    nStr := UTF8Decode(ReStream.DataString);
+    WriteLog('获取订单信息出参:' + nStr);
 
-  with FPacker.XMLBuilder do
-  begin
-    ReadFromString(nStr);
-    if not ParseDefault(nData) then
-      Exit;
-
-    nNode := Root.FindNode('Items');
-    if not (Assigned(nNode)) then
+    if nStr <> '' then
     begin
-      nData := '无效参数节点(Items Null).';
-      Exit;
+      FListA.Clear;
+      FListB.Clear;
+      FListD.Clear;
+      FListE.Clear;
+      ReJo := SO(nStr);
+      if ReJo = nil then Exit;
+
+      if ReJo.S['code'] = '1' then
+      begin
+        ReBodyJo := SO(ReJo.S['body']);
+        if ReBodyJo = nil then Exit;
+
+        ArrsJa := ReBodyJo['details'].AsArray;
+        for nIdx := 0 to ArrsJa.Length - 1 do
+        begin
+          OneJo := SO(ArrsJa[nIdx].AsString);
+
+          with FListE do
+          begin
+            Values['clientName']      := OneJo.S['clientName'];
+            Values['clientNo']        := OneJo.S['clientNo'];
+            Values['contractNo']      := OneJo.S['contractNo'];
+            Values['engineeringSite'] := OneJo.S['engineeringSite'];
+            Values['materielName']    := OneJo.S['materielName'];
+            Values['materielNo']      := OneJo.S['materielNo'];
+            Values['orderDetailID']   := OneJo.S['orderDetailID'];
+            Values['orderDetailType'] := OneJo.S['orderDetailType'];
+            Values['quantity']        := OneJo.S['quantity'];
+            Values['status']          := OneJo.S['status'];
+            Values['transportUnit']   := OneJo.S['transportUnit'];
+          end;
+
+          FListD.Add(PackerEncodeStr(FListE.Text));
+        end;
+
+        FListB.Values['details']      := PackerEncodeStr(FListD.Text);
+        FListB.Values['driverId']     := ReBodyJo.S['driverId'];
+        FListB.Values['drvName']      := ReBodyJo.S['drvName'];
+        FListB.Values['drvPhone']     := ReBodyJo.S['drvPhone'];
+        FListB.Values['factoryName']  := ReBodyJo.S['factoryName'];
+        FListB.Values['licensePlate'] := ReBodyJo.S['licensePlate'];
+        FListB.Values['orderId']      := ReBodyJo.S['orderId'];
+        FListB.Values['orderNo']      := ReBodyJo.S['orderNo'];
+        FListB.Values['state']        := ReBodyJo.S['state'];
+        FListB.Values['totalQuantity']:= ReBodyJo.S['totalQuantity'];
+        FListB.Values['type']         := ReBodyJo.S['type'];
+        FListB.Values['realTime']     := ReBodyJo.S['realTime'];
+        FListB.Values['orderRemark']  := ReBodyJo.S['orderRemark'];
+
+        nStr := StringReplace(FListB.Text, '\n', #13#10, [rfReplaceAll]);
+        FListA.Add(nStr);
+
+        nData := PackerEncodeStr(FListA.Text);
+
+        Result             := True;
+        FOut.FData         := nData;
+        FOut.FBase.FResult := True;
+      end
+      else WriteLog('订单信息失败：' + ReJo.S['msg']);
     end;
-
-    FListA.Clear;
-    FListB.Clear;
-    for nInt := 0 to nNode.NodeCount - 1 do
-    begin
-      nTmp := nNode.Nodes[nInt];
-
-      if not (Assigned(nTmp)) then
-        Continue;
-
-      if Assigned(nTmp.NodeByName('order_id')) then
-        FListB.Values['order_id'] := nTmp.NodeByName('order_id').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('order_type')) then
-        FListB.Values['order_type'] := nTmp.NodeByName('order_type').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('fac_order_no')) then
-        FListB.Values['fac_order_no'] := nTmp.NodeByName('fac_order_no').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('ordernumber')) then
-        FListB.Values['ordernumber'] := nTmp.NodeByName('ordernumber').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('goodsID')) then
-        FListB.Values['goodsID'] := nTmp.NodeByName('goodsID').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('goodstype')) then
-        FListB.Values['goodstype'] := nTmp.NodeByName('goodstype').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('goodsname')) then
-        FListB.Values['goodsname'] := nTmp.NodeByName('goodsname').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('tracknumber')) then
-        FListB.Values['tracknumber'] := nTmp.NodeByName('tracknumber').ValueAsString;
-
-      if Assigned(nTmp.NodeByName('data')) then
-        FListB.Values['data'] := nTmp.NodeByName('data').ValueAsString;
-
-      nStr := StringReplace(FListB.Text, '\n', #13#10, [rfReplaceAll]);
-
-      {$IFDEF UseUTFDecode}
-      nStr := UTF8Decode(nStr);
-      {$ENDIF}
-      WriteLog('获取订单信息出参解码后:' + nStr);
-
-      FListA.Add(nStr);
-    end;
-    nData := PackerEncodeStr(FListA.Text);
+  finally
+    ReStream.Free;
+    wParam.Free;
+    FListD.Free;
+    FListE.Free;
   end;
-
-  Result := True;
-  FOut.FData := nData;
-  FOut.FBase.FResult := True;
 end;
 
 
