@@ -21,6 +21,8 @@ const
   Cus_BindCode          = 'ZSHOP002';
   Cus_ShopOrder         = 'ZSHOP003';
   Cus_syncShopOrder     = 'ZSHOP004';
+  Cus_ShopTruck         = 'ZSHOP005';
+  Cus_syncTruckState    = 'ZSHOP006';
 
 type
   TMITDBWorker = class(TBusinessWorkerBase)
@@ -129,7 +131,13 @@ type
     //获取订单信息
     function get_shoporderByNO(var nData: string): boolean;                     // Dl--->WxService
     //根据订单号获取订单信息
-
+    function GetWebStatus(nCode:string):string;
+    function GetshoporderStatus(var nData: string): Boolean;
+    // 工厂订单状态查询
+    function GetShopTruck(var nData: string): boolean;                          // Dl--->WxService
+    //获取车辆信息
+    function SyncShopTruckState(var nData: string): boolean;                    // Dl--->WxService
+    //同步车辆审核状态
                                                                                 // WxService--->Dl
     function SearchClient(var nData: string): Boolean;
     function SearchContractOrder(var nData: string): Boolean;
@@ -498,12 +506,12 @@ begin
     cBC_WX_GetAuditTruck:
       begin
         FPackOut := True;
-        Result := getDeclareCar(nData);
+        Result := GetShopTruck(nData);
       end;
     cBC_WX_UpLoadAuditTruck:
       begin
         FPackOut := True;
-        Result := UpdateDeclareCar(nData);
+        Result   := SyncShopTruckState(nData);
       end;
     cBC_WX_DownLoadPic:
       begin
@@ -514,6 +522,11 @@ begin
       begin
         FPackOut := True;
         Result := get_shoporderByTruck(nData);
+      end;
+    cBC_WX_get_shoporderStatus:
+      begin
+        FPackOut := True;
+        Result := GetshoporderStatus(nData);
       end;
   else
     begin
@@ -3246,10 +3259,269 @@ procedure TBusWorkerBusinessWebchat.ReQuestInit;
 begin
   //****************************
   FidHttp.Request.Clear;
-  FidHttp.Request.Accept := 'application/json, text/javascript, */*; q=0.01';
+  FidHttp.Request.Accept         := 'application/json, text/javascript, */*; q=0.01';
   FidHttp.Request.AcceptLanguage := 'zh-cn,zh;q=0.8,en-us;q=0.5,en;q=0.3';
   FidHttp.Request.ContentType    := 'application/json;Charset=UTF-8';
   FidHttp.Request.Connection     := 'keep-alive';
+end;
+
+function TBusWorkerBusinessWebchat.GetWebStatus(nCode: string): string;
+begin
+  if nCode='N' then Result:= '0'
+  else if nCode='I' then Result:= '3'
+  else if nCode='P' then Result:= '3'
+  else if (nCode='F')or(nCode='Z') then Result:= '3'
+  else if nCode='M' then Result:= '3'
+  else if nCode='O' then Result:= '4';
+end;
+
+function TBusWorkerBusinessWebchat.GetshoporderStatus(
+  var nData: string): Boolean;
+var nStr, nFacID, nbillNo, nRptType, nOutTime, nStatus : string;
+    nRoot, nheader, nbody, nItems, nItem : TXmlNode;
+    nReDs : TDataSet;
+    ParamJo, OneJo: ISuperObject;
+    ArrsJa: ISuperObject;
+    nTotal:Double;
+begin
+  Result := False;
+  with FPacker.XMLBuilder do
+  begin
+    try
+      WriteLog('订单状态查询入参：'+nData);
+      ReadFromString(nData);
+      if not ParseDefault(nData) then Exit;
+
+      try
+        nRoot := Root.FindNode('Head');
+        nbillNo  := nRoot.NodeByName('Data').ValueAsString;
+        nRptType:= nRoot.NodeByName('ExtParam').ValueAsString;
+      except
+        on Ex : Exception do
+        begin
+          nData:= '解析请求参数错误!';
+          WriteLog(nData+' '+Ex.Message);
+          Exit;
+        end;
+      end;
+
+      ParamJo:= SO();
+      with ParamJo do
+      begin
+        ParamJo.S['orderNo'] := nbillNo;
+        //************************************************************************
+        if nRptType='1' then
+        begin
+          nStr := ' Select * From S_BILL Where L_ID In (Select distinct WOM_LID From S_WebOrderMatch Where WOM_WebOrderID='''+nbillNo+''' ) ';
+        end
+        else
+        begin
+          nStr := ' Select * From P_OrderDtl left Join P_Order On D_OID=O_ID left Join P_OrderBase On O_BID=B_ID '+
+                  ' Where D_ID In (Select distinct WOM_LID From S_WebOrderMatch Where WOM_WebOrderID='''+nbillNo+''')';
+        end;
+
+        nReDs := gDBConnManager.WorkerQuery(FDBConn, nStr);
+        if nReDs.RecordCount < 1 then
+        begin
+          nData:= '未查询到相关提货单信息!';
+          Exit;
+        end;
+
+
+        ArrsJa:= SA([]);
+        nTotal:= 0;
+        with nReDs do
+        begin
+          while not Eof do
+          begin
+            OneJo := SO();
+
+            if nRptType='1' then
+            begin
+              OneJo.S['billNo']      := FieldByName('L_ID').AsString;
+              OneJo.S['contractNo']  := FieldByName('L_ZhiKa').AsString;
+              OneJo.D['realQuantity']:= FieldByName('L_Value').AsFloat;
+
+              nTotal  := nTotal + FieldByName('L_Value').AsFloat;
+              nOutTime:= FieldByName('L_OutFact').AsString;
+              nStatus := GetWebStatus(FieldByName('L_Status').AsString);
+            end
+            else if nRptType='2' then
+            begin
+              OneJo.S['BillNo']      := FieldByName('D_ID').AsString;
+              OneJo.S['contractNo']  := FieldByName('B_ID').AsString;
+              OneJo.D['realQuantity']:= FieldByName('D_Value').AsFloat;
+
+              nTotal  := nTotal + FieldByName('D_Value').AsFloat;
+              nOutTime:= FieldByName('D_OutFact').AsString;
+              nStatus := GetWebStatus(FieldByName('D_Status').AsString);
+            end;
+            ArrsJa.O['detail']:= OneJo;
+
+            Next;
+          end;
+
+          ParamJo.S['details'] := ArrsJa.AsString;
+        end;
+      end;
+      nData := '操作成功';
+      Result:= True;
+    finally
+      begin
+        if Result then ParamJo.S['Code']:= '0'
+        else ParamJo.S['Code']:= '1';
+
+        ParamJo.S['outFactoryTime'] := nOutTime;
+        ParamJo.S['realTotalQuantity'] := FloatToStr(nTotal);
+        ParamJo.S['status'] := nStatus;
+
+        nData := ParamJo.AsString;
+        WriteLog('订单状态查询出参:' + nData);
+      end;
+    end;
+  end;
+end;
+
+function TBusWorkerBusinessWebchat.GetShopTruck(
+  var nData: string): boolean;
+var
+  nStr, nWebOrder, szUrl: string;
+  ReJo, ParamJo, BodyJo, OneJo, ReBodyJo : ISuperObject;
+  ArrsJa: TSuperArray;
+  wParam : TStrings;
+  ReStream: TStringStream;
+  nIdx: Integer;
+begin
+  Result    := False;
+  nWebOrder := PackerDecodeStr(FIn.FData);
+  wParam    := TStringList.Create;
+  ReStream  := TStringstream.Create('');
+  ParamJo   := SO();
+  BodyJo    := SO();
+  try
+    BodyJo.S['reviewStatus'] := nWebOrder;  //04：提报中 06：审核通过 07：审核驳回
+    BodyJo.S['facSerialNo']  := gSysParam.FFactID; 
+
+    ParamJo.S['activeCode']  := Cus_ShopTruck;
+    ParamJo.S['body'] := BodyJo.AsString;
+    nStr := ParamJo.AsString;
+    //nStr := Ansitoutf8(nStr);
+    WriteLog('获取车辆信息入参:' + nStr);
+
+    wParam.Clear;
+    wParam.Add(nStr);
+    //FidHttp参数初始化
+    ReQuestInit;
+    
+    szUrl := gSysParam.FSrvUrl + '/truck/searchFacTruck';
+    FidHttp.Post(szUrl, wParam, ReStream);
+    nStr := UTF8Decode(ReStream.DataString);
+    WriteLog('获取车辆信息出参:' + nStr);
+
+    if nStr <> '' then
+    begin
+      FListA.Clear;
+      FListB.Clear;
+      ReJo := SO(nStr);
+      if ReJo = nil then Exit;
+
+      if ReJo.S['code'] = '1' then
+      begin
+        ReBodyJo := SO(ReJo.S['body']);
+        if ReBodyJo = nil then Exit;
+
+        ArrsJa := ReBodyJo['facTrucks'].AsArray;
+        for nIdx := 0 to ArrsJa.Length - 1 do
+        begin
+          OneJo := SO(ArrsJa[nIdx].AsString);
+
+          with FListB do
+          begin
+            Values['cnsSerialNo']     := OneJo.S['cnsSerialNo'];  //车辆标识码
+            Values['licensePath']     := OneJo.S['licensePath'];  //行驶证图片路径
+            Values['licensePlate']    := OneJo.S['licensePlate']; //车牌号
+            Values['reviewStatus']    := OneJo.S['reviewStatus']; //审核状态
+            Values['tare']            := OneJo.S['tare'];         //皮重
+          end;
+
+          FListA.Add(PackerEncodeStr(FListB.Text));
+        end;
+        
+        Result             := True;
+        FOut.FData         := FListA.Text;
+        FOut.FBase.FResult := True;
+      end
+      else WriteLog('获取车辆信息失败：' + ReJo.S['msg']);
+    end;
+  finally
+    ReStream.Free;
+    wParam.Free;
+  end;
+end;
+
+function TBusWorkerBusinessWebchat.SyncShopTruckState(
+  var nData: string): boolean;
+var
+  nStr, nSql, ncontractNo: string;
+  nDBConn: PDBWorker;
+  nIdx: Integer;
+  szUrl: string;
+  ReJo, ParamJo, BodyJo : ISuperObject;
+  ArrsJa: TSuperArray;
+  wParam: TStrings;
+  ReStream: TStringStream;
+begin
+  Result := False;
+  FListA.Text := PackerDecodeStr(FIn.FData);
+
+  wParam   := TStringList.Create;
+  ReStream := TStringstream.Create('');
+  ParamJo  := SO();
+
+  FListA.Text := PackerDecodeStr(FIn.FData);
+  try
+    BodyJo.S['licensePlate']   := EncodeBase64(FListA.Values['Truck']);
+    if FListA.Values['Status'] = '0' then
+      BodyJo.S['reviewStatus'] := '4'
+    else if FListA.Values['Status'] = '1' then
+      BodyJo.S['reviewStatus'] := '6'
+    else if FListA.Values['Status'] = '2' then
+      BodyJo.S['reviewStatus'] := '7';
+    BodyJo.S['facSerialNo']     := gSysParam.FFactID;
+    BodyJo.S['auditDecision']   := EncodeBase64(FListA.Values['Memo']);
+    ParamJo.S['activeCode']     := Cus_syncShopOrder;
+    ParamJo.S['body']           := BodyJo.AsString;
+    nStr                        := ParamJo.AsString;
+
+    WriteLog(' 同步车辆审核状态入参：' + nStr);
+
+    //nStr := UTF8Encode(nStr);
+    wParam.Clear;
+    wParam.Add(nStr);
+    
+    //FidHttp参数初始化
+    ReQuestInit;
+
+    szUrl := gSysParam.FSrvUrl + '/truck/synFacTruck';
+    FidHttp.Post(szUrl, wParam, ReStream);
+    nStr := UTF8Decode(ReStream.DataString);
+    WriteLog(' 同步车辆审核状态出参：' + nStr);
+    if nStr <> '' then
+    begin
+      ReJo := SO(nStr);
+
+      if ReJo['code'].AsString = '1' then
+      begin
+        Result             := True;
+        FOut.FData         := sFlag_Yes;
+        FOut.FBase.FResult := True;
+      end
+      else WriteLog(' 同步车辆审核状态失败：' + ReJo['msg'].AsString);
+    end;
+  finally
+    ReStream.Free;
+    wParam.Free;
+  end;
 end;
 
 initialization
