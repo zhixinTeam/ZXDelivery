@@ -518,7 +518,7 @@ begin
         FPackOut := True;
         Result := DownLoadPic(nData);
       end;
-    cBC_WX_get_shoporderbyTruck:
+    cBC_WX_get_shoporderbyTruck,cBC_WX_get_shoporderbyTruckClt:
       begin
         FPackOut := True;
         Result := get_shoporderByTruck(nData);
