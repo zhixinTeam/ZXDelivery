@@ -99,6 +99,18 @@ const
   cBC_SaveGrabCard            = $0090;   //保存抓斗称刷卡信息
   cBC_SaveStockKuWei          = $0091;   //保存物料所属库位信息
 
+  cBC_GetLoginToken          =  $0601;   //问信登录接口
+  cBC_GetDepotInfo           =  $0602;   //获取问信部门档案
+  cBC_GetUserInfo            =  $0603;   //获取问信人员档案
+  cBC_GetCusProInfo          =  $0604;   //获取问信客商档案
+  cBC_GetStockType           =  $0605;   //获取问信存货分类
+  cBC_GetStockInfo           =  $0606;   //获取问信存货档案
+  cBC_GetOrderInfo           =  $0607;   //获取问信采购订单信息
+  cBC_GetOrderPound          =  $0608;   //获取问信采购磅单接口
+  cBC_GetSaleInfo            =  $0609;   //获取问信销售订单信息
+  cBC_GetSalePound           =  $0610;   //获取问信销售磅单接口
+  cBC_GetHYInfo              =  $0611;   //获取问信质检信息
+
   cBC_WX_VerifPrintCode       = $0501;   //微信：验证喷码信息
   cBC_WX_WaitingForloading    = $0502;   //微信：工厂待装查询
   cBC_WX_BillSurplusTonnage   = $0503;   //微信：网上订单可下单数量查询
@@ -123,6 +135,8 @@ const
   cBC_WX_UpLoadAuditTruck     = $0521;   //微信：审核车辆结果上传
   cBC_WX_DownLoadPic          = $0522;   //微信：下载图片
   cBC_WX_get_shoporderbyTruck = $0523;   //微信：根据车牌号获取订单信息
+  cBC_WX_get_shoporderbyTruckClt = $0524;   //微信：根据车牌号获取订单信息  客户端用
+  cBC_WX_get_shoporderStatus  = $0525;   //微信：根据订单号获取订单状态
 
 type
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
