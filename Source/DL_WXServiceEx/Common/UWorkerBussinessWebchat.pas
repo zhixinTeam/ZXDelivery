@@ -3489,7 +3489,7 @@ begin
       BodyJo.S['reviewStatus'] := '7';
     BodyJo.S['facSerialNo']     := gSysParam.FFactID;
     BodyJo.S['auditDecision']   := EncodeBase64(FListA.Values['Memo']);
-    ParamJo.S['activeCode']     := Cus_syncShopOrder;
+    ParamJo.S['activeCode']     := Cus_syncTruckState;
     ParamJo.S['body']           := BodyJo.AsString;
     nStr                        := ParamJo.AsString;
 
