@@ -78,6 +78,7 @@ type
     FSrvRemote  : string;                            //微信:远程服务
     FSrvMIT     : string;                            //微信:本地服务
     FSrvUrl     : string;                            //微信：请求微信地址
+    FSrvPicUrl  : string;                            //微信：请求微信图片地址
   end;
   //系统参数
 

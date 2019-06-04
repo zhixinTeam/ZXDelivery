@@ -788,9 +788,9 @@ begin
     '  Z_Customer,' +                       //客户编号
     '  Z_Name,' +                           //客户名称
     '  Z_Lading,' +                         //提货方式
-    '  Z_CID ' +                            //合同编号
+    '  Z_CID, ' +                           //合同编号
+    '  Z_Name ' +                           //纸卡名称
     {$IFDEF SXDY}
-    '  ,Z_Name ' +                          //纸卡名称
     '  ,a.Z_XHSpot ' +                        //卸货地点
     {$ENDIF}
     'from %s a join %s b on a.Z_ID = b.D_ZID ' + 'where Z_Verified=''%s'' and (Z_InValid<>''%s'' or Z_InValid is null) ' + 'and Z_Customer=''%s''';
@@ -845,8 +845,8 @@ begin
           NodeNew('ContractType').ValueAsString := '1'
         else
           NodeNew('ContractType').ValueAsString := '2';
-        {$IFDEF SXDY}
         NodeNew('BillName').ValueAsString        := FieldByName('Z_Name').AsString;
+        {$IFDEF SXDY}
         NodeNew('UnloadingPlace').ValueAsString  := FieldByName('Z_XHSpot').AsString;
         {$ENDIF}
         nValue := FieldByName('D_Value').AsFloat;
@@ -2099,11 +2099,20 @@ var
 begin
   FDBConn.FConn.BeginTrans;
   try
-    nStr := 'Delete From %s Where A_ID=''%s'' ';
-    nStr := Format(nStr, [sTable_AuditTruck, nList.Values['uniqueIdentifier']]);
+    nStr := 'Delete From %s Where A_Truck=''%s'' ';
+    nStr := Format(nStr, [sTable_AuditTruck, nList.Values['licensePlate']]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
 
-    nStr := MakeSQLByStr([SF('A_ID', nList.Values['uniqueIdentifier']), SF('A_Serial', nList.Values['serialNo']), SF('A_Truck', nList.Values['carNumber']), SF('A_WeiXin', nList.Values['custName']), SF('A_Phone', nList.Values['custPhone']), SF('A_LicensePath', nList.Values['drivingLicensePath']), SF('A_Status', nStatus), SF('A_Date', sField_SQLServer_Now, sfVal), SF('A_PValue', nList.Values['tare'])], sTable_AuditTruck, '', True);
+    nStr := MakeSQLByStr([SF('A_ID', nList.Values['id']),
+                         SF('A_Serial', nList.Values['cnsSerialNo']),
+                         SF('A_Truck', nList.Values['licensePlate']),
+                         SF('A_LicensePath', nList.Values['licensePath']),
+                         SF('A_Status', nStatus),
+                         SF('A_Date', sField_SQLServer_Now, sfVal),
+                         SF('A_WeiXin', nList.Values['realName']),
+                         SF('A_Phone', nList.Values['phone']),
+                         SF('A_PValue', nList.Values['tare'])],
+                         sTable_AuditTruck, '', True);
     //xxxxx
 
     gDBConnManager.WorkerExec(FDBConn, nStr);
@@ -2222,7 +2231,7 @@ begin
     nIdHTTP := TIdHTTP.Create;
     nStream := TMemoryStream.Create;
 
-    nIdHTTP.Get(nDS.FieldByName('A_LicensePath').AsString, nStream);
+    nIdHTTP.Get(gSysParam.FSrvPicUrl+'/'+nDS.FieldByName('A_LicensePath').AsString, nStream);
     nStream.Position := 0;
 
     SaveDBImage(nDS, 'A_License', nStream);
@@ -3437,13 +3446,16 @@ begin
 
           with FListB do
           begin
+            Values['id']              := OneJo.S['id'];           //主键
             Values['cnsSerialNo']     := OneJo.S['cnsSerialNo'];  //车辆标识码
             Values['licensePath']     := OneJo.S['licensePath'];  //行驶证图片路径
             Values['licensePlate']    := OneJo.S['licensePlate']; //车牌号
             Values['reviewStatus']    := OneJo.S['reviewStatus']; //审核状态
-            Values['tare']            := OneJo.S['tare'];         //皮重
+            Values['phone']           := OneJo.S['phone'];         //电话号码
+            Values['realName']        := OneJo.S['realName'];      //客户名称
+            Values['tare']            := OneJo.S['tare'];          //皮重
           end;
-
+          SaveAuditTruck(FlistB,nWebOrder);
           FListA.Add(PackerEncodeStr(FListB.Text));
         end;
         
@@ -3480,13 +3492,8 @@ begin
 
   FListA.Text := PackerDecodeStr(FIn.FData);
   try
-    BodyJo.S['licensePlate']   := EncodeBase64(FListA.Values['Truck']);
-    if FListA.Values['Status'] = '0' then
-      BodyJo.S['reviewStatus'] := '4'
-    else if FListA.Values['Status'] = '1' then
-      BodyJo.S['reviewStatus'] := '6'
-    else if FListA.Values['Status'] = '2' then
-      BodyJo.S['reviewStatus'] := '7';
+    BodyJo.S['licensePlate']    := EncodeBase64(FListA.Values['Truck']);
+    BodyJo.S['reviewStatus']    := FListA.Values['Status'];
     BodyJo.S['facSerialNo']     := gSysParam.FFactID;
     BodyJo.S['auditDecision']   := EncodeBase64(FListA.Values['Memo']);
     ParamJo.S['activeCode']     := Cus_syncTruckState;

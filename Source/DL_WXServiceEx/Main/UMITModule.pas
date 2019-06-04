@@ -106,6 +106,10 @@ begin
         if nStr = sFlag_Rq_WXUrl then
           gSysParam.FSrvUrl := Fields[0].AsString;
         //请求微信Url
+
+        if nStr = sFlag_Rq_WXPicUrl then
+          gSysParam.FSrvPicUrl := Fields[0].AsString;
+        //请求微信Url
         
         Next;
       end;
