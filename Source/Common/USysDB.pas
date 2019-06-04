@@ -190,6 +190,7 @@ const
   sFlag_WXServiceMIT  = 'WXServiceMIT';              //微信工厂服务
   sFlag_WXSrvRemote   = 'WXServiceRemote';           //微信远程服务
   sFlag_Rq_WXUrl      = 'WXRqUrl';                   //请求微信网址
+  sFlag_Rq_WXPicUrl   = 'WXRqPicUrl';                //请求微信图片地址
 
   sFlag_PDaiWuChaZ    = 'PoundDaiWuChaZ';            //袋装正误差
   sFlag_PDaiWuChaF    = 'PoundDaiWuChaF';            //袋装负误差

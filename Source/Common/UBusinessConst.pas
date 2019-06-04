@@ -99,6 +99,8 @@ const
   cBC_SaveGrabCard            = $0090;   //保存抓斗称刷卡信息
   cBC_SaveStockKuWei          = $0091;   //保存物料所属库位信息
 
+  cBC_GetWebOrderByCard       = $0112;   //通过卡号取微信订单
+
   cBC_GetLoginToken          =  $0601;   //问信登录接口
   cBC_GetDepotInfo           =  $0602;   //获取问信部门档案
   cBC_GetUserInfo            =  $0603;   //获取问信人员档案

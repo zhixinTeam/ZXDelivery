@@ -194,6 +194,8 @@ const
   cFI_FrameDaySalesHj   = $1113;                     //日销量合计
   cFI_FrameDayReport    = $1114;                     //日报表
 
+  cFI_FormWXBaseLoad    = $6011;                     //同步问信接口
+
   {*Command*}
   cCmd_RefreshData      = $0002;                     //刷新数据
   cCmd_ViewSysLog       = $0003;                     //系统日志
@@ -439,6 +441,8 @@ begin
 
   AddMenuModuleItem('MAIN_W01', cFI_FrameWXAccount);
   AddMenuModuleItem('MAIN_W02', cFI_FrameWXSendLog);
+
+  AddMenuModuleItem('MAIN_S01', cFI_FormWXBaseLoad, mtForm);
 end;
 
 //Desc: 清理模块列表
