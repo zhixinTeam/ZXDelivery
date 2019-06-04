@@ -3488,6 +3488,7 @@ begin
 
   wParam   := TStringList.Create;
   ReStream := TStringstream.Create('');
+  BodyJo   := SO();
   ParamJo  := SO();
 
   FListA.Text := PackerDecodeStr(FIn.FData);
