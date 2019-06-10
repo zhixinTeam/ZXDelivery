@@ -433,9 +433,9 @@ begin
   begin
     if recordcount > 0 then
     begin
-      if (Now - FieldByName('L_OutFact').AsDateTime)*24*30 < sFlag_Between2BillsTime then
+      if (Now - FieldByName('L_OutFact').AsDateTime)*24*60 < sFlag_Between2BillsTime then
       begin
-        nStr := '车辆[ %s ]出厂未到一个小时,禁止开单.';
+        nStr := '车辆[ %s ]出厂未到半小时,禁止开单.';
         nData := Format(nStr, [nTruck]);
         Exit;
       end;

@@ -376,6 +376,13 @@ begin
     FDate := Now;
     FOperator := FPoundTunnel.FName;
   end;
+
+  if nBills[0].FMData.FValue < nBills[0].FPData.FValue then
+  begin
+    ShowMessage('皮重不能大于毛重.');
+    Exit;
+  end;
+  
   try
     nRet := SaveLadingBills(nstr,sFlag_TruckBFM, nBills, FPoundTunnel);
     if not nRet then
