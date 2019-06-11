@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormShouJu;
 
+{$I Link.inc}
 interface
 
 uses
@@ -149,6 +150,10 @@ end;
 procedure TfFormShouJu.FormCreate(Sender: TObject);
 var nIni: TIniFile;
 begin
+ {$IFDEF SXDY}
+ EditDate.Enabled := False;
+ EditID.Enabled   := False;
+ {$ENDIF}
   nIni := TIniFile.Create(gPath + sFormConfig);
   try
     LoadFormConfig(Self, nIni);
