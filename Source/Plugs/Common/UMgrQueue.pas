@@ -49,7 +49,7 @@ type
     FIndex      : Integer;     //队列索引
     FIsReal     : Boolean;     //非虚位
 
-    FValue      : Double;      //提货量
+    FValue      : Currency;      //提货量
     FDai        : Integer;     //袋数
     FIsBuCha    : Boolean;     //是否补差
     FNormal     : Integer;     //正常总装
@@ -1175,7 +1175,7 @@ begin
         FIndex      := FieldByName('T_Index').AsInteger;
         if FIndex < 1 then FIndex := MaxInt;
 
-        FValue      := FieldByName('T_Value').AsFloat;
+        FValue      := FieldByName('T_Value').AsCurrency;
         FNormal     := FieldByName('T_Normal').AsInteger;
         FBuCha      := FieldByName('T_BuCha').AsInteger;
         FIsBuCha    := FNormal > 0;
@@ -1382,7 +1382,8 @@ begin
   begin
     nTruck.FDai := Trunc(nTruck.FValue * 1000 / nLine.FPeerWeight);
     //dai number
-  end;   
+    WriteLog(Format('车辆[ %s ]袋数[ %s ]提货量[ %s ]吨,每袋重量[ %s ]千克.', [nTruck.FTruck, IntToStr(nTruck.FDai), CurrToStr(nTruck.FValue), IntToStr(nLine.FPeerWeight)]));
+  end;
 
   if (nLine.FPeerWeight > 0) and
      (nTruck.FInFact or (nTruck.FIsVIP = sFlag_TypeShip)) then
