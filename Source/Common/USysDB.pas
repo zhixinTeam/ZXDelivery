@@ -734,7 +734,7 @@ const
        'Z_YFMoney $Float, Z_FixedMoney $Float, Z_OnlyMoney Char(1),' +
        'Z_TJStatus Char(1), Z_Memo varChar(200), Z_Man varChar(32),' +
        'Z_Date DateTime, Z_VerifyMan varChar(32), Z_VerifyDate DateTime,'+
-       'Z_Area varchr(30), Z_XHSpot varchar(30), Z_Freight $Float Default 0)';
+       'Z_Area varChar(30), Z_XHSpot varchar(30), Z_Freight $Float Default 0)';
   {-----------------------------------------------------------------------------
    Ö½¿¨°ìÀí: ZhiKa
    *.R_ID:¼ÇÂ¼±àºÅ
