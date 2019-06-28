@@ -1141,6 +1141,8 @@ begin
       Values['ZKMoney'] := FieldByName('Z_OnlyMoney').AsString;
       Values['ZArea']   := FieldByName('Z_Area').AsString;
       Values['XHSpot']  := FieldByName('Z_XHSpot').AsString;
+      Values['Lading']  := FieldByName('Z_Lading').AsString;
+      Values['Freight']  := FieldByName('Z_Freight').AsString;
     end;
   end;
 
@@ -1215,6 +1217,8 @@ begin
             SF('L_SaleMan', FListA.Values['SaleMan']),
             SF('L_Price', FieldByName('D_Price').AsFloat, sfVal),
             SF('L_ZKMoney', FListA.Values['ZKMoney']),
+            SF('L_Lading', FListA.Values['Lading']),
+            SF('L_Freight', FieldByName('Z_Freight').AsFloat, sfVal),
             SF('L_XHSpot', FListA.Values['XHSpot'])
             ], sTable_Bill, SF('L_ID', FIn.FData), False);
     FListC.Add(nStr); //增加调拨方出金

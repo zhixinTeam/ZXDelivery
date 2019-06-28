@@ -36,6 +36,7 @@ var
   AppPath: string;
   gPlcOpenValue: Integer;
   gMitUrl:string;
+  gSanMWuCha:Double;
   gUpDownKeepOpen:Boolean;
 
 implementation
@@ -147,6 +148,7 @@ begin
   LocalPort := MyFile.ReadInteger('FixLoading','localPort',5050);
 
   gMitUrl := MyFile.ReadString('Mit','MitUrl','');
+  gSanMWuCha := MyFile.ReadFloat('Mit','SanMWuCha',0);
   MyFile.Free;
 
 

@@ -10,7 +10,7 @@ uses
   cxTextEdit, cxLabel, cxMaskEdit, cxDropDownEdit, UMgrPoundTunnels,
   ExtCtrls, IdTCPServer, IdContext, IdGlobal, UBusinessConst, ULibFun,
   Menus, cxButtons, UMgrSendCardNo, USysLoger, cxCurrencyEdit, dxSkinsCore,
-  dxSkinsDefaultPainters, cxSpinEdit, DateUtils;
+  dxSkinsDefaultPainters, cxSpinEdit, DateUtils, main;
 
 type
   TFrame1 = class(TFrame)
@@ -366,6 +366,7 @@ var
   nRet: Boolean;
   nBills: TLadingBillItems;
   nStr:string;
+  nValue: Double;
 begin
   SetLength(nBills, 1);
   nBills[0] := FUIData;
@@ -382,7 +383,23 @@ begin
     ShowMessage('皮重不能大于毛重.');
     Exit;
   end;
-  
+
+  if not QueryDlg('确定要保存车辆['+EditTruck.Text+']的重量吗？', sAsk) then Exit;
+
+  with nBills[0] do
+  begin
+    nValue :=  FMData.FValue - FPData.FValue - FValue;
+    if Abs(nValue) > gSanMWuCha then
+    begin
+      nStr := '散装车[%s]装车量误差过大,开单量:%s, 装车量:%s, 误差量:%s';
+      nStr := Format(nStr,[EditTruck.Text, EditValue.Text,
+              FloatToStr(FMData.FValue - FPData.FValue),FloatToStr(nValue)]);
+      WriteLog(nStr);
+      ShowMessage(nStr);
+      Exit;
+    end;
+  end;
+
   try
     nRet := SaveLadingBills(nstr,sFlag_TruckBFM, nBills, FPoundTunnel);
     if not nRet then
@@ -392,6 +409,7 @@ begin
       writelog(nstr);
       exit;
     end;
+    ShowMessage('重量保存成功.');
   finally
     LoadBillItems(FCard);
   end;
