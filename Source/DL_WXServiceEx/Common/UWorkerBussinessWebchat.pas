@@ -1334,7 +1334,7 @@ begin
             Values['materielNo']      := OneJo.S['materielNo'];
             Values['orderDetailID']   := OneJo.S['orderDetailID'];
             Values['orderDetailType'] := OneJo.S['orderDetailType'];
-            Values['quantity']        := OneJo.S['quantity'];
+            Values['quantity']        := FloatToStr(OneJo.D['quantity']) ;
             Values['status']          := OneJo.S['status'];
             Values['transportUnit']   := OneJo.S['transportUnit'];
           end;
@@ -1351,7 +1351,7 @@ begin
         FListB.Values['orderId']      := ReBodyJo.S['orderId'];
         FListB.Values['orderNo']      := ReBodyJo.S['orderNo'];
         FListB.Values['state']        := ReBodyJo.S['state'];
-        FListB.Values['totalQuantity']:= ReBodyJo.S['totalQuantity'];
+        FListB.Values['totalQuantity']:= FloatToStr(ReBodyJo.D['totalQuantity']);
         FListB.Values['type']         := ReBodyJo.S['type'];
         FListB.Values['realTime']     := ReBodyJo.S['realTime'];
         FListB.Values['orderRemark']  := ReBodyJo.S['orderRemark'];
@@ -2323,7 +2323,7 @@ begin
             Values['materielNo']      := OneJo.S['materielNo'];
             Values['orderDetailID']   := OneJo.S['orderDetailID'];
             Values['orderDetailType'] := OneJo.S['orderDetailType'];
-            Values['quantity']        := OneJo.S['quantity'];
+            Values['quantity']        := FloatToStr(OneJo.D['quantity']) ; 
             Values['status']          := OneJo.S['status'];
             Values['transportUnit']   := OneJo.S['transportUnit'];
           end;
@@ -2340,7 +2340,7 @@ begin
         FListB.Values['orderId']      := ReBodyJo.S['orderId'];
         FListB.Values['orderNo']      := ReBodyJo.S['orderNo'];
         FListB.Values['state']        := ReBodyJo.S['state'];
-        FListB.Values['totalQuantity']:= ReBodyJo.S['totalQuantity'];
+        FListB.Values['totalQuantity']:= FloatToStr(ReBodyJo.D['totalQuantity']);
         FListB.Values['type']         := ReBodyJo.S['type'];
         FListB.Values['realTime']     := ReBodyJo.S['realTime'];
         FListB.Values['orderRemark']  := ReBodyJo.S['orderRemark'];
