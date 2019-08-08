@@ -113,6 +113,15 @@ const
   cBC_GetSalePound           =  $0610;   //获取问信销售磅单接口
   cBC_GetHYInfo              =  $0611;   //获取问信质检信息
 
+  //cBC_GetYSRules              = $0612;   //获取原材料验收规则
+  //cBC_SaveWlbYs               = $0613;   //保存物流部二次验收
+  //cBC_GetWlbYsStatus          = $0614;   //获取物流部验收结果
+  cBC_GetYSRules              = $1001;   //获取原材料验收规则
+  cBC_SaveWlbYs               = $1002;   //保存物流部二次验收
+  cBC_GetWlbYsStatus          = $1003;   //获取物流部验收结果
+  cBC_GetReaderCard           = $0615;   //读卡器有效卡
+
+
   cBC_WX_VerifPrintCode       = $0501;   //微信：验证喷码信息
   cBC_WX_WaitingForloading    = $0502;   //微信：工厂待装查询
   cBC_WX_BillSurplusTonnage   = $0503;   //微信：网上订单可下单数量查询

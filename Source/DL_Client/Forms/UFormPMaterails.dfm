@@ -4,7 +4,7 @@ inherited fFormMaterails: TfFormMaterails
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   ClientHeight = 424
-  ClientWidth = 371
+  ClientWidth = 377
   OldCreateOrder = True
   OnClose = FormClose
   OnCreate = FormCreate
@@ -14,7 +14,7 @@ inherited fFormMaterails: TfFormMaterails
   object dxLayoutControl1: TdxLayoutControl
     Left = 0
     Top = 0
-    Width = 371
+    Width = 377
     Height = 424
     Align = alClient
     TabOrder = 0
@@ -33,19 +33,19 @@ inherited fFormMaterails: TfFormMaterails
     end
     object EditMemo: TcxMemo
       Left = 81
-      Top = 161
+      Top = 186
       Hint = 'T.M_Memo'
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
       Style.Edges = [bBottom]
-      TabOrder = 7
+      TabOrder = 9
       Height = 40
       Width = 268
     end
     object InfoList1: TcxMCListBox
       Left = 23
-      Top = 288
+      Top = 313
       Width = 397
       Height = 105
       HeaderSections = <
@@ -61,60 +61,60 @@ inherited fFormMaterails: TfFormMaterails
       ParentFont = False
       Style.BorderStyle = cbsOffice11
       Style.Edges = [bLeft, bTop, bRight, bBottom]
-      TabOrder = 12
+      TabOrder = 14
     end
     object InfoItems: TcxComboBox
       Left = 81
-      Top = 238
+      Top = 263
       ParentFont = False
       Properties.ImmediateDropDown = False
       Properties.IncrementalSearch = False
       Properties.MaxLength = 30
-      TabOrder = 8
+      TabOrder = 10
       Width = 75
     end
     object EditInfo: TcxTextEdit
       Left = 81
-      Top = 263
+      Top = 288
       ParentFont = False
       Properties.MaxLength = 50
-      TabOrder = 10
+      TabOrder = 12
       Width = 90
     end
     object BtnAdd: TButton
-      Left = 303
-      Top = 238
+      Left = 309
+      Top = 263
       Width = 45
       Height = 17
       Caption = #28155#21152
-      TabOrder = 9
+      TabOrder = 11
       OnClick = BtnAddClick
     end
     object BtnDel: TButton
-      Left = 303
-      Top = 263
+      Left = 309
+      Top = 288
       Width = 45
       Height = 18
       Caption = #21024#38500
-      TabOrder = 11
+      TabOrder = 13
       OnClick = BtnDelClick
     end
     object BtnOK: TButton
-      Left = 216
+      Left = 222
       Top = 390
       Width = 69
       Height = 23
       Caption = #20445#23384
-      TabOrder = 13
+      TabOrder = 15
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
-      Left = 290
+      Left = 296
       Top = 390
       Width = 70
       Height = 23
       Caption = #21462#28040
-      TabOrder = 14
+      TabOrder = 16
       OnClick = BtnExitClick
     end
     object cxTextEdit3: TcxTextEdit
@@ -185,6 +185,27 @@ inherited fFormMaterails: TfFormMaterails
       Text = 'N'#12289#21542
       Width = 121
     end
+    object editYSBM: TcxComboBox
+      Left = 260
+      Top = 161
+      Hint = 'T.M_HYSYS'
+      Properties.Items.Strings = (
+        #29289#27969#37096
+        #21270#39564#23460)
+      TabOrder = 8
+      Width = 93
+    end
+    object editYSTime: TcxComboBox
+      Left = 81
+      Top = 161
+      Hint = 'T.M_YS2Times'
+      Properties.Items.Strings = (
+        #19968#27425#39564#25910
+        #20004#27425#39564#25910)
+      Properties.OnChange = cxComboBox2PropertiesChange
+      TabOrder = 7
+      Width = 92
+    end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
       ShowCaption = False
       Hidden = True
@@ -249,6 +270,22 @@ inherited fFormMaterails: TfFormMaterails
           Caption = #29983#25104#27969#27700':'
           Control = cxbLs
           ControlOptions.ShowBorder = False
+        end
+        object dxLayoutControl1Group3: TdxLayoutGroup
+          ShowCaption = False
+          Hidden = True
+          LayoutDirection = ldHorizontal
+          ShowBorder = False
+          object dxLayoutControl1Item17: TdxLayoutItem
+            Caption = #39564#25910#27169#24335':'
+            Control = editYSTime
+            ControlOptions.ShowBorder = False
+          end
+          object dxLayoutControl1Item16: TdxLayoutItem
+            Caption = #39564#25910#37096#38376':'
+            Control = editYSBM
+            ControlOptions.ShowBorder = False
+          end
         end
         object dxLayoutControl1Item4: TdxLayoutItem
           Caption = #22791#27880#20449#24687':'

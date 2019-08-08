@@ -442,6 +442,11 @@ begin
     begin
       gHardwareHelper.SetCardLastDone(nCard, nReader);
       gHardwareHelper.SetReaderCard(nReader, nCard);
+      {$IFDEF HYJC}
+      if (nReader = 'HY192168000044') or (nReader = 'HY192168000048')then
+        BlueOpenDoor(nReader, nReaderType);
+        //Ì§¸Ë
+      {$ENDIF}
     end else
     begin
       if gTruckQueueManager.TruckReInfactFobidden(nTrucks[0].FTruck) then
@@ -576,10 +581,14 @@ begin
 
       if nInt < 0 then Continue;
       nPTruck := nPLine.FTrucks[nInt];
-
+      {$IFDEF ChkPeerWeight}
+      nStr := 'Update %s Set T_Line=''%s'' Where T_Bill=''%s''';
+      nStr := Format(nStr, [sTable_ZTTrucks, nPLine.FLineID,nPTruck.FBill]);
+      {$ELSE}
       nStr := 'Update %s Set T_Line=''%s'',T_PeerWeight=%d Where T_Bill=''%s''';
       nStr := Format(nStr, [sTable_ZTTrucks, nPLine.FLineID, nPLine.FPeerWeight,
               nPTruck.FBill]);
+      {$ENDIF}
       //xxxxx
 
       gDBConnManager.WorkerExec(nDB, nStr);

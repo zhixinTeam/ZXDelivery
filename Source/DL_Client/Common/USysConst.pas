@@ -194,6 +194,10 @@ const
   cFI_FrameDaySalesHj   = $1113;                     //日销量合计
   cFI_FrameDayReport    = $1114;                     //日报表
 
+  cFI_FrameSalesCredit  = $1115;                     //业务员信用
+  cFI_FormSalesCredit   = $1116;                     //业务员信用
+  cFI_FrameSaleTotalQuery2HY = $1117;                //恒宇销售汇总
+
   cFI_FormWXBaseLoad    = $6011;                     //同步问信接口
 
   {*Command*}
@@ -366,6 +370,7 @@ begin
   AddMenuModuleItem('MAIN_C06', cFI_FrameInvoiceWeek);
   AddMenuModuleItem('MAIN_C07', cFI_FrameShouJu);
   AddMenuModuleItem('MAIN_C08', cFI_FrameSaleZZ);
+  AddMenuModuleItem('MAIN_C09', cFI_FrameSalesCredit);
 
   AddMenuModuleItem('MAIN_D01', cFI_FormZhiKa, mtForm);
   AddMenuModuleItem('MAIN_D02', cFI_FrameMakeCard);
@@ -423,6 +428,7 @@ begin
   AddMenuModuleItem('MAIN_L18', cFI_FrameSaleAndMoney);
   AddMenuModuleItem('MAIN_L19', cFI_FrameDaySalesHj);
   AddMenuModuleItem('MAIN_L20', cFI_FrameDayReport);
+  AddMenuModuleItem('MAIN_L21', cFI_FrameSaleTotalQuery2HY);
 
   AddMenuModuleItem('MAIN_H01', cFI_FormTruckIn, mtForm);
   AddMenuModuleItem('MAIN_H02', cFI_FormTruckOut, mtForm);

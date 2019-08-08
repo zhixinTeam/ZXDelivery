@@ -1,4 +1,5 @@
 unit UCollectMoney;
+{$I Link.inc}
 
 interface
 
@@ -64,6 +65,7 @@ begin
   else if editType.ItemIndex = 2 then
     nTypeStr := 'and b.C_Type=''B''';
 
+  {$IFNDEF HYJC}
   nStr := 'Select M_CusID, M_CusName, SUM(Xj) Xj, SUM(Yh) Yh, SUM(Cd) Cd,'+
           ' SUM(Zz) Zz, SUM(Xj+Yh+Cd+Zz) Hj From ( '+
           ' Select M_CusID, M_CusName,'+
@@ -76,6 +78,22 @@ begin
           ' and M_Date>=''%s'' And M_Date<''%s'' ) x '+
           ' Group by M_CusID, M_CusName '+
           ' Order by M_CusID ';
+  {$ELSE}
+  nStr := 'Select M_CusID, M_CusName, SUM(Xj) Xj, SUM(Yh) Yh, SUM(Cd) Cd,'+
+          ' SUM(Zz) Zz,SUM(Qt) Qt,SUM(TK) Tk, SUM(Xj+Yh+Cd+Zz+Qt+TK) Hj From ( '+
+          ' Select M_CusID, M_CusName,'+
+          ' Case When M_Payment=''现金'' then M_Money else 0.00 End Xj,'+
+          ' Case When M_Payment=''银行转账'' then M_Money else 0.00 End Yh,'+
+          ' Case When M_Payment=''承兑汇票'' then M_Money else 0.00 End Cd,'+
+          ' Case When M_Payment=''转款'' then M_Money else 0.00 End Zz, '+
+          ' Case When M_Payment=''其它'' then M_Money else 0.00 End Qt, '+
+          ' Case When M_Payment=''退款'' then M_Money else 0.00 End TK '+
+          ' From Sys_CustomerInOutMoney a,S_Customer b '+
+          ' Where a.M_CusID=b.C_ID '+ nTypeStr +
+          ' and M_Date>=''%s'' And M_Date<''%s'' ) x '+
+          ' Group by M_CusID, M_CusName '+
+          ' Order by M_CusID ';
+  {$ENDIF}
   Result := Format(nStr, [Date2Str(FStart), Date2Str(FEnd + 1)]);
 end;
 

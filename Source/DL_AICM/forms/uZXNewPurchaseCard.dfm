@@ -237,6 +237,7 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Top = 71
         ParentFont = False
         Properties.ReadOnly = True
+        Style.BorderColor = clWindowFrame
         Style.BorderStyle = ebs3D
         Style.Font.Charset = DEFAULT_CHARSET
         Style.Font.Color = clWindowText
@@ -247,26 +248,23 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         TabOrder = 3
         Width = 265
       end
-      object dxLayoutGroup1: TdxLayoutGroup
-        AutoAligns = [aaHorizontal]
-        ShowCaption = False
+      object dxLayoutGroup1: TdxLayoutGroup        
         Hidden = True
         ShowBorder = False
         object dxGroup1: TdxLayoutGroup
           AutoAligns = [aaVertical]
-          Caption = #22522#26412#20449#24687
           object dxGroupLayout1Group2: TdxLayoutGroup
             ShowCaption = False
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayout1Item5: TdxLayoutItem
-              Caption = #21512#21516#21333#21495
+              Caption = #21512#21516#21333#21495':'
               Control = EditID
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item9: TdxLayoutItem
-              Caption = #20379#24212#21830
+              Caption = #20379' '#24212' '#21830':'
               Control = EditProv
               ControlOptions.ShowBorder = False
             end
@@ -277,13 +275,12 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxlytmLayout1Item3: TdxLayoutItem
-              AutoAligns = [aaVertical]
-              Caption = #21407#26448#26009
+              Caption = #21407' '#26448' '#26009':'
               Control = EditProduct
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item1: TdxLayoutItem
-              Caption = #30719#21457#27969#27700
+              Caption = #30719#21457#27969#27700':'
               Control = EditLs
               ControlOptions.ShowBorder = False
             end
@@ -291,10 +288,9 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         end
         object dxGroup2: TdxLayoutGroup
           AutoAligns = [aaVertical]
-          Caption = #36135#21333#20449#24687
           LayoutDirection = ldHorizontal
           object dxlytmLayout1Item12: TdxLayoutItem
-            Caption = #20379#36135#36710#36742':'
+            Caption = #21150#29702#36710#36742':'
             Control = EditTruck
             ControlOptions.ShowBorder = False
           end

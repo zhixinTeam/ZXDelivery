@@ -115,7 +115,7 @@ object fFormNewCard: TfFormNewCard
       TabOrder = 0
       TabStop = False
       object BtnOK: TButton
-        Left = 487
+        Left = 580
         Top = 285
         Width = 250
         Height = 41
@@ -130,7 +130,7 @@ object fFormNewCard: TfFormNewCard
         OnClick = BtnOKClick
       end
       object BtnExit: TButton
-        Left = 743
+        Left = 836
         Top = 285
         Width = 92
         Height = 41
@@ -174,7 +174,7 @@ object fFormNewCard: TfFormNewCard
         Style.Font.Style = []
         Style.IsFontAssigned = True
         TabOrder = 0
-        Width = 339
+        Width = 838
       end
       object EditCName: TcxTextEdit
         Left = 78
@@ -305,25 +305,16 @@ object fFormNewCard: TfFormNewCard
         TabOrder = 8
         Width = 185
       end
-      object dxLayoutGroup1: TdxLayoutGroup
-        AutoAligns = [aaHorizontal]
-        ShowCaption = False
+      object dxLayoutGroup1: TdxLayoutGroup        
         Hidden = True
         ShowBorder = False
         object dxGroup1: TdxLayoutGroup
-          AutoAligns = [aaVertical]
-          AlignHorz = ahClient
-          Caption = #22522#26412#20449#24687
           object dxlytmLayout1Item3: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            AlignHorz = ahClient
             Caption = #23458#25143#32534#21495':'
             Control = EditCus
             ControlOptions.ShowBorder = False
           end
           object dxlytmLayout1Item4: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            AlignHorz = ahClient
             Caption = #23458#25143#21517#31216':'
             Control = EditCName
             ControlOptions.ShowBorder = False
@@ -331,7 +322,6 @@ object fFormNewCard: TfFormNewCard
         end
         object dxGroup2: TdxLayoutGroup
           AutoAligns = [aaVertical]
-          Caption = #25552#21333#20449#24687
           object dxLayout1Group1: TdxLayoutGroup
             AutoAligns = [aaVertical]
             ShowCaption = False
@@ -394,8 +384,6 @@ object fFormNewCard: TfFormNewCard
           end
         end
         object dxLayoutGroup3: TdxLayoutGroup
-          AutoAligns = [aaVertical]
-          AlignHorz = ahClient
           ShowCaption = False
           Hidden = True
           LayoutDirection = ldHorizontal

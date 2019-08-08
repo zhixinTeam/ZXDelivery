@@ -37,12 +37,12 @@ inherited fFrameCollectMoney: TfFrameCollectMoney
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item2: TdxLayoutItem
-          CaptionOptions.Text = #23458#25143#31867#22411':'
+          Caption = #23458#25143#31867#22411':'
           Control = editType
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item1: TdxLayoutItem
-          CaptionOptions.Text = #26085#26399#31579#36873':'
+          Caption = #26085#26399#31579#36873':'
           Control = editDate
           ControlOptions.ShowBorder = False
         end

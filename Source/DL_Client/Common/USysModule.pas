@@ -51,7 +51,7 @@ uses
   //东义财务报表
   UFrameNotice, UFrameDaySals, UFrameMonthSales, UFrameDayPrice,
   UFrameMonthPrice, UCollectMoney, UAccReport, UFrameSaleAndMoney,
-  UFrameDaySalesHj, UFrameDayReport;
+  UFrameDaySalesHj, UFrameDayReport, UFrameQuerySaleTotal2HY;
 
 procedure InitSystemObject;
 procedure RunSystemObject;

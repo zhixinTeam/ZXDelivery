@@ -1260,9 +1260,9 @@ begin
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //Ìí¼ÓÒýºÅ
 
-  nStr := 'Select b.*,c.* From %s b,%s c Where '+
-          ' b.L_Truck=c.T_Truck and L_ID In(%s)';
-  nStr := Format(nStr, [sTable_Bill,sTable_Truck, nBill]);
+  nStr := 'Select b.*,c.*,d.z_name From %s b,%s c,%s d Where '+
+          ' b.L_Truck=c.T_Truck and b.L_ZhiKa=d.Z_ID and L_ID In(%s)';
+  nStr := Format(nStr, [sTable_Bill,sTable_Truck,sTable_ZhiKa, nBill]);
   //nStr := 'Select * From %s b Where L_ID In(%s)';
   //nStr := Format(nStr, [sTable_Bill, nBill]);
   //xxxxx

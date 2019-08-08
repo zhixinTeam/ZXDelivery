@@ -69,6 +69,8 @@ type
     procedure QueryCard(const nCard: string);
     //查询卡信息
     procedure QueryPorderinfo(const nCard: string);
+    function GetReportFileByStock(const nStock: string): string;
+    function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
   end;
 
 var
@@ -535,26 +537,26 @@ begin
       Exit;
     end;
 
-    if (nShortFileName='') then
-    begin
-      nStr := '品种[ '+nstockno+' ]暂不支持自助打印质检单，请到开票窗口咨询';
-      ShowMsg(nStr,sHint);
-      WriteLog(nStr);
-      Exit;
-    end;
+//    if (nShortFileName='') then
+//    begin
+//      nStr := '品种[ '+nstockno+' ]暂不支持自助打印质检单，请到开票窗口咨询';
+//      ShowMsg(nStr,sHint);
+//      WriteLog(nStr);
+//      Exit;
+//    end;
 
     if not Assigned(FDR) then
     begin
       FDR := TFDR.Create(Application);
     end;
 
-    {if PrintHuaYanReport(nHYDan, nStockName,nstockno,nShortFileName, False) then
+    if PrintHuaYanReport(nP.FParamE, False) then
     begin
       ShowMsg('打印成功，请在下方出纸口取走您的化验单',sHint);
     end
     else begin
       ShowMsg('打印失败，请联系开票员补打',sHint);
-    end;}
+    end;
   end;
 end;
 
@@ -678,6 +680,84 @@ begin
       WriteLog(E.Message);
     end;
   end;}
+end;
+
+//Desc: 打印标识为nHID的化验单
+function TfFormMain.PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
+var nStr,nSR: string;
+begin
+  if nAsk then
+  begin
+    Result := True;
+    nStr := '是否要打印化验单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end else Result := False;
+
+  nSR := 'Select * From %s sr ' +
+         ' Left Join %s sp on sp.P_ID=sr.R_PID';
+  nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
+
+  nStr := 'Select hy.*,sr.*,C_Name,(case when H_PrintNum>0 THEN ''补'' ELSE '''' END) AS IsBuDan From $HY hy ' +
+          ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
+          ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
+          'Where H_Reporter =''$ID''';
+  //xxxxx
+
+  nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
+          MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
+  //xxxxx
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '编号为 %s 的化验单记录已无效!!';
+    nStr := Format(nStr, [nHID]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := FDM.SqlTemp.FieldByName('P_Stock').AsString;
+  nStr := GetReportFileByStock(nStr);
+
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  //FDR.ShowReport;
+  FDR.PrintReport;
+  Result := FDR.PrintSuccess;
+
+  if Result  then
+  begin
+    nStr := 'UPDate %s Set H_PrintNum=H_PrintNum+1 Where H_Reporter=''%s'' ';
+    nStr := Format(nStr, [sTable_StockHuaYan, nHID]);
+    FDM.ExecuteSQL(nStr);
+  end;
+end;
+
+function TfFormMain.GetReportFileByStock(const nStock: string): string;
+begin
+  Result := GetPinYinOfStr(nStock);
+
+  if Pos('dj', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan42_DJ.fr3'
+  else if Pos('gsysl', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_gsl.fr3'
+  else if Pos('kzf', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_kzf.fr3'
+  else if Pos('qz', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan_qz.fr3'
+  else if Pos('32', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan32.fr3'
+  else if Pos('42', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan42.fr3'
+  else if Pos('52', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYan42.fr3'
+
+  else if Pos('qzzx', Result) > 0 then
+    Result := gPath + sReportDir + 'qzzx.fr3'
+  else Result := '';
 end;
 
 end.

@@ -2,7 +2,7 @@ inherited fFrameDayPrice: TfFrameDayPrice
   inherited dxLayout1: TdxLayoutControl
     object editDate: TcxDateEdit [0]
       Left = 81
-      Top = 31
+      Top = 36
       ParentFont = False
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
@@ -14,7 +14,7 @@ inherited fFrameDayPrice: TfFrameDayPrice
     end
     object editType: TcxComboBox [1]
       Left = 265
-      Top = 31
+      Top = 36
       ParentFont = False
       Properties.Items.Strings = (
         #25353#21306#22495#32479#35745
@@ -30,7 +30,7 @@ inherited fFrameDayPrice: TfFrameDayPrice
     end
     object Button1: TButton [2]
       Left = 391
-      Top = 31
+      Top = 36
       Width = 75
       Height = 25
       Caption = #32479#35745
@@ -40,18 +40,16 @@ inherited fFrameDayPrice: TfFrameDayPrice
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          CaptionOptions.Text = #32479#35745#26085#26399':'
+          Caption = #32479#35745#26085#26399':'
           Control = editDate
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          CaptionOptions.Text = #32479#35745#26041#24335':'
+          Caption = #32479#35745#26041#24335':'
           Control = editType
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          CaptionOptions.Text = 'Button1'
-          CaptionOptions.Visible = False
           Control = Button1
           ControlOptions.ShowBorder = False
         end

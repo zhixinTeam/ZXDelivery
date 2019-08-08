@@ -57,6 +57,11 @@ type
     EditID: TcxTextEdit;
     cxbLs: TcxComboBox;
     dxLayoutControl1Item15: TdxLayoutItem;
+    editYSBM: TcxComboBox;
+    dxLayoutControl1Item16: TdxLayoutItem;
+    editYSTime: TcxComboBox;
+    dxLayoutControl1Item17: TdxLayoutItem;
+    dxLayoutControl1Group3: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnAddClick(Sender: TObject);
@@ -65,6 +70,7 @@ type
     procedure BtnExitClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure cxComboBox2PropertiesChange(Sender: TObject);
   private
     { Private declarations }
     FRecordID: string;
@@ -181,6 +187,14 @@ begin
   {$ELSE}
   dxLayoutControl1Item15.Visible := False;
   {$ENDIF}
+
+  {$IFDEF DoubleCheck}
+  dxLayoutControl1Item16.Visible := True;
+  dxLayoutControl1Item17.Visible := True;
+  {$ELSE}
+  dxLayoutControl1Item16.Visible := False;
+  dxLayoutControl1Item17.Visible := False;
+  {$ENDIF}
 end;
 
 procedure TfFormMaterails.FormClose(Sender: TObject;
@@ -222,6 +236,20 @@ begin
          nData := sFlag_Yes
     else nData := sFlag_No;
   end;
+
+  if Sender = editYSTime then
+  begin
+    if editYSTime.ItemIndex = 1 then
+         nData := sFlag_Yes
+    else nData := sFlag_No;
+  end;
+
+  if Sender = editYSBM then
+  begin
+    if editYSBM.ItemIndex = 1 then
+         nData := sFlag_Yes
+    else nData := sFlag_No;
+  end;
 end;
 
 function TfFormMaterails.SetData(Sender: TObject; const nData: string): Boolean;
@@ -235,6 +263,24 @@ begin
     if nData = sFlag_Yes then
          EditPValue.ItemIndex := 0
     else EditPValue.ItemIndex := 1;
+  end;
+
+  if Sender = editYSTime then
+  begin
+    Result := True;
+
+    if nData = sFlag_Yes then
+         editYSTime.ItemIndex := 1
+    else editYSTime.ItemIndex := 0;
+  end;
+
+  if Sender = editYSBM then
+  begin
+    Result := True;
+
+    if nData = sFlag_Yes then
+         editYSBM.ItemIndex := 1
+    else editYSBM.ItemIndex := 0;
   end;
 end;
 
@@ -346,17 +392,20 @@ begin
   else
   begin
     {$IFDEF InfoOnly}
-    nStr := 'Select Count(*) From %s Where M_Name=''%s''';
-    nStr := Format(nStr, [sTable_Materails, EditName.Text]);
-    //xxxxx
-
-    with FDM.QueryTemp(nStr) do
-    if Fields[0].AsInteger > 0 then
+    if FRecordID = '' then
     begin
-      nStr := '物料名称[ %s ]重复';
-      nStr := Format(nStr, [EditName.Text]);
-      ShowMsg(nStr, sHint);
-      Exit;
+      nStr := 'Select Count(*) From %s Where M_Name=''%s''';
+      nStr := Format(nStr, [sTable_Materails, EditName.Text]);
+      //xxxxx
+
+      with FDM.QueryTemp(nStr) do
+      if Fields[0].AsInteger > 0 then
+      begin
+        nStr := '物料名称[ %s ]重复';
+        nStr := Format(nStr, [EditName.Text]);
+        ShowMsg(nStr, sHint);
+        Exit;
+      end;
     end;
     {$ENDIF}
   end;
@@ -461,6 +510,14 @@ begin
     if Fields[0].AsString = sFlag_Yes then
       Result := True;
   end;
+end;
+
+procedure TfFormMaterails.cxComboBox2PropertiesChange(Sender: TObject);
+begin
+  if editYSTime.ItemIndex = 1 then
+    editYSBM.Enabled := False
+  else
+    editYSBM.Enabled := True;
 end;
 
 initialization

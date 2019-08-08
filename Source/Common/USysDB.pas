@@ -285,7 +285,12 @@ const
   sFlag_TransBase     = 'Bus_TransBase';             //短倒申请单号
   sFlag_TransferPound = 'TransferPound';             //短倒是否过磅
 
-  sFlag_Between2BillsTime = 30;                       //同一车开单间隔，单位：分钟
+  sFlag_Between2BillsTime = 30;                      //同一车开单间隔，单位：分钟
+
+  sFlag_HYSGroup      = 'HYSGroup';                  //化验室组
+  sFlag_WLBGroup      = 'WLBGroup';                  //化验室组
+  sFlag_PeerWeight    = 'PeerWeight';                //每袋重量
+
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
   sTable_User         = 'Sys_User';                  //用户表
@@ -378,6 +383,8 @@ const
   sTable_TransferBak  = 'P_TransferBak';             //短倒明细单
   sTable_MonthSales   = 'S_MonthSales';              //月销售汇总
   sTable_MonthPrice   = 'S_MonthPrice';              //月销售汇总
+
+  sTable_SalesCredit  = 'Sys_SalesCredit';           //业务员信用
 
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
@@ -555,7 +562,8 @@ const
   
   sSQL_NewSalesMan = 'Create Table $Table(R_ID $Inc, S_ID varChar(15),' +
        'S_Name varChar(30), S_PY varChar(30), S_Phone varChar(20),' +
-       'S_Area varChar(50), S_InValid Char(1), S_Memo varChar(50))';
+       'S_Area varChar(50), S_InValid Char(1), S_Memo varChar(50),'+
+       'S_CreditLimit Decimal(15,5) Default 0,S_CreditUsed Decimal(15,5) Default 0)';
   {-----------------------------------------------------------------------------
    业务员表: SalesMan
    *.R_ID: 记录号
@@ -566,6 +574,8 @@ const
    *.S_Area:所在区域
    *.S_InValid: 已无效
    *.S_Memo: 备注
+   *.S_CreditLimit:授信额度
+   *.S_CreditUsed：额度用量
   -----------------------------------------------------------------------------}
 
   sSQL_NewCustomer = 'Create Table $Table(R_ID $Inc, C_ID varChar(15), ' +
@@ -961,7 +971,8 @@ const
        'D_Value $Float,D_KZValue $Float, D_AKValue $Float,' +
        'D_YLine varChar(15), D_YLineName varChar(32), D_Unload varChar(80),' +
        'D_DelMan varChar(32), D_DelDate DateTime, D_YSResult Char(1), ' +
-       'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500))';
+       'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500),'+
+       'D_WlbYTime DateTime, D_WlbYMan varchar(32),D_WlbYS char(1) Default ''N'')';
   {-----------------------------------------------------------------------------
    采购订单明细表: OrderDetail
    *.R_ID: 编号
@@ -987,6 +998,7 @@ const
    *.D_UnLoad: 卸货地点/库房
    *.D_YSResult: 验收结果
    *.D_OutFact,D_OutMan: 出厂放行
+   *.D_WlbYTime,D_WlbYMan,D_WlbYS:物流部验收时间，人，结果
   -----------------------------------------------------------------------------}
 
   sSQL_NewCard = 'Create Table $Table(R_ID $Inc, C_Card varChar(16),' +
@@ -1368,7 +1380,7 @@ const
   sSQL_NewMaterails = 'Create Table $Table(R_ID $Inc, M_ID varChar(32),' +
        'M_Name varChar(80),M_PY varChar(80),M_Unit varChar(20),M_Price $Float,' +
        'M_PrePValue Char(1), M_PrePTime Integer, M_Memo varChar(50), ' +
-       'M_HasLs Char(1) Default ''N'', M_IsSale Char(1) Default ''N'')';
+       'M_YS2Times char(1), M_HYSYS char(1))';
   {-----------------------------------------------------------------------------
    物料表: Materails
    *.M_ID: 编号
@@ -1380,6 +1392,8 @@ const
    *.M_Memo: 备注
    *.M_IsSale: 销售品种
    *.M_HasLs: 是否生成矿发流水
+   *.M_YS2Times 是否两次验收 Y:两次验收 N:一次验收
+   *.M_HYSYS    Y:化验室验收  N:物流部验收
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockParam = 'Create Table $Table(P_ID varChar(15), P_Stock varChar(30),' +
@@ -1712,6 +1726,24 @@ const
 
   -----------------------------------------------------------------------------}
 
+  sSQL_NewSalesCredit = 'Create Table $Table(R_ID $Inc ,C_SalesID varChar(15),' +
+       'C_SalesName varChar(50), C_Money Decimal(15,5), C_Man varChar(32), C_Date DateTime, ' +
+       'C_End DateTime, C_Verify Char(1) Default ''N'', C_VerMan varChar(32),' +
+       'C_VerDate DateTime, C_Memo varChar(50))';
+  {-----------------------------------------------------------------------------
+   信用明细:CustomerCredit
+   *.R_ID:编号
+   *.C_SalesID:客户编号
+   *.C_SalesName:客户名称
+   *.C_Money:授信额
+   *.C_Man:操作人
+   *.C_Date:日期
+   *.C_End: 有效期
+   *.C_Verify: 已审核(Y/N)
+   *.C_VerMan,C_VerDate: 审核
+   *.C_Memo:备注
+  -----------------------------------------------------------------------------}
+
 
 function CardStatusToStr(const nStatus: string): string;
 //磁卡状态
@@ -1868,6 +1900,9 @@ begin
   
   AddSysTableItem(sTable_MonthSales, sSQL_NewMonthSales);
   AddSysTableItem(sTable_MonthPrice, sSQL_NewMonthPrice);
+
+  AddSysTableItem(sTable_SalesCredit, sSQL_NewSalesCredit);
+
 end;
 
 //Desc: 清理系统表

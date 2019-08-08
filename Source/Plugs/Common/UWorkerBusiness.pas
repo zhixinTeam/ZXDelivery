@@ -81,6 +81,7 @@ type
     //系统是否已过期
     function GetCustomerValidMoney(var nData: string): Boolean;
     //获取客户可用金
+    function GetCusMoney(var nCusId: string;var nMoney:Double): Boolean;
     function GetZhiKaValidMoney(var nData: string): Boolean;
     //获取纸卡可用金
     function GetZhiKaValidMoneyEx(var nData: string): Boolean;
@@ -117,7 +118,7 @@ type
     function GetSalePlan(var nData: string): Boolean;
     //读取销售计划
     {$ENDIF}
-    {$IFDEF SXDY}
+    {$IFDEF SendBillToBakDB}
     function SyncRemoteStockBill(var nData: string): Boolean;
     //东义  同步交货单到备用库
     {$ENDIF}
@@ -126,6 +127,8 @@ type
     //生成化验单推送事件
     function SaveGrabCard(var nData: string): Boolean;
     //保存抓斗称刷卡信息
+    function GetSalesCredit(nSalesID: string):Double;
+    //获取业务员信用
   public
     constructor Create; override;
     destructor destroy; override;
@@ -378,7 +381,7 @@ begin
    cBC_SyncStockOrder      : Result := SyncRemoteStockOrder(nData);
    {$ENDIF}
 
-   {$IFDEF SXDY}
+   {$IFDEF SendBillToBakDB}
    cBC_SyncStockBill       : Result := SyncRemoteStockBill(nData);
    {$ENDIF}
    
@@ -424,7 +427,9 @@ end;
 //Parm: 用户名，密码；返回用户数据
 //Desc: 用户登录
 function TWorkerBusinessCommander.Login(var nData: string): Boolean;
-var nStr: string;
+var
+  nStr: string;
+  nID, nWLBId, nHysID:string;
 begin
   Result := False;
 
@@ -433,7 +438,7 @@ begin
   if FListA.Values['User']='' then Exit;
   //未传递用户名
 
-  nStr := 'Select U_Password From %s Where U_Name=''%s''';
+  nStr := 'Select U_Password,U_Group From %s Where U_Name=''%s''';
   nStr := Format(nStr, [sTable_User, FListA.Values['User']]);
   //card status
 
@@ -443,21 +448,38 @@ begin
 
     nStr := Fields[0].AsString;
     if nStr<>FListA.Values['Password'] then Exit;
-    {
-    if CallMe(cBC_ServerNow, '', '', @nOut) then
-         nStr := PackerEncodeStr(nOut.FData)
-    else nStr := IntToStr(Random(999999));
 
-    nInfo := FListA.Values['User'] + nStr;
-    //xxxxx
+    {$IFDEF DoubleCheck}
+      nID := Fields[1].AsString;
 
-    nStr := 'Insert into $EI(I_Group, I_ItemID, I_Item, I_Info) ' +
-            'Values(''$Group'', ''$ItemID'', ''$Item'', ''$Info'')';
-    nStr := MacroValue(nStr, [MI('$EI', sTable_ExtInfo),
-            MI('$Group', sFlag_UserLogItem), MI('$ItemID', FListA.Values['User']),
-            MI('$Item', PackerEncodeStr(FListA.Values['Password'])),
-            MI('$Info', nInfo)]);
-    gDBConnManager.WorkerExec(FDBConn, nStr);  }
+      nStr := 'select * from %s where D_Name=''%s''';
+      nStr := Format(nStr,[sTable_SysDict,sFlag_HYSGroup]);
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      begin
+        if RecordCount<1 then Exit;
+
+        nHysID := FieldByName('D_Value').AsString;
+      end;
+
+      nStr := 'select * from %s where D_Name=''%s''';
+      nStr := Format(nStr,[sTable_SysDict,sFlag_WLBGroup]);
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      begin
+        if RecordCount<1 then Exit;
+      
+        nWLBId := FieldByName('D_Value').AsString;
+      end;
+      if nID = nHysID then
+        FOut.FData := sFlag_HYSGroup
+      else
+      if nID = nWLBId then
+        FOut.FData := sFlag_WLBGroup
+      else
+      begin
+        FOut.FData := '没有验收权限.';
+        Exit;
+      end;
+    {$ENDIF}
 
     Result := True;
   end;
@@ -620,13 +642,61 @@ begin
   end;
 end;
 
+function TWorkerBusinessCommander.GetSalesCredit(nSalesID: string): Double;
+var
+  nStr:string;
+  nCredit, nUsed, nCusMoney:Double;
+  nCusList:TStrings;
+  nIdx:integer;
+begin
+  Result := 0;
+  nStr := 'select * from %s where S_ID=''%s''';
+  nStr := Format(nStr,[sTable_Salesman,nSalesID]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount = 0 then Exit;
+    if FieldByName('S_CreditLimit').AsFloat <= 0  then Exit;
+    nCredit := FieldByName('S_CreditLimit').AsFloat;
+  end;
+
+  nStr := 'select C_ID from %s where C_SaleMan=''%s''';
+  nStr := Format(nStr,[sTable_Customer,nSalesID]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount = 0 then Exit;
+    nCusList := TStringList.Create;
+    First;
+    while not Eof do
+    begin
+      nCusList.Add(FieldByName('C_ID').asstring);
+      Next;
+    end;
+
+    for nIdx := 0 to nCusList.Count-1 do
+    begin
+      nStr := nCusList[nidx];
+      if not GetCusMoney(nStr, nCusMoney) then Exit;
+      if nCusMoney < 0 then
+      nUsed := nUsed + nCusMoney;
+      //所有该业务员名下客户已经透支金额
+    end;
+  end;
+
+  nStr := 'update %s set S_CreditUsed=-(%s) where S_Id=''%s''';
+  nStr := Format(nStr,[sTable_Salesman,FloatToStr(nUsed),nSalesID]);
+  gDBConnManager.WorkerExec(FDBConn, nStr);
+
+  if nCredit + nUsed >= 0 then
+    Result := nCredit + nUsed;
+end;
+
 {$IFDEF COMMON}
 //Date: 2014-09-05
 //Desc: 获取指定客户的可用金额
 function TWorkerBusinessCommander.GetCustomerValidMoney(var nData: string): Boolean;
 var nStr: string;
     nUseCredit: Boolean;
-    nVal,nCredit: Double;
+    nVal,nCredit, nSalesCredit: Double;
 begin
   nUseCredit := False;
   if FIn.FExtParam = sFlag_Yes then
@@ -667,6 +737,30 @@ begin
     if nUseCredit then
       nVal := nVal + nCredit;
 
+    //使用业务员授信
+    {$IFDEF UseSalesCredit}
+      nStr := 'select C_SaleMan from %s where C_Id=''%s''';
+      nStr := Format(nstr,[sTable_Customer, FIn.FData]);
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      begin
+        if RecordCount =  1 then
+        begin
+          if Trim(FieldByName('C_SaleMan').AsString) <> '' then
+          begin
+            nStr := FieldByName('C_SaleMan').AsString;
+            nSalesCredit := GetSalesCredit(nStr);
+            WriteLog('业务员['+ nStr +']信用:'+floattostr(nSalesCredit));
+          end;
+        end;
+      end;
+
+      if nVal < 0 then
+        nVal := nSalesCredit
+      else
+        nVal := nVal + nSalesCredit;
+      WriteLog('客户['+fin.FData+']合计可用:'+floattostr(nVal));
+    {$ENDIF}
+
     nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
     FOut.FData := FloatToStr(nVal);
     FOut.FExtParam := FloatToStr(nCredit);
@@ -679,8 +773,8 @@ end;
 //Date: 2014-09-05
 //Desc: 获取指定纸卡的可用金额
 function TWorkerBusinessCommander.GetZhiKaValidMoney(var nData: string): Boolean;
-var nStr: string;
-    nVal,nMoney,nCredit: Double;
+var nStr, nCusId: string;
+    nVal,nMoney,nCredit, nSalesCredit: Double;
 begin
   nStr := 'Select ca.*,Z_OnlyMoney,Z_FixedMoney From $ZK,$CA ca ' +
           'Where Z_ID=''$ZID'' and A_CID=Z_Customer';
@@ -710,6 +804,7 @@ begin
 
     nCredit := FieldByName('A_CreditLimit').AsFloat;
     nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
+    nCusId := fieldbyname('A_CId').AsString;
 
     nStr := 'Select MAX(C_End) From %s ' +
             'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
@@ -724,6 +819,30 @@ begin
       nVal := nVal + nCredit;
       //信用未过期
     end;
+
+    //使用业务员授信
+    {$IFDEF UseSalesCredit}
+      nStr := 'select C_SaleMan from %s where C_Id=''%s''';
+      nStr := Format(nstr,[sTable_Customer, nCusId]);
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      begin
+        if RecordCount =  1 then
+        begin
+          if Trim(FieldByName('C_SaleMan').AsString) <> '' then
+          begin
+            nStr := FieldByName('C_SaleMan').AsString;
+            nSalesCredit := GetSalesCredit(nStr);
+            WriteLog('业务员['+ nStr +']信用GetZhikaMoney:'+floattostr(nSalesCredit));
+          end;
+        end;
+      end;
+
+      if nVal < 0 then
+        nVal := nSalesCredit
+      else
+        nVal := nVal + nSalesCredit;
+      WriteLog('纸卡['+fin.FData+']可用金额:'+floattostr(nVal));
+    {$ENDIF}
 
     nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
     //total money
@@ -2789,7 +2908,7 @@ begin
   FOut.FBase.FResult := True;
 end;
 
-{$IFDEF SXDY}
+{$IFDEF SendBillToBakDB}
 function TWorkerBusinessCommander.SyncRemoteStockBill(
   var nData: string): Boolean;
 var
@@ -2949,6 +3068,57 @@ begin
   end;
 end;
 {$ENDIF}
+
+
+function TWorkerBusinessCommander.GetCusMoney(var nCusId: string;var nMoney:Double): Boolean;
+var nStr: string;
+    nUseCredit: Boolean;
+    nVal,nCredit, nSalesCredit: Double;
+begin
+  nUseCredit := False;
+  //if FIn.FExtParam = sFlag_Yes then
+  begin
+    nStr := 'Select MAX(C_End) From %s ' +
+            'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
+    nStr := Format(nStr, [sTable_CusCredit, nCusId, sFlag_Yes]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      nUseCredit := (Fields[0].AsDateTime > Str2Date('2000-01-01')) and
+                    (Fields[0].AsDateTime > Now());
+    //信用未过期
+  end;
+
+  nStr := 'Select * From %s Where A_CID=''%s''';
+  nStr := Format(nStr, [sTable_CusAccount, nCusId]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      nStr := '编号为[ %s ]的客户账户不存在.';
+      nStr := Format(nStr, [nCusId]);
+      WriteLog(nStr);
+      Result := False;
+      Exit;
+    end;
+
+    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat -
+            FieldByName('A_OutMoney').AsFloat -
+            FieldByName('A_Compensation').AsFloat -
+            FieldByName('A_FreezeMoney').AsFloat;
+    //xxxxx
+
+    nCredit := FieldByName('A_CreditLimit').AsFloat;
+    nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
+
+    if nUseCredit then
+      nVal := nVal + nCredit;
+
+    nVal := Float2PInt(nVal, cPrecision, False) / cPrecision;
+    nMoney := nVal;
+    Result := True;
+  end;
+end;
 
 initialization
   gBusinessWorkerManager.RegisteWorker(TBusWorkerQueryField, sPlug_ModuleBus);

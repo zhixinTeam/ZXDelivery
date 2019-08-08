@@ -41,18 +41,16 @@ inherited fFrameDaySales: TfFrameDaySales
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          CaptionOptions.Text = #32479#35745#26085#26399':'
+          Caption = #32479#35745#26085#26399':'
           Control = editdate
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          CaptionOptions.Text = #32479#35745#26041#24335':'
+          Caption = #32479#35745#26041#24335':'
           Control = editType
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          CaptionOptions.Text = 'Button1'
-          CaptionOptions.Visible = False
           Control = Button1
           ControlOptions.ShowBorder = False
         end

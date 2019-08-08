@@ -276,6 +276,7 @@ begin
 
   if DeleteBill(nID) then
   begin
+    GetCustomerValidMoney(SQLQuery.FieldByName('L_CusID').AsString);
     InitFormData(FWhere);
     ShowMsg('提货单已删除', sHint);
   end;

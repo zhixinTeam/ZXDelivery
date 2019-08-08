@@ -55,6 +55,8 @@ type
     FNormal     : Integer;     //正常总装
     FBuCha      : Integer;     //补差总装
     FStarted    : Boolean;     //是否启动
+
+    FTruckPeerWeight : Integer;//每袋重量
   end;
 
   TQueueParam = record
@@ -1180,6 +1182,11 @@ begin
         FBuCha      := FieldByName('T_BuCha').AsInteger;
         FIsBuCha    := FNormal > 0;
         FDai        := 0;
+
+        if not IsNumber(FieldByName('T_PeerWeight').AsString, True) then
+          FTruckPeerWeight := 50
+        else
+          FTruckPeerWeight := FieldByName('T_PeerWeight').AsInteger;
       end;
       
       Inc(nIdx);
@@ -1377,22 +1384,41 @@ begin
   if nTruck.FIsReal then
     nLine.FRealCount := nLine.FRealCount + 1;
   //实位车辆计数
-  
+
+  {$IFDEF ChkPeerWeight}
+  if (nTruck.FDai <= 0) and (nTruck.FTruckPeerWeight > 0) then
+  begin
+    nTruck.FDai := Trunc(nTruck.FValue * 1000 / nTruck.FTruckPeerWeight);
+    //dai number
+  end;
+  {$ELSE}
   if (nTruck.FDai <= 0) and (nLine.FPeerWeight > 0) then
   begin
     nTruck.FDai := Trunc(nTruck.FValue * 1000 / nLine.FPeerWeight);
     //dai number
-    WriteLog(Format('车辆[ %s ]袋数[ %s ]提货量[ %s ]吨,每袋重量[ %s ]千克.', [nTruck.FTruck, IntToStr(nTruck.FDai), CurrToStr(nTruck.FValue), IntToStr(nLine.FPeerWeight)]));
   end;
+  {$ENDIF}
 
+  {$IFDEF ChkPeerWeight}
+  if (nTruck.FTruckPeerWeight > 0) and
+   (nTruck.FInFact or (nTruck.FIsVIP = sFlag_TypeShip)) then
+  begin
+    nStr := 'Update %s Set T_Line=''%s'' Where T_Bill=''%s''';
+    nStr := Format(nStr, [sTable_ZTTrucks, nLine.FLineID, nTruck.FBill]);
+    gDBConnManager.WorkerExec(FDBConn, nStr);
+  end;
+  {$ELSE}
   if (nLine.FPeerWeight > 0) and
-     (nTruck.FInFact or (nTruck.FIsVIP = sFlag_TypeShip)) then
+   (nTruck.FInFact or (nTruck.FIsVIP = sFlag_TypeShip)) then
   begin
     nStr := 'Update %s Set T_Line=''%s'',T_PeerWeight=%d Where T_Bill=''%s''';
     nStr := Format(nStr, [sTable_ZTTrucks, nLine.FLineID, nLine.FPeerWeight,
                           nTruck.FBill]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
   end;
+  {$ENDIF}
+
+
 
   if (not nTruck.FInFact) or FParam.FDelayQueue then
   begin
@@ -1503,8 +1529,14 @@ begin
           nTruck.FIndex := FIndex;
 
           nTruck.FValue := FValue;
+          {$IFDEF ChkPeerWeight}
+          if nTruck.FTruckPeerWeight>0 then
+            nTruck.FDai := Trunc(FValue * 1000 / nTruck.FTruckPeerWeight);
+          {$ELSE}
           if nLine.FPeerWeight>0 then
             nTruck.FDai := Trunc(FValue * 1000 / nLine.FPeerWeight);
+          {$ENDIF}
+
 
           nTruck.FBill  := FBill;
           nTruck.FHKBills := FHKBills;

@@ -12,7 +12,8 @@ uses
   UMgrPoundTunnels, UBusinessConst, UFrameBase, cxGraphics, cxControls,
   cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, StdCtrls,
   UTransEdit, ExtCtrls, cxRadioGroup, cxTextEdit, cxMaskEdit,
-  cxDropDownEdit, cxLabel, ULEDFont, DateUtils;
+  cxDropDownEdit, cxLabel, ULEDFont, DateUtils, dxSkinsCore,
+  dxSkinsDefaultPainters;
 
 type
   TfFrameAutoPoundItem = class(TBaseFrame)
@@ -465,6 +466,21 @@ begin
                  (FNextStatus = sFlag_TruckBFM);
     //可称重状态判定
 
+    //供应类业务,且物流部未验收，则直接跳出循环
+    {$IFDEF DoubleCheck}
+    if (FCardUsed=sFlag_Provide) and (FNextStatus = sFlag_TruckBFM) and GetWlbYsStatus(FStockNo,FID) then
+    begin
+      nInt := 0;
+      nVoice := '物流部未验收,车辆 %s 不能过磅';
+      nVoice := Format(nVoice, [FTruck]);
+
+      nStr := '※.单号:[ %s ] 状态: 物流部未验收';
+      nstr := Format(nStr,[FID]);
+      nHint := nStr;
+      Break;
+    end;
+    {$ENDIF} 
+
     if FSelected then
     begin
       Inc(nInt);
@@ -654,8 +670,9 @@ begin
       WriteSysLog(nStr);
       Exit;
     end;
-
+    {$IFNDEF NoCheckPound}
     if Not ChkPoundStatus then Exit;
+    {$ENDIF}
     //检查地磅状态 如不为空磅，则喊话 退出称重
 
     FCardTmp := nCard;

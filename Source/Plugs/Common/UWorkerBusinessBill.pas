@@ -44,7 +44,7 @@ type
     FMatchItems: array of TStockMatchItem;
     //分组匹配
     FBillLines: array of TBillLadingLine;
-    //装车线 
+    //装车线
   protected
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
     function DoDBWork(var nData: string): Boolean; override;
@@ -481,6 +481,7 @@ begin
 
     nStr := FieldByName('Z_TJStatus').AsString;
 
+    {$IFNDEF HYJC}
     {$IFNDEF NoShowPriceChange}
     if nStr  <> '' then
     begin
@@ -500,6 +501,7 @@ begin
       nData := Format(nData, [Values['ZhiKa']]);
       Exit;
     end;
+    {$ENDIF}
     {$ENDIF}
 
     if FieldByName('Z_ValidDays').AsDateTime <= Date() then
@@ -534,7 +536,7 @@ end;
 //Desc: 保存交货单
 function TWorkerBusinessBills.SaveBills(var nData: string): Boolean;
 var nIdx: Integer;
-    nVal,nMoney: Double;
+    nVal,nMoney, nPeerWeight: Double;
     nStr,nSQL,nFixMoney: string;
     {$IFDEF TruckInNow}
     nStatus, nNextStatus: string;
@@ -801,6 +803,17 @@ begin
           gDBConnManager.WorkerExec(FDBConn, nSQL);
         end else
         begin
+          {$IFDEF ChkPeerWeight}
+          nStr := 'select * from %s where D_Name=''%s'' and D_Value=''%s''';
+          nStr := Format(nStr,[sTable_SysDict,sFlag_PeerWeight,FListC.Values['StockNO']]);
+          with gDBConnManager.WorkerQuery(FDBConn,nStr) do
+          begin
+            nPeerWeight := 0;
+            if recordCount > 0 then
+              nPeerWeight := FieldByName('D_ParamA').AsFloat;
+          end;
+
+          {$ENDIF}
           nSQL := MakeSQLByStr([
             SF('T_Truck'   , FListA.Values['Truck']),
             SF('T_StockNo' , FListC.Values['StockNO']),
@@ -811,6 +824,9 @@ begin
             SF('T_Valid'   , sFlag_Yes),
             SF('T_Value'   , FListC.Values['Value'], sfVal),
             SF('T_VIP'     , FListA.Values['IsVIP']),
+            {$IFDEF ChkPeerWeight}
+            SF('T_PeerWeight',floattostr(nPeerWeight)),
+            {$ENDIF}
             SF('T_HKBills' , nOut.FData + '.')
             ], sTable_ZTTrucks, '', True);
           gDBConnManager.WorkerExec(FDBConn, nSQL);
@@ -907,6 +923,12 @@ begin
     FDBConn.FConn.RollbackTrans;
     raise;
   end;
+
+  //使用业务员授信
+  {$IFDEF UseSalesCredit}
+  TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
+            FListA.Values['ZhiKa'], '', @nOut);
+  {$ENDIF}
 
   {$IFDEF UseERP_K3}
   if FListA.Values['BuDan'] = sFlag_Yes then //补单
@@ -1147,8 +1169,9 @@ begin
   end;
 
   //----------------------------------------------------------------------------
-  nStr := 'Select D_Price From %s Where D_ZID=''%s'' And D_StockNo=''%s''';
-  nStr := Format(nStr, [sTable_ZhiKaDtl, FIn.FExtParam, FListB.Values['StockNo']]);
+  nStr := 'Select D_Price,b.Z_Freight From %s,%s b Where D_Zid=Z_ID And '+
+          ' D_ZID=''%s'' And D_StockNo=''%s''';
+  nStr := Format(nStr, [sTable_ZhiKaDtl,sTable_ZhiKa, FIn.FExtParam, FListB.Values['StockNo']]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   begin
@@ -1266,14 +1289,16 @@ begin
 
     nHasOut := FieldByName('L_OutFact').AsString <> '';
     //已出厂
-    {
-    if nHasOut then
+
+    {$IFDEF HYJC}
+    if nHasOut and (FIn.FBase.FFrom.FUser<>'admin') then
     begin
       nData := '交货单[ %s ]已出厂,不允许删除.';
       nData := Format(nData, [FIn.FData]);
       Exit;
     end;
-    }
+    {$ENDIF}
+
     nCus := FieldByName('L_CusID').AsString;
     nHY  := FieldByName('L_HYDan').AsString;
     nZK  := FieldByName('L_ZhiKa').AsString;
@@ -2543,7 +2568,7 @@ begin
     end;
     {$ENDIF}
 
-    {$IFDEF SXDY}
+    {$IFDEF SendBillToBakDB}
     if nBills[0].FCusType = 'A' then    //A:开票客户
     begin
       nStr := CombinStr(FListB, ',', True);
@@ -2681,6 +2706,13 @@ begin
     FDBConn.FConn.RollbackTrans;
     raise;
   end;
+
+  //使用业务员授信
+  {$IFDEF UseSalesCredit}
+  if FIn.FExtParam = sFlag_TruckBFM then
+    TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
+                 nBills[0].FZhiKa, '', @nOut);
+  {$ENDIF}
 
   if FIn.FExtParam = sFlag_TruckBFM then //称量毛重
   begin

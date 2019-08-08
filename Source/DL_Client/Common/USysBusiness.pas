@@ -362,6 +362,10 @@ function ShowLedText(nTunnel, nStr:string):Boolean;
 //发送led显示内容
 function GetIDCardNumCheckCode(nIDCardNum: string): string;
 //身份证号校验算法
+
+function GetWlbYsStatus(const nStockNo,nOrderId: string): Boolean;
+//获取化验室验收状态
+
 implementation
 
 //Desc: 记录日志
@@ -2378,8 +2382,9 @@ begin
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //添加引号
 
-  nStr := 'Select b.*,c.* From %s b,%s c Where b.L_Truck=c.T_Truck and L_ID In(%s)';
-  nStr := Format(nStr, [sTable_Bill,sTable_Truck, nBill]);
+  nStr := 'Select b.*,c.*,d.Z_Name From %s b,%s c,%s d Where '+
+          'b.L_Truck=c.T_Truck and b.L_ZhiKa=d.Z_ID and L_ID In(%s)';
+  nStr := Format(nStr, [sTable_Bill,sTable_Truck,sTable_ZhiKa, nBill]);
   //xxxxx
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
@@ -3709,6 +3714,15 @@ begin
   end;  
   nModResult := nSum mod 11;
   Result := cModCode[nModResult];
+end;
+
+//Date: 2019-07-04
+//Parm: 采购物料号;订单号
+//Desc: 获取采购物料物流部验收状态
+function GetWlbYsStatus(const nStockNo,nOrderId: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessPurchaseOrder(cBC_GetWlbYsStatus, nStockNo, nOrderId, @nOut);
 end;
 
 end.

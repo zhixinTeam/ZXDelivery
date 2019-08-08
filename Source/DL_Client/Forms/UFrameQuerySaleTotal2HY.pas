@@ -1,8 +1,8 @@
 {*******************************************************************************
-  作者: dmzn@163.com 2012-03-26
+  作者: dmzn@163.com 2017-01-11
   描述: 发货明细
 *******************************************************************************}
-unit UFrameQuerySaleDetail;
+unit UFrameQuerySaleTotal2HY;
 
 {$I Link.inc}
 interface
@@ -12,13 +12,14 @@ uses
   UFrameNormal, IniFiles, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxStyles, cxCustomData, cxFilter, cxData,
   cxDataStorage, cxEdit, DB, cxDBData, cxContainer, Menus, dxLayoutControl,
-  cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
-  cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
-  cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  StdCtrls, cxRadioGroup, cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB,
+  cxLabel, UBitmapPanel, cxSplitter, cxGridLevel, cxClasses,
+  cxGridCustomView, cxGridCustomTableView, cxGridTableView,
+  cxGridDBTableView, cxGrid, ComCtrls, ToolWin, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxLayoutcxEditAdapters;
 
 type
-  TfFrameSaleDetailQuery = class(TfFrameNormal)
+  TfFrameSaleDetailTotal2HY = class(TfFrameNormal)
     cxtxtdt1: TcxTextEdit;
     dxLayout1Item5: TdxLayoutItem;
     EditDate: TcxButtonEdit;
@@ -29,21 +30,19 @@ type
     dxLayout1Item1: TdxLayoutItem;
     pmPMenu1: TPopupMenu;
     mniN1: TMenuItem;
-    cxtxtdt3: TcxTextEdit;
-    dxLayout1Item2: TdxLayoutItem;
     cxtxtdt4: TcxTextEdit;
     dxLayout1Item3: TdxLayoutItem;
-    EditTruck: TcxButtonEdit;
+    Radio1: TcxRadioButton;
+    dxLayout1Item2: TdxLayoutItem;
+    Radio2: TcxRadioButton;
     dxLayout1Item4: TdxLayoutItem;
-    EditBill: TcxButtonEdit;
+    cxLabel1: TcxLabel;
     dxLayout1Item7: TdxLayoutItem;
-    N1: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure mniN1Click(Sender: TObject);
-    procedure N1Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -53,7 +52,7 @@ type
     FJBWhere: string;
     //交班条件
     FValue,FMoney: Double;
-    //均价参数
+    //均价参数间
     procedure OnCreateFrame; override;
     procedure OnDestroyFrame; override;
     procedure OnLoadGridConfig(const nIni: TIniFile); override;
@@ -63,8 +62,6 @@ type
     procedure SummaryItemsGetText(Sender: TcxDataSummaryItem;
       const AValue: Variant; AIsFooter: Boolean; var AText: String);
     //处理摘要
-    function GetVal(const nRow: Integer; const nField: string): string;
-    //获取指定字段
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -77,12 +74,12 @@ uses
   ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness,
   UBusinessConst, USysConst, USysDB;
 
-class function TfFrameSaleDetailQuery.FrameID: integer;
+class function TfFrameSaleDetailTotal2HY.FrameID: integer;
 begin
-  Result := cFI_FrameSaleDetailQuery;
+  Result := cFI_FrameSaleTotalQuery2HY;
 end;
 
-procedure TfFrameSaleDetailQuery.OnCreateFrame;
+procedure TfFrameSaleDetailTotal2HY.OnCreateFrame;
 begin
   inherited;
   FTimeS := Str2DateTime(Date2Str(Now) + ' 00:00:00');
@@ -92,13 +89,13 @@ begin
   InitDateRange(Name, FStart, FEnd);
 end;
 
-procedure TfFrameSaleDetailQuery.OnDestroyFrame;
+procedure TfFrameSaleDetailTotal2HY.OnDestroyFrame;
 begin
   SaveDateRange(Name, FStart, FEnd);
   inherited;
 end;
 
-procedure TfFrameSaleDetailQuery.OnLoadGridConfig(const nIni: TIniFile);
+procedure TfFrameSaleDetailTotal2HY.OnLoadGridConfig(const nIni: TIniFile);
 var i,nCount: Integer;
 begin
   with cxView1.DataController.Summary do
@@ -117,27 +114,30 @@ begin
   inherited;
 end;
 
-function TfFrameSaleDetailQuery.InitFormDataSQL(const nWhere: string): string;
+//------------------------------------------------------------------------------
+function TfFrameSaleDetailTotal2HY.InitFormDataSQL(const nWhere: string): string;
 begin
   FEnableBackDB := True;
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  {$IFDEF SpecialControl}
-  MakeSaleViewData;
-  {$ENDIF}
-
-  {$IFDEF CastMoney}
-  Result := 'Select *,CAST((L_Value * L_Price) as decimal(38, 2)) as L_Money, ' +
-            {$IFDEF UseFreight}
-            'L_Price-L_Freight as L_NetPrice,(L_Price-L_Freight)*L_Value as L_NetMoney,'+
-            'L_Value*L_Freight as TotalFreight,L_Value-L_MValue+L_PValue as ValueDiff,'+
-            {$ENDIF}
-            '(P_MValue-P_PValue) As P_NetWeight From $Bill b ' +
-            'left join $Pound P on P.P_Bill = b.L_ID '+
-            'left join S_ZhiKa z on b.L_ZhiKa=z.Z_ID ';
-  {$ELSE}
-  Result := 'Select *,(L_Value*L_Price) as L_Money From $Bill b ';
-  {$ENDIF}
+  if Radio1.Checked then
+  begin
+    Result := 'select L_ZhiKa,Z_Name,SUM(L_Value)L_Value,SUM(L_Money)L_Money,'+
+              'SUM(L_NetMoney)L_NetMoney,SUM(TotalFreight)TotalFreight from( '+
+              'Select L_ZhiKa,Z_Name,L_Value,L_Price,CAST((L_Value * L_Price) as decimal(38, 2)) as L_Money, L_Price-L_Freight as L_NetPrice, '+
+              '(L_Price-L_Freight)*L_Value as L_NetMoney,L_Freight,L_Value*L_Freight as TotalFreight,L_Lading,L_StockNo,L_StockName '+
+              'From S_Bill b left join S_ZhiKa z on b.L_ZhiKa=z.Z_ID ';
+    //xxxxx
+  end else
+  begin
+    Result := 'select L_ZhiKa,Z_Name,SUM(L_Value)L_Value,SUM(L_Money)L_Money,'+
+              ' SUM(L_Money)/SUM(L_Value) L_Price,SUM(L_NetMoney)/SUM(L_Value) L_NetPrice, '+
+              ' SUM(L_NetMoney)L_NetMoney,L_Freight,SUM(TotalFreight)TotalFreight,L_Lading,L_StockNo,L_StockName from( '+
+              ' Select L_ZhiKa,Z_Name,L_Value,L_Price,CAST((L_Value * L_Price) as decimal(38, 2)) as L_Money, L_Price-L_Freight as L_NetPrice, '+
+              '(L_Price-L_Freight)*L_Value as L_NetMoney,L_Freight,L_Value*L_Freight as TotalFreight,L_Lading,L_StockNo,L_StockName '+
+              ' From S_Bill b left join S_ZhiKa z on b.L_ZhiKa=z.Z_ID ';
+    //xxxxx
+  end;
 
   if FJBWhere = '' then
   begin
@@ -151,18 +151,25 @@ begin
     Result := Result + ' Where (' + FJBWhere + ')';
   end;
 
-  {$IFDEF CastMoney}
-  Result := MacroValue(Result, [MI('$Bill', sTable_Bill), MI('$Pound', sTable_PoundLog),
-            MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
-  {$ELSE}
-  Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
-            MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
-  {$ENDIF}
+  if Radio1.Checked then
+  begin
+    Result := Result + ')as g Group By L_ZhiKa,Z_Name';
+  end else
+  begin
+    Result := Result + ')as g Group By L_ZhiKa,Z_Name,L_Freight,L_Lading,L_StockNo,L_StockName';
+    //xxxxx
+  end;
+
+  Result := MacroValue(Result, [MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
   //xxxxx
+
+//  Result := 'Select *,(case L_Value when 0 then 0 else convert(decimal(15,2),' +
+//            'L_Money/L_Value) end) as L_Price From (' + Result + ') t';
+  //计算均价
 end;
 
 //Desc: 过滤字段
-function TfFrameSaleDetailQuery.FilterColumnField: string;
+function TfFrameSaleDetailTotal2HY.FilterColumnField: string;
 begin
   if gPopedomManager.HasPopedom(PopedomItem, sPopedom_ViewPrice) then
        Result := ''
@@ -170,14 +177,14 @@ begin
 end;
 
 //Desc: 日期筛选
-procedure TfFrameSaleDetailQuery.EditDatePropertiesButtonClick(Sender: TObject;
+procedure TfFrameSaleDetailTotal2HY.EditDatePropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
   if ShowDateFilterForm(FStart, FEnd) then InitFormData(FWhere);
 end;
 
 //Desc: 执行查询
-procedure TfFrameSaleDetailQuery.EditTruckPropertiesButtonClick(Sender: TObject;
+procedure TfFrameSaleDetailTotal2HY.EditTruckPropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
   if Sender = EditCustomer then
@@ -186,33 +193,13 @@ begin
     if EditCustomer.Text = '' then Exit;
 
     FWhere := 'L_CusPY like ''%%%s%%'' Or L_CusName like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text,EditBill.Text]);
-    InitFormData(FWhere);
-  end else
-
-  if Sender = EditTruck then
-  begin
-    EditTruck.Text := Trim(EditTruck.Text);
-    if EditTruck.Text = '' then Exit;
-
-    FWhere := 'b.L_Truck like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditTruck.Text]);
-    InitFormData(FWhere);
-  end;
-
-  if Sender = EditBill then
-  begin
-    EditBill.Text := Trim(EditBill.Text);
-    if EditBill.Text = '' then Exit;
-
-    FWhere := 'b.L_ID like ''%%%s%%''';
-    FWhere := Format(FWhere, [EditBill.Text]);
+    FWhere := Format(FWhere, [EditCustomer.Text, EditCustomer.Text]);
     InitFormData(FWhere);
   end;
 end;
 
-//Desc: 交接班查询
-procedure TfFrameSaleDetailQuery.mniN1Click(Sender: TObject);
+//Desc: 时间段查询
+procedure TfFrameSaleDetailTotal2HY.mniN1Click(Sender: TObject);
 begin
   if ShowDateFilterForm(FTimeS, FTimeE, True) then
   try
@@ -226,7 +213,7 @@ begin
 end;
 
 //Desc: 处理均价
-procedure TfFrameSaleDetailQuery.SummaryItemsGetText(
+procedure TfFrameSaleDetailTotal2HY.SummaryItemsGetText(
   Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
   var AText: String);
 var nStr: string;
@@ -247,48 +234,6 @@ begin
   end;
 end;
 
-procedure TfFrameSaleDetailQuery.N1Click(Sender: TObject);
-var nStr: string;
-    nIdx: Integer;
-    nList: TStrings;
-begin
-  if cxView1.DataController.GetSelectedCount < 1 then
-  begin
-    ShowMsg('请选择要编辑的记录', sHint); Exit;
-  end;
-
-  nList := TStringList.Create;
-  try
-    for nIdx := 0 to cxView1.DataController.RowCount - 1  do
-    begin
-
-      nStr := GetVal(nIdx,'L_ID');
-      if nStr = '' then
-        Continue;
-
-      nList.Add(nStr);
-    end;
-    nStr := AdjustListStrFormat2(nList, '''', True, ',', False);
-    PrintBillReport(nStr, False);
-  finally
-    nList.Free;
-  end;
-end;
-
-//Desc: 获取nRow行nField字段的内容
-function TfFrameSaleDetailQuery.GetVal(const nRow: Integer;
- const nField: string): string;
-var nVal: Variant;
-begin
-  nVal := cxView1.ViewData.Rows[nRow].Values[
-            cxView1.GetColumnByFieldName(nField).Index];
-  //xxxxx
-
-  if VarIsNull(nVal) then
-       Result := ''
-  else Result := nVal;
-end;
-
 initialization
-  gControlManager.RegCtrl(TfFrameSaleDetailQuery, TfFrameSaleDetailQuery.FrameID);
+  gControlManager.RegCtrl(TfFrameSaleDetailTotal2HY, TfFrameSaleDetailTotal2HY.FrameID);
 end.

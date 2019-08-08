@@ -103,22 +103,25 @@ var
   nStatus:string;
 begin
   Result := False;
-  nStr := 'select * from %s where WOM_WebOrderID=''%s'' and WOM_deleted=''%s''';
-  nStr := Format(nStr,[sTable_WebOrderMatch,nwebOrderid,sFlag_No]);
+  nStr := 'select * from %s where WOM_WebOrderID=''%s'''; //and WOM_deleted=''%s''
+  nStr := Format(nStr,[sTable_WebOrderMatch,nwebOrderid]);//sFlag_No
 
   with fdm.QueryTemp(nStr) do
   begin
     if RecordCount<1 then
-    begin
-      nMsg := '商城订单号不存在或已删除';
-      ShowMsg(nMsg,sHint);
-      Writelog(nMsg);
-      Exit;
-    end;
-    nBillno := FieldByName('WOM_LID').AsString;
+      nBillno := nwebOrderid
+    else
+      nBillno := FieldByName('WOM_LID').AsString;
+//    begin
+//      nMsg := '商城订单号不存在或已删除';
+//      ShowMsg(nMsg,sHint);
+//      Writelog(nMsg);
+//      Exit;
+//    end;
+    //nBillno := FieldByName('WOM_LID').AsString;
   end;
 
-  nStr := 'select L_Status,L_HYDan,L_StockName,l_Stockno from %s where L_ID=''%s''';
+  nStr := 'select L_ID,L_Status,L_HYDan,L_StockName,l_Stockno from %s where L_ID=''%s''';
   nStr := Format(nStr,[sTable_Bill,nBillno]);
   with fdm.QueryTemp(nStr) do
   begin
@@ -137,6 +140,7 @@ begin
       Writelog(nMsg);
       Exit;
     end;
+    FParam.FParamE := FieldByName('L_ID').AsString;
     nHYDan := FieldByName('L_HYDan').AsString;
     nStockName := FieldByName('L_StockName').AsString;
     nStockno := FieldByName('l_Stockno').AsString;

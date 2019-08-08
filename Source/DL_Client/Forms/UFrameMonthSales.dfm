@@ -21,14 +21,10 @@ inherited fFrameMonthSales: TfFrameMonthSales
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          CaptionOptions.Text = 'Button1'
-          CaptionOptions.Visible = False
           Control = Button1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          CaptionOptions.Text = 'Button2'
-          CaptionOptions.Visible = False
           Control = Button2
           ControlOptions.ShowBorder = False
         end
