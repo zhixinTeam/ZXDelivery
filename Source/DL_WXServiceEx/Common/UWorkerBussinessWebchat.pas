@@ -1564,72 +1564,74 @@ var
   nNode: TXmlNode;
 begin
   Result := False;
+  try
+    nProID := Trim(FIn.FData);
+    BuildDefaultXML;
 
-  nProID := Trim(FIn.FData);
-  BuildDefaultXML;
+    nStr := 'Select *,(B_Value-B_SentValue-B_FreezeValue) As B_MaxValue From %s PB ' +
+            'left join %s PM on PM.M_ID = PB.B_StockNo ' +
+            'where ((B_Value-B_SentValue>0) or (B_Value=0)) And B_BStatus=''%s'' and B_ProID=''%s''';
+    nStr := Format(nStr, [sTable_OrderBase, sTable_Materails, sFlag_Yes, nProID]);
+    WriteLog('获取采购订单列表sql:' + nStr);
 
-  nStr := 'Select *,(B_Value-B_SentValue-B_FreezeValue) As B_MaxValue From %s PB ' +
-          'left join %s PM on PM.M_ID = PB.B_StockNo ' +
-          'where ((B_Value-B_SentValue>0) or (B_Value=0)) And B_BStatus=''%s'' ' + 'and B_ProID=''%s''';
-  nStr := Format(nStr, [sTable_OrderBase, sTable_Materails, sFlag_Yes, nProID]);
-  WriteLog('获取采购订单列表sql:' + nStr);
-
-  with gDBConnManager.WorkerQuery(FDBConn, nStr), FPacker.XMLBuilder do
-  begin
-    if RecordCount < 1 then
+    with gDBConnManager.WorkerQuery(FDBConn, nStr), FPacker.XMLBuilder do
     begin
-      nData := Format('未查询到供应商[ %s ]对应的订单信息.', [FIn.FData]);
-
-      with Root.NodeNew('EXMG') do
+      if RecordCount < 1 then
       begin
-        NodeNew('MsgTxt').ValueAsString := nData;
-        NodeNew('MsgResult').ValueAsString := sFlag_No;
+        nData := Format('未查询到供应商[ %s ]对应的订单信息.', [FIn.FData]);
+
+        with Root.NodeNew('EXMG') do
+        begin
+          NodeNew('MsgTxt').ValueAsString := nData;
+          NodeNew('MsgResult').ValueAsString := sFlag_No;
+          NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+        end;
+        nData := FPacker.XMLBuilder.WriteToString;
+        Exit;
+      end;
+
+      First;
+
+      nNode := Root.NodeNew('head');
+      with nNode do
+      begin
+        NodeNew('ProvId').ValueAsString := FieldByName('B_ProID').AsString;
+        NodeNew('ProvName').ValueAsString := FieldByName('B_ProName').AsString;
+      end;
+
+      nNode := Root.NodeNew('Items');
+      while not Eof do
+      begin
+        with nNode.NodeNew('Item') do
+        begin
+          NodeNew('SetDate').ValueAsString := DateTime2Str(FieldByName('B_Date').AsDateTime);
+          NodeNew('BillNumber').ValueAsString := FieldByName('B_ID').AsString;
+          NodeNew('StockNo').ValueAsString := FieldByName('B_StockNo').AsString;
+          NodeNew('StockName').ValueAsString := FieldByName('B_StockName').AsString;
+          NodeNew('MaxNumber').ValueAsString := FieldByName('B_MaxValue').AsString;
+          {$IFDEF KuangFa}
+          NodeNew('HasLs').ValueAsString := FieldByName('M_HasLs').AsString;
+          {$ELSE}
+          NodeNew('HasLs').ValueAsString := sFlag_No;
+          {$ENDIF}
+        end;
+
+        nExt;
+      end;
+
+      nNode := Root.NodeNew('EXMG');
+      with nNode do
+      begin
+        NodeNew('MsgTxt').ValueAsString := '业务执行成功';
+        NodeNew('MsgResult').ValueAsString := sFlag_Yes;
         NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
       end;
-      nData := FPacker.XMLBuilder.WriteToString;
-      Exit;
     end;
-
-    First;
-
-    nNode := Root.NodeNew('head');
-    with nNode do
-    begin
-      NodeNew('ProvId').ValueAsString := FieldByName('B_ProID').AsString;
-      NodeNew('ProvName').ValueAsString := FieldByName('B_ProName').AsString;
-    end;
-
-    nNode := Root.NodeNew('Items');
-    while not Eof do
-    begin
-      with nNode.NodeNew('Item') do
-      begin
-        NodeNew('SetDate').ValueAsString := DateTime2Str(FieldByName('B_Date').AsDateTime);
-        NodeNew('BillNumber').ValueAsString := FieldByName('B_ID').AsString;
-        NodeNew('StockNo').ValueAsString := FieldByName('B_StockNo').AsString;
-        NodeNew('StockName').ValueAsString := FieldByName('B_StockName').AsString;
-        NodeNew('MaxNumber').ValueAsString := FieldByName('B_MaxValue').AsString;
-        {$IFDEF KuangFa}
-        NodeNew('HasLs').ValueAsString := FieldByName('M_HasLs').AsString;
-        {$ELSE}
-        NodeNew('HasLs').ValueAsString := sFlag_No;
-        {$ENDIF}
-      end;
-
-      nExt;
-    end;
-
-    nNode := Root.NodeNew('EXMG');
-    with nNode do
-    begin
-      NodeNew('MsgTxt').ValueAsString := '业务执行成功';
-      NodeNew('MsgResult').ValueAsString := sFlag_Yes;
-      NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
-    end;
+    nData := FPacker.XMLBuilder.WriteToString;
+    Result := True;
+  finally
+    WriteLog('获取采购订单列表返回:' + nData);
   end;
-  nData := FPacker.XMLBuilder.WriteToString;
-  WriteLog('获取采购订单列表返回:' + nData);
-  Result := True;
 end;
 
 function TBusWorkerBusinessWebchat.GetCusName(nCusID: string): string;
