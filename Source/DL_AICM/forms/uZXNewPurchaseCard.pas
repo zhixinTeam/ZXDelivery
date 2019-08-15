@@ -523,6 +523,14 @@ begin
     Exit;
   end;
 
+  {$IFDEF UseTruckXTNum}
+    if not IsEnoughNum(EditTruck.Text, StrToFloatDef(EditValue.Text,0)) then
+    begin
+      ShowMsg('超过车辆允许提单最大量！请联系管理员', sHint);
+      Exit;
+    end;
+  {$ENDIF}
+
   {$IFDEF ForceEleCard}
   {$IFDEF XXCJ}
   if not IsEleCardVaidEx(EditTruck.Text) then

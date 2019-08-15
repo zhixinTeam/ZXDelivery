@@ -13,7 +13,7 @@ uses
   cxContainer, cxEdit, cxLabel, Menus, StdCtrls, cxButtons, cxGroupBox,
   cxRadioGroup, cxTextEdit, cxCheckBox, ExtCtrls, dxLayoutcxEditAdapters,
   dxLayoutControl, cxDropDownEdit, cxMaskEdit, cxButtonEdit,
-  USysConst, cxListBox, ComCtrls,Contnrs,UFormCtrl;
+  USysConst, cxListBox, ComCtrls,Contnrs,UFormCtrl, UMgrSDTReader;
 
 type
 
@@ -61,6 +61,15 @@ type
     PrintHY: TcxCheckBox;
     EditMemo: TcxTextEdit;
     dxLayout1Item1: TdxLayoutItem;
+    dxLayout1Item31: TdxLayoutItem;
+    EditSJPinYin: TcxTextEdit;
+    dxLayout1Group3: TdxLayoutGroup;
+    dxLayout1Item32: TdxLayoutItem;
+    EditSJName: TcxTextEdit;
+    dxLayout1Group5: TdxLayoutGroup;
+    dxLayout1Item33: TdxLayoutItem;
+    EditIdent: TcxTextEdit;
+    dxLayout1Group6: TdxLayoutGroup;
     procedure BtnExitClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormShow(Sender: TObject);
@@ -71,6 +80,8 @@ type
     procedure lvOrdersClick(Sender: TObject);
     procedure editWebOrderNoKeyPress(Sender: TObject; var Key: Char);
     procedure btnClearClick(Sender: TObject);
+    procedure EditSJPinYinKeyPress(Sender: TObject; var Key: Char);
+    procedure EditIdentKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
     FAutoClose:Integer; //窗口自动关闭倒计时（分钟）
@@ -90,6 +101,11 @@ type
     function SaveBillProxy:Boolean;
     function SaveBillProxyPD: Boolean;
     function SaveWebOrderMatch(const nBillID,nWebOrderID,nBillType:string):Boolean;
+    procedure GetSJInfo;
+    //获取司机信息
+    procedure GetSJName;
+    //获取司机名称
+    procedure SyncCard(const nCard: TIdCardInfoStr;const nReader: TSDTReaderItem);
   public
     { Public declarations }
     procedure SetControlsClear;
@@ -134,6 +150,7 @@ begin
   FCardData.Free;
   Action:=  caFree;
   fFormNewCard := nil;
+  gSDTReaderManager.OnSDTEvent := nil;  
 end;
 
 procedure TfFormNewCard.FormShow(Sender: TObject);
@@ -154,6 +171,22 @@ begin
   {$ELSE}
   PrintHY.Checked := False;
   PrintHY.Enabled := True;
+  {$ENDIF}
+
+  {$IFDEF IdentCard}
+  dxLayout1Item31.Visible := True;
+  EditIdent.Text := '';
+  dxLayout1Item32.Visible := True;
+  EditSJPinYin.Text := '';
+  dxLayout1Item33.Visible := True;
+  EditSJName.Text := '';
+  {$ELSE}
+  dxLayout1Item31.Visible := False;
+  EditIdent.Text := '';
+  dxLayout1Item32.Visible := False;
+  EditSJPinYin.Text := '';
+  dxLayout1Item33.Visible := False;
+  EditSJName.Text := '';
   {$ENDIF}
 end;
 
@@ -370,7 +403,8 @@ begin
   end;
   InitListView;
   gSysParam.FUserID := 'AICM';
-  FListA := TStringList.Create;
+  FListA := TStringList.Create;  
+  gSDTReaderManager.OnSDTEvent := SyncCard;
 end;
 
 procedure TfFormNewCard.LoadSingleOrder;
@@ -594,6 +628,14 @@ begin
     Exit;
   end;
 
+  {$IFDEF UseTruckXTNum}
+    if not IsEnoughNum(EditTruck.Text, StrToFloatDef(EditValue.Text,0)) then
+    begin
+      ShowMsg('超过车辆允许提单最大量！请联系管理员', sHint);
+      Exit;
+    end;
+  {$ENDIF}
+
   {$IFDEF ForceEleCard}
   {$IFDEF XXCJ}
   if not IsEleCardVaidEx(EditTruck.Text) then
@@ -680,6 +722,10 @@ begin
       Values['WebOrderID'] := nWebOrderID;
       {$IFDEF UseXHSpot}
       Values['L_XHSpot'] := EditMemo.Text;
+      {$ENDIF}
+      {$IFDEF IdentCard}
+      Values['Ident'] := EditIdent.Text;
+      Values['SJName']:= EditSJName.Text;
       {$ENDIF}
     end;
     nBillData := PackerEncodeStr(nList.Text);
@@ -1022,6 +1068,65 @@ begin
   FAutoClose := gSysParam.FAutoClose_Mintue;
   editWebOrderNo.Clear;
   ActiveControl := editWebOrderNo;
+end;
+
+procedure TfFormNewCard.EditSJPinYinKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    Key := #0;
+    GetSJInfo;
+  end;
+end;
+
+procedure TfFormNewCard.GetSJInfo;
+var
+  nStr : string;
+begin
+  nStr := 'Select D_Name, D_IDCard From %s Where (D_PinYin like ''%%%s%%'') or (D_PY like ''%%%s%%'') ';
+  nStr := Format(nStr, [sTable_DriverWh, Trim(EditSJPinYin.Text) , Trim(EditSJPinYin.Text)]);
+  with FDM.QueryTemp(nStr) do
+  if Recordcount = 1 then
+  begin
+    EditSJName.Text := Fields[0].AsString;
+    EditIdent.Text  := Fields[1].AsString;
+  end;
+end;
+
+
+procedure TfFormNewCard.SyncCard(const nCard: TIdCardInfoStr;
+  const nReader: TSDTReaderItem);
+var nStr: string;
+begin
+  nStr := '读取到身份证信息: [ %s ]=>[ %s.%s ]';
+  nStr := Format(nStr, [nReader.FID, nCard.FName, nCard.FIdSN]);
+  WriteLog(nStr);
+
+  EditIdent.Text := nCard.FIdSN;
+  GetSJName;
+end;
+
+procedure TfFormNewCard.GetSJName;
+var
+  nStr : string;
+begin
+  nStr := 'Select D_Name, D_PinYin From %s Where D_IDCard = ''%s'' ';
+  nStr := Format(nStr, [sTable_DriverWh, Trim(EditIdent.Text)]);
+  with FDM.QueryTemp(nStr) do
+  if Recordcount > 0 then
+  begin
+    EditSJName.Text    := Fields[0].AsString;
+    EditSJPinYin.Text  := Fields[1].AsString;
+  end;
+end;
+
+procedure TfFormNewCard.EditIdentKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key = #13 then
+  begin
+    Key := #0;
+    GetSJName;
+  end;
 end;
 
 end.

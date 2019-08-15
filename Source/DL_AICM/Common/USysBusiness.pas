@@ -201,6 +201,9 @@ function IsCardValid(const nCard: string): Boolean;
 function IsPurOrderHasControl(nProID,nStockNo: string;var nHint: string): Boolean;
 function GetZhikaValidMoney(nZhiKa: string; var nFixMoney: Boolean): Double;
 //纸卡可用金
+function IsEnoughNum(const nTruck: string;const nNum: Double): Boolean;
+//车辆提单量是否充足
+
 function CallBusinessCommand(const nCmd: Integer; const nData,nExt: string;
   const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
 
@@ -1673,6 +1676,25 @@ begin
   end;
 end;
 
+function IsEnoughNum(const nTruck: string;const nNum: Double): Boolean;
+var
+  nStr: string;
+begin
+  Result := True;
+
+  nStr := ' Select isnull(T_XTNum,0) T_XTNum from %s where T_Truck =''%s'' ';
+  nStr := Format(nStr, [sTable_Truck, nTruck]);
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    if FieldByName('T_XTNum').AsFloat > 0 then
+    begin
+      if FieldByName('T_XTNum').AsFloat < nNum then
+        Result := False;
+    end;
+  end;
+end;
+
 //验证车辆电子标签
 function IsEleCardVaid(const nTruckNo: string): Boolean;
 var
@@ -1875,5 +1897,6 @@ begin
     nFixMoney := nOut.FExtParam = sFlag_Yes;
   end else Result := 0;
 end;
+
 
 end.
