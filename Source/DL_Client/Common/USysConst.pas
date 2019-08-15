@@ -79,6 +79,9 @@ const
   cFI_FrameXHSpot       = $2071;                     //卸货地点维护
   cFI_FormXHSpot        = $2072;                     //卸货地点编辑
 
+  cFI_FramePMaterailControl= $0077;                  //原材料进厂控制
+  cFI_FormPMaterailControl= $1098;                   //原材料进厂控制
+
   cFI_FrameProvider     = $0102;                     //供应
   cFI_FrameProvideLog   = $0105;                     //供应日志
   cFI_FrameMaterails    = $0106;                     //原材料
@@ -444,6 +447,7 @@ begin
   AddMenuModuleItem('MAIN_M04', cFI_FrameOrder);
   AddMenuModuleItem('MAIN_M08', cFI_FrameOrderDetail);
   AddMenuModuleItem('MAIN_M09', cFI_FrameOrderBase);
+  AddMenuModuleItem('MAIN_M10', cFI_FramePMaterailControl);
 
   AddMenuModuleItem('MAIN_W01', cFI_FrameWXAccount);
   AddMenuModuleItem('MAIN_W02', cFI_FrameWXSendLog);

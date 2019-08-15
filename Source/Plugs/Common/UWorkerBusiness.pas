@@ -54,6 +54,11 @@ type
     FTruck: string;         //车牌号
   end;
 
+  TK3StockCKItem = record
+    FStockID: string;       //物料编号
+    FCKID   : string;       //仓库ID
+  end;
+
   TWorkerBusinessCommander = class(TMITDBWorker)
   private
     FListA,FListB,FListC: TStrings;
@@ -64,6 +69,7 @@ type
     FSalePlans: array of TK3SalePalnItem;
     //k3销售计划
     {$ENDIF}
+    FStockCKs: array of TK3StockCKItem;
   protected
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
     function DoDBWork(var nData: string): Boolean; override;
@@ -1829,6 +1835,36 @@ var nID,nIdx: Integer;
     nStr,nSQL,nBill,nStockID: string;
 begin
   Result := False;
+
+  SetLength(FStockCKs, 0);
+  nSQL := 'select D_ParamB, D_ParamC From %s where D_Name=''%s'' ';
+  nSQL := Format(nSQL, [sFlag_StockItem]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nSQL)  do
+  begin
+    if RecordCount < 1 then
+    begin
+      nData := '水泥品种基础档案缺失.';
+      Exit;
+    end;
+
+    SetLength(FStockCKs, RecordCount);
+    nIdx := 0;
+    First;
+
+    while not Eof do
+    begin
+      with FStockCKs[nIdx] do
+      begin
+        FStockID := FieldByName('D_ParamB').AsString;
+        FCKID    := FieldByName('D_ParamC').AsString;
+      end;
+
+      Inc(nIdx);
+      Next;
+    end;
+  end;
+
   nK3Worker := nil;
   nStr := AdjustListStrFormat(FIn.FData , '''' , True , ',' , True);
 
@@ -1951,6 +1987,44 @@ begin
           ], 'ICStockBill', '', True);
         FListA.Add(nSQL);
         {$ELSE}
+        {$IFDEF XPDS}
+        nSQL := MakeSQLByStr([
+          SF('Frob', 1, sfVal),
+          SF('Fbrno', 0, sfVal),
+          SF('Fbrid', 0, sfVal),
+
+          SF('Fpoordbillno', ''),
+          SF('Fstatus', 0, sfVal),
+          SF('Fdate', Date2Str(Now)),
+
+          SF('Ftrantype', 21, sfVal),
+          SF('Fdeptid', 226, sfVal),
+
+          SF('Frelatebrid', 0, sfVal),
+          //SF('Fmanagetype', 0, sfVal),
+          SF('Fvchinterid', 0, sfVal),
+
+          SF('Fsalestyle', 101, sfVal),
+          SF('Fseltrantype', 0, sfVal),
+
+          SF('Fbillerid', 16448, sfVal),
+          SF('Ffmanagerid', 266, sfVal),
+          SF('Fsmanagerid', 266, sfVal),
+
+          SF('Fupstockwhensave', 1, sfVal),
+          SF('Fmarketingstyle', 12530, sfVal),
+
+          SF('Fbillno', nBill),
+          SF('Finterid', nID, sfVal),
+
+          //SF('Fheadselfb0144', 15263, sfVal),
+          SF('Fheadselfb0146', FieldByName('L_Truck').AsString),
+
+          SF('Fempid', FieldByName('L_SaleID').AsString, sfVal),
+          SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
+          ], 'ICStockBill', '', True);
+        FListA.Add(nSQL);
+        {$ELSE}
         nSQL := MakeSQLByStr([
           SF('Frob', 1, sfVal),
           SF('Fbrno', 0, sfVal),
@@ -1986,6 +2060,7 @@ begin
           SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
           ], 'ICStockBill', '', True);
         FListA.Add(nSQL);
+        {$ENDIF}
         {$ENDIF}
       {$ENDIF}
 
@@ -2076,6 +2151,51 @@ begin
           ], 'ICStockBillEntry', '', True);
         FListA.Add(nSQL);
         {$ELSE}
+        {$IFDEF XPDS}
+        nStr := FieldByName('L_StockNo').AsString;
+        nStockID := '';
+        for nIdx:=Low(FStockCKs) to High(FStockCKs) do
+         with FStockCKs[nIdx] do
+          if nStr = FStockID then
+          begin
+            nStockID := FCKID;
+            Break;
+          end;
+
+        if Trim(nStockID) = '' then
+          nStockID := '312';//默认成品库
+
+        nSQL := MakeSQLByStr([
+          SF('Fbrno', 0, sfVal),
+          SF('Finterid', nID),
+          SF('Fitemid', FieldByName('L_StockNo').AsString),
+                                              
+          SF('Fentryid', 1, sfVal),
+          SF('Funitid', 121, sfVal),
+          SF('Fplanmode', 14036, sfVal),
+
+          SF('Fsourceentryid', 0, sfVal),
+          SF('Fchkpassitem', 1058, sfVal),
+
+          SF('Fseoutbillno', FieldByName('L_ID').AsString),
+          SF('Fseoutinterid', '0', sfVal),
+          SF('Fseoutentryid', '0', sfVal),
+
+          SF('Fsourcebillno', '0'),
+          SF('Fsourcetrantype', 0, sfVal),
+          SF('Fsourceinterid', '0', sfVal),
+
+          SF('Fqty',  nVal, sfVal),
+          SF('Fauxqty', nVal, sfVal),
+          SF('Fqtymust', nVal, sfVal),
+          SF('Fauxqtymust', nVal, sfVal),
+
+          SF('Fconsignprice', FieldByName('L_Price').AsFloat , sfVal),
+          SF('Fconsignamount', nMoney, sfVal),
+          SF('fdcstockid', nStockID, sfVal)
+          ], 'ICStockBillEntry', '', True);
+        FListA.Add(nSQL);
+        {$ELSE}
         nStr := FieldByName('L_StockNo').AsString;
         if (nStr = '444') or (nStr = '1388') then  //熟料
              nStockID := '1731'
@@ -2116,6 +2236,7 @@ begin
           ], 'ICStockBillEntry', '', True);
         FListA.Add(nSQL);
         {$ENDIF}
+        {$ENDIF}
       {$ENDIF}
 
       Next;
@@ -2126,8 +2247,11 @@ begin
     nK3Worker.FConn.BeginTrans;
     try
       for nIdx:=0 to FListA.Count - 1 do
+      begin
+        WriteLog('同步交货单SQL:' + FListA[nIdx]);
         gDBConnManager.WorkerExec(nK3Worker, FListA[nIdx]);
       //xxxxx
+      end;
 
       nK3Worker.FConn.CommitTrans;
       Result := True;

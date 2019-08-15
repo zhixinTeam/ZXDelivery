@@ -305,7 +305,8 @@ object fFormNewCard: TfFormNewCard
         TabOrder = 8
         Width = 185
       end
-      object dxLayoutGroup1: TdxLayoutGroup        
+      object dxLayoutGroup1: TdxLayoutGroup
+        ShowCaption = False
         Hidden = True
         ShowBorder = False
         object dxGroup1: TdxLayoutGroup

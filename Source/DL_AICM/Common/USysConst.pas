@@ -278,6 +278,7 @@ type
     ForderDetailType:string; //订单类别：1：普通订单；2：同客户合单；3：非同客户拼单
     FType:string;   //销售或采购
     FXHSpot:string; //卸货地点
+    FPrice:string;//单价  拼单用
   end;
   //网上商城订单明细
 

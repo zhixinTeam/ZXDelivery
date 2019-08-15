@@ -248,7 +248,8 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         TabOrder = 3
         Width = 265
       end
-      object dxLayoutGroup1: TdxLayoutGroup        
+      object dxLayoutGroup1: TdxLayoutGroup
+        ShowCaption = False
         Hidden = True
         ShowBorder = False
         object dxGroup1: TdxLayoutGroup

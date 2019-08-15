@@ -10,7 +10,7 @@ uses
   Windows, DB, Classes, Controls, SysUtils, UBusinessPacker, UBusinessWorker,
   UBusinessConst, ULibFun, UAdjustForm, UFormCtrl, UDataModule, UDataReport,
   UFormBase, cxMCListBox, UMgrPoundTunnels, UMgrCamera, USysConst, HKVNetSDK,
-  USysDB, USysLoger;
+  USysDB, USysLoger, DateUtils;
 
 type
   TLadingStockItem = record
@@ -198,7 +198,9 @@ function IsEleCardVaidEx(const nTruckNo: string): Boolean;
 function IfStockHasLs(const nStockNo: string): Boolean;
 //验证物料是否需要输入流水
 function IsCardValid(const nCard: string): Boolean;
-
+function IsPurOrderHasControl(nProID,nStockNo: string;var nHint: string): Boolean;
+function GetZhikaValidMoney(nZhiKa: string; var nFixMoney: Boolean): Double;
+//纸卡可用金
 function CallBusinessCommand(const nCmd: Integer; const nData,nExt: string;
   const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
 
@@ -1765,6 +1767,113 @@ begin
       end;
     end;
   end;
+end;
+
+function IsPurOrderHasControl(nProID,nStockNo: string;var nHint: string): Boolean;
+var nStr: string;
+    nValid: Boolean;
+    nValue, nDoneVal: Double;
+    nType: Integer;
+    nBeginDate, nEndDate: string;
+    nDateNow: TDateTime;
+begin
+  Result := False;
+  nType := 0;
+  nValue := 0;
+
+  nStr := 'Select * From %s Where C_CusName=''%s''';
+  nStr := Format(nStr, [sTable_PMaterailControl, sFlag_PMaterailControl]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount <= 0 then
+      Exit;
+
+    if FieldByName('C_Valid').AsString <> sFlag_Yes then
+      Exit;
+  end;
+
+  nStr := 'Select C_Type, C_Value, C_Valid From %s Where C_CusID=''%s'' and C_StockNo=''%s''';
+  nStr := Format(nStr, [sTable_PMaterailControl, nProID, nStockNo]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    nValid := Fields[2].AsString = sFlag_Yes;
+    nValue := Fields[1].AsFloat;
+    nType  := Fields[0].AsInteger;
+  end;
+
+  if not nValid then//子控制未启用
+    Exit;
+
+  nDoneVal := 0;
+  nDateNow := FDM.ServerNow;
+  if nType = 2 then//按月控制
+  begin
+    nBeginDate := FormatDateTime('YYYY-MM-',nDateNow) + '01 00:00:00';
+    nEndDate   := FormatDateTime('YYYY-MM-',IncMonth(nDateNow)) + '01 00:00:00';
+  end
+  else
+  if nType = 1 then//按天控制
+  begin
+    nBeginDate := FormatDateTime('YYYY-MM-DD',nDateNow) + ' 00:00:00';
+    nEndDate   := FormatDateTime('YYYY-MM-DD',IncDay(nDateNow)) + ' 00:00:00';
+  end
+  else
+  begin
+    Result := True;
+    Exit;
+  end;
+
+  nStr := 'Select P_MValue,P_PValue,P_KzValue From %s Where P_CusID=''%s'' and P_MID=''%s'' '
+         + 'and (P_PDate >=''%s'' and P_PDate <''%s'') ';
+  nStr := Format(nStr, [sTable_PoundLog, nProID, nStockNo, nBeginDate, nEndDate]);
+
+  WriteLog('查询已进厂量SQL:' + nStr);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    First;
+
+    while not Eof do
+    begin
+      if (FieldByName('P_MValue').AsString <> '') and
+         (FieldByName('P_PValue').AsString <> '') then
+      begin
+        if FieldByName('P_KzValue').AsString = '' then
+          nDoneVal := nDoneVal + Abs(FieldByName('P_MValue').AsFloat -
+                                     FieldByName('P_PValue').AsFloat)
+        else
+          nDoneVal := nDoneVal + Abs(FieldByName('P_MValue').AsFloat -
+                                     FieldByName('P_PValue').AsFloat -
+                                     FieldByName('P_KzValue').AsFloat);
+      end;
+      Next;
+    end;
+    if nValue <= 0 then
+      Exit;
+    WriteLog('已进厂量:' + FloatToStr(nDoneVal));
+    if nDoneVal > nValue then
+    begin
+      nHint := '已进厂量' + FloatToStr(nDoneVal) + '大于进厂上限' + FloatToStr(nValue) + ',禁止办卡';
+      Result := True;
+    end;
+  end;
+end;
+
+//Date: 2014-09-14
+//Parm: 纸卡号;是否限提
+//Desc: 获取nZhiKa的可用金哦
+function GetZhikaValidMoney(nZhiKa: string; var nFixMoney: Boolean): Double;
+var nOut: TWorkerBusinessCommand;
+begin
+  if CallBusinessCommand(cBC_GetZhiKaMoney, nZhiKa, '', @nOut) then
+  begin
+    Result := StrToFloat(nOut.FData);
+    nFixMoney := nOut.FExtParam = sFlag_Yes;
+  end else Result := 0;
 end;
 
 end.

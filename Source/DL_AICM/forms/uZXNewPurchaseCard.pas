@@ -517,6 +517,12 @@ begin
     Exit;
   end;
 
+  if IsPurOrderHasControl(nOrderItem.FProvID, nOrderItem.FGoodsID, nHint) then
+  begin
+    ShowMsg(nHint, sWarn);
+    Exit;
+  end;
+
   {$IFDEF ForceEleCard}
   {$IFDEF XXCJ}
   if not IsEleCardVaidEx(EditTruck.Text) then

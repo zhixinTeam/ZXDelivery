@@ -78,6 +78,7 @@ type
     FWebOrderItems:array of stMallOrderItem; //商城订单数组
     FCardData:TStrings; //云天系统返回的大票号信息
     Fbegin:TDateTime;
+    FListA : TStrings;
     procedure InitListView;
     procedure SetControlsReadOnly;
     function DownloadOrder(const nCard:string):Boolean;
@@ -87,6 +88,7 @@ type
     function IsRepeatCard(const nWebOrderItem:string):Boolean;
     function VerifyCtrl(Sender: TObject; var nHint: string): Boolean;
     function SaveBillProxy:Boolean;
+    function SaveBillProxyPD: Boolean;
     function SaveWebOrderMatch(const nBillID,nWebOrderID,nBillType:string):Boolean;
   public
     { Public declarations }
@@ -128,6 +130,7 @@ end;
 procedure TfFormNewCard.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
+  FListA.Free;
   FCardData.Free;
   Action:=  caFree;
   fFormNewCard := nil;
@@ -260,6 +263,7 @@ begin
         FWebOrderItems[i].FdrvPhone     := nListA.Values['FdrvPhone'];
         FWebOrderItems[i].FType         := nListA.Values['type'];
         FWebOrderItems[i].FXHSpot       := nListA.Values['orderRemark'];
+        FWebOrderItems[i].FPrice        := '';
         with nListC do
         begin
           FWebOrderItems[i].FCusID          := Values['clientNo'];
@@ -366,6 +370,7 @@ begin
   end;
   InitListView;
   gSysParam.FUserID := 'AICM';
+  FListA := TStringList.Create;
 end;
 
 procedure TfFormNewCard.LoadSingleOrder;
@@ -515,14 +520,42 @@ begin
 end;
 
 procedure TfFormNewCard.BtnOKClick(Sender: TObject);
+var nIdx, nInt: Integer;
 begin
   BtnOK.Enabled := False;
   try
+    {$IFDEF UseWXServiceEx}
+    nInt := 0;
+    for nidx := Low(FWebOrderItems) to High(FWebOrderItems) do
+    with FWebOrderItems[nidx] do
+    begin
+      if ForderDetailType = '3' then//拼单
+        Inc(nInt);
+    end;
+
+    if nInt > 1 then
+    begin
+      if not SaveBillProxyPD then
+      begin
+        BtnOK.Enabled := True;
+        Exit;
+      end;
+    end
+    else
+    begin
+      if not SaveBillProxy then
+      begin
+        BtnOK.Enabled := True;
+        Exit;
+      end;
+    end;
+    {$ELSE}
     if not SaveBillProxy then
     begin
       BtnOK.Enabled := True;
       Exit;
     end;
+    {$ENDIF}
     Close;
   except
   end;
@@ -702,6 +735,230 @@ begin
   if nPrint then
     PrintBillReport(nBillID, True);
   //print report
+end;
+
+function TfFormNewCard.SaveBillProxyPD: Boolean;
+var
+  nHint,nMsg,nStr:string;
+  nList,nTmp,nStocks: TStrings;
+  nPrint,nInFact,nFixMoney:Boolean;
+  nBillData:string;
+  nBillID :string;
+  nWebOrderID:string;
+  nNewCardNo:string;
+  nidx:Integer;
+  i:Integer;
+  nRet: Boolean;
+  nOrderItem:stMallOrderItem;
+  nCard:string;
+  nZKMoney : Double;
+begin
+  Result := False;
+  nOrderItem := FWebOrderItems[FWebOrderIndex];
+  nWebOrderID := editWebOrderNo.Text;
+
+  if Trim(EditPrice.Text) = '' then
+  begin
+    ShowMsg('获取物料价格异常！请联系管理员',sHint);
+    Writelog('获取物料价格异常！请联系管理员');
+    Exit;
+  end;
+
+  if not VerifyCtrl(EditTruck,nHint) then
+  begin
+    ShowMsg(nHint,sHint);
+    Writelog(nHint);
+    Exit;
+  end;
+
+  {$IFDEF ForceEleCard}
+  {$IFDEF XXCJ}
+  if not IsEleCardVaidEx(EditTruck.Text) then
+  {$ELSE}
+  if not IsEleCardVaid(EditTruck.Text) then
+  {$ENDIF}
+  begin
+    ShowMsg('车辆未办理电子标签或电子标签未启用！请联系管理员', sHint); Exit;
+  end;
+  {$ENDIF}
+
+  if not VerifyCtrl(EditValue,nHint) then
+  begin
+    ShowMsg(nHint,sHint);
+    Writelog(nHint);
+    Exit;
+  end;
+
+  for nIdx:=0 to 3 do
+  begin
+    nCard := gDispenserManager.GetCardNo(gSysParam.FTTCEK720ID, nHint, False);
+    if nCard <> '' then
+      Break;
+    Sleep(500);
+  end;
+  //连续三次读卡,成功则退出。
+
+  if nCard = '' then
+  begin
+    nMsg := '卡箱异常,请查看是否有卡.';
+    ShowMsg(nMsg, sWarn);
+    Exit;
+  end;
+
+  WriteLog('读取到卡片: ' + nCard);
+  //解析卡片
+  if not IsCardValid(nCard) then
+  begin
+    gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
+    nMsg := '卡号' + nCard + '非法,回收中,请稍后重新取卡';
+    WriteLog(nMsg);
+    ShowMsg(nMsg, sWarn);
+    Exit;
+  end;
+
+  if IFHasBill(EditTruck.Text) then
+  begin
+    ShowMsg('车辆存在未完成的提货单,无法开单,请联系管理员',sHint);
+    Exit;
+  end;
+
+  for nidx := Low(FWebOrderItems) to High(FWebOrderItems) do
+  with FWebOrderItems[nidx] do
+  begin
+    if ForderDetailType <> '3' then//不是拼单
+    begin
+      ShowMsg('申请单不是拼单类型,无法开单,请联系管理员',sHint);
+      Exit;
+    end;
+    nStr := 'select Z_Customer,D_Price from %s a join %s b on a.Z_ID = b.D_ZID ' +
+            'where Z_ID=''%s'' and D_StockNo=''%s'' ';
+
+    nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,FYunTianOrderId,FGoodsID]);
+    with fdm.QueryTemp(nStr) do
+    begin
+      if RecordCount = 1 then
+      begin
+        FPrice  := Fields[1].AsString;
+      end;
+    end;
+
+    if not IsNumber(FPrice, True) then
+    begin
+      ShowMsg('订单' + FYunTianOrderId +'价格异常,请联系管理员',sHint);
+      Exit;
+    end;
+    nZKMoney := GetZhikaValidMoney(FYunTianOrderId, nFixMoney);
+
+    nMsg := '订单' + FYunTianOrderId +'开单量' + FData + ',单价' + FPrice +
+              ',当前可用金额' + FloatToStr(nZKMoney);
+    Writelog(nMsg);
+    if (StrToFloat(FPrice) * StrToFloat(FData)) > nZKMoney then
+    begin
+      ShowMsg( nMsg + ',金额不足,无法开单',sHint);
+      Exit;
+    end;
+  end;
+
+  FListA.Clear;
+  for nidx := Low(FWebOrderItems) to High(FWebOrderItems) do
+  with FWebOrderItems[nidx] do
+  begin
+    //保存提货单
+    nStocks := TStringList.Create;
+    nList := TStringList.Create;
+    nTmp := TStringList.Create;
+    try
+      LoadSysDictItem(sFlag_PrintBill, nStocks);
+      if Pos('散',FGoodsname) > 0 then
+        nTmp.Values['Type'] := 'S'
+      else
+        nTmp.Values['Type'] := 'D';
+      nTmp.Values['StockNO'] := FGoodsID;
+      nTmp.Values['StockName'] := FGoodsname;
+      nTmp.Values['Price'] := FPrice;
+      nTmp.Values['Value'] := FData;
+
+      if PrintHY.Checked  then
+           nTmp.Values['PrintHY'] := sFlag_Yes
+      else nTmp.Values['PrintHY'] := sFlag_No;
+
+      nList.Add(PackerEncodeStr(nTmp.Text));
+      nPrint := nStocks.IndexOf(FGoodsID) >= 0;
+
+      with nList do
+      begin
+        Values['Bills'] := PackerEncodeStr(nList.Text);
+        Values['ZhiKa'] := FYunTianOrderId;
+        Values['Truck'] := EditTruck.Text;
+        Values['Lading'] := sFlag_TiHuo;
+        Values['Memo']  := EmptyStr;
+        Values['IsVIP'] := Copy(GetCtrlData(EditType),1,1);
+        Values['Seal'] := '';
+        Values['HYDan'] := '';
+        Values['WebOrderID'] := nWebOrderID;
+        {$IFDEF UseXHSpot}
+        Values['L_XHSpot'] := FXHSpot;
+        {$ENDIF}
+      end;
+      nBillData := PackerEncodeStr(nList.Text);
+      FBegin := Now;
+      nBillID := SaveBill(nBillData);
+      if nBillID = '' then
+      begin
+        nHint := '保存提货单失败';
+        ShowMsg(nHint,sError);
+        Writelog(nHint);
+        Exit;
+      end;
+      writelog('TfFormNewCard.SaveBillProxy 生成提货单['+nBillID+']-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+      FBegin := Now;
+      SaveWebOrderMatch(nBillID,nWebOrderID,sFlag_Sale);
+      writelog('TfFormNewCard.SaveBillProxy 保存商城订单号-耗时：'+InttoStr(MilliSecondsBetween(Now, FBegin))+'ms');
+      FListA.Add(nBillID);
+    finally
+      nStocks.Free;
+      nList.Free;
+      nTmp.Free;
+    end;
+  end;
+
+  for nidx := 0 to FListA.Count - 1 do
+    nRet := SaveBillCard(FListA[nidx], nCard);
+
+  if not nRet then
+  begin
+    nMsg := '办理磁卡失败,请重试.';
+    ShowMsg(nMsg, sHint);
+    Exit;
+  end;
+
+  nRet := gDispenserManager.SendCardOut(gSysParam.FTTCEK720ID, nHint);
+  //发卡
+
+  if nRet then
+  begin
+    nMsg := '提货单[ %s ]发卡成功,卡号[ %s ],请收好您的卡片';
+    nMsg := Format(nMsg, [nBillID, nCard]);
+
+    WriteLog(nMsg);
+    ShowMsg(nMsg,sWarn);
+  end
+  else begin
+    gDispenserManager.RecoveryCard(gSysParam.FTTCEK720ID, nHint);
+
+    nMsg := '卡号[ %s ]关联订单失败,请到开票窗口重新关联.';
+    nMsg := Format(nMsg, [nCard]);
+
+    WriteLog(nMsg);
+    ShowMsg(nMsg,sWarn);
+  end;
+  Result := True;
+  if nPrint then
+  begin
+    for nidx := 0 to FListA.Count - 1 do
+      PrintBillReport(FListA[nidx], True);
+      //print report
+  end;
 end;
 
 function TfFormNewCard.SaveWebOrderMatch(const nBillID,

@@ -284,7 +284,7 @@ const
   sFlag_Transfer      = 'Bus_Transfer';              //短倒单号
   sFlag_TransBase     = 'Bus_TransBase';             //短倒申请单号
   sFlag_TransferPound = 'TransferPound';             //短倒是否过磅
-
+  sFlag_PMaterailControl= 'PMaterailControl';        //原材料进厂总控制
   sFlag_Between2BillsTime = 30;                      //同一车开单间隔，单位：分钟
 
   sFlag_HYSGroup      = 'HYSGroup';                  //化验室组
@@ -385,7 +385,8 @@ const
   sTable_MonthPrice   = 'S_MonthPrice';              //月销售汇总
 
   sTable_SalesCredit  = 'Sys_SalesCredit';           //业务员信用
-
+  sTable_PMaterailControl = 'Sys_PMaterailControl';  //原材料进厂控制表
+  
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
        'D_Desc varChar(30), D_Value varChar(50), D_Memo varChar(20),' +
@@ -1744,6 +1745,23 @@ const
    *.C_Memo:备注
   -----------------------------------------------------------------------------}
 
+  sSQL_NewPMControlInfo = 'Create Table $Table(R_ID $Inc, C_CusID varChar(32),' +
+       'C_CusName varChar(150), C_StockNo varChar(32), C_StockName varChar(150),' +
+       'C_Type char(1) default ''0'' , C_Value $Float default 0,' +
+       'C_Valid char(1) default ''Y'', C_Memo varchar(200))';
+  {-----------------------------------------------------------------------------
+   原材料进厂控制表:
+   *.R_ID: 编号
+   *.C_Type: 控制类型  0 即时控制  1按日进厂量控制  2按月进厂量控制
+   *.C_CusID: 客户编号
+   *.C_CusName: 客户名称
+   *.C_StockNo: 物料编号
+   *.C_StockName: 物料名称
+   *.C_Value: 进厂上限
+   *.C_Valid: 是否有效
+   *.C_Memo: 备注
+  -----------------------------------------------------------------------------}
+
 
 function CardStatusToStr(const nStatus: string): string;
 //磁卡状态
@@ -1902,7 +1920,7 @@ begin
   AddSysTableItem(sTable_MonthPrice, sSQL_NewMonthPrice);
 
   AddSysTableItem(sTable_SalesCredit, sSQL_NewSalesCredit);
-
+  AddSysTableItem(sTable_PMaterailControl,sSQL_NewPMControlInfo);
 end;
 
 //Desc: 清理系统表

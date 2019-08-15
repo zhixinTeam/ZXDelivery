@@ -44,6 +44,7 @@ uses
   {.$ENDIF}
   UFramePoundMtAuto,UFramePoundMtAutoItem,UFramePoundMtQuery,
   //Í©ÏçÂëÍ·×¥¶·³Ó
+  UFramePMaterailControl, UFormPMaterailControl,
   //----------------------------------------------------------------------------
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo, UFrameXHSpot,UFormXHSpot,
