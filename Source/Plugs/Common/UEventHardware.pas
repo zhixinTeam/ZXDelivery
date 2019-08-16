@@ -33,6 +33,8 @@ uses
   SysUtils, USysLoger, UHardBusiness, UMgrTruckProbe, UMgrParam,
   UMgrQueue, UMgrLEDCard, UMgrHardHelper, UMgrRemotePrint, U02NReader,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
+  {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
   UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100,
   UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo;
 
@@ -92,6 +94,11 @@ begin
     nStr := '喷码机';
     gCodePrinterManager.LoadConfig(nCfg + 'CodePrinter.xml');
 
+    {$IFDEF UseModbusJS}
+    nStr := '计数器管理';
+    gModbusJSManager.LoadConfig(nCfg + 'ModBusTCPJS.xml');
+    {$ENDIF}
+
     {$IFDEF HYRFID201}
     nStr := '华益RFID102';
     if not Assigned(gHYReaderManager) then
@@ -121,6 +128,11 @@ begin
     nStr := '定置装车';
     gSendCardNo.LoadConfig(nCfg + 'PLCController.xml');
     {$ENDIF}
+
+    {$IFDEF UseLBCModbus}
+    nStr := '定量装车';
+    gModBusClient.LoadConfig(nCfg + 'ModBusController.xml');
+    {$ENDIF}
   except
     on E:Exception do
     begin
@@ -145,9 +157,18 @@ begin
 
   gHardShareData := WhenBusinessMITSharedDataIn;
   //hard monitor share
+  
+  {$IFDEF UseModbusJS}
+  if not Assigned(gModbusJSManager) then
+    gModbusJSManager := TModbusJSManager.Create;
+  {$ENDIF}
 
   {$IFDEF FixLoad}
   gSendCardNo := TReaderHelper.Create;
+  {$ENDIF}
+
+  {$IFDEF UseLBCModbus}
+  gModBusClient := TReaderHelperEx.Create;
   {$ENDIF}
 end;
 
@@ -196,6 +217,12 @@ begin
   gCardManager.StartSender;
   //led display
 
+  {$IFDEF UseModbusJS}
+  gModbusJSManager.SaveDataProc := WhenSaveJSEx;
+  gModbusJSManager.GetTruckProc := GetJSTruck;
+  gModbusJSManager.StartReader;
+  {$ENDIF}
+  
   {$IFDEF MITTruckProber}
   gProberManager.StartProber;
   {$ENDIF} //truck
@@ -212,6 +239,14 @@ begin
   if Assigned(gSendCardNo) then
   gSendCardNo.StartPrinter;
   //sendcard
+  {$ENDIF}
+
+  {$IFDEF UseLBCModbus}
+  if Assigned(gModBusClient) then
+  begin
+    gModBusClient.OnStatusChange := WhenLBCWeightStatusChange;
+    gModBusClient.StartPrinter;
+  end;
   {$ENDIF}
 end;
 
@@ -272,6 +307,16 @@ begin
   if Assigned(gSendCardNo) then
   gSendCardNo.StopPrinter;
   //sendcard
+  {$ENDIF}
+
+  {$IFDEF UseLBCModbus}
+  if Assigned(gModBusClient) then
+  gModBusClient.StopPrinter;
+  {$ENDIF}
+
+  {$IFDEF UseModbusJS}
+  if Assigned(gModbusJSManager) then
+  gModbusJSManager.StopReader;
   {$ENDIF}
 end;
 

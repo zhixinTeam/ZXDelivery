@@ -90,6 +90,7 @@ implementation
 
 uses
 	{$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   UMgrHardHelper, UMgrCodePrinter, UMgrQueue, UTaskMonitor,
   UMgrTruckProbe, UMgrERelay;
 
@@ -628,9 +629,15 @@ end;
 function THardwareCommander.StartJS(var nData: string): Boolean;
 begin
   FListA.Text := FIn.FData;
+  {$IFNDEF UseModbusJS}
   Result := gMultiJSManager.AddJS(FListA.Values['Tunnel'],
             FListA.Values['Truck'], FListA.Values['Bill'],
             StrToInt(FListA.Values['DaiNum']), True);
+  {$ELSE}
+  Result := gModbusJSManager.AddJS(FListA.Values['Tunnel'],
+            FListA.Values['Truck'], FListA.Values['Bill'],
+            StrToInt(FListA.Values['DaiNum']), True);
+  {$ENDIF}
   //xxxxx
 
   if not Result then
@@ -641,7 +648,11 @@ end;
 //Desc: ÔÝÍ£¼ÆÊýÆ÷
 function THardwareCommander.PauseJS(var nData: string): Boolean;
 begin
+  {$IFNDEF UseModbusJS}
   Result := gMultiJSManager.PauseJS(FIn.FData);
+  {$ELSE}
+  Result := gModbusJSManager.PauseJS(FIn.FData);
+  {$ENDIF}
   if not Result then
     nData := 'ÔÝÍ£¼ÆÊýÆ÷Ê§°Ü';
   //xxxxx
@@ -650,7 +661,11 @@ end;
 //Desc: Í£Ö¹¼ÆÊýÆ÷
 function THardwareCommander.StopJS(var nData: string): Boolean;
 begin
+  {$IFNDEF UseModbusJS}
   Result := gMultiJSManager.DelJS(FIn.FData);
+  {$ELSE}
+  gModbusJSManager.DelJS(FIn.FData);
+  {$ENDIF}
   if not Result then
     nData := 'Í£Ö¹¼ÆÊýÆ÷Ê§°Ü';
   //xxxxx
@@ -659,7 +674,11 @@ end;
 //Desc: ¼ÆÊýÆ÷×´Ì¬
 function THardwareCommander.JSStatus(var nData: string): Boolean;
 begin
+  {$IFNDEF UseModbusJS}
   gMultiJSManager.GetJSStatus(FListA);
+  {$ELSE}
+  gModbusJSManager.GetJSStatus(FListA);
+  {$ENDIF}
   FOut.FData := FListA.Text;
   Result := True;
 end;

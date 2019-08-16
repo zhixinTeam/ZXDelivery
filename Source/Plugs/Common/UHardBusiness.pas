@@ -11,6 +11,8 @@ uses
   Windows, Classes, Controls, SysUtils, UMgrDBConn, UMgrParam, DB,
   UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
+  {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
   UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint,
   UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100, UMgrSendCardNo;
 
@@ -30,8 +32,14 @@ function GetJSTruck(const nTruck,nBill: string): string;
 //获取计数器显示车牌
 procedure WhenSaveJS(const nTunnel: PMultiJSTunnel);
 //保存计数结果
+{$IFDEF UseModbusJS}
+procedure WhenSaveJSEx(const nTunnel: PJSTunnel);
+//modus保存计数结果
+{$ENDIF}
 procedure SaveGrabCard(const nCard: string; nTunnel: string; nDelete: Boolean);
 //保存抓斗称刷卡信息
+procedure WhenLBCWeightStatusChange(const nTunnel: PLBTunnel);
+//链板秤定量装车状态改变
 
 implementation
 
@@ -247,6 +255,30 @@ begin
   //xxxxx
 end;
 
+function VeryTruckLicense(const nTruck, nBill: string; var nMsg: string): Boolean;
+var
+  nList: TStrings;
+  nOut: TWorkerBusinessCommand;
+  nID : string;
+begin
+  if nBill = '' then
+    nID := nTruck + FormatDateTime('YYMMDD',Now)
+  else
+    nID := nBill;
+
+  nList := nil;
+  try
+    nList := TStringList.Create;
+    nList.Values['Truck'] := nTruck;
+    nList.Values['Bill'] := nID;
+
+    Result := CallBusinessCommand(cBC_VeryTruckLicense, nList.Text, '', @nOut);
+    nMsg := nOut.FData
+  finally
+    nList.Free;
+  end;
+end;
+
 //Date: 2015-08-06
 //Parm: 磁卡号;岗位;采购单列表
 //Desc: 获取nPost岗位上磁卡为nCard的交货单列表
@@ -375,6 +407,7 @@ var nStr,nTruck,nCardType: string;
     nPTruck: PTruckItem;
     nTrucks: TLadingBillItems;
     nRet: Boolean;
+    nMsg: string;
 begin
   if gTruckQueueManager.IsTruckAutoIn and (GetTickCount -
      gHardwareHelper.GetCardLastDone(nCard, nReader) < 2 * 60 * 1000) then
@@ -414,7 +447,7 @@ begin
     WriteHardHelperLog(nStr, sPost_In);
     Exit;
   end;
-
+  
   for nIdx:=Low(nTrucks) to High(nTrucks) do
   with nTrucks[nIdx] do
   begin
@@ -435,6 +468,17 @@ begin
     WriteHardHelperLog(nStr, sPost_In);
     Exit;
   end;
+
+  {$IFDEF UseEnableStruck}
+  if nTrucks[0].FStatus = sFlag_TruckNone then
+  if not VeryTruckLicense(nTrucks[0].FTruck,nTrucks[0].FID, nMsg) then
+  begin
+    WriteHardHelperLog(nMsg, sPost_In);
+    Exit;
+  end;
+  nStr := nMsg + ',请进厂';
+  WriteHardHelperLog(nMsg, sPost_In);
+  {$ENDIF}
 
   if nTrucks[0].FStatus = sFlag_TruckIn then
   begin
@@ -876,8 +920,11 @@ end;
 //Parm: 三合一读卡器
 //Desc: 处理三合一读卡器信息
 procedure WhenTTCE_M100_ReadCard(const nItem: PM100ReaderItem);
-var {$IFDEF DEBUG}nStr: string;{$ENDIF}
+var nStr: string;
     nRetain: Boolean;
+    nCType: string;
+    nDBConn: PDBWorker;
+    nErrNum: Integer;
 begin
   nRetain := False;
   //init
@@ -894,6 +941,41 @@ begin
       nRetain := MakeTruckOut(nItem.FCard, nItem.FVReader, nItem.FVPrinter,
                               nItem.FVHYPrinter);
       //xxxxx
+
+      if not GetCardUsed(nItem.FCard, nCType) then
+        nCType := '';
+
+        if nCType = sFlag_Provide then
+        begin
+          nDBConn := nil;
+          with gParamManager.ActiveParam^ do
+          Try
+            nDBConn := gDBConnManager.GetConnection(FDB.FID, nErrNum);
+            if not Assigned(nDBConn) then
+            begin
+              WriteHardHelperLog('连接HM数据库失败(DBConn Is Null).');
+              Exit;
+            end;
+
+            if not nDBConn.FConn.Connected then
+              nDBConn.FConn.Connected := True;
+            //conn db
+            nStr := 'select O_CType from %s Where O_Card=''%s'' ';
+            nStr := Format(nStr, [sTable_Order, nItem.FCard]);
+            with gDBConnManager.WorkerQuery(nDBConn,nStr) do
+            if RecordCount > 0 then
+            begin
+              if FieldByName('O_CType').AsString = sFlag_OrderCardG then
+                nRetain := False;
+            end;
+          finally
+            gDBConnManager.ReleaseConnection(nDBConn);
+          end;
+        end;
+        if nRetain then
+          WriteHardHelperLog('吞卡机执行状态:'+'卡类型:'+nCType+'动作:吞卡')
+        else
+          WriteHardHelperLog('吞卡机执行状态:'+'卡类型:'+nCType+'动作:吞卡后吐卡');
     end else
     begin
       gHardwareHelper.SetReaderCard(nItem.FVReader, nItem.FCard, False);
@@ -990,7 +1072,10 @@ var nStr: string;
     nOut: TWorkerBusinessCommand;
 begin
   Result := True;
+
+  {$IFNDEF UseModbusJS}
   if not gMultiJSManager.CountEnable then Exit;
+  {$ENDIF}
 
   nTask := gTaskMonitor.AddTask('UHardBusiness.PrintBillCode', cTaskTimeoutLong);
   //to mon
@@ -1048,8 +1133,11 @@ begin
     begin
       nTask := gTaskMonitor.AddTask('UHardBusiness.AddJS', cTaskTimeoutLong);
       //to mon
-      
+      {$IFNDEF UseModbusJS}
       gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
+      {$ELSE}
+      gModbusJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
+      {$ENDIF}
       gTaskMonitor.DelTask(nTask);
     end;
   finally
@@ -1065,6 +1153,7 @@ var nStr: string;
     nIdx: Integer;
     nDBConn: PDBWorker;
 begin
+  {$IFNDEF UseModbusJS}
   if not gMultiJSManager.ChainEnable then
   begin
     Result := 0;
@@ -1072,6 +1161,9 @@ begin
   end;
 
   Result := gMultiJSManager.GetJSDai(nBill);
+  {$ELSE}
+  Result := gModbusJSManager.GetJSDai(nBill);
+  {$ENDIF}
   if Result > 0 then Exit;
 
   nDBConn := nil;
@@ -1115,7 +1207,11 @@ var nStr: string;
     begin
       Result := False;
       if nTunnel = '' then Exit;
+      {$IFNDEF UseModbusJS}
       Result := gMultiJSManager.IsJSRun(nTunnel);
+      {$ELSE}
+      Result := gModbusJSManager.IsJSRun(nTunnel);
+      {$ENDIF}
 
       if Result then
       begin
@@ -1126,8 +1222,8 @@ var nStr: string;
     end;
 begin
   WriteNearReaderLog('通道[ ' + nTunnel + ' ]: MakeTruckLadingDai进入.');
-
-  if IsJSRun then Exit;
+    //666666暂时屏蔽
+//  if IsJSRun then Exit;
   //tunnel is busy
 
   if not GetLadingBills(nCard, sFlag_TruckZT, nTrucks) then
@@ -1152,7 +1248,7 @@ begin
   begin
     nTunnel := gTruckQueueManager.GetTruckTunnel(nTrucks[0].FTruck);
     //重新定位车辆所在车道
-    if IsJSRun then Exit;
+//    if IsJSRun then Exit;
   end;
   
   if not IsTruckInQueue(nTrucks[0].FTruck, nTunnel, False, nStr,
@@ -1252,6 +1348,11 @@ begin
 
   gERelayManager.LineOpen(nTunnel);
   //打开放灰
+
+  {$IFDEF UseLBCModbus}
+  gModBusClient.StartWeight(nTunnel, nTruck.FBill, nTruck.FValue);
+  //开始定量装车
+  {$ENDIF}
 
   nStr := nTruck.FTruck + StringOfChar(' ', 12 - Length(nTruck.FTruck));
   nTmp := nTruck.FStockName + FloatToStr(nTruck.FValue);
@@ -1385,7 +1486,12 @@ begin
            nStr := nHost.FOptions.Values['HYPrinter']
       else nStr := '';
       MakeTruckOut(nCard, '', nHost.FPrinter, nStr);
-    end else MakeTruckLadingDai(nCard, nHost.FTunnel);
+    end else
+    begin
+      WriteHardHelperLog('进入袋装装车！');
+   //   MakeTruckLadingDai(nCard, nHost.FTunnel);
+      MakeTruckLadingDai(nCard, 'ZT001');
+    end;
   end else
 
   if nHost.FType = rtKeep then
@@ -1428,7 +1534,7 @@ begin
   //发送卡号和通道号到定置装车服务器
   gSendCardNo.SendCardNo(nHost.FTunnel+'@Close');
   {$ENDIF}
-
+  
   if nHost.FETimeOut then
        gERelayManager.ShowTxt(nHost.FTunnel, '电子标签超出范围')
   else gERelayManager.ShowTxt(nHost.FTunnel, nHost.FLEDText);
@@ -1493,7 +1599,7 @@ begin
     end;
   finally
     gDBConnManager.ReleaseConnection(nWorker);
-  end;   
+  end;
   {$ENDIF}
 end;
 
@@ -1526,6 +1632,34 @@ begin
   end;
 end;
 
+{$IFDEF UseModbusJS}
+procedure WhenSaveJSEx(const nTunnel: PJSTunnel);
+var nStr: string;
+    nDai: Word;
+    nList: TStrings;
+    nOut: TWorkerBusinessCommand;
+begin
+  nDai := nTunnel.FHasDone - nTunnel.FLastSaveDai;
+  if nDai <= 0 then Exit;
+  //invalid dai num
+
+  if nTunnel.FLastBill = '' then Exit;
+  //invalid bill
+
+  nList := nil;
+  try
+    nList := TStringList.Create;
+    nList.Values['Bill'] := nTunnel.FLastBill;
+    nList.Values['Dai'] := IntToStr(nDai);
+
+    nStr := PackerEncodeStr(nList.Text);
+    CallHardwareCommand(cBC_SaveCountData, nStr, '', @nOut)
+  finally
+    nList.Free;
+  end;
+end;
+{$ENDIF}
+
 //Date: 2017-8-17
 //Parm: 卡号;通道号;动作
 //Desc: 保存抓斗称刷卡信息
@@ -1546,6 +1680,49 @@ begin
     CallBusinessCommand(cBC_SaveGrabCard, nStr, '', @nOut);
   finally
     nList.Free;
+  end;
+end;
+
+procedure WhenLBCWeightStatusChange(const nTunnel: PLBTunnel);
+var
+  nStr, nTruck, nMsg: string;
+  nList : TStrings;
+  nIdx  : Integer;
+begin
+  if nTunnel.FStatusNew = bsDone then
+  begin
+    gERelayManager.ShowTxt(nTunnel.FID, '装车完成 请下磅');
+
+    gERelayManager.LineClose(nTunnel.FID);
+    Sleep(100);
+    WriteNearReaderLog('称重完成:' + nTunnel.FID + '单据号：' + nTunnel.FBill);
+    Exit;
+  end;
+  
+  if nTunnel.FStatusNew = bsProcess then
+  begin
+    if nTunnel.FWeightMax > 0 then
+    begin
+      nStr := Format('%.2f/%.2f', [nTunnel.FWeightMax, nTunnel.FValTunnel]);
+    end
+    else nStr := Format('%.2f/%.2f', [nTunnel.FValue, nTunnel.FValTunnel]);
+    
+    gERelayManager.ShowTxt(nTunnel.FID, nStr);
+    Exit;
+  end;
+
+  case nTunnel.FStatusNew of
+   bsInit      : WriteNearReaderLog('初始化:' + nTunnel.FID   + '单据号：' + nTunnel.FBill);
+   bsNew       : WriteNearReaderLog('新添加:' + nTunnel.FID   + '单据号：' + nTunnel.FBill);
+   bsStart     : WriteNearReaderLog('开始称重:' + nTunnel.FID + '单据号：' + nTunnel.FBill);
+   bsClose     : WriteNearReaderLog('称重关闭:' + nTunnel.FID + '单据号：' + nTunnel.FBill);
+  end; //log
+
+  if nTunnel.FStatusNew = bsClose then
+  begin
+    gERelayManager.ShowTxt(nTunnel.FID, '装车业务关闭');
+    WriteNearReaderLog(nTunnel.FID+'装车业务关闭');
+    Exit;
   end;
 end;
 
