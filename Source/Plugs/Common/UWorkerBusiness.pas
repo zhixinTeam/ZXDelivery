@@ -97,6 +97,8 @@ type
     function SaveTruck(var nData: string): Boolean;
     function UpdateTruck(var nData: string): Boolean;
     //保存车辆到Truck表
+    function VerifyTruckLicense(var nData: string): Boolean;
+    //车牌识别
     function SaveStockKuWei(var nData: string): Boolean;
     //保存车辆通道
     function GetTruckPoundData(var nData: string): Boolean;
@@ -376,6 +378,7 @@ begin
    cBC_SaveGrabCard        : Result := SaveGrabCard(nData);
 
    cBC_SaveStockKuWei      : Result := SaveStockKuWei(nData);
+   cBC_VeryTruckLicense    : Result := VerifyTruckLicense(nData);
    {$IFDEF UseERP_K3}
    cBC_SyncCustomer        : Result := SyncRemoteCustomer(nData);
    cBC_SyncSaleMan         : Result := SyncRemoteSaleMan(nData);
@@ -966,6 +969,127 @@ begin
     nStr := Format(nStr, [sTable_Truck, FIn.FData, GetPinYinOfStr(FIn.FData)]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
   end;
+end;
+
+function TWorkerBusinessCommander.VerifyTruckLicense(var nData: string): Boolean;
+var nStr: string;
+    nTruck, nBill, nPos, nEvent, nDept, nPicName: string;
+    nUpdate, nNeedManu: Boolean;
+    nLastTime: TDateTime;
+begin
+  Result := False;
+  FListA.Text := FIn.FData;
+  nPos := sFlag_DepBangFang;
+  nDept:= sFlag_DepDaTing;
+  nEvent:= '' ;
+  nNeedManu := False;
+
+  nTruck := FListA.Values['Truck'];
+  nBill  := FListA.Values['Bill'];
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_TruckInNeedManu,nPos]);
+  //xxxxx
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nNeedManu := FieldByName('D_Value').AsString = sFlag_Yes;
+    end;
+  end;
+
+  if not nNeedManu then
+  begin
+    WriteLog('车牌识别:'+'岗位:'+nPos+'事件接收部门:'+nDept+'人工干预:否');
+  end
+  else
+    WriteLog('车牌识别:'+'岗位:'+nPos+'事件接收部门:'+nDept+'人工干预:是');
+
+  nStr := 'Select isnull(T_LastTime,''2000-12-12 09:00:00'') as T_LastTime From %s Where T_Truck=''%s''  ';
+  nStr := Format(nStr, [sTable_Truck, nTruck]);
+  //xxxxx
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      Result:= False;
+      nData := '车辆[ %s ]识别异常';
+      nData := Format(nData, [nTruck]);
+      FOut.FData := nData;
+      Exit;
+    end;
+    
+    nLastTime := FieldByName('T_LastTime').AsDateTime;
+    if Now - nLastTime <= 0.1 then
+    begin
+      nData := '车辆[ %s ]车牌识别成功';
+      nData:= Format(nData, [nTruck]);
+      FOut.FData := nData;
+      Result := True;
+      Exit;
+    end;
+    //车牌识别成功
+  end;
+
+  if not nNeedManu then
+  begin
+   // Result := True;
+    Exit;
+  end;
+
+  nStr := 'Select * From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nBill+sFlag_ManualE]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      if FieldByName('E_Result').AsString = 'N' then
+      begin
+        nData := '车辆[ %s ]车牌识别失败,管理员禁止进厂';
+        nData := Format(nData, [nTruck]);
+        FOut.FData := nData;
+        Exit;
+      end;
+      if FieldByName('E_Result').AsString = 'Y' then
+      begin
+        Result := True;
+        nData := '车辆[ %s ]车牌识别失败,管理员允许';
+        nData := Format(nData, [nTruck]);
+        FOut.FData := nData;
+        Exit;
+      end;
+      nUpdate := True;
+    end
+    else
+    begin
+      nData := '车辆[ %s ]车牌识别失败';
+      nData := Format(nData, [nTruck]);
+      FOut.FData := nData;
+      nUpdate := False;
+      Result  := False;
+    end;
+  end;
+
+  nEvent := '车辆[ %s ]车牌识别失败';
+  nEvent := Format(nEvent, [nTruck]);
+
+  nStr := SF('E_ID', nBill+sFlag_ManualE);
+  nStr := MakeSQLByStr([
+          SF('E_ID', nBill+sFlag_ManualE),
+          SF('E_Key', nPicName),
+          SF('E_From', nPos),
+          SF('E_Result', 'Null', sfVal),
+
+          SF('E_Event', nEvent),
+          SF('E_Solution', sFlag_Solution_YN),
+          SF('E_Departmen', nDept),
+          SF('E_Date', sField_SQLServer_Now, sfVal)
+          ], sTable_ManualEvent, nStr, (not nUpdate));
+  //xxxxx
+  gDBConnManager.WorkerExec(FDBConn, nStr);
 end;
 
 function TWorkerBusinessCommander.SaveStockKuWei(var nData: string): Boolean;

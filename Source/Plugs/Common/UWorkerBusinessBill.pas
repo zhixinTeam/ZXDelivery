@@ -44,7 +44,7 @@ type
     FMatchItems: array of TStockMatchItem;
     //分组匹配
     FBillLines: array of TBillLadingLine;
-    //装车线
+    //装车线 
   protected
     procedure GetInOutData(var nIn,nOut: PBWDataBase); override;
     function DoDBWork(var nData: string): Boolean; override;
@@ -542,6 +542,7 @@ var nIdx: Integer;
     nStatus, nNextStatus: string;
     {$ENDIF}
     nOut, nTmp: TWorkerBusinessCommand;
+    nLine:string;
 begin
   Result := False;
   FListA.Text := PackerDecodeStr(FIn.FData);
@@ -709,6 +710,7 @@ begin
 
               {$IFDEF IdentCard}
               SF('L_Ident', FListA.Values['Ident']),
+              SF('L_SJName', FListA.Values['SJName']),
               {$ENDIF}
 
               SF('L_ZKMoney', nFixMoney),
@@ -812,7 +814,21 @@ begin
             if recordCount > 0 then
               nPeerWeight := FieldByName('D_ParamA').AsFloat;
           end;
-
+          {$ENDIF}
+          nLine := '';
+          {$IFDEF MoreNumZDLine}
+          nStr := 'Select D_Name From $Sys where D_Memo=''$ST'' and D_ParamB = ''$SA'' and D_Value <= $SV ';
+          nStr := MacroValue(nStr, [MI('$Sys', sTable_SysDict),
+                  MI('$ST', FListC.Values['StockName']),
+                  MI('$SA', sFlag_ZDLineItem),
+                  MI('$SV', FListC.Values['Value'])]);
+          with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+          begin
+            if RecordCount > 0 then
+            begin
+              nLine := FieldByName('D_Name').AsString;
+            end;
+          end;
           {$ENDIF}
           nSQL := MakeSQLByStr([
             SF('T_Truck'   , FListA.Values['Truck']),
@@ -821,6 +837,9 @@ begin
             SF('T_Type'    , FListC.Values['Type']),
             SF('T_InTime'  , sField_SQLServer_Now, sfVal),
             SF('T_Bill'    , nOut.FData),
+            {$IFDEF MoreNumZDLine}
+            SF('T_Line',     nLine),
+            {$ENDIF}
             SF('T_Valid'   , sFlag_Yes),
             SF('T_Value'   , FListC.Values['Value'], sfVal),
             SF('T_VIP'     , FListA.Values['IsVIP']),
@@ -1289,7 +1308,6 @@ begin
 
     nHasOut := FieldByName('L_OutFact').AsString <> '';
     //已出厂
-
     {$IFDEF HYJC}
     if nHasOut and (FIn.FBase.FFrom.FUser<>'admin') then
     begin
@@ -1298,7 +1316,6 @@ begin
       Exit;
     end;
     {$ENDIF}
-
     nCus := FieldByName('L_CusID').AsString;
     nHY  := FieldByName('L_HYDan').AsString;
     nZK  := FieldByName('L_ZhiKa').AsString;
