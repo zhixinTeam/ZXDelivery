@@ -215,6 +215,8 @@ begin
     PLBTunnel(FOwner.FHostList[i]).FTcpClient.Host           := PLBTunnel(FOwner.FHostList[i]).FHost;
     PLBTunnel(FOwner.FHostList[i]).FTcpClient.Port           := 502;
     PLBTunnel(FOwner.FHostList[i]).FTcpClient.ReuseSocket    := rsOSDependent;
+    PLBTunnel(FOwner.FHostList[i]).FTcpClient.ConnectTimeout := 3000;
+    PLBTunnel(FOwner.FHostList[i]).FTcpClient.ReadTimeout    := 3000;
   end;
   FBuffer := TList.Create;
   FWaiter := TWaitObject.Create;
@@ -267,7 +269,7 @@ begin
       for nIdx := FOwner.FHostList.Count - 1 downto 0 do
       begin
         FActive := FOwner.FHostList[nIdx];
-        if (FActive.FBill = '') or (FActive.FValue <= 0) or (not FActive.FStartEx) then Continue; //无业务
+        if (FActive.FBill = '') or (FActive.FValue <= 0) then Continue; //无业务
         nVal := 0;
         try
           if  Assigned(FActive.FTcpClient) then
