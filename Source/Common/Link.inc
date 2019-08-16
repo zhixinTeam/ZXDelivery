@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE XPDS}
+{$DEFINE GXBL}
 //特定系统
 
 //山西声威
@@ -164,6 +164,8 @@
    //化验单增加是否补单类型
    {$DEFINE DaiWCInManual}
    //超发后人工干预后才能出行
+   {$DEFINE UseTruckXTNum}
+   //启用车辆限提量
 {$ENDIF}
 
 //郑州上街
@@ -505,13 +507,11 @@
   //自助机原材料开卡不检查订单剩余量
   {$DEFINE ProberShow}
   //车检发送小屏
-  {$DEFINE FixLoad}
-  //定制放灰
   {$DEFINE OrderNoMulCard}
   //采购禁止一车多单
   {$DEFINE CapturePictureEx}
   //磅房抓拍模式扩展
-  {$DEFINE BusinessOnly}
+  {.$DEFINE BusinessOnly}
   //车辆同一时间只能进行1种业务
   {$DEFINE ForceMemo}
   //强制输入备注
@@ -521,8 +521,6 @@
   //报表查询始终使用日期条件
   {$DEFINE AllowMultiM}
   //允许多次过重车
-  {$DEFINE CustomerType}
-  //客户分类
   {$DEFINE ChangeBillWhenPriceAdjust}
   //纸卡调价时修改已提货单据价格
   {$DEFINE UseFreight}
@@ -531,6 +529,18 @@
   //同一车两次开单间隔
  {$DEFINE UseWXServiceEx}
   //使用二期微信中间件
+ {$DEFINE UseEnableStruck}
+  //启用车牌识别
+ {$DEFINE UseLBCModbus}
+  //启用链板秤装车
+ {$DEFINE UseBLMoney}
+  //启用保留资金
+ {$DEFINE MoreNumZDLine}
+  //数量达一定值指定通道
+  {$DEFINE SaveCusMoneyByOutFact}
+   //出厂随车保存可用余额
+  {$DEFINE UseSelectDateTime}
+   //启用查询日期包含时分秒
 {$ENDIF}
 
 //湘潭恒宇建材
@@ -614,6 +624,8 @@
   {$DEFINE SendBillToBakDB}
   //启用袋装不同重量设置
   {$DEFINE ChkPeerWeight}
+  //启用ModusBus计数
+  {$DEFINE UseModbusJS}
 {$ENDIF}
 
 //溆浦大盛

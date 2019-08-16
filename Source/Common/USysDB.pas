@@ -185,12 +185,17 @@ const
   sFlag_VerifyTruckP  = 'VerifyTruckP';              //校验预置皮重
   sFlag_AutoPurchaseID= 'AutoPurchaseID';            //是否自动生成原材料编号
   sFlag_AutoProviderID= 'AutoProviderID';            //是否自动生成供应商编号
+  sFlag_BLMoney       = 'BLMoney';                   //客户保留资金
 
   sFlag_WXFactory     = 'WXFactoryID';               //微信标识
   sFlag_WXServiceMIT  = 'WXServiceMIT';              //微信工厂服务
   sFlag_WXSrvRemote   = 'WXServiceRemote';           //微信远程服务
   sFlag_Rq_WXUrl      = 'WXRqUrl';                   //请求微信网址
   sFlag_Rq_WXPicUrl   = 'WXRqPicUrl';                //请求微信图片地址
+
+  sFlag_VIPManyNum      = 'VIPManyNum';              //提单量到量进VIP道
+  sFlag_EnableTruck     = 'EnableTruck';             //是否启用车牌识别
+  sFlag_TruckInNeedManu = 'TruckInNeedManu';         //车牌识别需要人工干预
 
   sFlag_PDaiWuChaZ    = 'PoundDaiWuChaZ';            //袋装正误差
   sFlag_PDaiWuChaF    = 'PoundDaiWuChaF';            //袋装负误差
@@ -225,6 +230,8 @@ const
 
   sFlag_ProviderItem  = 'ProviderItem';              //供应商信息项
   sFlag_MaterailsItem = 'MaterailsItem';             //原材料信息项
+
+  sFlag_ZDLineItem    = 'ZDLINEItem';                //指定通道信息项
 
   sFlag_HardSrvURL    = 'HardMonURL';
   sFlag_MITSrvURL     = 'MITServiceURL';             //服务地址
@@ -323,6 +330,7 @@ const
   sTable_BillBak      = 'S_BillBak';                 //已删交货单
   sTable_BillHK       = 'S_BillPreHK';               //开单预合卡
   sTable_XHSpot       = 'S_XHSpot';                  //卸货地点维护
+  sTable_DriverWh     = 'S_DriverWh';                //司机信息维护
 
   sTable_StockMatch   = 'S_StockMatch';              //品种映射
   sTable_StockParam   = 'S_StockParam';              //品种参数
@@ -1318,6 +1326,17 @@ const
    *.X_XHSpot: 卸货地点
   -----------------------------------------------------------------------------}
 
+  sSQL_NewDriverWh = 'Create Table $Table(R_ID $Inc, D_Name varChar(100), '+
+    ' D_PinYin varchar(80), D_PY varchar(80),D_IDCard varchar(20))';
+  {-----------------------------------------------------------------------------
+   司机信息维护: S_DriverWH
+   *.R_ID: 编号
+   *.D_Name: 司机姓名
+   *.D_PinYin: 姓名全拼
+   *.D_PY:拼音缩写
+   *.D_IDCard:身份证号
+  -----------------------------------------------------------------------------}
+
   sSQL_NewWXLog = 'Create Table $Table(R_ID $Inc, L_UserID varChar(50), ' +
        'L_Data varChar(2000), L_MsgID varChar(20), L_Result varChar(150),' +
        'L_Count Integer Default 0, L_Status Char(1), ' +
@@ -1915,7 +1934,9 @@ begin
 
   //卸货地点维护
   AddSysTableItem(sTable_XHSpot, sSQL_NewXHSpot);
-  
+  //司机信息维护
+  AddSysTableItem(sTable_DriverWh,sSQL_NewDriverWh);
+
   AddSysTableItem(sTable_MonthSales, sSQL_NewMonthSales);
   AddSysTableItem(sTable_MonthPrice, sSQL_NewMonthPrice);
 
