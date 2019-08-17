@@ -45,6 +45,8 @@ type
   TReaderHelperEx = class;
   TReaderConnector = class(TThread)
   private
+    FSecond1,FSecond2 : Integer;
+    FErr1,FErr2 : string;
     FOwner: TReaderHelperEx;
     //ÓµÓÐÕß
     FBuffer: TList;
@@ -278,7 +280,44 @@ begin
           on E: Exception do
           begin
             FActive.FStartEx := False;
-            WriteLog(Format('Reader:[ %s ] Msg: %s', [FActive.FTcpClient.Host, E.Message]));
+            if nIdx = 0 then
+            begin
+              if FErr1 <> E.Message then
+              begin
+                FErr1 := E.Message;
+                WriteLog(Format('Reader:[ %s ] Msg: %s', [FActive.FTcpClient.Host, E.Message]));
+                FSecond1 := 120;
+              end
+              else
+              begin
+                if FSecond1 > 0 then
+                  FSecond1 := FSecond1 - 1 ;
+              end;
+              if FSecond1 = 0 then
+              begin
+                WriteLog(Format('Reader:[ %s ] Msg: %s', [FActive.FTcpClient.Host, E.Message]));
+                FSecond1 := 120;
+              end;
+            end
+            else
+            begin
+              if FErr2 <> E.Message then
+              begin
+                FErr2 := E.Message;
+                WriteLog(Format('Reader:[ %s ] Msg: %s', [FActive.FTcpClient.Host, E.Message]));
+                FSecond2 := 120;
+              end
+              else
+              begin
+                if FSecond2 > 0 then
+                  FSecond2 := FSecond2 - 1 ;
+              end;
+              if FSecond2 = 0 then
+              begin
+                WriteLog(Format('Reader:[ %s ] Msg: %s', [FActive.FTcpClient.Host, E.Message]));
+                FSecond2 := 120;
+              end;
+            end;
             Sleep(500);
           end;
         end;
