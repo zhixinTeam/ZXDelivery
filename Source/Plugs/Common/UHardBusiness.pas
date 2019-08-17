@@ -38,8 +38,10 @@ procedure WhenSaveJSEx(const nTunnel: PJSTunnel);
 {$ENDIF}
 procedure SaveGrabCard(const nCard: string; nTunnel: string; nDelete: Boolean);
 //保存抓斗称刷卡信息
+{$IFDEF UseLBCModbus}
 procedure WhenLBCWeightStatusChange(const nTunnel: PLBTunnel);
 //链板秤定量装车状态改变
+{$ENDIF}
 
 implementation
 
@@ -1489,8 +1491,7 @@ begin
     end else
     begin
       WriteHardHelperLog('进入袋装装车！');
-   //   MakeTruckLadingDai(nCard, nHost.FTunnel);
-      MakeTruckLadingDai(nCard, 'ZT001');
+      MakeTruckLadingDai(nCard, nHost.FTunnel);
     end;
   end else
 
@@ -1683,6 +1684,7 @@ begin
   end;
 end;
 
+{$IFDEF UseLBCModbus}
 procedure WhenLBCWeightStatusChange(const nTunnel: PLBTunnel);
 var
   nStr, nTruck, nMsg: string;
@@ -1725,5 +1727,6 @@ begin
     Exit;
   end;
 end;
+{$ENDIF}
 
 end.
