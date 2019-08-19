@@ -35,7 +35,10 @@ type
     CheckGPS: TcxCheckBox;
     dxLayout1Item10: TdxLayoutItem;
     dxLayout1Group4: TdxLayoutGroup;
+    EditXTNum: TcxTextEdit;
+    dxLayout1Item11: TdxLayoutItem;
     procedure BtnOKClick(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   protected
     { Protected declarations }
     FTruckID: string;
@@ -111,6 +114,9 @@ begin
     EditTruck.Text := FieldByName('T_Truck').AsString;     
     EditOwner.Text := FieldByName('T_Owner').AsString;
     EditPhone.Text := FieldByName('T_Phone').AsString;
+    {$IFDEF UseTruckXTNum}
+    EditXTNum.Text := FieldByName('T_XTNum').AsString;
+    {$ENDIF}
     
     CheckVerify.Checked := FieldByName('T_NoVerify').AsString = sFlag_No;
     CheckValid.Checked := FieldByName('T_Valid').AsString = sFlag_Yes;
@@ -124,6 +130,7 @@ end;
 //Desc: 保存
 procedure TfFormTruck.BtnOKClick(Sender: TObject);
 var nStr,nTruck,nU,nV,nP,nVip,nGps,nEvent: string;
+  nXTNum: Double;
 begin
   nTruck := UpperCase(Trim(EditTruck.Text));
   if nTruck = '' then
@@ -146,6 +153,10 @@ begin
       end;
     end;
   end;
+
+  {$IFDEF UseTruckXTNum}
+  nXTNum := StrToFloatDef(EditXTNum.Text,0);
+  {$ENDIF}
 
   if CheckValid.Checked then
        nV := sFlag_Yes
@@ -179,6 +190,9 @@ begin
           SF('T_PrePUse', nP),
           SF('T_VIPTruck', nVip),
           SF('T_HasGPS', nGps),
+          {$IFDEF UseTruckXTNum}
+          SF('T_XTNum', FloatToStr(nXTNum)),
+          {$ENDIF}
           SF('T_LastTime', sField_SQLServer_Now, sfVal)
           ], sTable_Truck, nStr, FTruckID = '');
   FDM.ExecuteSQL(nStr);
@@ -192,6 +206,16 @@ begin
 
   ModalResult := mrOk;
   ShowMsg('车辆信息保存成功', sHint);
+end;
+
+procedure TfFormTruck.FormCreate(Sender: TObject);
+begin
+  inherited;
+  {$IFDEF UseTruckXTNum}
+  dxLayout1Item11.Visible := True;
+  {$ELSE}
+  dxLayout1Item11.Visible := False;
+  {$ENDIF}
 end;
 
 initialization

@@ -74,7 +74,7 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
       TabOrder = 3
-      Width = 185
+      Width = 261
     end
     object EditCustomer: TcxButtonEdit [2]
       Left = 437

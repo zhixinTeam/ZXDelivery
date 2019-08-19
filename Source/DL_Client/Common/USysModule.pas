@@ -49,6 +49,7 @@ uses
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo, UFrameXHSpot,UFormXHSpot,
   UFrameHYStock, UFrameHYData, UFrameHYRecord, UFormTransfer, UFrameTransfer,
+  UFrameDriverWh,UFormDriverWh,
   //东义财务报表
   UFrameNotice, UFrameDaySals, UFrameMonthSales, UFrameDayPrice,
   UFrameMonthPrice, UCollectMoney, UAccReport, UFrameSaleAndMoney,

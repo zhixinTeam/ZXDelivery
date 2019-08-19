@@ -78,6 +78,8 @@ const
   cFI_FrameTodo         = $0071;                     //待处理事件
   cFI_FrameXHSpot       = $2071;                     //卸货地点维护
   cFI_FormXHSpot        = $2072;                     //卸货地点编辑
+  cFI_FrameDriverWh     = $2073;                     //司机信息维护
+  cFI_FormDriverWh      = $2074;                     //司机信息编辑
 
   cFI_FramePMaterailControl= $0077;                  //原材料进厂控制
   cFI_FormPMaterailControl= $1098;                   //原材料进厂控制
@@ -440,6 +442,7 @@ begin
   AddMenuModuleItem('MAIN_J01', cFI_FrameTrucks);
 
   AddMenuModuleItem('MAIN_X01', cFI_FrameXHSpot);
+  AddMenuModuleItem('MAIN_X02', cFI_FrameDriverWh);
 
   AddMenuModuleItem('MAIN_M01', cFI_FrameProvider);
   AddMenuModuleItem('MAIN_M02', cFI_FrameMaterails);

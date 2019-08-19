@@ -399,7 +399,7 @@ procedure TfFrameAutoPoundItem.LoadBillItems(const nCard: string);
 var nRet: Boolean;
     nIdx,nInt: Integer;
     nBills: TLadingBillItems;
-    nStr,nHint, nVoice, nLabel: string;
+    nStr,nHint, nVoice, nLabel,nPos: string;
 begin
   nStr := Format('读取到卡号[ %s ],开始执行业务.', [nCard]);
   WriteLog(nStr);
@@ -508,6 +508,29 @@ begin
     SetUIData(True);
     Exit;
   end;
+
+  {$IFDEF UseEnableStruck}
+//  if nBills[0].FStatus=sFlag_TruckNone then
+//  begin
+//    if not VeriFyTruckLicense(FLastReader, nBills[0], nHint, nPos) then
+//    begin
+//      nVoice := '%s车牌识别失败,请移动车辆或联系管理员';
+//      nVoice := Format(nVoice, [nBills[0].FTruck]);
+//      PlayVoice(nHint);
+//      WriteSysLog(nHint);
+//      SetUIData(True);
+//      Exit;
+//    end
+//    else
+//    begin
+//      if nHint <> '' then
+//      begin
+//        PlayVoice(nHint);
+//        WriteSysLog(nHint);
+//      end;
+//    end;
+//  end;
+  {$ENDIF}
 
   EditBill.Properties.Items.Clear;
   SetLength(FBillItems, nInt);
@@ -637,7 +660,7 @@ var nStr,nCard: string;
 begin
   if gSysParam.FIsManual then Exit;
   Timer_ReadCard.Tag := Timer_ReadCard.Tag + 1;
-  if Timer_ReadCard.Tag < 5 then Exit;
+  if Timer_ReadCard.Tag < 2 then Exit;
 
   Timer_ReadCard.Tag := 0;
   if FIsWeighting then Exit;

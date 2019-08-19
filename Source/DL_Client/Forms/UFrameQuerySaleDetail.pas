@@ -120,7 +120,12 @@ end;
 function TfFrameSaleDetailQuery.InitFormDataSQL(const nWhere: string): string;
 begin
   FEnableBackDB := True;
+  
+  {$IFDEF UseSelectDateTime}
+  EditDate.Text := Format('%s 至 %s', [DateTime2Str(FStart), DateTime2Str(FEnd)]);
+  {$ELSE}
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+  {$ENDIF}
 
   {$IFDEF SpecialControl}
   MakeSaleViewData;
@@ -150,13 +155,22 @@ begin
   begin
     Result := Result + ' Where (' + FJBWhere + ')';
   end;
-
-  {$IFDEF CastMoney}
-  Result := MacroValue(Result, [MI('$Bill', sTable_Bill), MI('$Pound', sTable_PoundLog),
-            MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+  {$IFDEF UseSelectDateTime}
+    {$IFDEF CastMoney}
+    Result := MacroValue(Result, [MI('$Bill', sTable_Bill), MI('$Pound', sTable_PoundLog),
+              MI('$S', DateTime2Str(FStart)), MI('$End', DateTime2Str(FEnd))]);
+    {$ELSE}
+    Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
+              MI('$S', DateTime2Str(FStart)), MI('$End', DateTime2Str(FEnd))]);
+    {$ENDIF}
   {$ELSE}
-  Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
-            MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+    {$IFDEF CastMoney}
+    Result := MacroValue(Result, [MI('$Bill', sTable_Bill), MI('$Pound', sTable_PoundLog),
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+    {$ELSE}
+    Result := MacroValue(Result, [MI('$Bill', sTable_Bill),
+              MI('$S', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+    {$ENDIF}
   {$ENDIF}
   //xxxxx
 end;
@@ -173,7 +187,11 @@ end;
 procedure TfFrameSaleDetailQuery.EditDatePropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
+  {$IFDEF UseSelectDateTime}
+  if ShowDateFilterForm(FStart, FEnd, True) then InitFormData(FWhere);
+  {$ELSE}
   if ShowDateFilterForm(FStart, FEnd) then InitFormData(FWhere);
+  {$ENDIF}
 end;
 
 //Desc: 执行查询

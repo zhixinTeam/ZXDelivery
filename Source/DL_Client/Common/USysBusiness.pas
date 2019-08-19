@@ -124,6 +124,10 @@ function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
 function IsCustomerCreditValid(const nCusID: string): Boolean;
 //客户信用是否有效
 
+//车牌识别
+function VeriFyTruckLicense(const nReader: string; nBill: TLadingBillItem;
+                         var nMsg, nPos: string): Boolean;
+
 function IsStockValid(const nStocks: string): Boolean;
 //品种是否可以发货
 function SaveBill(const nBillData: string): string;
@@ -1720,6 +1724,162 @@ begin
       nCredit^ := 0;
     //xxxxx
   end;
+end;
+
+function VerifyTruckLicense(const nReader: string; nBill: TLadingBillItem;
+                         var nMsg, nPos: string): Boolean;
+var nStr, nDept: string;
+    nNeedManu, nUpdate: Boolean;
+    nTruck, nEvent, nPicName: string;
+    nLastTime: TDateTime;
+begin
+  Result := False;
+  nPos := sFlag_DepBangFang;
+  nNeedManu := False;
+  nDept := '';
+  nTruck := nBill.Ftruck;
+
+  nStr := ' Select D_Value From %s Where D_Name=''%s'' ';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_EnableTruck]);
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nNeedManu := FieldByName('D_Value').AsString = sFlag_Yes;
+
+      if nNeedManu then
+      begin
+        nMsg := '读卡器[ %s ]车牌识别已启用.';
+        nMsg := Format(nMsg, [nReader]);
+      end
+      else
+      begin
+        nMsg := '读卡器[ %s ]车牌识别已关闭.';
+        nMsg := Format(nMsg, [nReader]);
+        Result := True;
+        Exit;
+      end;
+    end
+    else
+    begin
+      Result := True;
+      nMsg := '读卡器[ %s ]未配置车牌识别.';
+      nMsg := Format(nMsg, [nReader]);
+      Exit;
+    end;
+  end;
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_TruckInNeedManu,nPos]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nNeedManu := FieldByName('D_Value').AsString = sFlag_Yes;
+
+      if nNeedManu then
+      begin
+        nMsg := '读卡器[ %s ]绑定岗位[ %s ]干预规则:人工干预已启用.';
+        nMsg := Format(nMsg, [nReader, nPos]);
+      end
+      else
+      begin
+        nMsg := '读卡器[ %s ]绑定岗位[ %s ]干预规则:人工干预已关闭.';
+        nMsg := Format(nMsg, [nReader, nPos]);
+        Result := True;
+        Exit;
+      end;
+    end
+    else
+    begin
+      Result := True;
+      nMsg := '读卡器[ %s ]绑定岗位[ %s ]未配置干预规则,无法进行车牌识别.';
+      nMsg := Format(nMsg, [nReader, nPos]);
+      Exit;
+    end;
+  end;
+
+  nStr := 'Select T_LastTime From %s Where T_Truck=''%s''  ';
+  nStr := Format(nStr, [sTable_Truck, nTruck]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      if not nNeedManu then
+        Result := True;
+      Exit;
+    end;
+
+    nLastTime := FieldByName('T_LastTime').AsDateTime;
+    WriteLog('识别时间'+DateTimeToStr(nLastTime));
+    WriteLog('当前时间'+DateTimeToStr(Now));
+    WriteLog('时间差'+FloatToStr(Now-nlastTime));
+    if Now - nLastTime <= 0.02 then
+    begin
+      Result := True;
+      nMsg := '车辆[ %s ]车牌识别成功,抓拍车牌号:[ %s ]';
+      nMsg := Format(nMsg, [nTruck,nTruck]);
+      Exit;
+    end;
+    //车牌识别成功
+  end;
+
+  nStr := 'Select * From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nBill.FID+sFlag_ManualE]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      if FieldByName('E_Result').AsString = 'N' then
+      begin
+        nMsg := '车辆[ %s ]车牌识别失败,管理员禁止';
+        nMsg := Format(nMsg, [nTruck]);
+        Exit;
+      end;
+      if FieldByName('E_Result').AsString = 'Y' then
+      begin
+        Result := True;
+        nMsg := '车辆[ %s ]车牌识别失败,管理员允许';
+        nMsg := Format(nMsg, [nTruck]);
+        Exit;
+      end;
+      nUpdate := True;
+    end
+    else
+    begin
+      nMsg := '车辆[ %s ]车牌识别失败';
+      nMsg := Format(nMsg, [nTruck]);
+      nUpdate := False;
+      if not nNeedManu then
+      begin
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+
+  nEvent := '车辆[ %s ]车牌识别失败';
+  nEvent := Format(nEvent, [nTruck]);
+
+  nStr := SF('E_ID', nBill.FID+sFlag_ManualE);
+  nStr := MakeSQLByStr([
+          SF('E_ID', nBill.FID+sFlag_ManualE),
+          SF('E_Key', nPicName),
+          SF('E_From', nPos),
+          SF('E_Result', 'Null', sfVal),
+
+          SF('E_Event', nEvent),
+          SF('E_Solution', sFlag_Solution_YN),
+          SF('E_Departmen', nDept),
+          SF('E_Date', sField_SQLServer_Now, sfVal)
+          ], sTable_ManualEvent, nStr, (not nUpdate));
+  //xxxxx
+  FDM.ExecuteSQL(nStr);
 end;
 
 //Date: 2014-10-16

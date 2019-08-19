@@ -120,12 +120,16 @@ var nStr: string;
 begin
   FEnableBackDB := True;
 
+  {$IFDEF UseSelectDateTime}
+  EditDate.Text := Format('%s 至 %s', [DateTime2Str(FStart), DateTime2Str(FEnd)]);
+  {$ELSE}
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
+  {$ENDIF}
 
   {$IFDEF UseFreight}
-  Result := 'Select *,L_Value*L_Freight as TotalFreight From $Bill ';
+  Result := 'Select distinct *,L_Value*L_Freight as TotalFreight From $Bill ';
   {$ELSE}
-  Result := 'Select * From $Bill ';
+  Result := 'Select distinct * From $Bill ';
   {$ENDIF}
   //提货单
 
@@ -150,9 +154,13 @@ begin
     Result := Result + nStr + '(' + nWhere + ')';
   //xxxxx
 
+  {$IFDEF UseSelectDateTime}
+  Result := MacroValue(Result, [
+            MI('$ST', DateTime2Str(FStart)), MI('$End', DateTime2Str(FEnd))]);
+  {$ELSE}
   Result := MacroValue(Result, [
             MI('$ST', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
-  //xxxxx
+  {$ENDIF}
 
   if CheckDelete.Checked then
        Result := MacroValue(Result, [MI('$Bill', sTable_BillBak)])
@@ -223,7 +231,11 @@ end;
 procedure TfFrameBill.EditDatePropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
+  {$IFDEF UseSelectDateTime}
+  if ShowDateFilterForm(FStart, FEnd, True) then InitFormData('');
+  {$ELSE}
   if ShowDateFilterForm(FStart, FEnd) then InitFormData('');
+  {$ENDIF}
 end;
 
 //Desc: 查询删除

@@ -12,7 +12,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxMaskEdit,
   cxDropDownEdit, cxListView, cxTextEdit, cxMCListBox, dxLayoutControl,
-  StdCtrls, cxButtonEdit, cxCheckBox;
+  StdCtrls, cxButtonEdit, cxCheckBox, UMgrSDTReader;
 
 type
   TfFormBill = class(TfFormNormal)
@@ -46,10 +46,14 @@ type
     dxLayout1Item13: TdxLayoutItem;
     dxLayout1Item14: TdxLayoutItem;
     PrintHY: TcxCheckBox;
-    EditIdent: TcxTextEdit;
+    EditSJName: TcxTextEdit;
     dxLayout1Item15: TdxLayoutItem;
     dxLayout1Item16: TdxLayoutItem;
     cbbXHSpot: TcxComboBox;
+    EditIdent: TcxTextEdit;
+    dxLayout1Item17: TdxLayoutItem;
+    EditSJPinYin: TcxTextEdit;
+    dxLayout1Item18: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -58,6 +62,8 @@ type
     procedure BtnOKClick(Sender: TObject);
     procedure EditLadingKeyPress(Sender: TObject; var Key: Char);
     procedure EditFQPropertiesEditValueChanged(Sender: TObject);
+    procedure EditSJPinYinKeyPress(Sender: TObject; var Key: Char);
+    procedure EditIdentKeyPress(Sender: TObject; var Key: Char);
   protected
     { Protected declarations }
     FBuDanFlag: string;
@@ -65,6 +71,13 @@ type
     procedure LoadFormData;
     procedure LoadStockList;
     //载入数据
+    function SetVipValue(nValue: String): Boolean;
+    //VIP设置
+    procedure GetSJInfo;
+    //获取司机信息
+    procedure GetSJName;
+    //获取司机名称
+    procedure SyncCard(const nCard: TIdCardInfoStr;const nReader: TSDTReaderItem);
   public
     { Public declarations }
     class function CreateForm(const nPopedom: string = '';
@@ -232,11 +245,19 @@ begin
   {$ENDIF}
 
   {$IFDEF IdentCard}
+  dxLayout1Item17.Visible := True;
+  EditIdent.Text := '';
+  dxLayout1Item18.Visible := True;
+  EditSJPinYin.Text := '';
   dxLayout1Item15.Visible := True;
-  EditIdent.Text := '';
+  EditSJName.Text := '';
   {$ELSE}
-  dxLayout1Item15.Visible := False;
+  dxLayout1Item17.Visible := False;
   EditIdent.Text := '';
+  dxLayout1Item18.Visible := False;
+  EditSJPinYin.Text := '';
+  dxLayout1Item15.Visible := False;
+  EditSJName.Text := '';
   {$ENDIF}
 
   {$IFDEF UseXHSpot}
@@ -248,6 +269,8 @@ begin
   {$ENDIF}
 
   AdjustCtrlData(Self);
+
+  gSDTReaderManager.OnSDTEvent := SyncCard;
 end;
 
 procedure TfFormBill.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -643,6 +666,8 @@ end;
 //Desc: 保存
 procedure TfFormBill.BtnOKClick(Sender: TObject);
 var nIdx: Integer;
+    nStr: string;
+    nValue, nLimit, nBLMoney : Double;
     nPrint: Boolean;
     nList,nTmp,nStocks: TStrings;
 begin
@@ -650,7 +675,26 @@ begin
   begin
     ShowMsg('请先办理提货单', sHint); Exit;
   end;
-  
+
+  {$IFDEF UseBLMoney}
+  nLimit := GetCustomerValidMoney(gInfo.FCusID, False);
+  nBLMoney := 0;
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s'' ';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_BLMoney]);
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    nBLMoney := Fields[0].AsFloat;
+  end;
+  if nLimit < nBLMoney then
+  begin
+    ShowMsg('客户可用资金为'+FloatToStr(nLimit)+'已不足'+FloatToStr(nBLMoney), sHint);
+    Exit;
+  end;
+  {$ENDIF}
+
+  SetVipValue(EditValue.Text);
+
   {$IFDEF ForceEleCard}
   {$IFDEF XXCJ}
   if not IsEleCardVaidEx(EditTruck.Text) then
@@ -661,6 +705,21 @@ begin
     ShowMsg('车辆未办理电子标签或电子标签未启用！请联系管理员', sHint); Exit;
   end;
   {$ENDIF}
+
+  nValue := 0;
+  for nIdx:=Low(gStockList) to High(gStockList) do
+  with gStockList[nIdx] do
+  begin
+    if not FSelecte then Continue;
+    nValue := FValue;
+
+    if nValue >= 80 then
+    begin
+      nStr := '办理吨数为'+Floattostr(nValue)+',已不小于80吨,您确定要继续办理吗？';
+      if not QueryDlg(nStr, sAsk) then Exit;
+    end;
+  end;
+
 
   nStocks := TStringList.Create;
   nList := TStringList.Create;
@@ -724,6 +783,7 @@ begin
       Values['ZhiKa'] := gInfo.FZhiKa;
       Values['Truck'] := EditTruck.Text;
       Values['Ident'] := EditIdent.Text;
+      Values['SJName']:= EditSJName.Text;
       Values['L_XHSpot']:= cbbXHSpot.Text;
       Values['Lading'] := GetCtrlData(EditLading);
       Values['IsVIP'] := GetCtrlData(EditType);
@@ -770,6 +830,92 @@ begin
     nIni.Free;
   end;
   //保存封签号
+end;
+
+function TfFormBill.SetVipValue(nValue: String): Boolean;
+var
+  nStr, nVip : string;
+  nNum : Double;
+begin
+  Result := False;
+
+  nStr := ' Select D_Value From %s Where D_Name=''%s'' and D_Memo=''%s'' ';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam,sFlag_VIPManyNum]);
+  
+  nVip := '';
+  nNum := 0;
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nNum := Fields[0].AsFloat;
+    end;
+  end;
+  if nNum > 0 then
+  begin
+    if StrToFloatDef(nValue,0) >= nNum then
+      nVip := 'V';
+  end;
+  if nVip <> '' then
+    SetCtrlData(EditType, nVip);
+
+  Result := nVip = sFlag_TypeVIP;
+end;
+
+procedure TfFormBill.EditSJPinYinKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  if Key = #13 then
+  begin
+    Key := #0;
+    GetSJInfo;
+  end else OnCtrlKeyPress(Sender, Key);
+end;
+
+procedure TfFormBill.GetSJInfo;
+var
+  nStr : string;
+begin
+  nStr := 'Select D_Name, D_IDCard From %s Where (D_PinYin like ''%%%s%%'') or (D_PY like ''%%%s%%'') ';
+  nStr := Format(nStr, [sTable_DriverWh, Trim(EditSJPinYin.Text) , Trim(EditSJPinYin.Text)]);
+  with FDM.QueryTemp(nStr) do
+  if Recordcount = 1 then
+  begin
+    EditSJName.Text := Fields[0].AsString;
+    EditIdent.Text  := Fields[1].AsString;
+  end;
+end;
+
+procedure TfFormBill.SyncCard(const nCard: TIdCardInfoStr;
+  const nReader: TSDTReaderItem);
+begin
+  EditIdent.Text := nCard.FIdSN;
+  GetSJName;
+end;
+
+procedure TfFormBill.GetSJName;
+var
+  nStr : string;
+begin
+  nStr := 'Select D_Name, D_PinYin From %s Where D_IDCard = ''%s'' ';
+  nStr := Format(nStr, [sTable_DriverWh, Trim(EditIdent.Text)]);
+  with FDM.QueryTemp(nStr) do
+  if Recordcount > 0 then
+  begin
+    EditSJName.Text := Fields[0].AsString;
+    EditSJPinYin.Text  := Fields[1].AsString;
+  end;
+end;
+
+procedure TfFormBill.EditIdentKeyPress(Sender: TObject; var Key: Char);
+begin
+  inherited;
+  if Key = #13 then
+  begin
+    Key := #0;
+    GetSJName;
+  end
+  else OnCtrlKeyPress(Sender, Key);
 end;
 
 initialization
