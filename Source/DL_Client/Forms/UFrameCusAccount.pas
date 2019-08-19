@@ -38,12 +38,14 @@ type
     N4: TMenuItem;
     N5: TMenuItem;
     N6: TMenuItem;
+    N7: TMenuItem;
     procedure N3Click(Sender: TObject);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure PMenu1Popup(Sender: TObject);
     procedure N4Click(Sender: TObject);
     procedure N6Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -58,7 +60,8 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, USysBusiness;
+  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, USysBusiness,
+  UFormInputbox, Dialogs;
 
 class function TfFrameCusAccount.FrameID: integer;
 begin
@@ -184,6 +187,42 @@ begin
 
   InitFormData(FWhere);
   ShowMsg('校正完毕', sHint);
+end;
+
+procedure TfFrameCusAccount.N7Click(Sender: TObject);
+var
+  nCID, nStr: string;
+  nMoney: Double;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then Exit;
+  nCID := SQLQuery.FieldByName('A_CID').AsString;
+
+  if not ShowInputBox('请输入客户起初金额:', '提示', nStr) then Exit;
+  nStr := Trim(nStr);
+
+  if nStr = '' then
+  begin
+    showmessage('请输入起初金额.');
+    Exit;
+  end;
+
+  if not IsNumber(nStr, True) then
+  begin
+    showmessage('请输入有效的起初金额.');
+    Exit;
+  end;
+
+  nMoney := StrToFloat(nStr);
+
+  nStr := 'update %s set A_InitMoney=%.2f where A_CID=''%s''';
+  nStr := Format(nStr,[sTable_CusAccount,nMoney,nCID]);
+  FDM.ExecuteSQL(nStr);
+
+  nStr := '修改客户['+nCID+']起初金额为:'+floattostr(nMoney);
+  FDM.WriteSysLog(sFlag_CommonItem, nCID, nStr);
+
+  InitFormData(FWhere);
+  ShowMsg('修改成功.', sHint);
 end;
 
 initialization

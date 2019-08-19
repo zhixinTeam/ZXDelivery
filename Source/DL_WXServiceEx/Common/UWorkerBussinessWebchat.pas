@@ -148,6 +148,9 @@ type
     function QueryTruckQuery(var nData: string): Boolean;
     function BillStats(var nData: string): Boolean;
     function HYDanReport(var nData: string): Boolean;
+
+    function GetSalesCredit(nSalesID: string):Double;
+    //获取业务员信用
   public
     constructor Create; override;
     destructor destroy; override;
@@ -766,13 +769,38 @@ function TBusWorkerBusinessWebchat.GetOrderList(var nData: string): Boolean;
 var
   nStr, nType: string;
   nNode: TXmlNode;
-  nValue, nMoney: Double;
+  nValue, nMoney, nSalesCredit: Double;
 begin
   Result := False;
   BuildDefaultXML;
   nMoney := 0;
   {$IFDEF UseCustomertMoney}
   nMoney := GetCustomerValidMoney(FIn.FData);
+  {$ENDIF}
+
+  //使用业务员授信
+  {$IFDEF UseSalesCredit}
+    nStr := 'select C_SaleMan from %s where C_Id=''%s''';
+    nStr := Format(nstr,[sTable_Customer, FIn.FData]);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      //writelog('111');
+      if RecordCount =  1 then
+      begin
+        //WriteLog('222');
+        if Trim(FieldByName('C_SaleMan').AsString) <> '' then
+        begin
+          nStr := FieldByName('C_SaleMan').AsString;
+          nSalesCredit := GetSalesCredit(nStr);
+          WriteLog('业务员['+ nStr +']信用:'+floattostr(nSalesCredit));
+        end;
+      end;
+    end;
+
+    if nMoney < 0 then
+      nMoney := nSalesCredit
+    else
+      nMoney := nMoney + nSalesCredit;
   {$ENDIF}
 
   {$IFDEF UseERP_K3}
@@ -795,9 +823,12 @@ begin
     {$IFDEF SXDY}
     '  ,a.Z_XHSpot ' +                        //卸货地点
     {$ENDIF}
-    'from %s a join %s b on a.Z_ID = b.D_ZID ' + 'where Z_Verified=''%s'' and (Z_InValid<>''%s'' or Z_InValid is null) ' + 'and Z_Customer=''%s''';
+    'from %s a join %s b on a.Z_ID = b.D_ZID ' +
+    'where Z_Verified=''%s'' and (Z_InValid<>''%s'' or Z_InValid is null) ' +
+    ' and (Z_Freeze<>''%s'' or Z_Freeze is null) and Z_Customer=''%s'' and Z_ValidDays >getdate()';
         //订单已审核 有效
-  nStr := Format(nStr, [sTable_ZhiKa, sTable_ZhiKaDtl, sFlag_Yes, sFlag_Yes, FIn.FData]);
+  nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,sFlag_Yes,sFlag_Yes,
+                       sFlag_Yes,FIn.FData]);
   WriteLog('获取订单列表sql:' + nStr);
   with gDBConnManager.WorkerQuery(FDBConn, nStr), FPacker.XMLBuilder do
   begin
@@ -1691,7 +1722,8 @@ begin
     WriteLog('用户账户信用:' + FloatToStr(nCredit));
     if nUseCredit then
       nVal := nVal + nCredit;
-    WriteLog('用户账户可用金:' + FloatToStr(nVal));
+
+    WriteLog('客户['+nCustomer+']合计可用:'+floattostr(nVal));
     Result := Float2PInt(nVal, cPrecision, False) / cPrecision;
   end;
 end;
@@ -1769,7 +1801,8 @@ end;
 //Desc: 获取客户资金
 function TBusWorkerBusinessWebchat.GetCusMoney(var nData: string): Boolean;
 var
-  nMoney: Double;
+  nMoney, nSalesCredit: Double;
+  nStr: string;
 begin
   Result := False;
   BuildDefaultXML;
@@ -1777,6 +1810,31 @@ begin
   nMoney := 0;
   {$IFDEF UseCustomertMoney}
   nMoney := GetCustomerValidMoney(FIn.FData);
+  {$ENDIF}
+
+  //使用业务员授信
+  {$IFDEF UseSalesCredit}
+    nStr := 'select C_SaleMan from %s where C_Id=''%s''';
+    nStr := Format(nstr,[sTable_Customer, FIn.FData]);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      writelog('111');
+      if RecordCount =  1 then
+      begin
+        WriteLog('222');
+        if Trim(FieldByName('C_SaleMan').AsString) <> '' then
+        begin
+          nStr := FieldByName('C_SaleMan').AsString;
+          nSalesCredit := GetSalesCredit(nStr);
+          WriteLog('业务员['+ nStr +']信用:'+floattostr(nSalesCredit));
+        end;
+      end;
+    end;
+
+    if nMoney < 0 then
+      nMoney := nSalesCredit
+    else
+      nMoney := nMoney + nSalesCredit;
   {$ENDIF}
 
   {$IFDEF UseERP_K3}
@@ -3534,6 +3592,54 @@ begin
     ReStream.Free;
     wParam.Free;
   end;
+end;
+
+function TBusWorkerBusinessWebchat.GetSalesCredit(
+  nSalesID: string): Double;
+var
+  nStr:string;
+  nCredit, nUsed, nCusMoney:Double;
+  nCusList:TStrings;
+  nIdx:integer;
+begin
+  Result := 0;
+  nStr := 'select * from %s where S_ID=''%s''';
+  nStr := Format(nStr,[sTable_Salesman,nSalesID]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount = 0 then Exit;
+    if FieldByName('S_CreditLimit').AsFloat <= 0  then Exit;
+    nCredit := FieldByName('S_CreditLimit').AsFloat;
+  end;
+
+  //WriteLog('3333');
+
+  nStr := 'select C_ID from %s where C_SaleMan=''%s''';
+  nStr := Format(nStr,[sTable_Customer,nSalesID]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount = 0 then Exit;
+    //WriteLog('4444');
+    nCusList := TStringList.Create;
+    First;
+    while not Eof do
+    begin
+      nCusList.Add(FieldByName('C_ID').asstring);
+      Next;
+    end;
+
+    for nIdx := 0 to nCusList.Count-1 do
+    begin
+      nStr := nCusList[nidx];
+      nCusMoney := GetCustomerValidMoney(nStr);
+      if nCusMoney < 0 then
+        nUsed := nUsed + nCusMoney;
+      //所有该业务员名下客户已经透支金额
+    end;
+  end;
+
+  if nCredit + nUsed >= 0 then
+    Result := nCredit + nUsed;
 end;
 
 initialization

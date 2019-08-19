@@ -3,7 +3,7 @@
   描述: 用户自助查询
 *******************************************************************************}
 unit UFormMain;
-
+{$I Link.inc}
 interface
 
 uses
@@ -70,7 +70,9 @@ type
     //查询卡信息
     procedure QueryPorderinfo(const nCard: string);
     function GetReportFileByStock(const nStock: string): string;
-    function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
+    function PrintHuaYanReport(const nHID: string;var nBatCode:string; const nAsk: Boolean): Boolean;
+    function GetUseFullbat(var nHyDan:string):Boolean;
+    function GetNearCode(var nHyDan:string):string;
   end;
 
 var
@@ -521,7 +523,8 @@ var
   nP: TFormCommandParam;
   nHyDan,nStockname,nstockno:string;
   nShortFileName:string;
-  nStr:string;
+  nStr, nBatCode,nBat:string;
+  nIdx:Integer;
 begin
   nShortFileName := '';
   CreateBaseFormItem(cFI_FormBarCodePrint, '', @nP);
@@ -537,20 +540,12 @@ begin
       Exit;
     end;
 
-//    if (nShortFileName='') then
-//    begin
-//      nStr := '品种[ '+nstockno+' ]暂不支持自助打印质检单，请到开票窗口咨询';
-//      ShowMsg(nStr,sHint);
-//      WriteLog(nStr);
-//      Exit;
-//    end;
-
     if not Assigned(FDR) then
     begin
       FDR := TFDR.Create(Application);
     end;
 
-    if PrintHuaYanReport(nP.FParamE, False) then
+    if PrintHuaYanReport(nP.FParamE,nHyDan, False) then
     begin
       ShowMsg('打印成功，请在下方出纸口取走您的化验单',sHint);
     end
@@ -683,8 +678,9 @@ begin
 end;
 
 //Desc: 打印标识为nHID的化验单
-function TfFormMain.PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
-var nStr,nSR: string;
+function TfFormMain.PrintHuaYanReport(const nHID: string; var nBatCode:string; const nAsk: Boolean): Boolean;
+var nStr,nSR, nHyDan: string;
+  i:integer;
 begin
   if nAsk then
   begin
@@ -693,6 +689,7 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end else Result := False;
 
+  {$IFNDEF HYJC}
   nSR := 'Select * From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
@@ -706,6 +703,32 @@ begin
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
           MI('$Cus', sTable_Customer), MI('$SR', nSR), MI('$ID', nHID)]);
   //xxxxx
+  {$ELSE}
+  for I := 1 to 5 do
+  begin
+    if GetUseFullbat(nBatCode) then
+    begin
+      nHyDan := nBatCode;
+      Break;
+    end
+    else
+    begin
+      nBatCode := GetNearCode(nBatCode);
+    end;
+  end;
+  if nHyDan = '' then
+  begin
+    nStr := '编号为 %s 的化验单记录已无效!!';
+    nStr := Format(nStr, [nHID]);
+    ShowMsg(nStr, sHint);
+    Exit;
+  end;
+  nStr := 'select * from '+
+          '(select *,1 as ss from S_Bill  where L_ID=''%s'')as a,'+
+          '(Select *,1 as ss From S_StockRecord sr  Left Join S_StockParam sp on '+
+          'sp.P_ID=sr.R_PID where sr.R_SerialNo=''%s'') as b where a.ss=b.ss';
+  nStr := Format(nstr,[nhid,nhydan]);
+  {$ENDIF}
 
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
@@ -746,18 +769,47 @@ begin
     Result := gPath + sReportDir + 'HuaYan_gsl.fr3'
   else if Pos('kzf', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_kzf.fr3'
+  {$IFNDEF HYJC}
   else if Pos('qz', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_qz.fr3'
+  {$ENDIF}
   else if Pos('32', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan32.fr3'
   else if Pos('42', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan42.fr3'
   else if Pos('52', Result) > 0 then
-    Result := gPath + sReportDir + 'HuaYan42.fr3'
-
+    Result := gPath + sReportDir + 'HuaYan52.fr3'
   else if Pos('qzzx', Result) > 0 then
     Result := gPath + sReportDir + 'qzzx.fr3'
   else Result := '';
+end;
+
+function TfFormMain.GetUseFullbat(var nHyDan:string): Boolean;
+var
+  nBatCode,nBat,nStr:string;
+  nIdx:Integer;
+begin
+  Result := False;
+  nBatCode := nHyDan;
+  nStr := 'select * from %s where R_SerialNo=''%s''';
+  nStr := Format(nStr,[sTable_StockRecord, nHyDan]);
+
+  if fdm.QueryTemp(nStr).RecordCount>0 then Result := True;
+end;
+
+function TfFormMain.GetNearCode(var nHyDan: string): string;
+var
+  nBatCode,nBat:string;
+  nIdx:Integer;
+begin
+  nBatCode := Copy(nHyDan,1,Length(nHyDan)-3);
+  nIdx := StrToInt(Copy(nHyDan,Length(nHyDan)-2,3));
+  Dec(nIdx);
+  nBat := IntToStr(nIdx);
+  while Length(nBat) < 3 do
+    nBat := '0' + nBat;
+  nBatCode := nBatCode + nBat;
+  Result := nBatCode;
 end;
 
 end.

@@ -59,6 +59,8 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       Top = 93
       Hint = 'T.L_CusName'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 5
       Width = 165
     end
@@ -73,6 +75,9 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
         end>
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       Width = 185
     end
@@ -86,6 +91,9 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditTruckPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 165
@@ -95,6 +103,8 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       Top = 93
       Hint = 'T.L_Value'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 7
       Width = 168
     end
@@ -103,6 +113,8 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       Top = 93
       Hint = 'T.L_StockName'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 6
       Width = 185
     end
@@ -148,21 +160,15 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item7: TdxLayoutItem
-          Caption = 'cxLabel1'
-          ShowCaption = False
           Control = cxLabel1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          Caption = 'cxRadioButton1'
-          ShowCaption = False
           Control = Radio1
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
-          Caption = 'cxRadioButton2'
-          ShowCaption = False
           Control = Radio2
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
@@ -170,7 +176,6 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item5: TdxLayoutItem
-          AutoAligns = [aaVertical]
           Caption = #23458#25143#21517#31216':'
           Control = cxtxtdt1
           ControlOptions.ShowBorder = False

@@ -766,6 +766,23 @@ begin
 
       if FListA.Values['BuDan'] = sFlag_Yes then //ฒนตฅ
       begin
+        {$IFDEF BuDanChangeDate}
+        nStr := MakeSQLByStr([SF('L_Status', sFlag_TruckOut),
+                SF('L_InTime', FListA.Values['BuDanDate']),
+                SF('L_PValue', 0, sfVal),
+                SF('L_PDate', FListA.Values['BuDanDate']),
+                SF('L_PMan', FIn.FBase.FFrom.FUser),
+                SF('L_MValue', FListC.Values['Value'], sfVal),
+                SF('L_MDate', FListA.Values['BuDanDate']),
+                SF('L_MMan', FIn.FBase.FFrom.FUser),
+                SF('L_OutFact', FListA.Values['BuDanDate']),
+                SF('L_OutMan', FIn.FBase.FFrom.FUser),
+                {$IFDEF BDAUDIT}
+                SF('L_Audit', sFlag_Yes),
+                {$ENDIF}
+                SF('L_Card', '')
+                ], sTable_Bill, SF('L_ID', nOut.FData), False);
+        {$ELSE}
         nStr := MakeSQLByStr([SF('L_Status', sFlag_TruckOut),
                 SF('L_InTime', sField_SQLServer_Now, sfVal),
                 SF('L_PValue', 0, sfVal),
@@ -781,6 +798,7 @@ begin
                 {$ENDIF}
                 SF('L_Card', '')
                 ], sTable_Bill, SF('L_ID', nOut.FData), False);
+        {$ENDIF}
         gDBConnManager.WorkerExec(FDBConn, nStr);
       end else
       begin

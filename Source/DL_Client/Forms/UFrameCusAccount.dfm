@@ -32,6 +32,8 @@ inherited fFrameCusAccount: TfFrameCusAccount
       Top = 93
       Hint = 'T.A_CID'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 115
     end
@@ -40,6 +42,8 @@ inherited fFrameCusAccount: TfFrameCusAccount
       Top = 93
       Hint = 'T.C_Name'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 150
     end
@@ -53,6 +57,9 @@ inherited fFrameCusAccount: TfFrameCusAccount
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       OnKeyPress = OnCtrlKeyPress
       Width = 150
@@ -62,6 +69,8 @@ inherited fFrameCusAccount: TfFrameCusAccount
       Top = 93
       Hint = 'T.C_Bank'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 5
       Width = 100
     end
@@ -70,6 +79,8 @@ inherited fFrameCusAccount: TfFrameCusAccount
       Top = 93
       Hint = 'T.C_Account'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 175
     end
@@ -83,6 +94,9 @@ inherited fFrameCusAccount: TfFrameCusAccount
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 115
@@ -176,6 +190,10 @@ inherited fFrameCusAccount: TfFrameCusAccount
     object N6: TMenuItem
       Caption = #26657#27491#23458#25143#36164#37329
       OnClick = N6Click
+    end
+    object N7: TMenuItem
+      Caption = #20462#25913#36215#21021#20313#39069
+      OnClick = N7Click
     end
   end
 end

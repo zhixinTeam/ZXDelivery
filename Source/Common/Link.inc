@@ -557,7 +557,7 @@
   {$DEFINE PrintHYEach}
   //随车开化验单
   {.$DEFINE PrintHeGeZheng}
-  {$DEFINE PrintHuaYanDan}
+  {.$DEFINE PrintHuaYanDan}
   //随车开单时打合格证、化验单
   {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
@@ -626,6 +626,10 @@
   {$DEFINE ChkPeerWeight}
   //启用ModusBus计数
   {$DEFINE UseModbusJS}
+  //纸卡调价时修改已提货单据价格
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //补单可以修改补单日期
+  {$DEFINE BuDanChangeDate} 
 {$ENDIF}
 
 //溆浦大盛

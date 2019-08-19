@@ -44,7 +44,7 @@ inherited fFormBill: TfFormBill
     end
     object ListBill: TcxListView [3]
       Left = 23
-      Top = 389
+      Top = 414
       Width = 372
       Height = 113
       Columns = <
@@ -70,7 +70,7 @@ inherited fFormBill: TfFormBill
     end
     object EditValue: TcxTextEdit [4]
       Left = 81
-      Top = 364
+      Top = 389
       ParentFont = False
       TabOrder = 3
       OnKeyPress = EditLadingKeyPress
@@ -87,7 +87,7 @@ inherited fFormBill: TfFormBill
     end
     object EditStock: TcxComboBox [6]
       Left = 81
-      Top = 339
+      Top = 364
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 15
@@ -99,7 +99,7 @@ inherited fFormBill: TfFormBill
     end
     object BtnAdd: TButton [7]
       Left = 357
-      Top = 339
+      Top = 364
       Width = 39
       Height = 17
       Caption = #28155#21152
@@ -108,7 +108,7 @@ inherited fFormBill: TfFormBill
     end
     object BtnDel: TButton [8]
       Left = 357
-      Top = 364
+      Top = 389
       Width = 39
       Height = 18
       Caption = #21024#38500
@@ -204,6 +204,13 @@ inherited fFormBill: TfFormBill
       OnKeyPress = EditSJPinYinKeyPress
       Width = 121
     end
+    object editDate: TcxDateEdit [18]
+      Left = 81
+      Top = 307
+      Properties.Kind = ckDateTime
+      TabOrder = 21
+      Width = 121
+    end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Item3: TdxLayoutItem
@@ -266,6 +273,11 @@ inherited fFormBill: TfFormBill
         object dxLayout1Item16: TdxLayoutItem
           Caption = #21368#36135#22320#28857':'
           Control = cbbXHSpot
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item19: TdxLayoutItem
+          Caption = #34917#21333#26085#26399':'
+          Control = editDate
           ControlOptions.ShowBorder = False
         end
       end

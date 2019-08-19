@@ -59,6 +59,8 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
       Top = 93
       Hint = 'T.L_CusName'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 7
       Width = 105
     end
@@ -73,6 +75,9 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
         end>
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 3
       Width = 261
     end
@@ -86,6 +91,9 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditTruckPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 2
       OnKeyPress = OnCtrlKeyPress
       Width = 115
@@ -95,6 +103,8 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
       Top = 93
       Hint = 'T.L_Value'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 6
       Width = 115
     end
@@ -103,6 +113,8 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
       Top = 93
       Hint = 'T.L_ID'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 115
     end
@@ -111,6 +123,8 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
       Top = 93
       Hint = 'T.L_StockName'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 5
       Width = 115
     end
@@ -124,6 +138,9 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditTruckPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       OnKeyPress = OnCtrlKeyPress
       Width = 115
@@ -138,6 +155,9 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditTruckPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 115

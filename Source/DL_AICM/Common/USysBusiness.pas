@@ -1662,18 +1662,18 @@ begin
     Exit;
   end;
 
-  nStr := ' Select o.O_ID From %s o Where o.O_Truck=''%s'' ' +
-          ' And not exists(Select R_ID from P_OrderDtl od where o.O_ID=od.D_OID and od.D_Status = ''O'' )';
-  nStr := Format(nStr, [sTable_Order, nTruck]);
-
-  with FDM.QueryTemp(nStr) do
-  begin
-    if RecordCount > 0 then
-    begin
-      Result := True;
-      Exit;
-    end;
-  end;
+//  nStr := ' Select o.O_ID From %s o Where o.O_Truck=''%s'' ' +
+//          ' And not exists(Select R_ID from P_OrderDtl od where o.O_ID=od.D_OID and od.D_Status = ''O'' )';
+//  nStr := Format(nStr, [sTable_Order, nTruck]);
+//
+//  with FDM.QueryTemp(nStr) do
+//  begin
+//    if RecordCount > 0 then
+//    begin
+//      Result := True;
+//      Exit;
+//    end;
+//  end;
 end;
 
 function IsEnoughNum(const nTruck: string;const nNum: Double): Boolean;

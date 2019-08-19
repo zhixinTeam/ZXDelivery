@@ -2743,14 +2743,18 @@ begin
     Result := gPath + sReportDir + 'HuaYan_gsl.fr3'
   else if Pos('kzf', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_kzf.fr3'
+  {$IFNDEF HYJC}
   else if Pos('qz', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_qz.fr3'
+  {$ENDIF}
   else if Pos('32', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan32.fr3'
   else if Pos('42', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan42.fr3'
   else if Pos('52', Result) > 0 then
-    Result := gPath + sReportDir + 'HuaYan42.fr3'
+    Result := gPath + sReportDir + 'HuaYan52.fr3'
+  else if Pos('qzzx', Result) > 0 then
+    Result := gPath + sReportDir + 'qzzx.fr3'
   else Result := '';
 end;
 

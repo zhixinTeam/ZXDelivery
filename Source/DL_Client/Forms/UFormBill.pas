@@ -12,7 +12,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxMaskEdit,
   cxDropDownEdit, cxListView, cxTextEdit, cxMCListBox, dxLayoutControl,
-  StdCtrls, cxButtonEdit, cxCheckBox, UMgrSDTReader;
+  StdCtrls, cxButtonEdit, cxCheckBox, UMgrSDTReader, cxCalendar;
 
 type
   TfFormBill = class(TfFormNormal)
@@ -54,6 +54,8 @@ type
     dxLayout1Item17: TdxLayoutItem;
     EditSJPinYin: TcxTextEdit;
     dxLayout1Item18: TdxLayoutItem;
+    editDate: TcxDateEdit;
+    dxLayout1Item19: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -187,8 +189,21 @@ begin
     EditLading.Properties.ReadOnly := nBool;
 
     if nBuDan then //ฒนตฅ
-         FBuDanFlag := sFlag_Yes
-    else FBuDanFlag := sFlag_No;
+    begin
+      FBuDanFlag := sFlag_Yes;
+      {$IFDEF BuDanChangeDate}
+      dxLayout1Item19.Visible := true;
+      editDate.date := Now;
+      {$ELSE}
+      dxLayout1Item19.Visible := false;
+      editDate.date := Now;
+      {$ENDIF}
+    end
+    else
+    begin
+      FBuDanFlag := sFlag_No;
+      dxLayout1Item19.Visible := false;
+    end;
 
     if Assigned(nParam) then
     with PFormCommandParam(nParam)^ do
@@ -788,6 +803,7 @@ begin
       Values['Lading'] := GetCtrlData(EditLading);
       Values['IsVIP'] := GetCtrlData(EditType);
       Values['BuDan'] := FBuDanFlag;
+      Values['BuDanDate'] := editDate.Text;
       Values['Card']  := gInfo.FCard;
     end;
 
