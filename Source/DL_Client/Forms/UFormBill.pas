@@ -12,7 +12,10 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxMaskEdit,
   cxDropDownEdit, cxListView, cxTextEdit, cxMCListBox, dxLayoutControl,
-  StdCtrls, cxButtonEdit, cxCheckBox, UMgrSDTReader, cxCalendar;
+  {$IFDEF IdentCard}
+   UMgrSDTReader,
+  {$ENDIF}
+  StdCtrls, cxButtonEdit, cxCheckBox, cxCalendar;
 
 type
   TfFormBill = class(TfFormNormal)
