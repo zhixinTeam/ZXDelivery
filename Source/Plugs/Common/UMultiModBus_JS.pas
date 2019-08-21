@@ -31,7 +31,7 @@ type
     FEnable       : Boolean;                      //是否启用
     FID           : string;                       //通道标识
     FName         : string;
-    FGroup        : string;
+    FGroupEx      : string;
     FHost         : string;
     FTruck: array[0..cMultiJS_Truck - 1] of Char; //车牌号
     FDaiNum: Word;                                //需装袋数
@@ -331,8 +331,8 @@ begin
 
           nTmp2 := nTmp.FindNode('group');
           if Assigned(nTmp2) then
-               FGroup := nTmp2.ValueAsString
-          else FGroup := '';
+               FGroupEx := nTmp2.ValueAsString
+          else FGroupEx := '';
 
           FID         := nTmp.NodeByName('id').ValueAsString;
           FName       := nTmp.NodeByName('name').ValueAsString;;
@@ -343,6 +343,7 @@ begin
           FWriteStart := nTmp.NodeByName('WriteStart').ValueAsString;
           FStartValue := nTmp.NodeByName('StartValue').ValueAsString;;
           FWriteClear := nTmp.NodeByName('WriteClear').ValueAsString;
+          FIsRun      := False;
 
           FLastActive := GetTickCount;
           FLocked     := False;
@@ -598,6 +599,9 @@ end;
 
 function TJSReader.ApplyRespondDataEx(const nReader: PJSTunnel) : Boolean;
 var
+  i: Integer;
+  nStr: string;
+  nPH: PJSTunnel;
   nBool,nBool1: Boolean;
   nInt : Word;
 begin
@@ -621,7 +625,22 @@ begin
         begin
           try
             if nInt >= nReader.FDaiNum then
-                 nReader.FIsRun := False
+            begin
+              nReader.FIsRun := False;
+
+              if nReader.FGroupEx <> '' then
+              begin
+                nStr := nReader.FGroupEx;
+                for i:=0 to FOwner.FHostList.Count - 1 do
+                begin
+                  nPH := FOwner.FHostList[i];
+
+                  if (CompareText(nStr, nPH.FGroupEx) = 0)  then
+                    nPH.FIsRun := False;
+                  //撤销同一分组的运行标记
+                end;
+              end;
+            end
             else nReader.FIsRun := True;
 
             nReader.FHasDone := nInt;
@@ -704,7 +723,7 @@ begin
     nPT.FLastBill := nBill;
 
     nPT.FDaiNum := nDaiNum;
-    nPT.FIsRun  := nPT.FGroup <> '';
+    nPT.FIsRun  := nPT.FGroupEx <> '';
 
     for nIdx:=FBuffData.Count - 1 downto 0 do
     begin
@@ -774,20 +793,20 @@ begin
 
   if not Result then Exit;
   
-  if nPT.FGroup = '' then
+  if nPT.FGroupEx = '' then
   begin
     nPT.FIsRun := False;
     //运行标记
     Exit;
   end;
 
-  nStr := nPT.FGroup;
+  nStr := nPT.FGroupEx;
   for i:=0 to FHostList.Count - 1 do
   begin
     nPH := FHostList[i];
 
-    if (CompareText(nStr, nPH.FGroup) = 0)  then
-      nPT.FIsRun := False;
+    if (CompareText(nStr, nPH.FGroupEx) = 0)  then
+      nPH.FIsRun := False;
     //撤销同一分组的运行标记
   end;
   finally
@@ -939,6 +958,7 @@ begin
   case nCmd.FAction of
     faControl :
     begin
+      nCmd.FTunnel.FTcpClient.WriteRegister(StrToInt(nCmd.FTunnel.FWriteClear), 1);
       //总袋数设定
       nBool1 := nCmd.FTunnel.FTcpClient.WriteRegister(StrToInt(nCmd.FTunnel.FWriteDai), nCmd.FTunnel.FDaiNum);
 
@@ -981,6 +1001,7 @@ begin
       nBool2 := nCmd.FTunnel.FTcpClient.WriteRegister(StrToInt(nCmd.FTunnel.FWriteClear), 1);
       if nBool2 then
       begin
+        nCmd.FTunnel.FIsRun := False;
         nCmd.FTimes := cHYReader_CommandRetry;
         WriteLog('通道'+nCmd.FTunnel.FID+'对地址:'+ nCmd.FTunnel.FWriteClear +'清零成功！');
       end
@@ -1008,15 +1029,15 @@ begin
     if Result or (not Assigned(nPT)) then Exit;
     //run,or no tunnel
 
-    if nPT.FGroup = '' then
+    if nPT.FGroupEx = '' then
       Exit; //no group    
-    nStr := nPT.FGroup;
+    nStr := nPT.FGroupEx;
 
     for i:=0 to FHostList.Count - 1 do
     begin
       nPH := FHostList[i];
 
-      if (CompareText(nStr, nPH.FGroup) = 0) then
+      if (CompareText(nStr, nPH.FGroupEx) = 0) then
       begin
         Result := nPH.FIsRun;
         if Result then

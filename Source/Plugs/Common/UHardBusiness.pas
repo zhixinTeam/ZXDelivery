@@ -1139,6 +1139,7 @@ begin
       gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
       {$ELSE}
       gModbusJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
+      gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
       {$ENDIF}
       gTaskMonitor.DelTask(nTask);
     end;
@@ -1225,7 +1226,7 @@ var nStr: string;
 begin
   WriteNearReaderLog('通道[ ' + nTunnel + ' ]: MakeTruckLadingDai进入.');
     //666666暂时屏蔽
-//  if IsJSRun then Exit;
+  if IsJSRun then Exit;
   //tunnel is busy
 
   if not GetLadingBills(nCard, sFlag_TruckZT, nTrucks) then
@@ -1250,7 +1251,7 @@ begin
   begin
     nTunnel := gTruckQueueManager.GetTruckTunnel(nTrucks[0].FTruck);
     //重新定位车辆所在车道
-//    if IsJSRun then Exit;
+    if IsJSRun then Exit;
   end;
   
   if not IsTruckInQueue(nTrucks[0].FTruck, nTunnel, False, nStr,
