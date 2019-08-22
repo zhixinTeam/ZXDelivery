@@ -14,7 +14,7 @@
 {$DEFINE cxLibrary42}
 //Ver4.2编译环境
 {$DEFINE RemObjects}
-{$DEFINE RO_v90}
+{.$DEFINE RO_v90}
 //XE.Lib启用RO支持
 
 {$DEFINE EnableBackupDB}
@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE GXBL}
+{$DEFINE HYJC}
 //特定系统
 
 //山西声威
@@ -556,15 +556,10 @@
   //计数器应答模式
   {$DEFINE PrintHYEach}
   //随车开化验单
-  {.$DEFINE PrintHeGeZheng}
-  {.$DEFINE PrintHuaYanDan}
-  //随车开单时打合格证、化验单
   {$DEFINE BatchInHYOfBill}
   //批次保存在化验单字段
   {$DEFINE SanPreHK}
   //散装开单时预合卡
-  {.$DEFINE AutoPoundInManual}
-  //自动称重人工干预异常
   {$DEFINE DaiStepWuCha}
   //包装阶梯误差
   {$DEFINE NoShowPriceChange}
@@ -579,8 +574,6 @@
   //出厂打印化验单
   {$DEFINE SaveHyDanEvent}
   //生成推送化验单事件
-  {.$DEFINE ForceEleCard}
-  //强制车辆办理和启用电子标签
   {$DEFINE WxShowCusMoney}
   //微信端显示客户金额
   {$DEFINE CastMoney}
@@ -589,8 +582,6 @@
   //自助机原材料开卡不检查订单剩余量
   {$DEFINE ProberShow}
   //车检发送小屏
-  {$DEFINE FixLoad}
-  //定制放灰
   {$DEFINE OrderNoMulCard}
   //采购禁止一车多单
   {$DEFINE CapturePictureEx}
@@ -611,8 +602,6 @@
   //纸卡调价时修改已提货单据价格
   {$DEFINE UseFreight}
   //使用运费
-  {.$DEFINE Between2BillTime}
-  //同一车两次开单间隔
   {$DEFINE UseWXServiceEx}
   //使用二期微信中间件
   {$DEFINE DoubleCheck}

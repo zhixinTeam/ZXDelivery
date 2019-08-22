@@ -507,6 +507,13 @@ begin
       nCode := nCode + nStr;
       //东义: 批次编号后四位+年月日 + 提货单号后三位 + 区域英文码
       {$ENDIF}
+
+      {$IFDEF HYJC}
+      nCode := Fields[0].AsString;
+      System.Delete(nCode, 1, Length('TH170707'));
+      nCode := FormatDateTime('YYMMDD',Now) + Fields[1].AsString + nCode;
+      //恒宇建材: 年月日 + 水泥批次号 + 流水号
+      {$ENDIF}
     end;
   end;
 

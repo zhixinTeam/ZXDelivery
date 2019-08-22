@@ -23,7 +23,7 @@ uses
   UFrameBill, UFrameQueryDiapatch, UFrameTruckQuery, UFrameCusAccount,
   UFrameCusInOutMoney, UFrameQuerySaleDetail, UFrameQuerySaleTotal,
   UFrameOrderDetail, UFrameQueryStockDays, UFrameCusTotalMoney,
-  UFrameCusReceivable;
+  UFrameCusReceivable, UFrameAccReport;
 
 implementation
 
