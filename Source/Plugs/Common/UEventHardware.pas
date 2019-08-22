@@ -218,7 +218,7 @@ begin
   //led display
 
   {$IFDEF UseModbusJS}
-  gModbusJSManager.SaveDataProc := WhenSaveJSEx;
+//  gModbusJSManager.SaveDataProc := WhenSaveJSEx;
   gModbusJSManager.GetTruckProc := GetJSTruck;
   gModbusJSManager.StartReader;
   {$ENDIF}

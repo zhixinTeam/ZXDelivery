@@ -1138,6 +1138,7 @@ begin
       {$IFNDEF UseModbusJS}
       gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
       {$ELSE}
+      gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
       gModbusJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
       gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
       {$ENDIF}

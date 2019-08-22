@@ -624,7 +624,7 @@ begin
         if nReader.FHasDone <= nInt then
         begin
           try
-            if nInt >= nReader.FDaiNum then
+            if nInt >= (nReader.FDaiNum - 3) then
             begin
               nReader.FIsRun := False;
 
@@ -640,6 +640,8 @@ begin
                   //撤销同一分组的运行标记
                 end;
               end;
+              FOwner.DelJS(nReader.FID);
+              nReader.FLastBill := '';
             end
             else nReader.FIsRun := True;
 
