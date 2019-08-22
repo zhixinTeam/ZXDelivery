@@ -621,7 +621,7 @@ begin
       end;
       if (nBooL1)  then
       begin
-        if nReader.FHasDone < nInt then
+        if nReader.FHasDone <= nInt then
         begin
           try
             if nInt >= nReader.FDaiNum then

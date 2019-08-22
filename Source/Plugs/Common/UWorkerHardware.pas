@@ -637,6 +637,9 @@ begin
   Result := gModbusJSManager.AddJS(FListA.Values['Tunnel'],
             FListA.Values['Truck'], FListA.Values['Bill'],
             StrToInt(FListA.Values['DaiNum']), True);
+  Result := gMultiJSManager.AddJS(FListA.Values['Tunnel'],
+            FListA.Values['Truck'], FListA.Values['Bill'],
+            StrToInt(FListA.Values['DaiNum']), True);
   {$ENDIF}
   //xxxxx
 
@@ -652,6 +655,7 @@ begin
   Result := gMultiJSManager.PauseJS(FIn.FData);
   {$ELSE}
   Result := gModbusJSManager.PauseJS(FIn.FData);
+  Result := gMultiJSManager.PauseJS(FIn.FData);
   {$ENDIF}
   if not Result then
     nData := 'ÔÝÍ£¼ÆÊýÆ÷Ê§°Ü';
@@ -664,7 +668,8 @@ begin
   {$IFNDEF UseModbusJS}
   Result := gMultiJSManager.DelJS(FIn.FData);
   {$ELSE}
-  gModbusJSManager.DelJS(FIn.FData);
+  Result := gModbusJSManager.DelJS(FIn.FData);
+  Result := gMultiJSManager.DelJS(FIn.FData);
   {$ENDIF}
   if not Result then
     nData := 'Í£Ö¹¼ÆÊýÆ÷Ê§°Ü';

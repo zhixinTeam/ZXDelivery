@@ -1296,7 +1296,7 @@ begin
     WriteNearReaderLog(nStr);
 
     if not TruckStartJS(nPTruck.FTruck, nTunnel, nPTruck.FBill, nStr,
-       GetHasDai(nPTruck.FBill) < 1) then
+       True) then
       WriteNearReaderLog(nStr);
     Exit;
   end;
