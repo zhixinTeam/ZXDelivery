@@ -10,6 +10,7 @@ interface
 uses
   Windows, Classes, SysUtils, UBusinessPacker, UBusinessWorker, UBusinessConst,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   UClientWorker, UMITPacker, UWaitItem, ULibFun, USysDB, USysLoger;
 
 type
@@ -73,11 +74,29 @@ type
     //停止线程
   end;
 
+  TMITReaderEx = class(TThread)
+  private
+    FList: TStrings;
+    FWaiter: TWaitObject;
+    //等待对象
+    FTunnel: TJSTunnel;
+    FOnData:   TModusJSEvent;
+  protected
+    procedure DoSync;
+    procedure Execute; override;
+  public
+    constructor Create(AEvent: TModusJSEvent);
+    destructor Destroy; override;
+    //创建释放
+    procedure StopMe;
+    //停止线程
+  end;
 //------------------------------------------------------------------------------
 var
   gPath: string;                                     //程序所在路径
   gSysParam:TSysParam;                               //程序环境参数
   gMITReader: TMITReader = nil;                      //中间件读取
+  gMITReaderEx:TMITReaderEx = nil;                   //中间件读取
 
 function LoadTruckQueue(var nLines: TZTLineItems; var nTrucks: TZTTruckItems;
  const nRefreshLine: Boolean = False): Boolean;
@@ -418,6 +437,82 @@ begin
   finally
     gBusinessWorkerManager.RelaseWorker(nWorker);
   end;
+end;
+
+{ TMITReaderEx }
+
+constructor TMITReaderEx.Create(AEvent: TModusJSEvent);
+begin
+  inherited Create(False);
+  FreeOnTerminate := False;
+
+  FOnData := AEvent;
+  FList := TStringList.Create;
+
+  FWaiter := TWaitObject.Create;
+  FWaiter.Interval := 2 * 1000;
+end;
+
+destructor TMITReaderEx.Destroy;
+begin
+  FWaiter.Free;
+  FList.Free;  
+  inherited;
+end;
+
+procedure TMITReaderEx.DoSync;
+var nIdx: Integer;
+begin
+  for nIdx:=0 to FList.Count - 1 do
+  begin
+    FTunnel.FID := FList.Names[nIdx];
+    if not IsNumber(FList.Values[FTunnel.FID], False) then Continue;
+
+    FTunnel.FHasDone := StrToInt(FList.Values[FTunnel.FID]);
+    FOnData(@FTunnel);
+  end;
+end;
+
+procedure TMITReaderEx.Execute;
+var nIn: TWorkerBusinessCommand;
+    nOut: TWorkerBusinessCommand;
+    nWorker: TBusinessWorkerBase;
+begin
+  while not Terminated do
+  try
+    FWaiter.EnterWait;
+    if Terminated then Exit;
+
+    nWorker := nil;
+    try
+      nIn.FCommand := cBC_JSGetStatus;
+      nIn.FBase.FParam := sParam_NoHintOnError;
+      
+      nWorker := gBusinessWorkerManager.LockWorker(sCLI_HardwareCommand);
+      if not nWorker.WorkActive(@nIn, @nOut) then Continue;
+
+      FList.Text := nOut.FData;
+      if Assigned(FOnData) then
+        Synchronize(DoSync);
+      //xxxxx
+    finally
+      gBusinessWorkerManager.RelaseWorker(nWorker);
+    end;
+  except
+    on E:Exception do
+    begin
+      gSysLoger.AddLog(E.Message);
+    end;
+  end;
+end;
+
+procedure TMITReaderEx.StopMe;
+begin
+  Terminate;
+  FWaiter.Wakeup;
+
+  WaitFor;
+  Free;
 end;
 
 end.

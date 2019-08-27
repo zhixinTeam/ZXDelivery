@@ -35,6 +35,9 @@ uses
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
   {$ENDIF}
+  {$IFDEF IdentCard}
+   UMgrSDTReader,
+  {$ENDIF}
   UFormSealInfo,//铅封输入
   {.$IFDEF XAZL}
   UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
@@ -82,6 +85,10 @@ begin
   gChannelChoolser := TChannelChoolser.Create('');
   gChannelChoolser.AutoUpdateLocal := False;
   //channel
+  {$IFDEF IdentCard}
+  gSDTReaderManager.LoadConfig(gPath + 'SDTReader.XML');
+  gSDTReaderManager.TempDir := gPath + 'Temp\';
+  {$ENDIF}
 end;
 
 //Desc: 运行系统对象
@@ -231,11 +238,21 @@ begin
     gDisplayManager.StartDisplay;
   end;
   {$ENDIF}
+
+  {$IFDEF IdentCard}
+  gSDTReaderManager.StartReader;
+  //启动身份证读卡器
+  {$ENDIF}
 end;
 
 //Desc: 释放系统对象
 procedure FreeSystemObject;
 begin
+  {$IFDEF IdentCard}
+  gSDTReaderManager.StopReader;
+  //关闭身份证读卡器
+  {$ENDIF}
+  
   FreeAndNil(gSysLoger);
 end;
 

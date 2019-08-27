@@ -11,6 +11,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   USysConst, UFrameJS, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, Menus, ImgList, dxorgchr, cxSplitter, ComCtrls,
   ToolWin, ExtCtrls, UMemDataPool;
@@ -81,9 +82,13 @@ type
     //节点风格
     procedure LoadTunnelPanels;
     //计数面板
+    procedure LoadTunnelPanelsEx;
+    //计数面板
     procedure ResetPanelPosition;
     //重置位置
     procedure OnSyncChange(const nTunnel: PMultiJSTunnel);
+    //计数变动
+    procedure OnSyncChangeEx(const nTunnel: PJSTunnel);
     //计数变动
   public
     { Public declarations }
@@ -106,9 +111,16 @@ begin
   gPath := ExtractFilePath(Application.ExeName);
   InitGlobalVariant(gPath, gPath + sConfigFile, gPath + sFormConfig);
 
-  gMemDataManager := TMemDataManager.Create;  
+  gMemDataManager := TMemDataManager.Create;
+  {$IFNDEF UseModbusJS}
   gMultiJSManager := TMultiJSManager.Create;
   //初始化计数器
+  {$ELSE}
+  if not Assigned(gModbusJSManager) then
+    gModbusJSManager := TModbusJSManager.Create;
+
+  gMultiJSManager := TMultiJSManager.Create;
+  {$ENDIF}
 
   nIni := TIniFile.Create(gPath + sConfigFile);
   try
@@ -158,13 +170,21 @@ begin
 
   ShowWaitForm(Self, '停止计数');
   try
+    {$IFNDEF UseModbusJS}
     if Assigned(gMITReader) then
     begin
       gMITReader.StopMe;
       gMITReader := nil;
-    end;  
+    end;
 
     gMultiJSManager.StopJS;
+    {$ELSE}
+    if Assigned(gMITReaderEx) then
+    begin
+      gMITReaderEx.StopMe;
+      gMITReaderEx := nil;
+    end;
+    {$ENDIF}
     Sleep(500);
   finally
     CloseWaitForm;
@@ -185,8 +205,13 @@ begin
       nPannel := wPanel.controls[nIdx] as TfFrameCounter;
 
       nStr := Trim(nPannel.EditCode.Text);
+      {$IFNDEF UseModbusJS}
       if Length(nStr) > 0 then
         nIni.WriteString('Tunnel', nPannel.FTunnel.FID, nStr);
+      {$ELSE}
+      if Length(nStr) > 0 then
+        nIni.WriteString('Tunnel', nPannel.FTunnelEx.FID, nStr);
+      {$ENDIF}
     end;
   finally
     nIni.Free;
@@ -202,7 +227,12 @@ begin
   //初始化
 
   {$IFDEF USE_MIT}
-  gMITReader := TMITReader.Create(OnSyncChange);
+    {$IFNDEF UseModbusJS}
+    gMITReader := TMITReader.Create(OnSyncChange);
+    {$ELSE}
+    gMITReaderEx := TMITReaderEx.Create(OnSyncChangeEx);
+    gMITReader   := TMITReader.Create(OnSyncChange);
+    {$ENDIF}
   {$ELSE}
   with gMultiJSManager do
   begin
@@ -217,12 +247,21 @@ end;
 procedure TfFormMain.InitFormData;
 begin
   gSysLoger := TSysLoger.Create(gPath + 'Logs\');
+  {$IFNDEF UseModbusJS}
   gMultiJSManager.LoadFile(gPath + 'JSQ.xml');
+  {$ELSE}
+  if FileExists(gPath + 'ModBusTCPJS.xml') then
+    gModbusJSManager.LoadConfig(gPath + 'ModBusTCPJS.xml');
+  {$ENDIF}
 
   if FileExists(gPath + 'CodePrinter.xml') then
     gCodePrinterManager.LoadConfig(gPath + 'CodePrinter.xml');
 
+  {$IFNDEF UseModbusJS}
   LoadTunnelPanels;
+  {$ELSE}
+  LoadTunnelPanelsEx;
+  {$ENDIF}
   ResetPanelPosition;
 
   with gSysParam do
@@ -312,11 +351,19 @@ begin
   if wPanel.Controls[nIdx] is TfFrameCounter then
   begin
     nPanel := wPanel.Controls[nIdx] as TfFrameCounter;
+    {$IFNDEF UseModbusJS}
     if CompareText(nTunnel, nPanel.FTunnel.FID) = 0 then
     begin
       Result := nPanel;
       Exit;
     end;
+    {$ELSE}
+    if CompareText(nTunnel, nPanel.FTunnelEx.FID) = 0 then
+    begin
+      Result := nPanel;
+      Exit;
+    end;
+    {$ENDIF}
   end;
 end;
 
@@ -718,6 +765,7 @@ begin
     nIni.Free;
   end;
 
+  {$IFNDEF UseModbusJS}
   for nIdx:=0 to gMultiJSManager.Hosts.Count - 1 do
   begin
     nHost := gMultiJSManager.Hosts[nIdx];
@@ -730,6 +778,16 @@ begin
       nPannel.BtnPause.Enabled := True;
     end;
   end;
+  {$ELSE}
+  for nIdx:=0 to gModbusJSManager.FHostList.Count - 1 do
+  begin
+    nPannel := FindComponent(Format('fFrameCounter_%d%d', [nIdx, nIdx]))
+               as TfFrameCounter;
+    nPannel.BtnStart.Enabled := True;
+    nPannel.BtnClear.Enabled := True;
+    nPannel.BtnPause.Enabled := True;
+  end;
+  {$ENDIF}
 
   BtnSetPsw.Enabled := True;
   //允许修改密码
@@ -744,6 +802,47 @@ begin
   nIni := TIniFile.Create(gPath + sPConfigFile);
   nIni.WriteString('Config','PWD',EncodeBase64(nStr));
   nIni.Free;
+end;
+
+procedure TfFormMain.LoadTunnelPanelsEx;
+var nIdx: Integer;
+    nPannel: TfFrameCounter;
+    nTunnel: PJSTunnel;
+    nIni: TIniFile;
+begin
+  for nIdx:=0 to gModbusJSManager.FHostList.Count - 1 do
+  begin
+    nTunnel := gModbusJSManager.FHostList[nIdx];
+
+    nPannel := TfFrameCounter.Create(Self);
+    nPannel.Name := Format('fFrameCounter_%d%d', [nIdx, nIdx]);
+
+    nPannel.Parent := wPanel;
+    nPannel.FTunnelEx := nTunnel;
+    nPannel.GroupBox1.Caption := nTunnel.FName;
+
+    nIni := TIniFile.Create(gPath + sPConfigFile);
+    nPannel.EditCode.Text := nIni.ReadString('Tunnel', nTunnel.FID, '');
+    nIni.Free;
+    //喷码信息
+
+    if gSysParam.FIsEncode then
+    begin
+      nPannel.BtnStart.Enabled := False;
+      nPannel.BtnClear.Enabled := False;
+      nPannel.BtnPause.Enabled := False;
+    end;
+  end;
+end;
+
+procedure TfFormMain.OnSyncChangeEx(const nTunnel: PJSTunnel);
+var nPanel: TfFrameCounter;
+begin
+  nPanel := FindCounter(nTunnel.FID);
+  if Assigned(nPanel) then
+  begin
+    nPanel.LabelHint.Caption := IntToStr(nTunnel.FHasDone);
+  end;
 end;
 
 end.

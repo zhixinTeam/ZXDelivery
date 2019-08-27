@@ -20,6 +20,9 @@ implementation
 
 uses
   UMgrChannel, UChannelChooser, UDataModule, USysDB, USysMAC, SysUtils,
+  {$IFDEF IdentCard}
+  UMgrSDTReader,
+  {$ENDIF}
   USysLoger, USysConst,UMemDataPool,USysFun,UMgrTTCEDispenser;
 
 //Desc: 初始化系统对象
@@ -42,6 +45,11 @@ begin
 
   gDispenserManager := TDispenserManager.Create;
   gDispenserManager.LoadConfig(gPath + 'TTCE_K720.xml');
+
+  {$IFDEF IdentCard}
+  gSDTReaderManager.LoadConfig(gPath + 'SDTReader.XML');
+  gSDTReaderManager.TempDir := gPath + 'Temp\';
+  {$ENDIF}
 end;
 
 //Desc: 运行系统对象
@@ -163,11 +171,21 @@ begin
   LoadSysParameter(nil);
   gDispenserManager.StartDispensers;
   //启动读卡器
+
+  {$IFDEF IdentCard}
+  gSDTReaderManager.StartReader;
+  //启动身份证读卡器
+  {$ENDIF}
 end;
 
 //Desc: 释放系统对象
 procedure FreeSystemObject;
 begin
+  {$IFDEF IdentCard}
+  gSDTReaderManager.StopReader;
+  //关闭身份证读卡器
+  {$ENDIF}
+
   FreeAndNil(gSysLoger);
   gDispenserManager.StopDispensers;
   //关闭读卡器

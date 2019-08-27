@@ -11,6 +11,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+  {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   UMgrCodePrinter, ULibFun, USysConst, UFormWait, UFormInputbox,
   cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, StdCtrls,
   ExtCtrls, cxLabel, cxGraphics, cxControls;
@@ -45,6 +46,7 @@ type
     //带重
     FTunnel: PMultiJSTunnel;
     //计数通道
+    FTunnelEx: PJSTunnel;
     procedure SaveCountResult(const nProcess: Boolean);
     //保存计数
     constructor Create(AOwner: TComponent); override;
@@ -94,7 +96,11 @@ begin
     if Assigned(Sender) then
     begin
       {$IFDEF USE_MIT}
-      if not StopJS(FTunnel.FID) then Exit;
+        {$IFNDEF UseModbusJS}
+        if not StopJS(FTunnel.FID) then Exit;
+        {$ELSE}
+        if not StopJS(FTunnelEx.FID) then Exit;
+        {$ENDIF}
       {$ELSE}
       if not gMultiJSManager.DelJS(FTunnel.FID) then Exit;
       if not BtnStart.Enabled then
@@ -146,14 +152,25 @@ begin
     //for delay
     
     {$IFDEF USE_MIT}
-    if not PrintBillCode(FTunnel.FID, FBill, nHint) then
-    begin
-      CloseWaitForm;
-      Application.ProcessMessages;
+      {$IFNDEF UseModbusJS}
+      if not PrintBillCode(FTunnel.FID, FBill, nHint) then
+      begin
+        CloseWaitForm;
+        Application.ProcessMessages;
 
-      ShowDlg(nHint, sWarn);
-      Exit;
-    end;
+        ShowDlg(nHint, sWarn);
+        Exit;
+      end;
+      {$ELSE}
+      if not PrintBillCode(FTunnelEx.FID, FBill, nHint) then
+      begin
+        CloseWaitForm;
+        Application.ProcessMessages;
+
+        ShowDlg(nHint, sWarn);
+        Exit;
+      end;
+      {$ENDIF}
     {$ELSE}
     if not gCodePrinterManager.PrintCode(FTunnel.FID, Trim(EditCode.Text), nHint) then
     begin
@@ -168,7 +185,11 @@ begin
     nInt := StrToInt(EditDai.Text);
     {$IFDEF USE_MIT}
     ShowWaitForm(nil, '连接计数器');
-    StartJS(FTunnel.FID, EditTruck.Text, FBill, nInt);
+      {$IFNDEF UseModbusJS}
+      StartJS(FTunnel.FID, EditTruck.Text, FBill, nInt);
+      {$ELSE}
+      StartJS(FTunnelEx.FID, EditTruck.Text, FBill, nInt);
+      {$ENDIF}
     {$ELSE}
     if not gMultiJSManager.AddJS(FTunnel.FID, EditTruck.Text, '', nInt) then
       Exit;
@@ -232,7 +253,11 @@ end;
 procedure TfFrameCounter.BtnPauseClick(Sender: TObject);
 begin
   {$IFDEF USE_MIT}
-  PauseJS(FTunnel.FID);
+    {$IFNDEF UseModbusJS}
+    PauseJS(FTunnel.FID);
+    {$ELSE}
+    PauseJS(FTunnelEx.FID);
+    {$ENDIF}
   {$ELSE}
   gMultiJSManager.PauseJS(FTunnel.FID);
   {$ENDIF}
