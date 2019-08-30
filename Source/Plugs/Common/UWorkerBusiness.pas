@@ -137,6 +137,8 @@ type
     //保存抓斗称刷卡信息
     function GetSalesCredit(nSalesID: string):Double;
     //获取业务员信用
+    function GetUnLoadingPlace(var nData: string): Boolean;
+    //获取卸货地点及强制输入卸货地点物料
   public
     constructor Create; override;
     destructor destroy; override;
@@ -397,6 +399,8 @@ begin
    {$IFDEF UseK3SalePlan}
    cBC_LoadSalePlan        : Result := GetSalePlan(nData);
    {$ENDIF}
+   cBC_GetUnLoadingPlace   : Result := GetUnLoadingPlace(nData);
+   cBC_GetSendingPlace     : Result := GetUnLoadingPlace(nData);
    else
     begin
       Result := False;
@@ -1953,16 +1957,33 @@ end;
 //Parm: 交货单列表[FIn.FData]
 //Desc: 同步交货单数据到K3系统
 function TWorkerBusinessCommander.SyncRemoteStockBill(var nData: string): Boolean;
-var nID,nIdx: Integer;
+var nID,nIdx,nCheckerID: Integer;
     nVal,nMoney: Double;
     nK3Worker: PDBWorker;
     nStr,nSQL,nBill,nStockID: string;
+    nAutoAudit: Boolean;
 begin
   Result := False;
 
+  nAutoAudit := False;
+  nCheckerID := 16458;
+
+  nSQL := 'select D_Value, D_Memo From %s where D_Name=''%s'' ';
+  nSQL := Format(nSQL, [sTable_SysDict, sFlag_AutoAudit]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nSQL)  do
+  begin
+    if RecordCount > 0 then
+    begin
+      nAutoAudit := Fields[0].AsString = sFlag_Yes;
+      if Fields[1].AsString <> '' then
+        nCheckerID := Fields[1].AsInteger;
+    end;
+  end;
+
   SetLength(FStockCKs, 0);
   nSQL := 'select D_ParamB, D_ParamC From %s where D_Name=''%s'' ';
-  nSQL := Format(nSQL, [sFlag_StockItem]);
+  nSQL := Format(nSQL, [sTable_SysDict, sFlag_StockItem]);
 
   with gDBConnManager.WorkerQuery(FDBConn, nSQL)  do
   begin
@@ -2112,41 +2133,90 @@ begin
         FListA.Add(nSQL);
         {$ELSE}
         {$IFDEF XPDS}
-        nSQL := MakeSQLByStr([
-          SF('Frob', 1, sfVal),
-          SF('Fbrno', 0, sfVal),
-          SF('Fbrid', 0, sfVal),
+        if nAutoAudit then
+        begin
+          nSQL := MakeSQLByStr([
+            SF('Frob', 1, sfVal),
+            SF('Fbrno', 0, sfVal),
+            SF('Fbrid', 0, sfVal),
 
-          SF('Fpoordbillno', ''),
-          SF('Fstatus', 0, sfVal),
-          SF('Fdate', Date2Str(Now)),
+            SF('Fpoordbillno', ''),
+            SF('Fstatus', 1, sfVal),
+            SF('FCheckerID', nCheckerID, sfVal),
+            SF('FCheckDate', Date2Str(Now)),
+            SF('FMultiCheckLevel1', nCheckerID, sfVal),
+            SF('FMultiCheckDate1', Date2Str(Now)),
+            SF('FCurCheckLevel', 1, sfVal),
 
-          SF('Ftrantype', 21, sfVal),
-          SF('Fdeptid', 226, sfVal),
+            SF('Fdate', Date2Str(Now)),
 
-          SF('Frelatebrid', 0, sfVal),
-          //SF('Fmanagetype', 0, sfVal),
-          SF('Fvchinterid', 0, sfVal),
+            SF('Ftrantype', 21, sfVal),
+            SF('Fdeptid', 226, sfVal),
 
-          SF('Fsalestyle', 101, sfVal),
-          SF('Fseltrantype', 0, sfVal),
+            SF('Frelatebrid', 0, sfVal),
+            //SF('Fmanagetype', 0, sfVal),
+            SF('Fvchinterid', 0, sfVal),
 
-          SF('Fbillerid', 16448, sfVal),
-          SF('Ffmanagerid', 266, sfVal),
-          SF('Fsmanagerid', 266, sfVal),
+            SF('Fsalestyle', 101, sfVal),
+            SF('Fseltrantype', 0, sfVal),
 
-          SF('Fupstockwhensave', 1, sfVal),
-          SF('Fmarketingstyle', 12530, sfVal),
+            SF('Fbillerid', 16448, sfVal),
+            SF('Ffmanagerid', 266, sfVal),
+            SF('Fsmanagerid', 266, sfVal),
 
-          SF('Fbillno', nBill),
-          SF('Finterid', nID, sfVal),
+            SF('Fupstockwhensave', 1, sfVal),
+            SF('Fmarketingstyle', 12530, sfVal),
 
-          //SF('Fheadselfb0144', 15263, sfVal),
-          SF('Fheadselfb0146', FieldByName('L_Truck').AsString),
+            SF('Fbillno', FieldByName('L_ID').AsString),
+            SF('Finterid', nID, sfVal),
 
-          SF('Fempid', FieldByName('L_SaleID').AsString, sfVal),
-          SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
-          ], 'ICStockBill', '', True);
+            //SF('Fheadselfb0144', 15263, sfVal),
+            SF('Fheadselfb0146', FieldByName('L_Truck').AsString),
+            SF('FHeadSelfB0147', FieldByName('L_ID').AsString),
+
+            SF('Fempid', FieldByName('L_SaleID').AsString, sfVal),
+            SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
+            ], 'ICStockBill', '', True);
+        end
+        else
+        begin
+          nSQL := MakeSQLByStr([
+            SF('Frob', 1, sfVal),
+            SF('Fbrno', 0, sfVal),
+            SF('Fbrid', 0, sfVal),
+
+            SF('Fpoordbillno', ''),
+            SF('Fstatus', 0, sfVal),
+            SF('Fdate', Date2Str(Now)),
+
+            SF('Ftrantype', 21, sfVal),
+            SF('Fdeptid', 226, sfVal),
+
+            SF('Frelatebrid', 0, sfVal),
+            //SF('Fmanagetype', 0, sfVal),
+            SF('Fvchinterid', 0, sfVal),
+
+            SF('Fsalestyle', 101, sfVal),
+            SF('Fseltrantype', 0, sfVal),
+
+            SF('Fbillerid', 16448, sfVal),
+            SF('Ffmanagerid', 266, sfVal),
+            SF('Fsmanagerid', 266, sfVal),
+
+            SF('Fupstockwhensave', 1, sfVal),
+            SF('Fmarketingstyle', 12530, sfVal),
+
+            SF('Fbillno', FieldByName('L_ID').AsString),
+            SF('Finterid', nID, sfVal),
+
+            //SF('Fheadselfb0144', 15263, sfVal),
+            SF('Fheadselfb0146', FieldByName('L_Truck').AsString),
+            SF('FHeadSelfB0147', FieldByName('L_ID').AsString),
+
+            SF('Fempid', FieldByName('L_SaleID').AsString, sfVal),
+            SF('Fsupplyid', FieldByName('L_CusID').AsString, sfVal)
+            ], 'ICStockBill', '', True);
+        end;
         FListA.Add(nSQL);
         {$ELSE}
         nSQL := MakeSQLByStr([
@@ -2286,6 +2356,9 @@ begin
             Break;
           end;
 
+        nMoney := FieldByName('L_Value').AsFloat * FieldByName('L_Price').AsFloat;
+        nMoney := Float2Float(nMoney, cPrecision, True);
+
         if Trim(nStockID) = '' then
           nStockID := '312';//默认成品库
 
@@ -2309,10 +2382,10 @@ begin
           SF('Fsourcetrantype', 0, sfVal),
           SF('Fsourceinterid', '0', sfVal),
 
-          SF('Fqty',  nVal, sfVal),
-          SF('Fauxqty', nVal, sfVal),
-          SF('Fqtymust', nVal, sfVal),
-          SF('Fauxqtymust', nVal, sfVal),
+          SF('Fqty',  FieldByName('L_Value').AsFloat, sfVal),
+          SF('Fauxqty', FieldByName('L_Value').AsFloat, sfVal),
+          SF('Fqtymust', FieldByName('L_Value').AsFloat, sfVal),
+          SF('Fauxqtymust', FieldByName('L_Value').AsFloat, sfVal),
 
           SF('Fconsignprice', FieldByName('L_Price').AsFloat , sfVal),
           SF('Fconsignamount', nMoney, sfVal),
@@ -3366,6 +3439,36 @@ begin
     nMoney := nVal;
     Result := True;
   end;
+end;
+
+function TWorkerBusinessCommander.GetUnLoadingPlace(var nData: string): Boolean;
+var nStr: string;
+begin
+  Result := False;
+
+  if FIn.FData = '' then Exit;
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s'' ';
+  nStr := Format(nStr, [sTable_SysDict, FIn.FData]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount <= 0 then
+      Exit;
+
+    FListC.Clear;
+
+    First;
+
+    while not Eof do
+    begin
+      FListC.Add(Fields[0].AsString);
+      Next;
+    end;
+  end;
+
+  FOut.FData := FListC.Text;
+  Result := True;
 end;
 
 initialization

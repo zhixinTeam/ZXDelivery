@@ -35,10 +35,7 @@ uses
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
   {$ENDIF}
-  {$IFDEF IdentCard}
-   UMgrSDTReader,
-  {$ENDIF}
-  UFormSealInfo,//«¶∑‚ ‰»Î
+   UMgrSDTReader,UFormSealInfo,//«¶∑‚ ‰»Î
   {.$IFDEF XAZL}
   UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
   UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,

@@ -207,6 +207,7 @@ inherited fFormBill: TfFormBill
     object editDate: TcxDateEdit [18]
       Left = 81
       Top = 307
+      ParentFont = False
       Properties.Kind = ckDateTime
       TabOrder = 21
       Width = 121

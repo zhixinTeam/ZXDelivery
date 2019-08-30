@@ -42,6 +42,9 @@ type
     N3: TMenuItem;
     N4: TMenuItem;
     N5: TMenuItem;
+    N6: TMenuItem;
+    N7: TMenuItem;
+    N8: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
@@ -50,6 +53,8 @@ type
     procedure N2Click(Sender: TObject);
     procedure N3Click(Sender: TObject);
     procedure N5Click(Sender: TObject);
+    procedure N7Click(Sender: TObject);
+    procedure N8Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -74,7 +79,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness,
-  UBusinessConst, USysConst, USysDB;
+  UBusinessConst, USysConst, USysDB, UDataModule, UFormInputbox;
 
 class function TfFrameOrderDetailQuery.FrameID: integer;
 begin
@@ -89,6 +94,15 @@ begin
 
   FJBWhere := '';
   InitDateRange(Name, FStart, FEnd);
+  N7.Visible := False;
+  N8.Visible := False;
+  {$IFDEF SendUnLoadPlace}
+  if gSysParam.FIsAdmin then
+  begin
+    N7.Visible := True;
+    N8.Visible := True;
+  end;
+  {$ENDIF}
 end;
 
 procedure TfFrameOrderDetailQuery.OnDestroyFrame;
@@ -255,6 +269,58 @@ begin
   if VarIsNull(nVal) then
        Result := ''
   else Result := nVal;
+end;
+
+procedure TfFrameOrderDetailQuery.N7Click(Sender: TObject);
+var nStr,nID,nPlace: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('D_SPlace').AsString;
+    nPlace := nStr;
+    if not ShowInputBox('请输入新的发货地点:', '修改', nPlace, 100) then Exit;
+
+    if (nPlace = '') or (nStr = nPlace) then Exit;
+    //无效或一致
+    nID := SQLQuery.FieldByName('D_ID').AsString;
+
+    nStr := 'Update %s Set D_SPlace=''%s'' Where D_ID=''%s''';
+    nStr := Format(nStr, [sTable_OrderDtl, nPlace, nID]);
+    FDM.ExecuteSQL(nStr);
+
+    nStr := '采购单[ %s ]修改发货地点[ %s -> %s ].';
+    nStr := Format(nStr, [nID, SQLQuery.FieldByName('D_SPlace').AsString, nPlace]);
+    FDM.WriteSysLog(sFlag_BillItem, nID, nStr, False);
+
+    InitFormData(FWhere);
+    ShowMsg('发货地点修改成功', sHint);
+  end;
+end;
+
+procedure TfFrameOrderDetailQuery.N8Click(Sender: TObject);
+var nStr,nID,nPlace: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('D_UPlace').AsString;
+    nPlace := nStr;
+    if not ShowInputBox('请输入新的收货地点:', '修改', nPlace, 100) then Exit;
+
+    if (nPlace = '') or (nStr = nPlace) then Exit;
+    //无效或一致
+    nID := SQLQuery.FieldByName('D_ID').AsString;
+
+    nStr := 'Update %s Set D_UPlace=''%s'' Where D_ID=''%s''';
+    nStr := Format(nStr, [sTable_OrderDtl, nPlace, nID]);
+    FDM.ExecuteSQL(nStr);
+
+    nStr := '采购单[ %s ]修改收货地点[ %s -> %s ].';
+    nStr := Format(nStr, [nID, SQLQuery.FieldByName('D_UPlace').AsString, nPlace]);
+    FDM.WriteSysLog(sFlag_BillItem, nID, nStr, False);
+
+    InitFormData(FWhere);
+    ShowMsg('收货地点修改成功', sHint);
+  end;
 end;
 
 initialization

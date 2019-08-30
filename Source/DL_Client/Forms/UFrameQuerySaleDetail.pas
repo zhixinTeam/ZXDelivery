@@ -38,12 +38,14 @@ type
     EditBill: TcxButtonEdit;
     dxLayout1Item7: TdxLayoutItem;
     N1: TMenuItem;
+    N2: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure mniN1Click(Sender: TObject);
     procedure N1Click(Sender: TObject);
+    procedure N2Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -75,7 +77,7 @@ implementation
 {$R *.dfm}
 uses
   ULibFun, UMgrControl, UFormDateFilter, USysPopedom, USysBusiness,
-  UBusinessConst, USysConst, USysDB;
+  UBusinessConst, USysConst, USysDB, UDataModule, UFormInputbox;
 
 class function TfFrameSaleDetailQuery.FrameID: integer;
 begin
@@ -90,6 +92,11 @@ begin
 
   FJBWhere := '';
   InitDateRange(Name, FStart, FEnd);
+  N2.Visible := False;
+  {$IFDEF SendUnLoadPlace}
+  if gSysParam.FIsAdmin then
+    N2.Visible := True;
+  {$ENDIF}
 end;
 
 procedure TfFrameSaleDetailQuery.OnDestroyFrame;
@@ -305,6 +312,32 @@ begin
   if VarIsNull(nVal) then
        Result := ''
   else Result := nVal;
+end;
+
+procedure TfFrameSaleDetailQuery.N2Click(Sender: TObject);
+var nStr,nID,nPlace: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('L_SPlace').AsString;
+    nPlace := nStr;
+    if not ShowInputBox('请输入新的发货地点:', '修改', nPlace, 100) then Exit;
+
+    if (nPlace = '') or (nStr = nPlace) then Exit;
+    //无效或一致
+    nID := SQLQuery.FieldByName('L_ID').AsString;
+
+    nStr := 'Update %s Set L_SPlace=''%s'' Where L_ID=''%s''';
+    nStr := Format(nStr, [sTable_Bill, nPlace, nID]);
+    FDM.ExecuteSQL(nStr);
+
+    nStr := '销售单[ %s ]修改发货地点[ %s -> %s ].';
+    nStr := Format(nStr, [nID, SQLQuery.FieldByName('L_SPlace').AsString, nPlace]);
+    FDM.WriteSysLog(sFlag_BillItem, nID, nStr, False);
+
+    InitFormData(FWhere);
+    ShowMsg('发货地点修改成功', sHint);
+  end;
 end;
 
 initialization

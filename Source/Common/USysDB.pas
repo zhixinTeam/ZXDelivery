@@ -297,6 +297,7 @@ const
   sFlag_HYSGroup      = 'HYSGroup';                  //化验室组
   sFlag_WLBGroup      = 'WLBGroup';                  //化验室组
   sFlag_PeerWeight    = 'PeerWeight';                //每袋重量
+  sFlag_AutoAudit     = 'AutoAudit';                 //数据上传金蝶自动审核
 
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组

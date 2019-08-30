@@ -12,9 +12,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxMaskEdit,
   cxDropDownEdit, cxListView, cxTextEdit, cxMCListBox, dxLayoutControl,
-  {$IFDEF IdentCard}
-   UMgrSDTReader,
-  {$ENDIF}
+  UMgrSDTReader,
   StdCtrls, cxButtonEdit, cxCheckBox, cxCalendar;
 
 type

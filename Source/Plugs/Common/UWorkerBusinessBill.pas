@@ -1957,11 +1957,19 @@ begin
     end;
   end;
 
+  {$IFDEF SendUnLoadPlace}
+  nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
+          'L_StockName,L_Truck,L_Value,L_Price,L_ZKMoney,L_Status,' +
+          'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue,L_PrintHY,' +
+          'L_HYDan, L_EmptyOut, L_LadeTime,L_CusType,L_SPlace From $Bill b ';
+  //xxxxx
+  {$ELSE}
   nStr := 'Select L_ID,L_ZhiKa,L_CusID,L_CusName,L_Type,L_StockNo,' +
           'L_StockName,L_Truck,L_Value,L_Price,L_ZKMoney,L_Status,' +
           'L_NextStatus,L_Card,L_IsVIP,L_PValue,L_MValue,L_PrintHY,' +
           'L_HYDan, L_EmptyOut, L_LadeTime,L_CusType From $Bill b ';
   //xxxxx
+  {$ENDIF}
 
   if nIsBill then
        nStr := nStr + 'Where L_ID=''$CD'''
@@ -2026,6 +2034,9 @@ begin
       FPData.FValue := FieldByName('L_PValue').AsFloat;
       FMData.FValue := FieldByName('L_MValue').AsFloat;
       FYSValid      := FieldByName('L_EmptyOut').AsString;
+      if Assigned(FindField('L_SPlace')) then
+        FSPlace := FieldByName('L_SPlace').AsString;
+
       FSelected := True;
 
       Inc(nIdx);
@@ -2240,6 +2251,9 @@ begin
               SF('L_NextStatus', FNextStatus),
               SF('L_LadeTime', sField_SQLServer_Now, sfVal),
               SF('L_EmptyOut', FYSValid),
+              {$IFDEF SendUnLoadPlace}
+              SF('L_SPlace', FSPlace),
+              {$ENDIF}
               SF('L_LadeMan', FIn.FBase.FFrom.FUser)
               ], sTable_Bill, SF('L_ID', FID), False);
       FListA.Add(nSQL);
@@ -2260,6 +2274,9 @@ begin
               SF('L_NextStatus', sFlag_TruckBFM),
               SF('L_LadeTime', sField_SQLServer_Now, sfVal),
               SF('L_EmptyOut', FYSValid),
+              {$IFDEF SendUnLoadPlace}
+              SF('L_SPlace', FSPlace),
+              {$ENDIF}
               SF('L_LadeMan', FIn.FBase.FFrom.FUser)
               ], sTable_Bill, SF('L_ID', FID), False);
       FListA.Add(nSQL);

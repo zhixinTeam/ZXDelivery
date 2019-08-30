@@ -245,5 +245,9 @@ inherited fFrameSaleDetailQuery: TfFrameSaleDetailQuery
       Caption = #25209#37327#25171#21360
       OnClick = N1Click
     end
+    object N2: TMenuItem
+      Caption = #20462#25913#21457#36135#22320#28857
+      OnClick = N2Click
+    end
   end
 end

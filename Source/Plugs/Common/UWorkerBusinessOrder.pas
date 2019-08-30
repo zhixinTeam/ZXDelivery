@@ -695,6 +695,15 @@ begin
     end;
   end;
 
+  {$IFDEF SendUnLoadPlace}
+  nStr := 'Select D_ID,D_OID,D_PID,D_YLine,D_Status,D_NextStatus,' +
+          'D_KZValue,D_Memo,D_YSResult,D_UPlace,D_SPlace,' +
+          'P_PStation,P_PValue,P_PDate,P_PMan,' +
+          'P_MStation,P_MValue,P_MDate,P_MMan ' +
+          'From $OD od Left join $PD pd on pd.P_Order=od.D_ID ' +
+          'Where D_OutFact Is Null And D_OID=''$OID''';
+  //xxxxx
+  {$ELSE}
   nStr := 'Select D_ID,D_OID,D_PID,D_YLine,D_Status,D_NextStatus,' +
           'D_KZValue,D_Memo,D_YSResult,' +
           'P_PStation,P_PValue,P_PDate,P_PMan,' +
@@ -702,6 +711,7 @@ begin
           'From $OD od Left join $PD pd on pd.P_Order=od.D_ID ' +
           'Where D_OutFact Is Null And D_OID=''$OID''';
   //xxxxx
+  {$ENDIF}
 
   nStr := MacroValue(nStr, [MI('$OD', sTable_OrderDtl),
                             MI('$PD', sTable_PoundLog),
@@ -784,6 +794,13 @@ begin
         FKZValue  := FieldByName('D_KZValue').AsFloat;
         FMemo     := FieldByName('D_Memo').AsString;
         FYSValid  := FieldByName('D_YSResult').AsString;
+
+        if Assigned(FindField('D_UPlace')) then
+          FUPlace := FieldByName('D_UPlace').AsString;
+
+        if Assigned(FindField('D_SPlace')) then
+          FSPlace := FieldByName('D_SPlace').AsString;
+
         FSelected := True;
 
         Inc(nIdx);
@@ -947,6 +964,10 @@ begin
               SF('D_KZValue', FKZValue, sfVal),
               SF('D_YSResult', FYSValid),
               SF('D_Unload', FHKRecord),
+              {$IFDEF SendUnLoadPlace}
+              SF('D_UPlace', FUPlace),
+              SF('D_SPlace', FSPlace),
+              {$ENDIF}
               SF('D_Memo', FMemo)
               ], sTable_OrderDtl, SF('D_ID', FID), False);
       FListA.Add(nSQL);

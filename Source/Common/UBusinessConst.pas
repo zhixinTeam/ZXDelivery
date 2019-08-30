@@ -103,6 +103,9 @@ const
 
   cBC_GetWebOrderByCard       = $0112;   //通过卡号取微信订单
 
+  cBC_GetUnLoadingPlace       = $0139;   //读取卸货地点
+  cBC_GetSendingPlace         = $0140;   //读取发货地点
+
   cBC_GetLoginToken          =  $0601;   //问信登录接口
   cBC_GetDepotInfo           =  $0602;   //获取问信部门档案
   cBC_GetUserInfo            =  $0603;   //获取问信人员档案
@@ -212,6 +215,8 @@ type
     FPrePData   : string;          //预置皮重
     FIsNei      : string;          //厂内倒料
     FCusType    : string;          //客户类型
+    FUPlace     : string;          //卸货地点
+    FSPlace     : string;          //发货地点
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -360,7 +365,9 @@ begin
         FHYDan   := Values['HYDan'];
         FMemo    := Values['Memo'];
         FLadeTime:= Values['LadeTime'];
-        FCusType:= Values['CusType'];
+        FCusType := Values['CusType'];
+        FUPlace  := Values['UPlace'];
+        FSPlace  := Values['SPlace'];
       end;
 
       Inc(nInt);
@@ -447,6 +454,8 @@ begin
         else Values['PrintHY'] := sFlag_No;
         Values['HYDan']    := FHYDan;
         Values['LadeTime'] := FLadeTime;
+        Values['UPlace'] := FUPlace;
+        Values['SPlace'] := FSPlace;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));

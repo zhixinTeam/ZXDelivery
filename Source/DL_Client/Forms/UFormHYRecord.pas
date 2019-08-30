@@ -11,7 +11,7 @@ uses
   UDataModule, cxGraphics, StdCtrls, cxMaskEdit, cxDropDownEdit,
   cxMCListBox, cxMemo, dxLayoutControl, cxContainer, cxEdit, cxTextEdit,
   cxControls, cxButtonEdit, cxCalendar, ExtCtrls, cxPC, cxLookAndFeels,
-  cxLookAndFeelPainters;
+  cxLookAndFeelPainters, cxGroupBox;
 
 type
   TfFormHYRecord = class(TForm)
@@ -106,6 +106,46 @@ type
     cxTextEdit3: TcxTextEdit;
     Label4: TLabel;
     cxTextEdit4: TcxTextEdit;
+    cxGroupBox1: TcxGroupBox;
+    Label5: TLabel;
+    cxTextEdit5: TcxTextEdit;
+    Label6: TLabel;
+    cxTextEdit6: TcxTextEdit;
+    Label7: TLabel;
+    cxTextEdit7: TcxTextEdit;
+    Label8: TLabel;
+    cxTextEdit8: TcxTextEdit;
+    cxGroupBox2: TcxGroupBox;
+    Label9: TLabel;
+    Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    cxTextEdit9: TcxTextEdit;
+    cxTextEdit10: TcxTextEdit;
+    cxTextEdit11: TcxTextEdit;
+    cxTextEdit12: TcxTextEdit;
+    Label13: TLabel;
+    cxTextEdit13: TcxTextEdit;
+    Label14: TLabel;
+    cxTextEdit14: TcxTextEdit;
+    Label15: TLabel;
+    cxTextEdit15: TcxTextEdit;
+    Label16: TLabel;
+    cxTextEdit16: TcxTextEdit;
+    Label33: TLabel;
+    cxTextEdit44: TcxTextEdit;
+    Label35: TLabel;
+    cxTextEdit46: TcxTextEdit;
+    Label36: TLabel;
+    cxTextEdit50: TcxTextEdit;
+    Label37: TLabel;
+    cxTextEdit51: TcxTextEdit;
+    Label45: TLabel;
+    cxTextEdit59: TcxTextEdit;
+    Label46: TLabel;
+    cxTextEdit60: TcxTextEdit;
+    Label47: TLabel;
+    cxTextEdit61: TcxTextEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
