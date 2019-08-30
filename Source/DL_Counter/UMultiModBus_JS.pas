@@ -621,39 +621,59 @@ begin
       end;
       if (nBooL1)  then
       begin
-        if nReader.FHasDone <= nInt then
+        if nInt <= 0 then
         begin
-          try
-            if nInt >= (nReader.FDaiNum - 3) then
-            begin
-              nReader.FIsRun := False;
-
-              if nReader.FGroupEx <> '' then
-              begin
-                nStr := nReader.FGroupEx;
-                for i:=0 to FOwner.FHostList.Count - 1 do
-                begin
-                  nPH := FOwner.FHostList[i];
-
-                  if (CompareText(nStr, nPH.FGroupEx) = 0)  then
-                    nPH.FIsRun := False;
-                  //撤销同一分组的运行标记
-                end;
-              end;
-              FOwner.DelJS(nReader.FID);
-              nReader.FLastBill := '';
-            end
-            else nReader.FIsRun := True;
-
-            nReader.FHasDone := nInt;
-            //now dai num
-          finally
-            //
-          end;
-
-          if Assigned(FOwner.FChangeSync) or Assigned(FOwner.FChangeSyncProc) then
+          nReader.FIsRun := False;
+          if nReader.FGroupEx <> '' then
           begin
-            Synchronize(SyncNowTunnel);
+            nStr := nReader.FGroupEx;
+            for i:=0 to FOwner.FHostList.Count - 1 do
+            begin
+              nPH := FOwner.FHostList[i];
+
+              if (CompareText(nStr, nPH.FGroupEx) = 0)  then
+                nPH.FIsRun := False;
+              //撤销同一分组的运行标记
+            end;
+          end;
+          FOwner.DelJS(nReader.FID);
+        end
+        else
+        begin
+          if nReader.FHasDone <= nInt then
+          begin
+            try
+              if nInt >= (nReader.FDaiNum - 3) then
+              begin
+                nReader.FIsRun := False;
+
+                if nReader.FGroupEx <> '' then
+                begin
+                  nStr := nReader.FGroupEx;
+                  for i:=0 to FOwner.FHostList.Count - 1 do
+                  begin
+                    nPH := FOwner.FHostList[i];
+
+                    if (CompareText(nStr, nPH.FGroupEx) = 0)  then
+                      nPH.FIsRun := False;
+                    //撤销同一分组的运行标记
+                  end;
+                end;
+                FOwner.DelJS(nReader.FID);
+                nReader.FLastBill := '';
+              end
+              else nReader.FIsRun := True;
+
+              nReader.FHasDone := nInt;
+              //now dai num
+            finally
+              //
+            end;
+
+            if Assigned(FOwner.FChangeSync) or Assigned(FOwner.FChangeSyncProc) then
+            begin
+              Synchronize(SyncNowTunnel);
+            end;
           end;
         end;
 
