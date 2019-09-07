@@ -41,19 +41,19 @@ inherited fFormCustomer: TfFormCustomer
     end
     object EditMemo: TcxMemo
       Left = 81
-      Top = 236
+      Top = 261
       Hint = 'T.C_Memo'
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
       Style.Edges = [bBottom]
-      TabOrder = 14
+      TabOrder = 15
       Height = 45
       Width = 385
     end
     object InfoList1: TcxMCListBox
       Left = 23
-      Top = 368
+      Top = 393
       Width = 438
       Height = 131
       HeaderSections = <
@@ -69,44 +69,44 @@ inherited fFormCustomer: TfFormCustomer
       ParentFont = False
       Style.BorderStyle = cbsOffice11
       Style.Edges = [bLeft, bTop, bRight, bBottom]
-      TabOrder = 19
+      TabOrder = 20
     end
     object InfoItems: TcxComboBox
       Left = 81
-      Top = 318
+      Top = 343
       ParentFont = False
       Properties.DropDownRows = 15
       Properties.ImmediateDropDown = False
       Properties.IncrementalSearch = False
       Properties.ItemHeight = 20
       Properties.MaxLength = 30
-      TabOrder = 15
+      TabOrder = 16
       Width = 100
     end
     object EditInfo: TcxTextEdit
       Left = 81
-      Top = 343
+      Top = 368
       ParentFont = False
       Properties.MaxLength = 50
-      TabOrder = 17
+      TabOrder = 18
       Width = 120
     end
     object BtnAdd: TButton
       Left = 411
-      Top = 318
+      Top = 343
       Width = 46
       Height = 18
       Caption = #28155#21152
-      TabOrder = 16
+      TabOrder = 17
       OnClick = BtnAddClick
     end
     object BtnDel: TButton
       Left = 412
-      Top = 343
+      Top = 368
       Width = 45
       Height = 17
       Caption = #21024#38500
-      TabOrder = 18
+      TabOrder = 19
       OnClick = BtnDelClick
     end
     object BtnOK: TButton
@@ -115,7 +115,7 @@ inherited fFormCustomer: TfFormCustomer
       Width = 70
       Height = 22
       Caption = #20445#23384
-      TabOrder = 21
+      TabOrder = 22
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
@@ -124,7 +124,7 @@ inherited fFormCustomer: TfFormCustomer
       Width = 70
       Height = 22
       Caption = #21462#28040
-      TabOrder = 22
+      TabOrder = 23
       OnClick = BtnExitClick
     end
     object cxTextEdit1: TcxTextEdit
@@ -235,7 +235,7 @@ inherited fFormCustomer: TfFormCustomer
       Hint = 'T.C_XuNi'
       Caption = #38750#27491#24335#23458#25143': '#27491#24120#26597#35810#26102#19981#20104#26174#31034'.'
       ParentFont = False
-      TabOrder = 20
+      TabOrder = 21
       Transparent = True
       Width = 218
     end
@@ -254,9 +254,17 @@ inherited fFormCustomer: TfFormCustomer
       Left = 280
       Top = 211
       Hint = 'T.C_Type'
+      ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       TabOrder = 13
       Width = 177
+    end
+    object EditZJM: TcxTextEdit
+      Left = 81
+      Top = 236
+      Hint = 'T.C_Param'
+      TabOrder = 14
+      Width = 176
     end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
       ShowCaption = False
@@ -393,6 +401,11 @@ inherited fFormCustomer: TfFormCustomer
               ControlOptions.ShowBorder = False
             end
           end
+        end
+        object dxLayoutControl1Item25: TdxLayoutItem
+          Caption = #23458#25143#32534#30721':'
+          Control = EditZJM
+          ControlOptions.ShowBorder = False
         end
         object dxLayoutControl1Item4: TdxLayoutItem
           Caption = #22791#27880#20449#24687':'

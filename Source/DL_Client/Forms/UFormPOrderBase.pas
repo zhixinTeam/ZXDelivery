@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormPOrderBase;
 
+{$I Link.inc}
 interface
 
 uses
@@ -65,6 +66,11 @@ type
     cxLabel3: TcxLabel;
     dxLayoutControl1Item15: TdxLayoutItem;
     dxLayoutControl1Group6: TdxLayoutGroup;
+    EditOrderBz: TcxTextEdit;
+    dxLayoutControl1Item16: TdxLayoutItem;
+    cxLabel4: TcxLabel;
+    dxLayoutControl1Item17: TdxLayoutItem;
+    dxLayoutControl1Group7: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
    
@@ -355,6 +361,9 @@ begin
     Values['Value']         := Format('%.2f', [nVal]);
     Values['LimValue']      := Format('%.2f', [nLimVal]);
     Values['WarnValue']     := Format('%.2f', [nWarnVal]);
+    {$IFDEF DDChangeOrder}
+    Values['OrderBz']       := Trim(EditOrderBz.Text);
+    {$ENDIF}
   end;
 
   FOrderID := SaveOrderBase(PackerEncodeStr(FListA.Text));

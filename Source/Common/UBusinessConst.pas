@@ -105,6 +105,7 @@ const
 
   cBC_GetUnLoadingPlace       = $0139;   //读取卸货地点
   cBC_GetSendingPlace         = $0140;   //读取发货地点
+  cBC_GetPOrderBase           = $0141;   //读取采购申请单
 
   cBC_GetLoginToken          =  $0601;   //问信登录接口
   cBC_GetDepotInfo           =  $0602;   //获取问信部门档案
@@ -217,6 +218,7 @@ type
     FCusType    : string;          //客户类型
     FUPlace     : string;          //卸货地点
     FSPlace     : string;          //发货地点
+    FNewOrder   : string;          //新申请单
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -368,6 +370,7 @@ begin
         FCusType := Values['CusType'];
         FUPlace  := Values['UPlace'];
         FSPlace  := Values['SPlace'];
+        FNewOrder:= Values['NewOrder'];
       end;
 
       Inc(nInt);
@@ -456,6 +459,7 @@ begin
         Values['LadeTime'] := FLadeTime;
         Values['UPlace'] := FUPlace;
         Values['SPlace'] := FSPlace;
+        Values['NewOrder']   := FNewOrder;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));

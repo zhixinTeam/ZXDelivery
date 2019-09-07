@@ -3,7 +3,7 @@ object fFormNewCard: TfFormNewCard
   Top = 52
   BorderStyle = bsNone
   Caption = #29992#25143#33258#21161#21150#21345
-  ClientHeight = 597
+  ClientHeight = 624
   ClientWidth = 938
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -100,10 +100,9 @@ object fFormNewCard: TfFormNewCard
   end
   object PanelBody: TPanel
     Left = 0
-    Top = 209
+    Top = 241
     Width = 938
     Height = 388
-    Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
     object dxLayout1: TdxLayoutControl
@@ -484,7 +483,7 @@ object fFormNewCard: TfFormNewCard
     Left = 0
     Top = 89
     Width = 938
-    Height = 120
+    Height = 152
     Align = alTop
     BevelOuter = bvNone
     Caption = 'pnlMiddle'
@@ -506,7 +505,7 @@ object fFormNewCard: TfFormNewCard
       Left = 0
       Top = 28
       Width = 938
-      Height = 92
+      Height = 124
       Align = alClient
       Columns = <>
       Font.Charset = DEFAULT_CHARSET
@@ -522,7 +521,7 @@ object fFormNewCard: TfFormNewCard
   end
   object PrintHY: TcxCheckBox
     Left = 10
-    Top = 530
+    Top = 571
     Caption = #20986#21378#25171#21360#21270#39564#21333
     ParentFont = False
     State = cbsChecked

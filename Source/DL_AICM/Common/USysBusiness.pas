@@ -1496,6 +1496,10 @@ begin
     Result := gPath + sReportDir + 'HuaYan42.fr3'
   else if Pos('52', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan52.5.fr3'
+  else if Pos('fmh', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYanFMH.fr3'
+  else if Pos('jzs', Result) > 0 then
+    Result := gPath + sReportDir + 'HuaYanJZS.fr3'
   else Result := '';
 end;
 

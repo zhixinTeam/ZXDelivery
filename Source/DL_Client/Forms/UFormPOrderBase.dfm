@@ -23,12 +23,12 @@ inherited fFormPOrderBase: TfFormPOrderBase
     AutoControlAlignment = False
     object EditMemo: TcxMemo
       Left = 84
-      Top = 211
+      Top = 237
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
       Style.Edges = [bBottom]
-      TabOrder = 11
+      TabOrder = 13
       Height = 40
       Width = 437
     end
@@ -38,7 +38,7 @@ inherited fFormPOrderBase: TfFormPOrderBase
       Width = 70
       Height = 23
       Caption = #20445#23384
-      TabOrder = 13
+      TabOrder = 15
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
@@ -47,7 +47,7 @@ inherited fFormPOrderBase: TfFormPOrderBase
       Width = 69
       Height = 23
       Caption = #21462#28040
-      TabOrder = 14
+      TabOrder = 16
       OnClick = BtnExitClick
     end
     object EditSalesMan: TcxComboBox
@@ -120,7 +120,7 @@ inherited fFormPOrderBase: TfFormPOrderBase
       Caption = #30003#35831#21333#29983#25928
       ParentFont = False
       State = cbsChecked
-      TabOrder = 12
+      TabOrder = 14
       Width = 121
     end
     object cxLabel1: TcxLabel
@@ -155,6 +155,18 @@ inherited fFormPOrderBase: TfFormPOrderBase
       Left = 263
       Top = 185
       Caption = #20801#35768#35746#21333#36229#21457#30340#26368#22823#33539#22260
+      ParentFont = False
+    end
+    object EditOrderBz: TcxTextEdit
+      Left = 84
+      Top = 211
+      TabOrder = 11
+      Width = 172
+    end
+    object cxLabel4: TcxLabel
+      Left = 262
+      Top = 211
+      Caption = #35746#21333#31616#31216'('#20379#24212#21830#31616#31216'+'#29289#26009#31616#31216')'
       ParentFont = False
     end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
@@ -246,6 +258,23 @@ inherited fFormPOrderBase: TfFormPOrderBase
             Caption = 'cxLabel3'
             ShowCaption = False
             Control = cxLabel3
+            ControlOptions.ShowBorder = False
+          end
+        end
+        object dxLayoutControl1Group7: TdxLayoutGroup
+          ShowCaption = False
+          Hidden = True
+          LayoutDirection = ldHorizontal
+          ShowBorder = False
+          object dxLayoutControl1Item16: TdxLayoutItem
+            Caption = #35746#21333#31616#31216':'
+            Control = EditOrderBz
+            ControlOptions.ShowBorder = False
+          end
+          object dxLayoutControl1Item17: TdxLayoutItem
+            Caption = 'cxLabel4'
+            ShowCaption = False
+            Control = cxLabel4
             ControlOptions.ShowBorder = False
           end
         end

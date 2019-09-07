@@ -78,6 +78,8 @@ type
     EditType: TcxComboBox;
     dxLayoutControl1Item23: TdxLayoutItem;
     dxLayoutControl1Group9: TdxLayoutGroup;
+    EditZJM: TcxTextEdit;
+    dxLayoutControl1Item25: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnAddClick(Sender: TObject);
@@ -187,6 +189,11 @@ begin
   {$IFNDEF MicroMsg}
   EditWX.Hint := '';
   EditWX.Visible := False;
+  {$ENDIF}
+  {$IFDEF XPDS}
+  dxLayoutControl1Item25.Visible := True;
+  {$ELSE}
+  dxLayoutControl1Item25.Visible := False;
   {$ENDIF}
 
   nIni := TIniFile.Create(gPath + sFormConfig);
@@ -363,6 +370,21 @@ begin
     EditName.SetFocus;
     ShowMsg('请填写客户名称', sHint); Exit;
   end;
+
+  {$IFDEF XPDS}
+  nStr := 'Select Count(*) From %s Where C_Param=''%s''';
+  nStr := Format(nStr, [sTable_Customer, EditZJM.Text]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  if Fields[0].AsInteger > 0 then
+  begin
+    nStr := '客户编码[ %s ]已存在';
+    nStr := Format(nStr, [EditZJM.Text]);
+    ShowMsg(nStr, sHint);
+    Exit;
+  end;
+  {$ENDIF}
 
   {$IFDEF CustomerType}
   EditType.Text := Trim(EditType.Text);

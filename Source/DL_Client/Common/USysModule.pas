@@ -45,6 +45,8 @@ uses
   UFramePoundMtAuto,UFramePoundMtAutoItem,UFramePoundMtQuery,
   //桐乡码头抓斗秤
   UFramePMaterailControl, UFormPMaterailControl,
+  UFormCrossCard, UFrameCrossCard,
+  //通行卡业务
   //----------------------------------------------------------------------------
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo, UFrameXHSpot,UFormXHSpot,

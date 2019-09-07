@@ -1473,6 +1473,10 @@ const
        'R_28Ya1 varChar(20), R_28Ya2 varChar(20), R_28Ya3 varChar(20),' +
        'R_28Ya4 varChar(20), R_28Ya5 varChar(20), R_28Ya6 varChar(20),' +
        'R_FMH varChar(20), R_ZMJ varChar(20), R_RMLZ varChar(20), R_KF varChar(20),' +
+       'R_FMHXSLB varChar(32),R_FMHMD varChar(32),R_FMHZLFS varChar(32),R_FMHHXZS varChar(32),' +
+       'R_JZSYSZB varChar(32),R_JZSBGMD varChar(32),R_JZSSSDJMD varChar(32),R_JZSKXL varChar(32),' +
+       'R_JZSFKS475 varChar(32),R_JZSFKS236 varChar(32),R_JZSFKS118 varChar(32),' +
+       'R_JZSFKS060 varChar(32),R_JZSFKS030 varChar(32),R_JZSFKS015 varChar(32),R_JZSXDMS varChar(32),' +
        'R_Date DateTime, R_Man varChar(32))';
   {-----------------------------------------------------------------------------
    检验记录:StockRecord
@@ -1523,6 +1527,25 @@ const
    *.R_ZMJ:助磨剂
    *.R_RMLZ:燃煤炉渣
    *.R_KF:矿粉
+   *.R_FMHXSLB:需水量比
+   *.R_FMHMD:密度
+   *.R_FMHZLFS:质量分数
+   *.R_FMHHXZS:活性指数
+   *.R_JZSMBZ:MB值
+   *.R_JZSSFHL:石粉含量
+   *.R_JZSNKHL:泥块含量
+   *.R_JZSJGXZB:坚固性指标
+   *.R_JZSYSZB:压碎指标
+   *.R_JZSBGMD:表观密度
+   *.R_JZSSSDJMD:松散堆积密度
+   *.R_JZSKXL:孔隙率
+   *.R_JZSFKS475:方孔筛4.75
+   *.R_JZSFKS236:方孔筛2.36
+   *.R_JZSFKS118:方孔筛1.18
+   *.R_JZSFKS060:方孔筛0.6
+   *.R_JZSFKS030:方孔筛0.3
+   *.R_JZSFKS015:方孔筛0.15
+   *.R_JZSXDMS:细度模数
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockHuaYan = 'Create Table $Table(H_ID $Inc, H_No varChar(15),' +

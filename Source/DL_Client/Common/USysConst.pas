@@ -76,6 +76,8 @@ const
 
   cFI_FrameTrucks       = $0070;                     //车辆档案
   cFI_FrameTodo         = $0071;                     //待处理事件
+  cFI_FrameCrossCard    = $0072;                     //办理磁卡(通行卡)
+
   cFI_FrameXHSpot       = $2071;                     //卸货地点维护
   cFI_FormXHSpot        = $2072;                     //卸货地点编辑
   cFI_FrameDriverWh     = $2073;                     //司机信息维护
@@ -183,6 +185,7 @@ const
   cFI_FormAuditTruck    = $1095;                     //车辆审核
   cFI_FormSealInfo      = $1096;                     //铅封信息录入
   CFI_FormSearchCard    = $1157;                     //磁卡查询
+  CFI_FormCrossCard     = $1097;                     //通行卡办理
 
   cFI_Form_HT_SalePlan  = $1100;                     //销售计划(红塔)
   cFI_FrameTransBase    = $1103;                     //短倒办理
@@ -455,6 +458,7 @@ begin
   AddMenuModuleItem('MAIN_M08', cFI_FrameOrderDetail);
   AddMenuModuleItem('MAIN_M09', cFI_FrameOrderBase);
   AddMenuModuleItem('MAIN_M10', cFI_FramePMaterailControl);
+  AddMenuModuleItem('MAIN_M11', cFI_FrameCrossCard);
 
   AddMenuModuleItem('MAIN_W01', cFI_FrameWXAccount);
   AddMenuModuleItem('MAIN_W02', cFI_FrameWXSendLog);

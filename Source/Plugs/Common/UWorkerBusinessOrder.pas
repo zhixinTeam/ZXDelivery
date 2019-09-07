@@ -185,7 +185,9 @@ begin
             SF('B_StockType', sFlag_San),
             SF('B_StockNo', FListA.Values['StockNO']),
             SF('B_StockName', FListA.Values['StockName']),
-
+            {$IFDEF DDChangeOrder}
+            SF('B_OrderBz', FListA.Values['OrderBz']),
+            {$ENDIF}
             SF('B_Man', FIn.FBase.FFrom.FUser),
             SF('B_Date', sField_SQLServer_Now, sfVal)
             ], sTable_OrderBase, '', True);
@@ -971,6 +973,36 @@ begin
               SF('D_Memo', FMemo)
               ], sTable_OrderDtl, SF('D_ID', FID), False);
       FListA.Add(nSQL);
+
+      if FNewOrder <> '' then//«–ªª…Í«Îµ•
+      begin
+        nSQL := MakeSQLByStr([
+                SF('D_ProID', FCusID),
+                SF('D_ProName', FCusName),
+                SF('D_ProPY', GetPinYinOfStr(FCusName)),
+                SF('D_StockNo', FStockNo),
+                SF('D_StockName', FStockName)
+                ], sTable_OrderDtl, SF('D_ID', FID), False);
+        FListA.Add(nSQL);
+
+        nSQL := MakeSQLByStr([
+                SF('O_BID', FNewOrder),
+                SF('O_ProID', FCusID),
+                SF('O_ProName', FCusName),
+                SF('O_ProPY', GetPinYinOfStr(FCusName)),
+                SF('O_StockNo', FStockNo),
+                SF('O_StockName', FStockName)
+                ], sTable_Order, SF('O_ID', FZhiKa), False);
+        FListA.Add(nSQL);
+
+        nSQL := MakeSQLByStr([
+                SF('P_CusID', FCusID),
+                SF('P_CusName', FCusName),
+                SF('P_MID', FStockNo),
+                SF('P_MName', FStockName)
+                ], sTable_PoundLog, nStr, False);
+        FListA.Add(nSQL);
+      end;
     end;
   end else
 

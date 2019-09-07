@@ -691,4 +691,6 @@
   //使用二期微信中间件
   {$DEFINE SendUnLoadPlace}
   //发货卸货地点录入
+  {$DEFINE DDChangeOrder}
+  //短倒订单可更改
 {$ENDIF}

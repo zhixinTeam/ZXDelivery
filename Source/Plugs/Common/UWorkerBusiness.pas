@@ -139,6 +139,8 @@ type
     //获取业务员信用
     function GetUnLoadingPlace(var nData: string): Boolean;
     //获取卸货地点及强制输入卸货地点物料
+    function GetPOrderBase(var nData: string): Boolean;
+    //读取特定订单
   public
     constructor Create; override;
     destructor destroy; override;
@@ -401,6 +403,7 @@ begin
    {$ENDIF}
    cBC_GetUnLoadingPlace   : Result := GetUnLoadingPlace(nData);
    cBC_GetSendingPlace     : Result := GetUnLoadingPlace(nData);
+   cBC_GetPOrderBase       : Result := GetPOrderBase(nData);
    else
     begin
       Result := False;
@@ -432,6 +435,20 @@ begin
 
     FOut.FData := Fields[0].AsString;
     Result := True;
+  end;
+
+  FOut.FExtParam := sFlag_OrderCardL;
+
+  if FOut.FData = sFlag_Provide then
+  begin
+    nStr := 'select O_CType from %s Where O_Card=''%s'' ';
+    nStr := Format(nStr, [sTable_Order, FIn.FData]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    if RecordCount > 0 then
+    begin
+      FOut.FExtParam := Fields[0].AsString;
+    end;
   end;
 end;
 
@@ -3463,6 +3480,47 @@ begin
     while not Eof do
     begin
       FListC.Add(Fields[0].AsString);
+      Next;
+    end;
+  end;
+
+  FOut.FData := FListC.Text;
+  Result := True;
+end;
+
+function TWorkerBusinessCommander.GetPOrderBase(var nData: string): Boolean;
+var nStr: string;
+begin
+  Result := False;
+
+  nStr := 'Select B_ID,B_ProID,B_ProName,B_StockNo,B_StockName,B_OrderBz ' +
+          ' From %s Where B_BStatus=''%s'' and ' +
+          ' ((B_Value-B_SentValue>0) or (B_Value=0)) ';
+  nStr := Format(nStr, [sTable_OrderBase, sFlag_Yes]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount <= 0 then
+      Exit;
+
+    FListC.Clear;
+    FListB.Clear;
+    First;
+
+    while not Eof do
+    begin
+      if FieldByName('B_OrderBz').AsString = '' then
+      begin
+        Next;
+        Continue;
+      end;
+      FListB.Values['ID'] := FieldByName('B_ID').AsString;
+      FListB.Values['ProID'] := FieldByName('B_ProID').AsString;
+      FListB.Values['ProName'] := FieldByName('B_ProName').AsString;
+      FListB.Values['StockNo'] := FieldByName('B_StockNo').AsString;
+      FListB.Values['StockName'] := FieldByName('B_StockName').AsString;
+      FListB.Values['OrderBz'] := FieldByName('B_OrderBz').AsString;
+      FListC.Add(PackerEncodeStr(FListB.Text));
       Next;
     end;
   end;
