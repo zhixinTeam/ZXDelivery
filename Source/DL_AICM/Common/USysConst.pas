@@ -279,6 +279,7 @@ type
     FType:string;   //销售或采购
     FXHSpot:string; //卸货地点
     FPrice:string;//单价  拼单用
+    FStatus: string;      //订单状态 1：新订单   
   end;
   //网上商城订单明细
 
@@ -300,6 +301,7 @@ type
     FType:string;          //采购，销售
     FCusID:string;
     FCusName:string;
+    FStatus: string;      //订单状态 1：新订单    
   end;
   //网上商城供货单明细
 

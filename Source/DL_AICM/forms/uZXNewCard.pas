@@ -103,6 +103,8 @@ type
     function SaveWebOrderMatch(const nBillID,nWebOrderID,nBillType:string):Boolean;
     procedure GetSJInfo;
     //获取司机信息
+    procedure GetSJInfoEx;
+    //获取司机信息
     procedure GetSJName;
     //获取司机名称
     procedure SyncCard(const nCard: TIdCardInfoStr;const nReader: TSDTReaderItem);
@@ -306,7 +308,8 @@ begin
           FWebOrderItems[i].FGoodsname      := Values['materielName'];
           FWebOrderItems[i].FData           := Values['quantity'];
           FWebOrderItems[i].ForderDetailType:= Values['orderDetailType'];
-          FWebOrderItems[i].FYunTianOrderId := Values['contractNo'];  ;
+          FWebOrderItems[i].FYunTianOrderId := Values['contractNo'];
+          FWebOrderItems[i].FStatus         := Values['status'];
           AddListViewItem(FWebOrderItems[i]);
         end;
       end;
@@ -443,6 +446,21 @@ begin
       Exit;
     end;
 
+    if nOrderItem.FStatus <> '1' then
+    begin
+      if nOrderItem.FStatus = '0' then
+        nMsg := '此订单状态未知'
+      else if nOrderItem.FStatus = '6' then
+        nMsg := '此订单已取消'
+      else if nOrderItem.FStatus = '7' then
+        nMsg := '此订单已过期'
+      else
+        nMsg := '此订单已使用';
+      ShowMsg(nMsg,sHint);
+      Writelog(nMsg+nOrderItem.FStatus);
+      Exit;
+    end;
+
     //填充界面信息
     //基本信息
     EditCus.Text    := '';
@@ -466,6 +484,7 @@ begin
     EditSName.Text  := nOrderItem.FGoodsname;
     EditValue.Text  := nOrderItem.FData;
     EditTruck.Text  := nOrderItem.Ftracknumber;
+    GetSJInfoEx;
     EditCus.Text    := nOrderItem.FCusID;
     EditCName.Text  := nOrderItem.FCusName;
     EditMemo.Text   := nOrderItem.FXHSpot;
@@ -1085,6 +1104,20 @@ var
 begin
   nStr := 'Select D_Name, D_IDCard From %s Where (D_PinYin like ''%%%s%%'') or (D_PY like ''%%%s%%'') ';
   nStr := Format(nStr, [sTable_DriverWh, Trim(EditSJPinYin.Text) , Trim(EditSJPinYin.Text)]);
+  with FDM.QueryTemp(nStr) do
+  if Recordcount = 1 then
+  begin
+    EditSJName.Text := Fields[0].AsString;
+    EditIdent.Text  := Fields[1].AsString;
+  end;
+end;
+
+procedure TfFormNewCard.GetSJInfoEx;
+var
+  nStr : string;
+begin
+  nStr := 'Select D_Name, D_IDCard From %s Where (D_Truck like ''%%%s%%'') ';
+  nStr := Format(nStr, [sTable_DriverWh, Trim(EditTruck.Text)]);
   with FDM.QueryTemp(nStr) do
   if Recordcount = 1 then
   begin

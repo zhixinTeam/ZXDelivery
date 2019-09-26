@@ -303,6 +303,7 @@ begin
           FWebOrderItems[i].FData           := Values['quantity'];
           FWebOrderItems[i].Fpurchasecontract_no := Values['contractNo'];
           FWebOrderItems[i].FOrder_ls       := '';
+          FWebOrderItems[i].FStatus         := Values['status'];
           AddListViewItem(FWebOrderItems[i]);
         end;
       end;
@@ -373,6 +374,21 @@ begin
       nMsg := '此订单不是采购订单！';
       ShowMsg(nMsg,sHint);
       Writelog(nMsg);
+      Exit;
+    end;
+
+    if nOrderItem.FStatus <> '1' then
+    begin
+      if nOrderItem.FStatus = '0' then
+        nMsg := '此订单状态未知'
+      else if nOrderItem.FStatus = '6' then
+        nMsg := '此订单已取消'
+      else if nOrderItem.FStatus = '7' then
+        nMsg := '此订单已过期'
+      else
+        nMsg := '此订单已使用';
+      ShowMsg(nMsg,sHint);
+      Writelog(nMsg+nOrderItem.FStatus);
       Exit;
     end;
   {$ENDIF}
