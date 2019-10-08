@@ -484,7 +484,9 @@ begin
     EditSName.Text  := nOrderItem.FGoodsname;
     EditValue.Text  := nOrderItem.FData;
     EditTruck.Text  := nOrderItem.Ftracknumber;
+    {$IFDEF IdentCard}
     GetSJInfoEx;
+    {$ENDIF}
     EditCus.Text    := nOrderItem.FCusID;
     EditCName.Text  := nOrderItem.FCusName;
     EditMemo.Text   := nOrderItem.FXHSpot;
