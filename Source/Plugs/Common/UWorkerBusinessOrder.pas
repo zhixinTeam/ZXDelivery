@@ -39,6 +39,15 @@ type
     //获取岗位采购单
     function SavePostOrderItems(var nData: string): Boolean;
     //保存岗位采购单
+    function VerifyManualEventRecord(const nEID: string; var nHint: string;
+      const nWant: string = sFlag_Yes; const nUpdateHint: Boolean = True): Boolean;
+    //检查事件是否通过处理
+    function AddManualEventRecord(const nEID,nKey,nEvent:string;
+      const nFrom: string = sFlag_DepBangFang ;
+      const nSolution: string = sFlag_Solution_YN;
+      const nDepartmen: string = sFlag_DepDaTing;
+      const nReset: Boolean = False; const nMemo: string = ''): Boolean;
+    //添加待处理事项记录
     {$IFDEF  DoubleCheck}
     function GetYSRules(var nData: string):Boolean;
     function SaveWlbYS(var nData: string):Boolean;
@@ -819,7 +828,7 @@ end;
 //Parm: 交货单[FIn.FData];岗位[FIn.FExtParam]
 //Desc: 保存指定岗位提交的交货单列表
 function TWorkerBusinessOrders.SavePostOrderItems(var nData: string): Boolean;
-var nVal: Double;
+var nVal, nValWC: Double;
     nIdx: Integer;
     nStr,nSQL: string;
     nPound: TLadingBillItems;
@@ -1100,6 +1109,44 @@ begin
   //----------------------------------------------------------------------------
   if FIn.FExtParam = sFlag_TruckOut then
   begin
+    //恒宇建材
+    {$IFDEF HYJC}
+    nSQL := 'select * from %s where D_Name=''%s'' and D_Value=''%s''';
+    nSQL := Format(nSQL,[sTable_SysDict,sFlag_CheckPurNetWC,nPound[0].FStockNo]);
+    with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+    if recordcount >0 then
+    begin
+      nValWC := FieldByName('D_ParamA').asfloat;
+      nSQL := 'select * from %s where D_ID=''%s''';
+      nSQL := Format(nSQL,[sTable_OrderDtl,nPound[0].FID]);
+      with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+      begin
+        //误差量超过设定值，则推送事件提醒
+        if nValWC < Abs(FieldByName('D_Value').AsFloat - nPound[0].FValue)*1000 then
+        begin
+          nValWC := Abs(FieldByName('D_Value').AsFloat - nPound[0].FValue)*1000;
+          nStr := '车辆[ %s ]实时皮重误差较大,详情如下:' + #13#10 +
+              '※.实际净重: %.2f吨' + #13#10 +
+              '※.票重: %.2f吨' + #13#10 +
+              '※.误差量: %.2f公斤' + #13#10 +
+              '允许出厂,请选是;禁止过磅,请选否.';
+          nStr := Format(nStr,[nPound[0].FTruck,FieldByName('D_Value').AsFloat,
+                  nPound[0].FValue,nValWC]);
+
+          if not VerifyManualEventRecord(nPound[0].FID + sFlag_ManualC, nStr,
+            sFlag_Yes, False) then
+          begin
+            AddManualEventRecord(nPound[0].FID + sFlag_ManualC, nPound[0].FTruck, nStr,
+                sFlag_DepDaTing, sFlag_Solution_YN, sFlag_DepDaTing, True);
+            nData := nStr;
+            WriteLog(nStr);
+            Exit;
+          end;
+        end;
+      end;
+    end;
+    {$ENDIF}
+
     with nPound[0] do
     begin
       nSQL := MakeSQLByStr([SF('D_Status', sFlag_TruckOut),
@@ -1265,6 +1312,82 @@ begin
   end;
 end;
 {$ENDIF}
+
+function TWorkerBusinessOrders.VerifyManualEventRecord(const nEID: string;
+  var nHint: string; const nWant: string;
+  const nUpdateHint: Boolean): Boolean;
+var nStr: string;
+begin
+  Result := False;
+  nStr := 'Select E_Result, E_Event From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nEID]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := Trim(FieldByName('E_Result').AsString);
+    if nStr = '' then
+    begin
+      if nUpdateHint then
+        nHint := FieldByName('E_Event').AsString;
+      Exit;
+    end;
+
+    if nStr <> nWant then
+    begin
+      if nUpdateHint then
+        nHint := '请联系管理员，做换票处理';
+      Exit;
+    end;
+
+    Result := True;
+  end;
+end;
+
+function TWorkerBusinessOrders.AddManualEventRecord(const nEID, nKey,
+  nEvent, nFrom, nSolution, nDepartmen: string; const nReset: Boolean;
+  const nMemo: string): Boolean;
+var nStr: string;
+    nUpdate: Boolean;
+begin
+  Result := False;
+  if Trim(nSolution) = '' then
+  begin
+    WriteLog('请选择处理方案.');
+    Exit;
+  end;
+
+  nStr := 'Select * From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nEID]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    nStr := '事件记录:[ %s ]已存在';
+    WriteLog(Format(nStr, [nEID]));
+
+    if not nReset then Exit;
+    nUpdate := True;
+  end else nUpdate := False;
+
+  nStr := SF('E_ID', nEID);
+  nStr := MakeSQLByStr([
+          SF('E_ID', nEID),
+          SF('E_Key', nKey),
+          SF('E_From', nFrom),
+          SF('E_Memo', nMemo),
+          SF('E_Result', 'Null', sfVal),
+
+          SF('E_Event', nEvent),
+          SF('E_Solution', nSolution),
+          SF('E_Departmen', nDepartmen),
+          SF('E_Date', sField_SQLServer_Now, sfVal)
+          ], sTable_ManualEvent, nStr, (not nUpdate));
+  //xxxxx
+
+  gDBConnManager.WorkerExec(FDBConn, nStr);
+  Result := True;
+end;
 
 initialization
   gBusinessWorkerManager.RegisteWorker(TWorkerBusinessOrders, sPlug_ModuleBus);

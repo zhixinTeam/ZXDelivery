@@ -42,6 +42,7 @@ type
     Timer4: TTimer;
     SysPlugs: TdxNavBarItem;
     SysStatus: TdxNavBarItem;
+    sysInFactTimeOut: TdxNavBarItem;
     procedure Timer2Timer(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -51,6 +52,7 @@ type
     procedure LabelAdminClick(Sender: TObject);
     procedure SysServiceClick(Sender: TObject);
     procedure Timer4Timer(Sender: TObject);
+    procedure sysInFactTimeOutClick(Sender: TObject);
   private
     { Private declarations }
     FTrayIcon: TTrayIcon;
@@ -79,7 +81,7 @@ implementation
 
 uses
   IniFiles, ULibFun, UBase64, UROModule, USysLoger, UFormWait, UFormInputbox,
-  UFrameBase, UFormBase, UMITModule, UMITConst;
+  UFrameBase, UFormBase, UMITModule, UMITConst, UHardBusiness;
 
 //------------------------------------------------------------------------------
 //Date: 2007-10-15
@@ -202,6 +204,9 @@ begin
 
   RunSystemObject;
   //run object
+  {$IFDEF HYJC}
+  sysInFactTimeOut.Visible := True;
+  {$ENDIF}
 end;
 
 procedure TfFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -428,6 +433,19 @@ var nStr: string;
 begin
   nStr := BoolToStr(gSysParam.FIsAdmin, True);
   CreateBaseFormItem(TdxNavBarItem(Sender).Tag, nStr);
+end;
+
+procedure TfFormMain.sysInFactTimeOutClick(Sender: TObject);
+var
+  nStr: string;
+begin
+  if not ShowInputBox('请输入出队超时时间:', '提示', nStr) then Exit;
+  if not IsNumber(nStr, False) then
+  begin
+    ShowMsg('请输入合法的数字',sHint);
+    exit;
+  end;
+  SetInFactTimeOut(StrToInt(nStr));
 end;
 
 end.

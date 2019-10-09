@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE XPDS}
+{$DEFINE HYJC}
 //特定系统
 
 //山西声威
@@ -693,4 +693,53 @@
   //发货卸货地点录入
   {$DEFINE DDChangeOrder}
   //短倒订单可更改
+{$ENDIF}
+
+//锦荣骨料高疙瘩，上牛
+{$IFDEF JRGL}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE WxShowCusMoney}
+  //微信端显示客户金额
+  {$DEFINE CastMoney}
+  //对吨位及金额小数位后2位四舍五入
+  {$DEFINE ProberShow}
+  //车检发送小屏
+  {$DEFINE CapturePictureEx}
+  //磅房抓拍模式扩展
+  {$DEFINE BusinessOnly}
+  //车辆同一时间只能进行1种业务
+  {$DEFINE ForceMemo}
+  //强制输入备注
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE AlwaysUseDate}
+  //报表查询始终使用日期条件
+  {$DEFINE AllowMultiM}
+  //允许多次过重车
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
+  {.$DEFINE UseFreight}
+  //使用运费
+  {$DEFINE UseWXServiceEx}
+  //使用二期微信中间件
+  //补单可以修改补单日期
+  {$DEFINE BuDanChangeDate} 
 {$ENDIF}

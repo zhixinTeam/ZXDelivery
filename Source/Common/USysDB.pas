@@ -273,6 +273,7 @@ const
   sFlag_DepJianZhuang = '监装';                      //监装
   sFlag_DepBangFang   = '磅房';                      //磅房
   sFlag_DepHuaYan     = '化验室';                    //化验室
+  sFlag_CheckPurNetWC = 'CheckPurNetWC';             //采购净重和票重误差
 
   sFlag_Solution_YN   = 'Y=通过;N=禁止';
   sFlag_Solution_YNI  = 'Y=通过;N=禁止;I=忽略';
@@ -1477,7 +1478,7 @@ const
        'R_JZSYSZB varChar(32),R_JZSBGMD varChar(32),R_JZSSSDJMD varChar(32),R_JZSKXL varChar(32),' +
        'R_JZSFKS475 varChar(32),R_JZSFKS236 varChar(32),R_JZSFKS118 varChar(32),' +
        'R_JZSFKS060 varChar(32),R_JZSFKS030 varChar(32),R_JZSFKS015 varChar(32),R_JZSXDMS varChar(32),' +
-       'R_Date DateTime, R_Man varChar(32))';
+       'R_Date DateTime, R_Man varChar(32),R_SrxGe varchar(20))';
   {-----------------------------------------------------------------------------
    检验记录:StockRecord
    *.R_ID:记录编号

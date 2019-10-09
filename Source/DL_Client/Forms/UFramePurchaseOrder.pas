@@ -45,6 +45,7 @@ type
     N5: TMenuItem;
     N7: TMenuItem;
     N8: TMenuItem;
+    N9: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
@@ -60,6 +61,8 @@ type
     procedure N5Click(Sender: TObject);
     procedure N7Click(Sender: TObject);
     procedure N8Click(Sender: TObject);
+    procedure N9Click(Sender: TObject);
+    procedure PMenu1Popup(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -385,6 +388,50 @@ begin
     InitFormData(FWhere);
     ShowMsg('矿发数量修改成功', sHint);
   end;
+end;
+
+procedure TfFramePurchaseOrder.N9Click(Sender: TObject);
+var
+  nStr, nValue, nSql: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('O_Value').AsString;
+    nValue := nStr;
+    if not ShowInputBox('请输入新的票重:', '修改', nValue, 5) then Exit;
+
+    if (nValue = '') or (nStr = nValue) then Exit;
+    //无效或一致
+
+    nStr := SQLQuery.FieldByName('O_ID').AsString;
+
+    FDM.ADOConn.BeginTrans;
+    try
+      nSql := 'update %s set O_Value=%s where O_ID=''%s''';
+      nSql := Format(nSql,[sTable_Order,nValue,nStr]);
+      FDM.ExecuteSQL(nSql);
+
+
+      FDM.WriteSysLog(sFlag_OrderItem, nStr, '修改采购订单['+nstr+']的票重为:'+nvalue);
+      FDM.ADOConn.CommitTrans;
+      begin
+        InitFormData(FWhere);
+        ShowMsg('票重修改成功', sHint);
+      end;
+    except
+      FDM.ADOConn.RollbackTrans;
+      ShowMsg('采购订单票重失败.', sHint);
+      Exit;
+    end;
+
+  end;
+end;
+
+procedure TfFramePurchaseOrder.PMenu1Popup(Sender: TObject);
+begin
+  {$IFDEF HYJC}
+  N9.Visible:= true;
+  {$ENDIF}
 end;
 
 initialization

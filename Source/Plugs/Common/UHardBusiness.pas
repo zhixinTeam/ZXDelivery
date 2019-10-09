@@ -43,6 +43,8 @@ procedure WhenLBCWeightStatusChange(const nTunnel: PLBTunnel);
 //链板秤定量装车状态改变
 {$ENDIF}
 
+procedure SetInFactTimeOut(nTime:Integer);
+
 implementation
 
 uses
@@ -1730,5 +1732,35 @@ begin
   end;
 end;
 {$ENDIF}
+
+procedure SetInFactTimeOut(nTime:Integer);
+var
+  nDBConn: PDBWorker;
+  nStr: string;
+  nErrNum: Integer;
+begin
+  nDBConn := nil;
+  with gParamManager.ActiveParam^ do
+  try
+    nDBConn := gDBConnManager.GetConnection(FDB.FID, nErrNum);
+    if not Assigned(nDBConn) then
+    begin
+      WriteHardHelperLog('连接HM数据库失败(DBConn Is Null).');
+      Exit;
+    end;
+
+    if not nDBConn.FConn.Connected then
+      nDBConn.FConn.Connected := True;
+    //conn db
+
+    nStr := 'update %s set d_value=%s where D_Name=''%s'' and D_Memo=''%s''';
+    nStr := Format(nStr,[sTable_SysDict,IntToStr(nTime),sFlag_SysParam,sFlag_InTimeout]);
+    gDBConnManager.WorkerExec(nDBConn, nStr);
+
+    gTruckQueueManager.RefreshParam;
+  finally
+    gDBConnManager.ReleaseConnection(nDBConn);
+  end;
+end;
 
 end.

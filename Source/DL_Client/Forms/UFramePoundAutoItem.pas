@@ -782,7 +782,7 @@ begin
     end;
   end;
 
-  if (FUIData.FPData.FValue > 0) and (FUIData.FMData.FValue > 0) then
+  if (FUIData.FPData.FValue > 0) or (FUIData.FMData.FValue > 0) then
   begin
     if FBillItems[0].FYSValid <> sFlag_Yes then //判断是否空车出厂
     begin

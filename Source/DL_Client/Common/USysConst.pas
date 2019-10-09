@@ -201,12 +201,16 @@ const
   cFI_FrameSaleAndMoney = $1112;                     //销量回款表
   cFI_FrameDaySalesHj   = $1113;                     //日销量合计
   cFI_FrameDayReport    = $1114;                     //日报表
+  cFI_FrameDayReport_HY = $1120;                     //日报表恒宇建材
 
   cFI_FrameSalesCredit  = $1115;                     //业务员信用
   cFI_FormSalesCredit   = $1116;                     //业务员信用
   cFI_FrameSaleTotalQuery2HY = $1117;                //恒宇销售汇总
   cFI_FrameCusTotalMoney     = $1118;                //账务周期
   cFI_FrameCusReceivable     = $1119;                //应收款明细
+
+  cFI_FrameQrySaleByMonth    = $1121;                //按月统计销售数据
+  cFI_FramePurchByMonth      = $1122;                //按月统计采购数据
 
   cFI_FormWXBaseLoad    = $6011;                     //同步问信接口
 
@@ -437,10 +441,16 @@ begin
   AddMenuModuleItem('MAIN_L17', cFI_FrameAccReport);
   AddMenuModuleItem('MAIN_L18', cFI_FrameSaleAndMoney);
   AddMenuModuleItem('MAIN_L19', cFI_FrameDaySalesHj);
+  {$IFDEF SXDY}
   AddMenuModuleItem('MAIN_L20', cFI_FrameDayReport);
+  {$ELSE}
+  AddMenuModuleItem('MAIN_L20', cFI_FrameDayReport_HY);
+  {$ENDIF}
   AddMenuModuleItem('MAIN_L21', cFI_FrameSaleTotalQuery2HY);
   AddMenuModuleItem('MAIN_L22', cFI_FrameCusTotalMoney);
   AddMenuModuleItem('MAIN_L23', cFI_FrameCusReceivable);
+  AddMenuModuleItem('MAIN_L24', cFI_FrameQrySaleByMonth);
+  AddMenuModuleItem('MAIN_L25', cFI_FramePurchByMonth);
 
   AddMenuModuleItem('MAIN_H01', cFI_FormTruckIn, mtForm);
   AddMenuModuleItem('MAIN_H02', cFI_FormTruckOut, mtForm);

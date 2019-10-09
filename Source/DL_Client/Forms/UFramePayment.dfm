@@ -23,6 +23,7 @@ inherited fFramePayment: TfFramePayment
     Width = 686
     Height = 168
     inherited cxView1: TcxGridDBTableView
+      PopupMenu = PMenu1
       OnDblClick = cxView1DblClick
     end
   end
@@ -34,6 +35,8 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_Money'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 90
     end
@@ -47,6 +50,9 @@ inherited fFramePayment: TfFramePayment
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditTruckPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 135
@@ -56,6 +62,8 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_Memo'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 135
     end
@@ -70,6 +78,9 @@ inherited fFramePayment: TfFramePayment
         end>
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       Width = 185
     end
@@ -78,6 +89,8 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_CusName'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 135
     end
@@ -136,5 +149,15 @@ inherited fFramePayment: TfFramePayment
   inherited DataSource1: TDataSource
     Left = 32
     Top = 232
+  end
+  object PMenu1: TPopupMenu
+    AutoHotkeys = maManual
+    OnPopup = PMenu1Popup
+    Left = 4
+    Top = 264
+    object N1: TMenuItem
+      Caption = #25171#21360#25910#25454
+      OnClick = N1Click
+    end
   end
 end

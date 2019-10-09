@@ -1657,7 +1657,8 @@ var nStr: string;
 begin
   Result := False;
 
-  nStr :='select D_ID from %s where D_Status <> ''%s'' and D_Truck =''%s'' ';
+  nStr :='select D_ID from %s where D_Status <> ''%s'' and D_Truck =''%s'' and D_OutFact=''''';
+  //nStr :='select D_ID from %s where D_Status <> ''%s'' and D_Truck =''%s'' ';
   nStr := Format(nStr, [sTable_OrderDtl, sFlag_TruckOut, nTruck]);
   with FDM.QueryTemp(nStr) do
   if RecordCount > 0 then

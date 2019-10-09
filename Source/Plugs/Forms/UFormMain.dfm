@@ -19,7 +19,7 @@ object fFormMain: TfFormMain
     Left = 0
     Top = 48
     Width = 180
-    Height = 508
+    Height = 501
     Align = alLeft
     Color = 14408641
     ActiveGroupIndex = 0
@@ -88,6 +88,9 @@ object fFormMain: TfFormMain
         end
         item
           Item = SysRunParam
+        end
+        item
+          Item = sysInFactTimeOut
         end>
     end
     object BarGroup3: TdxNavBarGroup
@@ -138,6 +141,11 @@ object fFormMain: TfFormMain
     object SysStatus: TdxNavBarItem
       Caption = #23545#35937#29366#24577
       OnClick = SysSummaryClick
+    end
+    object sysInFactTimeOut: TdxNavBarItem
+      Caption = #20986#38431#36229#26102#35774#32622
+      Visible = False
+      OnClick = sysInFactTimeOutClick
     end
     object BarGroup4Control: TdxNavBarGroupControl
       Left = 13
@@ -197,13 +205,13 @@ object fFormMain: TfFormMain
   object PanelTitle: TPanel
     Left = 0
     Top = 0
-    Width = 884
+    Width = 876
     Height = 48
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      884
+      876
       48)
     object ImgLeft: TImage
       Left = 0
@@ -800,7 +808,7 @@ object fFormMain: TfFormMain
     object ImgClient: TImage
       Left = 289
       Top = 0
-      Width = 595
+      Width = 587
       Height = 48
       Align = alClient
       Picture.Data = {
@@ -938,8 +946,8 @@ object fFormMain: TfFormMain
   end
   object SBar: TStatusBar
     Left = 0
-    Top = 556
-    Width = 884
+    Top = 549
+    Width = 876
     Height = 19
     Panels = <
       item
@@ -955,8 +963,8 @@ object fFormMain: TfFormMain
   object PanelWork: TPanel
     Left = 180
     Top = 48
-    Width = 704
-    Height = 508
+    Width = 696
+    Height = 501
     Align = alClient
     BevelOuter = bvNone
     DockSite = True

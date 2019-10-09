@@ -36,6 +36,9 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 125
@@ -50,6 +53,9 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 2
       OnKeyPress = OnCtrlKeyPress
       Width = 125
@@ -59,6 +65,8 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
       Top = 93
       Hint = 'T.O_ID'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 125
     end
@@ -67,6 +75,8 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
       Top = 93
       Hint = 'T.O_ProName'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 5
       Width = 125
     end
@@ -75,6 +85,8 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
       Top = 93
       Hint = 'T.O_Truck'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 6
       Width = 125
     end
@@ -83,6 +95,8 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
       Top = 93
       Hint = 'T.O_Project'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 7
       Width = 121
     end
@@ -96,6 +110,9 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       OnKeyPress = OnCtrlKeyPress
       Width = 125
@@ -110,6 +127,9 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 3
       Width = 185
     end
@@ -138,7 +158,7 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #20379#24212#32534#21495':'
+          Caption = #20379#24212#21333#21495':'
           Control = cxTextEdit1
           ControlOptions.ShowBorder = False
         end
@@ -196,6 +216,7 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
   end
   object PMenu1: TPopupMenu
     AutoHotkeys = maManual
+    OnPopup = PMenu1Popup
     Left = 4
     Top = 264
     object N1: TMenuItem
@@ -230,6 +251,10 @@ inherited fFramePurchaseOrder: TfFramePurchaseOrder
     object N5: TMenuItem
       Caption = #25171#21360#20837#21378#21333
       OnClick = N5Click
+    end
+    object N9: TMenuItem
+      Caption = #20462#25913#31080#37325
+      OnClick = N9Click
     end
   end
 end
