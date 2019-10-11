@@ -79,6 +79,7 @@ type
     FSrvMIT     : string;                            //微信:本地服务
     FSrvUrl     : string;                            //微信：请求微信地址
     FSrvPicUrl  : string;                            //微信：请求微信图片地址
+    FOverTime   : Integer;                           //预约成功超时时间
   end;
   //系统参数
 

@@ -37,8 +37,16 @@ type
     //采购发送消息
     procedure UpdateMsgNum(const nSuccess: Boolean; nLID: string);
     //更新消息状态
+    procedure UpdateYYMsgNum(const nSuccess: Boolean; nWebOrderID: string);
+    //更新消息状态
     procedure DoSaveOutFactMsg;
     //执行出厂消息插入
+    function GetQueueENum(const nStockNo : string) : Integer;
+    //获取品种队列容量
+    procedure DoYYSuccess;
+    //执行预约成功单据
+    procedure DoYYOverTime;
+    //执行预约超时单据
     function SaveSaleOutFactMsg(nList: TStrings):Boolean;
     //销售出厂消息
     function SaveOrderOutFactMsg(nList: TStrings):Boolean;
@@ -139,7 +147,7 @@ begin
   FXMLBuilder :=TNativeXml.Create;
 
   FWaiter := TWaitObject.Create;
-  FWaiter.Interval := 30*1000;
+  FWaiter.Interval := 10*1000;
 
   FSyncLock := TCrossProcWaitObject.Create('WXService_MessageScan');
   //process sync
@@ -203,10 +211,21 @@ begin
       if FNumOutFactMsg = 0 then
       begin
         DoSaveOutFactMsg;
+      end
+      else if FNumOutFactMsg = 1 then
+      begin
+        {$IFDEF UseWebYYOrder}
+        TBusWorkerBusinessWebchat.CallMe(cBC_WX_get_shopYYWebBill,'','',@nOut);
+        DoYYSuccess;
+        {$ENDIF}
+      end
+      else if FNumOutFactMsg = 2 then
+      begin
+        DoYYOverTime;
       end;
 
-      nStr:= 'select top 100 * from %s where WOM_SyncNum <= %d And WOM_deleted <> ''%s''';
-      nStr:= Format(nStr,[sTable_WebOrderMatch, gMessageScan.FSyncTime, sFlag_Yes]);
+      nStr := ' select top 100 * from %s where WOM_SyncNum <= %d And WOM_deleted <> ''%s'' ';
+      nStr := Format(nStr,[sTable_WebOrderMatch, gMessageScan.FSyncTime, sFlag_Yes]);
       with gDBConnManager.WorkerQuery(FDBConn, nStr) do
       begin
         if RecordCount < 1 then
@@ -542,7 +561,7 @@ begin
   nStr := Format(nStr,[sTable_OrderDtl,nLID]);
   //xxxxx
 
-    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   begin
     if RecordCount <= 0 then
     begin
@@ -571,6 +590,175 @@ begin
                        nList.Values['WOM_BillType']]);
   gDBConnManager.WorkerExec(FDBConn, nStr);
   Result := True;
+end;
+
+procedure TMessageScanThread.DoYYSuccess;
+var nStr: string;
+    nInit: Int64;
+    nErr,nIdx: Integer;
+    nBool : Boolean;
+    nStockNo,nWebOrderID,nOrderNo: string;
+    nOut: TWorkerWebChatData;
+begin
+  nStr := ' select top 100 * from %s where W_State = ''%s'' and W_SyncNum <= %d '+
+          ' and W_deleted <> ''%s'' Order by W_MakeTime asc ';
+  nStr := Format(nStr,[sTable_YYWebBill, '0', gMessageScan.FSyncTime, sFlag_Yes]);
+  //查询最早100条网上预约单记录
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+      Exit;
+    //无新消息
+    WriteLog('共查询到'+ IntToStr(RecordCount) + '条数据,开始筛选...');
+    nInit := GetTickCount;
+
+    First;
+    while not Eof do
+    begin
+      nStockNo    := FieldByName('W_StockNo').AsString;
+      nWebOrderID := FieldByName('W_WebOrderID').AsString;
+      nOrderNo    := FieldByName('W_OrderNo').AsString;
+      //判断队列中是否有容量
+      if GetQueueENum(nStockNo) > 0 then
+      begin
+        //发送预约成功信息
+        FListB.Clear;
+        FListB.Values['orderNo'] := nWebOrderID;
+        FListB.Values['status']  := '10';
+        nStr                     := PackerEncodeStr(FListB.Text);
+
+        nBool := TBusWorkerBusinessWebchat.CallMe(cBC_WX_get_syncYYWebState,nStr,'',@nOut);
+        if nBool then
+        begin
+          UpdateYYMsgNum(nBool,nWebOrderID);
+        end
+        else
+        begin
+          UpdateYYMsgNum(nBool,nWebOrderID);
+        end;
+      end;
+      Next;
+    end;
+  end;
+end;
+
+function TMessageScanThread.GetQueueENum(const nStockNo: string): Integer;
+var
+  nStr: string;
+  sumNum,num1,num2:Integer;
+begin
+  Result := 0;
+  sumNum := 0;
+  num1   := 0;
+  num2   := 0;
+  nStr   :=' SELECT SUM(Z_QueueMax) as Z_QueueMax FROM %s where Z_StockNo = ''%s'' ';
+  nStr   := Format(nStr,[sTable_ZTLines, nStockNo]);
+  //查询品种的总队列容量
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    sumNum := FieldByName('Z_QueueMax').AsInteger;
+  end;
+
+  nStr   :=' SELECT count(*) as num FROM %s where T_StockNo = ''%s'' and T_Valid = ''%s'' ';
+  nStr   := Format(nStr,[sTable_ZTTrucks, nStockNo,sFlag_Yes]);
+  //查询品种的已使用量1
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    num1 := FieldByName('num').AsInteger;
+  end;
+
+  nStr := ' select count(*) as num from %s where W_State = ''%s'' ';
+  nStr := Format(nStr,[sTable_YYWebBill, '1']);
+  //查询品种的已使用量2
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    num2 := FieldByName('num').AsInteger;
+  end;
+
+  Result := sumNum - num1 -num2;
+  
+end;
+
+procedure TMessageScanThread.UpdateYYMsgNum(const nSuccess: Boolean; nWebOrderID: string);
+var nStr: string;
+    nUpdateDBWorker: PDBWorker;
+begin
+  nUpdateDBWorker := nil;
+
+  try
+    if nSuccess then
+    begin
+      nStr := ' Update %s set W_deleted = ''%s'', W_State = ''%s'',W_SucessTime = %s  where W_WebOrderID = ''%s''';
+      nStr := Format(nStr,[sTable_YYWebBill, sFlag_Yes, '1', sField_SQLServer_Now, nWebOrderID]);
+      gDBConnManager.ExecSQL(nStr);
+      //更新为已处理
+    end
+    else
+    begin
+      nStr := ' Update %s Set W_SyncNum = W_SyncNum + 1 where W_WebOrderID = ''%s'' ';
+      nStr := Format(nStr,[sTable_YYWebBill, nWebOrderID]);
+      gDBConnManager.ExecSQL(nStr);
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nUpdateDBWorker);
+  end;
+end;
+
+procedure TMessageScanThread.DoYYOverTime;
+var nStr: string;
+    nInit: Int64;
+    nErr,nIdx: Integer;
+    nBool : Boolean;
+    nStockNo,nWebOrderID,nOrderNo: string;
+    nOut: TWorkerWebChatData;
+    nUpdateDBWorker: PDBWorker;
+begin
+  nStr := ' select top 100 * from %s o where W_State = ''%s'' '+
+          ' and not exists(Select R_ID from S_Bill od where o.W_WebOrderID=od.L_WebOrderID) '+
+          ' Order by W_MakeTime asc ';
+  nStr := Format(nStr,[sTable_YYWebBill, '1']);
+  //查询最早100条网上预约单记录
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+      Exit;
+    //无新消息
+    WriteLog('共查询到'+ IntToStr(RecordCount) + '条数据,开始筛选...');
+    nInit := GetTickCount;
+
+    First;
+    while not Eof do
+    begin
+      nStockNo    := FieldByName('W_StockNo').AsString;
+      nWebOrderID := FieldByName('W_WebOrderID').AsString;
+      nOrderNo    := FieldByName('W_OrderNo').AsString;
+      //判断预约成功单据是否超时
+      if (Now - FieldByName('W_SucessTime').AsDateTime)*24*60 > gSysParam.FOverTime then
+      begin
+        //发送预约成功信息
+        FListB.Clear;
+        FListB.Values['orderNo'] := nWebOrderID;
+        FListB.Values['status']  := '11';
+        nStr                     := PackerEncodeStr(FListB.Text);
+
+        nBool := TBusWorkerBusinessWebchat.CallMe(cBC_WX_get_syncYYWebState,nStr,'',@nOut);
+        if nBool then
+        begin
+          nUpdateDBWorker := nil;
+
+          try
+            nStr := ' update %s set W_State = ''2'' where W_WebOrderID = ''%s''';
+            nStr := Format(nStr,[sTable_YYWebBill, nWebOrderID]);
+            gDBConnManager.ExecSQL(nStr);
+            //删除预约超时单据
+          finally
+            gDBConnManager.ReleaseConnection(nUpdateDBWorker);
+          end;
+        end;
+      end;
+      Next;
+    end;
+  end;
 end;
 
 initialization

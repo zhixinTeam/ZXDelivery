@@ -23,6 +23,7 @@ const
   Cus_syncShopOrder     = 'ZSHOP004';
   Cus_ShopTruck         = 'ZSHOP005';
   Cus_syncTruckState    = 'ZSHOP006';
+  Cus_syncYYWebState    = 'ZSHOP009';
 
 type
   TMITDBWorker = class(TBusinessWorkerBase)
@@ -129,6 +130,8 @@ type
     //绑定商城客户
     function Get_Shoporders(var nData: string): boolean;                        // Dl--->WxService
     //获取订单信息
+    function Get_ShopordersYY(var nData: string): Boolean;                      // Dl--->WxService
+    //获取预约订单信息
     function get_shoporderByNO(var nData: string): boolean;                     // Dl--->WxService
     //根据订单号获取订单信息
     function GetWebStatus(nCode:string):string;
@@ -138,7 +141,8 @@ type
     //获取车辆信息
     function SyncShopTruckState(var nData: string): boolean;                    // Dl--->WxService
     //同步车辆审核状态
-                                                                                // WxService--->Dl
+    function SyncYYWebState(var nData: string): boolean;                        // Dl--->WxService
+    //推送预约成功或超时信息
     function SearchClient(var nData: string): Boolean;
     function SearchContractOrder(var nData: string): Boolean;
     function SearchMateriel(var nData: string): Boolean;
@@ -151,6 +155,12 @@ type
 
     function GetSalesCredit(nSalesID: string):Double;
     //获取业务员信用
+    function GetSaleStatus(nOrderNo, nState: string;var nMsg:string): Boolean;
+    //获取销售同步状态
+    function synchronizedYYOrders(var nData: string): Boolean;
+    //订单状态同步
+    function GetQueryByCar(var nData: string): Boolean;
+    //查询车辆状态
   public
     constructor Create; override;
     destructor destroy; override;
@@ -533,6 +543,20 @@ begin
         FPackOut := True;
         Result := GetshoporderStatus(nData);
       end;
+    cBC_WX_get_shopYYWebBill:
+      begin
+        FPackOut := True;
+        Result   := Get_ShopordersYY(nData);
+      end;
+    cBC_WX_get_syncYYWebState:
+      begin
+        FPackOut := True;
+        Result   := SyncYYWebState(nData);
+      end;
+    cBC_WX_SaveCustomerWxOrders  :
+      Result := synchronizedYYOrders(nData);
+    cBC_WX_QueryByCar :
+      Result := GetQueryByCar(nData);
   else
     begin
       Result := False;
@@ -3021,7 +3045,7 @@ begin
           nTruckLine:= nReDs.FieldByName('T_Line').AsString;
 
           nStr := ' Select ROW_NUMBER() over(order by T_InFact) RID, * From ''%s'' '+
-                  ' Where T_Line=''%s''  Order by T_InFact ';
+                  ' Where T_Line=''%s'' Order by T_InFact ';
           nStr := Format(nStr, [sTable_ZTTrucks, nTruckLine]);
           //*****
           nDataDs := gDBConnManager.WorkerQuery(FDBConn, nStr);
@@ -3640,6 +3664,453 @@ begin
 
   if nCredit + nUsed >= 0 then
     Result := nCredit + nUsed;
+end;
+
+function TBusWorkerBusinessWebchat.Get_ShopordersYY(
+  var nData: string): Boolean;
+var
+  nStr, nWebOrder, szUrl: string;
+  ReJo, ParamJo, BodyJo, OneJo, ReBodyJo : ISuperObject;
+  wParam,FListD: TStrings;
+  ReStream: TStringStream;
+  nIdx, i : Integer;
+  nStart,nEnd : string;
+  ArrsM,ArrsN: TSuperArray;
+begin
+  Result := False;
+ // nWebOrder := PackerDecodeStr(FIn.FData);
+  nStart := Date2Str(Now);
+  nEnd   := Date2Str(Now+1);
+  wParam := TStringList.Create;
+  FListD := TStringList.Create;
+  ReStream := TStringstream.Create('');
+  ParamJo := SO();
+  BodyJo := SO();
+  try
+    BodyJo.S['searchType'] := '4';             //1订单号 2车牌号 3身份证号查询 4时间查询
+    BodyJo.S['queryWord']  := nStart+';'+nEnd;
+    BodyJo.S['facSerialNo']:= gSysParam.FFactID; 
+
+    ParamJo.S['activeCode']  := Cus_ShopOrder;
+    ParamJo.S['body'] := BodyJo.AsString;
+    nStr := ParamJo.AsString;
+    //nStr := Ansitoutf8(nStr);
+    WriteLog('获取订单信息入参:' + nStr);
+
+    wParam.Clear;
+    wParam.Add(nStr);
+    //FidHttp参数初始化
+    ReQuestInit;
+    
+    szUrl := gSysParam.FSrvUrl + '/order/searchShopOrder';
+    FidHttp.Post(szUrl, wParam, ReStream);
+    nStr := UTF8Decode(ReStream.DataString);
+    WriteLog('获取订单信息出参:' + nStr);
+
+    nStr := StringReplace(nStr, '\"', '"', [rfReplaceAll]) ;
+    nStr := StringReplace(nStr, '"[', '[', [rfReplaceAll]) ;
+    nStr := StringReplace(nStr, ']"', ']', [rfReplaceAll]) ;
+
+    FListA.Clear;
+    FListC.Clear;
+    FListD.Clear;
+
+    if nStr <> '' then
+    begin
+      ReJo := SO(nStr);
+      if ReJo = nil then Exit;
+
+      if ReJo.S['code'] = '1' then
+      begin
+        ArrsM := ReJo.A['body'];
+        if ArrsM.Length = 0 then Exit;
+
+        for i:=0 to ArrsM.Length - 1 do
+        begin
+          ArrsN := ArrsM[i].A['details'];
+
+          OneJo  := SO(ArrsN[0].AsString);
+          nStr   := MakeSQLByStr([SF('W_WebOrderID',ArrsM[i].S['orderNo']),
+            SF('W_CusID',    OneJo.S['clientNo']),
+            SF('W_Customer', OneJo.S['clientName']),
+            SF('W_Truck',    ArrsM[i].S['licensePlate']),
+            SF('W_MakeTime', ArrsM[i].S['makeTime']),
+            SF('W_StockNo',  OneJo.S['materielNo']),
+            SF('W_StockName',OneJo.S['materielName']),
+            SF('W_State',    '0')
+            ], sTable_YYWebBill, '', True);
+          FListA.Add(nStr);
+
+          nStr := 'Select * from %s where W_WebOrderID = ''%s'' ';
+          nStr := Format(nStr, [sTable_YYWebBill, ArrsM[i].S['orderNo']]);
+          FListD.Add(nStr);
+        end;
+
+        Result             := True;
+        FOut.FData         := '查询预约单成功!';
+        FOut.FBase.FResult := True;
+      end
+      else WriteLog('订单信息失败：' + ReJo.S['msg']);
+    end;
+
+    if (FListD.Count > 0) then
+    try
+      FDBConn.FConn.BeginTrans;
+      //开启事务
+      for nIdx:=0 to FListD.Count - 1 do
+      begin
+        with gDBConnManager.WorkerQuery(FDBConn,FListD[nIdx]) do
+        begin
+          if RecordCount = 0 then
+          begin
+            gDBConnManager.WorkerExec(FDBConn,FListA[nIdx]);
+          end;
+        end;
+      end;
+      FDBConn.FConn.CommitTrans;
+    except
+      if FDBConn.FConn.InTransaction then
+        FDBConn.FConn.RollbackTrans;
+      raise;
+    end;
+  finally
+    ReStream.Free;
+    wParam.Free;
+    FListD.Free;
+  end;
+end;
+
+function TBusWorkerBusinessWebchat.SyncYYWebState(
+  var nData: string): boolean;
+var
+  nStr, nSql, ncontractNo: string;
+  nDBConn: PDBWorker;
+  nIdx: Integer;
+  szUrl: string;
+  ReJo, ParamJo, BodyJo : ISuperObject;
+  ArrsJa: TSuperArray;
+  wParam: TStrings;
+  ReStream: TStringStream;
+begin
+  Result := False;
+  FListA.Text := PackerDecodeStr(FIn.FData);
+
+  wParam   := TStringList.Create;
+  ReStream := TStringstream.Create('');
+  BodyJo   := SO();
+  ParamJo  := SO();
+
+  try
+    BodyJo.S['orderNo']         := FListA.Values['orderNo'];
+    BodyJo.S['status']          := FListA.Values['Status'];
+    BodyJo.S['facSerialNo']     := gSysParam.FFactID;
+    BodyJo.S['appointmentTime'] := DateTime2Str(Now);
+    if FListA.Values['Status']  = '10' then
+      BodyJo.S['remark']        := EncodeBase64('预约成功,请'+inttostr(gSysParam.FOverTime)+'分钟内到厂办卡提货。')
+    else
+      BodyJo.S['remark']        := EncodeBase64('预约成功后'+inttostr(gSysParam.FOverTime)+'分钟未到厂办卡,预约已失效。');
+
+    ParamJo.S['activeCode']     := Cus_syncYYWebState;
+    ParamJo.S['body']           := BodyJo.AsString;
+    nStr                        := ParamJo.AsString;
+
+    WriteLog(' 同步微信预约信息入参：' + nStr);
+
+    wParam.Clear;
+    wParam.Add(nStr);
+    
+    //FidHttp参数初始化
+    ReQuestInit;
+
+    szUrl := gSysParam.FSrvUrl + '/reservationOrder/syncReservationShopOrder';
+    FidHttp.Post(szUrl, wParam, ReStream);
+    nStr := UTF8Decode(ReStream.DataString);
+    WriteLog(' 同步微信预约信息出参：' + nStr);
+    if nStr <> '' then
+    begin
+      ReJo := SO(nStr);
+
+      if ReJo['code'].AsString = '1' then
+      begin
+        Result             := True;
+        FOut.FData         := sFlag_Yes;
+        FOut.FBase.FResult := True;
+      end
+      else WriteLog(' 同步微信预约信息失败：' + ReJo['msg'].AsString);
+    end;
+  finally
+    ReStream.Free;
+    wParam.Free;
+  end;
+end;
+
+function TBusWorkerBusinessWebchat.synchronizedYYOrders(
+  var nData: string): Boolean;
+var nStr,nCusID,nClientName, nOType,nOrderNo,nReFlag: string;
+    nStockNo,nStockName,nTruck,nZhiKa,nStatus,nCreateTime:string;
+    nNum: Double;
+    nRoot, nheader: TXmlNode;
+    nReDs : TDataSet;
+begin
+  Result  := False;
+  nReFlag := sFlag_No; 
+  WriteLog('商城订单信息同步入参：'+nData);
+
+  with FPacker.XMLBuilder do
+  begin
+    try
+      ReadFromString(nData);
+      nData  := '加载请求参数失败';
+
+      nheader := Root.FindNode('Head');
+      //************************************************************
+      try
+        nCusID      := nheader.NodeByName('ClientNo').ValueAsString;
+        nClientName := nheader.NodeByName('ClientName').ValueAsString;
+        nOType      := nheader.NodeByName('Type').ValueAsString;
+        nOrderNo    := nheader.NodeByName('OrderNo').ValueAsString;
+        nStockNo    := nheader.NodeByName('StockNo').ValueAsString;
+        nStockName  := nheader.NodeByName('StockName').ValueAsString;
+        nTruck      := nheader.NodeByName('Truck').ValueAsString;
+        nZhiKa      := nheader.NodeByName('ZhiKa').ValueAsString;
+        nStatus     := nheader.NodeByName('Status').ValueAsString;
+        nCreateTime := nheader.NodeByName('CreateTime').ValueAsString;
+        nNum        := nheader.NodeByName('Num').ValueAsFloatDef(-1);
+
+        if (nCusID='')or(nOType='')or(nNum<=0) then
+        begin
+          nData  := '请求参数缺失';
+          Exit;
+        end;
+
+        if (nOType = '1') then   //1销售   2采购
+        begin
+          if nStatus = '1' then
+          begin
+            nStr := ' Select W_WebOrderID From %s Where W_WebOrderID=''%s'' ' ;
+            nStr := Format(nStr,[sTable_YYWebBill,nOrderNo]);
+            with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+            begin
+              if RecordCount > 0 then
+              begin
+                nData := '商城订单:'+nOrderNo+'已存在';
+              end
+              else
+              begin
+                nStr := ' insert into %s(W_WebOrderID,W_OrderNo,W_CusID,W_Customer,W_Truck,W_MakeTime,W_StockNo,W_StockName,W_State) '+
+                        ' values(''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'')';
+                nStr := Format(nStr,[sTable_YYWebBill,nOrderNo,nZhiKa,nCusID,nClientName,nTruck,nCreateTime,nStockNo,nStockName,'0']);
+                gDBConnManager.WorkerExec(FDBConn,nStr);
+
+                nReFlag:= sFlag_Yes;
+              end;
+            end;
+          end
+          else if nStatus = '6' then
+          begin
+            nStr := ' Select L_WebOrderID From %s Where L_WebOrderID=''%s'' ' ;
+            nStr := Format(nStr,[sTable_Bill,nOrderNo]);
+            with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+            begin
+              if RecordCount > 0 then
+              begin
+                nData := '商城订单:'+nOrderNo+'已制卡,不能取消！';
+              end
+              else
+              begin
+                nStr := ' Delete %s  where W_WebOrderID = ''%s'' ';
+                nStr := Format(nStr,[sTable_YYWebBill,nOrderNo]);
+                gDBConnManager.WorkerExec(FDBConn,nStr);
+
+                nReFlag:= sFlag_Yes;
+              end;
+            end;
+          end;
+        end
+        else
+        begin
+          //
+        end;
+        nData := '商城订单信息同步成功!';
+      except
+        on Ex : Exception do
+        begin
+          nData  := nData + '商城订单信息同步失败!'+Ex.Message;
+          WriteLog(nData);
+        end;
+      end;
+    finally
+      begin
+        BuildDefaultXML;
+        with Root.NodeNew('EXMG') do
+        begin
+          NodeNew('MsgTxt').ValueAsString     := nData;
+          NodeNew('MsgResult').ValueAsString  := nReFlag;
+          NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+        end;
+
+        nData := FPacker.XMLBuilder.WriteToString;
+        WriteLog('商城订单信息同步出参：' + nData);
+      end;
+    end;
+  end;
+end;
+
+function TBusWorkerBusinessWebchat.GetSaleStatus(nOrderNo,nState: string;var nMsg:string): Boolean;
+var
+  nStr : string;
+begin
+  Result := False;
+  if nState = '1' then
+  begin
+    nStr := 'Select W_WebOrderID From %s Where W_WebOrderID=''%s'' ' ;
+    nStr := Format(nStr,[sTable_YYWebBill,nOrderNo]);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        nMsg := '商城订单:'+nOrderNo+'已存在';
+        Exit;
+      end;
+    end;
+  end
+  else if nState = '6' then
+  begin
+    //
+  end;
+  Result := True;
+end;
+
+function TBusWorkerBusinessWebchat.GetQueryByCar(var nData: string): Boolean;
+var
+  nStr, nTruckNumber, nLine,nDataEx : string;
+  nNode,  nheader  : TXmlNode;
+  nState, nRanking : Integer;
+begin
+  Result   := False;
+  nState   := 0;
+  nRanking := 1;
+  nLine    := '';
+  
+  with FPacker.XMLBuilder do
+  begin
+    try
+      ReadFromString(nData);
+      nData  := '加载请求参数失败';
+
+      nheader := Root.FindNode('Head');
+      //************************************************************
+      try
+        nTruckNumber := nheader.NodeByName('TruckNumber').ValueAsString;
+
+        if nTruckNumber <> '' then
+        begin
+          nStr := ' Select * From %s Where L_Status <> ''O'' And L_Truck=''%s'' ';
+          nStr := Format(nStr, [sTable_Bill, nTruckNumber]);
+          //*****
+          with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+          begin
+            if RecordCount < 1 then
+            begin
+              nDataEx  := '未在队列!';
+              nState := 1;
+            end;
+          end;
+
+          if nState <> 1 then
+          begin
+            nStr := ' Select * From %s Where L_Status <> ''O'' and L_Status <> ''N''  And L_Truck=''%s'' ';
+            nStr := Format(nStr, [sTable_Bill, nTruckNumber]);
+            //*****
+            with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+            begin
+              if RecordCount > 0 then
+              begin
+                nDataEx  := '已进厂!';
+                nState := 3;
+              end;
+            end;
+          end;
+          if (nState <> 1) and (nState <> 3) then
+          begin
+            nStr := ' Select T_Line, T_Valid From %s Where isnull(T_InQueue,'''') <> '''' and T_Truck = ''%s'' ';
+            nStr := Format(nStr, [sTable_ZTTrucks, nTruckNumber]);
+
+            with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+            begin
+              if RecordCount > 0 then
+              begin
+                if FieldByName('T_Valid').AsString = 'Y' then
+                begin
+                  nLine   := FieldByName('T_Line').AsString;
+                  nDataEx := '队列中!';
+                  nState  := 2;
+                end
+                else
+                begin
+                  nLine  := FieldByName('T_Line').AsString;
+                  nDataEx:= '已出队!';
+                  nState := 2;
+                end;
+              end;
+            end;
+          end;
+          if nState = 1 then
+          begin
+            nStr := ' Select count(*) as Num From %s Where W_State = ''1'' '+
+            ' and W_MakeTime <= (select max(W_MakeTime) from %s where W_Truck = ''%s'') '+
+            ' and W_StockNo = (select Top 1 W_StockNo from %s where W_Truck = ''%s'' order by W_MakeTime Desc) ' ;
+            nStr := Format(nStr,[sTable_YYWebBill,sTable_YYWebBill,nTruckNumber,sTable_YYWebBill,nTruckNumber]);
+            WriteLog(nStr);
+            with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+            begin
+              if RecordCount > 0 then
+              begin
+                nRanking := FieldByName('Num').AsInteger;
+              end;
+            end;
+          end;
+        end;
+      except
+        on Ex : Exception do
+        begin
+          nData  := nData + '查询车辆状态失败!'+Ex.Message;
+          WriteLog(nData);
+        end;
+      end;
+    finally
+      begin
+        BuildDefaultXML;
+        with FPacker.XMLBuilder do
+        begin
+          nNode := Root.NodeNew('Items');
+
+          with nNode.NodeNew('Item') do
+          begin
+            NodeNew('PassageWay').ValueAsString := nLine;
+            NodeNew('Ranking').ValueAsString    := IntToStr(nRanking);
+            NodeNew('Status').ValueAsString     := nDataEx;
+          end;
+        end;
+        with Root.NodeNew('EXMG') do
+        begin
+          if nState = 1 then
+            nData := '预约排队中'
+          else if nState = 2 then
+            nData := nDataEx
+          else if nState = 3 then
+            nData := nDataEx;
+            
+          NodeNew('MsgTxt').ValueAsString     := nData;
+          NodeNew('MsgResult').ValueAsString  := sFlag_Yes;
+          NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+        end;
+
+        nData := FPacker.XMLBuilder.WriteToString;
+        WriteLog('查询车辆状态出参：' + nData);
+      end;
+    end;
+  end;
 end;
 
 initialization

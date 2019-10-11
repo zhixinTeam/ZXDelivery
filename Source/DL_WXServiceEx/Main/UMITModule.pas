@@ -79,6 +79,7 @@ var nStr: string;
     nWorker: PDBWorker;
 begin
   nWorker := nil;
+  gSysParam.FOverTime := 60;
   try
     nStr := 'Select D_Value,D_Memo From %s Where D_Name=''%s''';
     nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam]);
@@ -110,6 +111,8 @@ begin
         if nStr = sFlag_Rq_WXPicUrl then
           gSysParam.FSrvPicUrl := Fields[0].AsString;
         //«Î«ÛŒ¢–≈Url
+        if nStr = sFlag_YY_OverTime then
+          gSysParam.FOverTime := Fields[0].AsInteger;
         
         Next;
       end;
