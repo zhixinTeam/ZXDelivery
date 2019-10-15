@@ -193,6 +193,8 @@ const
   sFlag_Rq_WXUrl      = 'WXRqUrl';                   //请求微信网址
   sFlag_Rq_WXPicUrl   = 'WXRqPicUrl';                //请求微信图片地址
 
+  sFlag_YY_OverTime   = 'YYOverTime';                //预约成功超时时间
+
   sFlag_VIPManyNum      = 'VIPManyNum';              //提单量到量进VIP道
   sFlag_EnableTruck     = 'EnableTruck';             //是否启用车牌识别
   sFlag_TruckInNeedManu = 'TruckInNeedManu';         //车牌识别需要人工干预
@@ -273,7 +275,9 @@ const
   sFlag_DepJianZhuang = '监装';                      //监装
   sFlag_DepBangFang   = '磅房';                      //磅房
   sFlag_DepHuaYan     = '化验室';                    //化验室
-  sFlag_CheckPurNetWC = 'CheckPurNetWC';             //采购净重和票重误差
+  sFlag_DepXiaoShou   = '销售';                      //销售部
+  sFlag_DepKaiPiao    = '开票';                      //开票室
+  sFlag_DepCaiWu      = '财务';                      //财务室
 
   sFlag_Solution_YN   = 'Y=通过;N=禁止';
   sFlag_Solution_YNI  = 'Y=通过;N=禁止;I=忽略';
@@ -333,13 +337,18 @@ const
   sTable_BillHK       = 'S_BillPreHK';               //开单预合卡
   sTable_XHSpot       = 'S_XHSpot';                  //卸货地点维护
   sTable_DriverWh     = 'S_DriverWh';                //司机信息维护
+  sTable_YYWebBill    = 'S_YYWebBill';                //网上预约订单
 
   sTable_StockMatch   = 'S_StockMatch';              //品种映射
   sTable_StockParam   = 'S_StockParam';              //品种参数
+  sTable_YCLParam     = 'P_StockParam';              //原材料品种参数
   sTable_StockParamExt= 'S_StockParamExt';           //参数扩展
+  sTable_YCLParamExt  = 'P_StockParamExt';           //原材料参数扩展
   sTable_StockRecord  = 'S_StockRecord';             //检验记录
   sTable_StockHuaYan  = 'S_StockHuaYan';             //开化验单
   sTable_StockBatcode = 'S_Batcode';                 //批次号
+
+  sTable_YCLRecord    = 'P_StockRecord';             //原材料检验记录
 
   sTable_Truck        = 'S_Truck';                   //车辆表
   sTable_ZTLines      = 'S_ZTLines';                 //装车道
@@ -744,6 +753,29 @@ const
    *.E_Value: 数量
    *.E_Price: 单价
    *.E_Money: 金额
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewYYWeb = 'Create Table $Table(R_ID $Inc,W_WebOrderID varChar(32),' +
+       'W_OrderNo varChar(50),W_CusID varChar(50), W_Customer varChar(80),' +
+       'W_Truck varChar(32), W_MakeTime varChar(50), W_StockNo varChar(50),' +
+       'W_StockName varChar(80), W_State char(1), ' +
+       'W_SyncNum Integer default 0, ' +
+       'W_deleted char(1) default ''N'', W_SucessTime DateTime)';
+  {-----------------------------------------------------------------------------
+   网上预约: YYWebBill
+   *.R_ID:记录编号
+   *.W_WebOrderID:网上单号
+   *.W_OrderNo:合同单号
+   *.W_CusID:客户编号
+   *.W_Customer:客户名称
+   *.W_Truck:车牌号
+   *.W_MakeTime:预约时间
+   *.W_StockNo:品种编号
+   *.W_StockName:品种名称
+   *.W_State:状态 0 预约 1 预约成功  2 预约作废
+   *.W_SyncNum:同步次数
+   *.W_deleted:同步状态 N 失败 Y 成功
+   *.W_SucessTime: 预约成功时间
   -----------------------------------------------------------------------------}
 
   sSQL_NewZhiKa = 'Create Table $Table(R_ID $Inc,Z_ID varChar(15),' +
@@ -1457,6 +1489,38 @@ const
    *.P_28DYa:28抗压强度
   -----------------------------------------------------------------------------}
 
+  sSQL_NewYCLParam = 'Create Table $Table(P_ID varChar(15), P_Stock varChar(30),' +
+       'P_Memo varChar(50),  P_Fe2O3 varChar(20), P_Water varChar(20),' +
+       'P_Jian varChar(20),  P_Al2O3 varChar(20),' +
+       'P_SiO2 varChar(20),  P_YMWater varChar(20),' +
+       'P_Hui varChar(20),   P_HuiFa varChar(20), ' +
+       'P_SO3 varChar(20),   P_JJH2O varChar(20),' +
+       'P_CL varChar(20),    P_CaO varChar(20), P_BiBiao varChar(20),' +
+       'P_ShaoShi varChar(20),  P_AnDing varChar(20),' +
+       'P_MgO varChar(20))';
+  {-----------------------------------------------------------------------------
+   品种参数:StockParam
+   *.P_ID:记录编号
+   *.P_Stock:品名
+   *.P_Memo:备注
+   *.P_Fe2O3:三氧化二铁
+   *.P_Water:水分
+   *.P_Jian:碱含量
+   *.P_Al2O3:三氧化二铝
+   *.P_SiO2:二氧化硅
+   *.P_YMWater:进厂原煤水分
+   *.P_Hui:灰份
+   *.P_HuiFa:挥发份
+   *.P_SO3:三氧化硫
+   *.P_JJH2O:结晶水
+   *.P_CL:氯离子
+   *.P_CaO:氧化钙
+   *.P_BiBiao:比表面积
+   *.P_ShaoShi:烧失量
+   *.P_AnDing:安定性
+   *.P_MgO:氧化镁
+  -----------------------------------------------------------------------------}
+
   sSQL_NewStockRecord = 'Create Table $Table(R_ID $Inc, R_SerialNo varChar(15),' +
        'R_PID varChar(15),' +
        'R_SGType varChar(20), R_SGValue varChar(20),' +
@@ -1478,7 +1542,7 @@ const
        'R_JZSYSZB varChar(32),R_JZSBGMD varChar(32),R_JZSSSDJMD varChar(32),R_JZSKXL varChar(32),' +
        'R_JZSFKS475 varChar(32),R_JZSFKS236 varChar(32),R_JZSFKS118 varChar(32),' +
        'R_JZSFKS060 varChar(32),R_JZSFKS030 varChar(32),R_JZSFKS015 varChar(32),R_JZSXDMS varChar(32),' +
-       'R_Date DateTime, R_Man varChar(32),R_SrxGe varchar(20))';
+       'R_Date DateTime, R_Man varChar(32))';
   {-----------------------------------------------------------------------------
    检验记录:StockRecord
    *.R_ID:记录编号
@@ -1547,6 +1611,48 @@ const
    *.R_JZSFKS030:方孔筛0.3
    *.R_JZSFKS015:方孔筛0.15
    *.R_JZSXDMS:细度模数
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewYCLStockRecord = 'Create Table $Table(R_ID $Inc, R_SerialNo varChar(15),' +
+       'R_PID varChar(15), R_Fe2O3 varChar(20), R_Water varChar(20),' +
+       'R_Jian varChar(20),  R_Al2O3 varChar(20),' +
+       'R_SiO2 varChar(20), R_ShaiLi varChar(20), R_YMWater varChar(20),' +
+       'R_Hui varChar(20), R_HuiFa varChar(20), R_St_ad varChar(20),' +
+       'R_Qnet_ar varChar(20), R_SO3 varChar(20), R_JJH2O varChar(20),' +
+       'R_CL varChar(20), R_FSX varChar(100),' +
+       'R_CaO varChar(20), R_Loss varChar(20), R_BiBiao varChar(20),' +
+       'R_FMHHXZS varChar(20),' +
+       'R_ShaoShi varChar(20), R_f_Cao varChar(20), R_AnDing varChar(20),' +
+       'R_MgO varChar(20), R_LiDu varChar(20))';
+  {-----------------------------------------------------------------------------
+   原材料检验记录:YCLStockRecord
+   *.R_ID:记录编号
+   *.R_SerialNo:品种编号
+   *.R_PID:品种参数
+   *.R_Fe2O3: 三氧化二铁
+   *.R_Water: 水分
+   *.R_Jian: 碱含量
+   *.R_Al2O3: 三氧化二铝
+   *.R_SiO2:二氧化硅
+   *.R_ShaiLi:26.5mm标准筛粒度
+   *.R_YMWater:进厂原煤水分
+   *.R_Hui:灰份
+   *.R_HuiFa:挥发份
+   *.R_St_ad:St.ad
+   *.R_Qnet_ar:Qnet.ar
+   *.R_SO3:三氧化硫
+   *.R_JJH2O:结晶水
+   *.R_CL:氯离子
+   *.R_FSX:放射性
+   *.R_CaO:氧化钙
+   *.R_Loss:Loss
+   *.R_BiBiao:比表面积
+   *.R_FMHHXZS:强度活性指数
+   *.R_ShaoShi:烧矢量
+   *.R_f_Cao: f-Cao
+   *.R_AnDing:安定性
+   *.R_MgO:氧化镁
+   *.R_LiDu:粒度
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockHuaYan = 'Create Table $Table(H_ID $Inc, H_No varChar(15),' +
@@ -1917,6 +2023,7 @@ begin
   AddSysTableItem(sTable_PriceRule, sSQL_NewPriceRule);
   AddSysTableItem(sTable_Card, sSQL_NewCard);
   AddSysTableItem(sTable_Bill, sSQL_NewBill);
+  AddSysTableItem(sTable_YYWebBill,sSQL_NewYYWeb);
   AddSysTableItem(sTable_BillBak, sSQL_NewBill);
   AddSysTableItem(sTable_BillHK, sSQL_NewBillHK);
 
@@ -1931,8 +2038,11 @@ begin
   AddSysTableItem(sTable_Materails, sSQL_NewMaterails);
 
   AddSysTableItem(sTable_StockParam, sSQL_NewStockParam);
+  AddSysTableItem(sTable_YCLParam,   sSQL_NewYCLParam);
   AddSysTableItem(sTable_StockParamExt, sSQL_NewStockRecord);
+  AddSysTableItem(sTable_YCLParamExt, sSQL_NewYCLStockRecord);
   AddSysTableItem(sTable_StockRecord, sSQL_NewStockRecord);
+  AddSysTableItem(sTable_YCLRecord, sSQL_NewYCLStockRecord);
   AddSysTableItem(sTable_StockHuaYan, sSQL_NewStockHuaYan);
   AddSysTableItem(sTable_StockBatcode, sSQL_NewStockBatcode);
 
