@@ -147,7 +147,7 @@ begin
   FXMLBuilder :=TNativeXml.Create;
 
   FWaiter := TWaitObject.Create;
-  FWaiter.Interval := 10*1000;
+  FWaiter.Interval := 30*1000;
 
   FSyncLock := TCrossProcWaitObject.Create('WXService_MessageScan');
   //process sync
@@ -221,7 +221,9 @@ begin
       end
       else if FNumOutFactMsg = 2 then
       begin
+        {$IFDEF UseWebYYOrder}
         DoYYOverTime;
+        {$ENDIF}
       end;
 
       nStr := ' select top 100 * from %s where WOM_SyncNum <= %d And WOM_deleted <> ''%s'' ';
@@ -609,7 +611,7 @@ begin
     if RecordCount < 1 then
       Exit;
     //无新消息
-    WriteLog('共查询到'+ IntToStr(RecordCount) + '条数据,开始筛选...');
+    WriteLog('共查询到预约单据'+ IntToStr(RecordCount) + '条数据,开始筛选...');
     nInit := GetTickCount;
 
     First;
@@ -723,7 +725,7 @@ begin
     if RecordCount < 1 then
       Exit;
     //无新消息
-    WriteLog('共查询到'+ IntToStr(RecordCount) + '条数据,开始筛选...');
+    WriteLog('共查询到预约成功单据'+ IntToStr(RecordCount) + '条数据,开始筛选...');
     nInit := GetTickCount;
 
     First;
@@ -750,7 +752,7 @@ begin
             nStr := ' update %s set W_State = ''2'' where W_WebOrderID = ''%s''';
             nStr := Format(nStr,[sTable_YYWebBill, nWebOrderID]);
             gDBConnManager.ExecSQL(nStr);
-            //删除预约超时单据
+            //更新预约超时单据
           finally
             gDBConnManager.ReleaseConnection(nUpdateDBWorker);
           end;

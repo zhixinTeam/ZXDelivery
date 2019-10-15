@@ -3,7 +3,7 @@
   描述: 异常处理和异常提醒
 *******************************************************************************}
 unit UFormTodo;
-
+{$I Link.Inc}
 interface
 
 uses
@@ -374,6 +374,7 @@ procedure TfFormTodo.cxRadio1PropertiesEditValueChanged(Sender: TObject);
 var nStr: string;
     nItem: PEventItem;
 begin
+  {$IFNDEF NoCheckMemo}
   if  Trim(EditMemo.Text) = '' then
   begin
     ShowMsg('请填写备注,备注不能为空',sWarn);
@@ -381,6 +382,7 @@ begin
       EditMemo.SetFocus;
     Exit;
   end;
+  {$ENDIF}
   if cxRadio1.Focused and Assigned(ListTodo.Selected) then
   begin
     nItem := ListTodo.Selected.Data;

@@ -126,7 +126,7 @@ begin
 
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  Result := 'Select pl.*,(P_MValue-P_PValue) As P_NetWeight,' +
+  Result := 'Select pl.*,(P_MValue-P_PValue-isnull(P_KZValue,0)) As P_NetWeight,' +
             'ABS((P_MValue-P_PValue)-P_LimValue) As P_Wucha From $PL pl';
   //xxxxx
 

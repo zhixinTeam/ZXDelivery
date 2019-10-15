@@ -713,6 +713,10 @@ begin
               SF('L_SJName', FListA.Values['SJName']),
               {$ENDIF}
 
+              {$IFDEF UseWebYYOrder}
+              SF('L_WebOrderID', FListA.Values['WebOrderID']),
+              {$ENDIF}
+
               SF('L_ZKMoney', nFixMoney),
               SF('L_Truck', FListA.Values['Truck']),
               SF('L_Lading', FListA.Values['Lading']),
@@ -2743,6 +2747,12 @@ begin
     nSQL := 'Delete From %s Where T_Bill In (%s)';
     nSQL := Format(nSQL, [sTable_ZTTrucks, nStr]);
     FListA.Add(nSQL); //清理装车队列
+
+    {$IFDEF UseWebYYOrder}
+    nSQL := ' Delete From %s Where W_WebOrderID In (select distinct L_WebOrderID from S_Bill where L_ID In(%s)) ';
+    nSQL := Format(nSQL, [sTable_YYWebBill, nStr]);
+    FListA.Add(nSQL); //清理预约单信息
+    {$ENDIF}
   end;
 
   //----------------------------------------------------------------------------

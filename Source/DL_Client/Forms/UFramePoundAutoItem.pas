@@ -446,6 +446,21 @@ begin
       else
       if FCardUsed = sFlag_Sale then
       begin
+        if not GetTruckIsQueue(FTruck) then
+        begin
+          nStr := '[n1]%s不能过磅,请等待';
+          nStr := Format(nStr, [FTruck]);
+          PlayVoice(nStr);
+          Exit;
+        end;
+        if GetTruckIsOut(FTruck) then
+        begin
+          nStr := '[n1]%s已超时出队,请联系管理员处理';
+          nStr := Format(nStr, [FTruck]);
+          PlayVoice(nStr);
+          Exit;
+        end;
+        
         if SaveLadingBills(sFlag_TruckIn, nBills) then
         begin
           ShowMsg('车辆进厂成功', sHint);

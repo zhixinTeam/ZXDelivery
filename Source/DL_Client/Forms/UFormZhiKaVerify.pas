@@ -184,6 +184,7 @@ var nStr: string;
     nVal: Double;
 begin
   Result := True;
+  BtnOK.Enabled := False;
 
   if Sender = EditType then
   begin
@@ -195,7 +196,11 @@ begin
   begin
     Result := IsNumber(EditMoney.Text, True);
     nHint := '请填写有效的金额';
-    if not Result then Exit;
+    if not Result then
+    begin
+     BtnOK.Enabled := True;
+     Exit;
+    end;
 
     nVal := StrToFloat(EditMoney.Text);
     nVal := nVal + GetCustomerValidMoney(gInfo.FCusID);
@@ -211,6 +216,10 @@ begin
       Result := QueryDlg(nStr, sAsk);
       nHint := '请缴纳足够的金额';
     end;
+  end;
+  if not Result then
+  begin
+    BtnOK.Enabled := True;
   end;
 end;
 

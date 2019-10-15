@@ -78,6 +78,8 @@ type
     //VIP设置
     procedure GetSJInfo;
     //获取司机信息
+    procedure GetSJInfoEx;
+    //获取司机信息
     procedure GetSJName;
     //获取司机名称
     procedure SyncCard(const nCard: TIdCardInfoStr;const nReader: TSDTReaderItem);
@@ -311,7 +313,7 @@ begin
   if Key = Char(VK_RETURN) then
   begin
     Key := #0;
-
+    GetSJInfoEx;
     if Sender = EditStock then ActiveControl := EditValue else
     if Sender = EditValue then ActiveControl := BtnAdd else
     if Sender = EditTruck then ActiveControl := EditStock else
@@ -330,6 +332,7 @@ begin
     if (nP.FCommand = cCmd_ModalResult) and(nP.FParamA = mrOk) then
       EditTruck.Text := nP.FParamB;
     EditTruck.SelectAll;
+    GetSJInfoEx;
   end;
 end;
 
@@ -893,8 +896,24 @@ procedure TfFormBill.GetSJInfo;
 var
   nStr : string;
 begin
-  nStr := 'Select D_Name, D_IDCard From %s Where (D_PinYin like ''%%%s%%'') or (D_PY like ''%%%s%%'') ';
+  nStr := 'Select D_Name, D_IDCard, D_Truck From %s Where (D_PinYin like ''%%%s%%'') or (D_PY like ''%%%s%%'') ';
   nStr := Format(nStr, [sTable_DriverWh, Trim(EditSJPinYin.Text) , Trim(EditSJPinYin.Text)]);
+  with FDM.QueryTemp(nStr) do
+  if Recordcount = 1 then
+  begin
+    EditSJName.Text := Fields[0].AsString;
+    EditIdent.Text  := Fields[1].AsString;
+    if Trim(Fields[2].AsString) <> '' then
+      EditTruck.Text:= Fields[2].AsString;
+  end;
+end;
+
+procedure TfFormBill.GetSJInfoEx;
+var
+  nStr : string;
+begin
+  nStr := ' Select D_Name, D_IDCard From %s Where (D_Truck like ''%%%s%%'') ';
+  nStr := Format(nStr, [sTable_DriverWh, Trim(EditTruck.Text)]);
   with FDM.QueryTemp(nStr) do
   if Recordcount = 1 then
   begin
@@ -914,13 +933,15 @@ procedure TfFormBill.GetSJName;
 var
   nStr : string;
 begin
-  nStr := 'Select D_Name, D_PinYin From %s Where D_IDCard = ''%s'' ';
+  nStr := 'Select D_Name, D_PinYin, D_Truck From %s Where D_IDCard = ''%s'' ';
   nStr := Format(nStr, [sTable_DriverWh, Trim(EditIdent.Text)]);
   with FDM.QueryTemp(nStr) do
   if Recordcount > 0 then
   begin
-    EditSJName.Text := Fields[0].AsString;
+    EditSJName.Text    := Fields[0].AsString;
     EditSJPinYin.Text  := Fields[1].AsString;
+    if Trim(Fields[2].AsString) <> '' then
+      EditTruck.Text   := Fields[2].AsString;
   end;
 end;
 

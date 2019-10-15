@@ -744,10 +744,18 @@ begin
     if nHYPrinter <> '' then
       nStr := nStr + #6 + nHYPrinter;
     //化验单打印机
-
+    {$IFNDEF UseOrderNoPrint}
     if nPrinter = '' then
          gRemotePrinter.PrintBill(nTrucks[nIdx].FID + nStr)
     else gRemotePrinter.PrintBill(nTrucks[nIdx].FID + #9 + nPrinter + nStr);
+    {$ELSE}
+    if nCardType = sFlag_Sale then
+    begin
+      if nPrinter = '' then
+           gRemotePrinter.PrintBill(nTrucks[nIdx].FID + nStr)
+      else gRemotePrinter.PrintBill(nTrucks[nIdx].FID + #9 + nPrinter + nStr);
+    end;
+    {$ENDIF}
   end; //打印报表
 end;
 

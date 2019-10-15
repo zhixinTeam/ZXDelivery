@@ -15,7 +15,7 @@ uses
 type
   TWorkerBusinessOrders = class(TMITDBWorker)
   private
-    FListA,FListB,FListC: TStrings;
+    FListA,FListB,FListC,FListD: TStrings;
     //list
     FIn: TWorkerBusinessCommand;
     FOut: TWorkerBusinessCommand;
@@ -79,6 +79,7 @@ begin
   FListA := TStringList.Create;
   FListB := TStringList.Create;
   FListC := TStringList.Create;
+  FListD := TStringList.Create;
   inherited;
 end;
 
@@ -87,6 +88,7 @@ begin
   FreeAndNil(FListA);
   FreeAndNil(FListB);
   FreeAndNil(FListC);
+  FreeAndNil(FListD);
   inherited;
 end;
 
@@ -715,12 +717,21 @@ begin
           'Where D_OutFact Is Null And D_OID=''$OID''';
   //xxxxx
   {$ELSE}
-  nStr := 'Select D_ID,D_OID,D_PID,D_YLine,D_Status,D_NextStatus,' +
-          'D_KZValue,D_Memo,D_YSResult,' +
-          'P_PStation,P_PValue,P_PDate,P_PMan,' +
-          'P_MStation,P_MValue,P_MDate,P_MMan ' +
-          'From $OD od Left join $PD pd on pd.P_Order=od.D_ID ' +
-          'Where D_OutFact Is Null And D_OID=''$OID''';
+    {$IFDEF UseYCLHY}
+    nStr := 'Select D_ID,D_OID,D_PID,D_YLine,D_Status,D_NextStatus,D_SerialNo,' +
+            'D_KZValue,D_Memo,D_YSResult,' +
+            'P_PStation,P_PValue,P_PDate,P_PMan,' +
+            'P_MStation,P_MValue,P_MDate,P_MMan ' +
+            'From $OD od Left join $PD pd on pd.P_Order=od.D_ID ' +
+            'Where D_OutFact Is Null And D_OID=''$OID''';
+    {$ELSE}
+    nStr := 'Select D_ID,D_OID,D_PID,D_YLine,D_Status,D_NextStatus,' +
+            'D_KZValue,D_Memo,D_YSResult,' +
+            'P_PStation,P_PValue,P_PDate,P_PMan,' +
+            'P_MStation,P_MValue,P_MDate,P_MMan ' +
+            'From $OD od Left join $PD pd on pd.P_Order=od.D_ID ' +
+            'Where D_OutFact Is Null And D_OID=''$OID''';
+    {$ENDIF}
   //xxxxx
   {$ENDIF}
 
@@ -805,7 +816,9 @@ begin
         FKZValue  := FieldByName('D_KZValue').AsFloat;
         FMemo     := FieldByName('D_Memo').AsString;
         FYSValid  := FieldByName('D_YSResult').AsString;
-
+        {$IFDEF UseYCLHY}
+        FSerialNo := FieldByName('D_SerialNo').AsString;
+        {$ENDIF}
         if Assigned(FindField('D_UPlace')) then
           FUPlace := FieldByName('D_UPlace').AsString;
 
@@ -833,6 +846,7 @@ var nVal, nValWC: Double;
     nStr,nSQL: string;
     nPound: TLadingBillItems;
     nOut: TWorkerBusinessCommand;
+    nOutEx: TWorkerBusinessCommand;
 begin
   Result := False;
   AnalyseBillItems(FIn.FData, nPound);
@@ -852,9 +866,19 @@ begin
         FListC.Text, sFlag_Yes, @nOut) then
       raise Exception.Create(nOut.FData);
     //xxxxx
-
     with nPound[0] do
     begin
+      {$IFDEF UseYCLHY}
+      FListD.Clear;
+      FListD.Values['Group']  := sFlag_BusGroup;
+      FListD.Values['Object'] := FStockNo;
+
+      if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+          FListD.Text, sFlag_Yes, @nOutEx) then
+        raise Exception.Create(nOutEx.FData);
+      //xxxxx
+      {$ENDIF}
+      
       nSQL := MakeSQLByStr([
             SF('D_ID', nOut.FData),
             SF('D_Card', FCard),
@@ -867,7 +891,9 @@ begin
             SF('D_Type', FType),
             SF('D_StockNo', FStockNo),
             SF('D_StockName', FStockName),
-
+            {$IFDEF UseYCLHY}
+            SF('D_SerialNo', nOutEx.FData),
+            {$ENDIF}
             SF('D_Status', sFlag_TruckIn),
             SF('D_NextStatus', sFlag_TruckBFP),
             SF('D_InMan', FIn.FBase.FFrom.FUser),
@@ -974,7 +1000,7 @@ begin
               SF('D_YMan', FIn.FBase.FFrom.FUser),
               SF('D_KZValue', FKZValue, sfVal),
               SF('D_YSResult', FYSValid),
-              SF('D_Unload', FHKRecord),
+              SF('D_Unload',   FHKRecord),
               {$IFDEF SendUnLoadPlace}
               SF('D_UPlace', FUPlace),
               SF('D_SPlace', FSPlace),

@@ -59,6 +59,9 @@ const
   cFI_FrameStockHY_Each = $0046;                     //随车开单
   cFI_FrameBatch        = $0047;                     //批次管理
 
+  cFI_FrameYCLStock       = $8007;                   //原材料品种管理
+  cFI_FrameYCLStockRecord = $8008;                   //原材料检验记录
+
   cFI_FrameTruckQuery   = $0050;                     //车辆查询
   cFI_FrameCusAccountQuery = $0051;                  //客户账户
   cFI_FrameCusInOutMoney   = $0052;                  //出入金明细
@@ -116,10 +119,12 @@ const
 
   cFI_FormBill          = $1016;                     //开提货单
   cFI_FormSanPreHK      = $1101;                     //散装预合卡
+  cFI_FormDaiPD         = $2101;                     //袋装拼单卡
   cFI_FormShouJu        = $1017;                     //开收据
   cFI_FormZhiKaVerify   = $1018;                     //纸卡审核
   cFI_FormCusCredit     = $1019;                     //信用变动
   cFI_FormPayment       = $1020;                     //销售回款
+  cFI_FormKPPayment     = $2020;                     //开票室销售回款
   cFI_FormTruckIn       = $1021;                     //车辆进厂
   cFI_FormTruckOut      = $1022;                     //车辆出厂
   cFI_FormVerifyCard    = $1023;                     //磁卡验证
@@ -398,6 +403,9 @@ begin
   AddMenuModuleItem('MAIN_D11', cFI_FrameAuditTruck);
   AddMenuModuleItem('MAIN_D12', cFI_FrameBillBuDanAudit);
 
+  AddMenuModuleItem('MAIN_D13', cFI_FormKPPayment, mtForm);
+  AddMenuModuleItem('MAIN_D14', cFI_FormDaiPD, mtForm);
+
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);
   AddMenuModuleItem('MAIN_E03', cFI_FramePoundQuery);
@@ -465,10 +473,14 @@ begin
   AddMenuModuleItem('MAIN_M02', cFI_FrameMaterails);
   AddMenuModuleItem('MAIN_M03', cFI_FrameMakeOCard); 
   AddMenuModuleItem('MAIN_M04', cFI_FrameOrder);
+  AddMenuModuleItem('MAIN_M05', cFI_FormTransBase, mtForm);
+  AddMenuModuleItem('MAIN_M06', cFI_FrameTransBase);
   AddMenuModuleItem('MAIN_M08', cFI_FrameOrderDetail);
   AddMenuModuleItem('MAIN_M09', cFI_FrameOrderBase);
   AddMenuModuleItem('MAIN_M10', cFI_FramePMaterailControl);
   AddMenuModuleItem('MAIN_M11', cFI_FrameCrossCard);
+  AddMenuModuleItem('MAIN_M13', cFI_FrameYCLStock);
+  AddMenuModuleItem('MAIN_M14', cFI_FrameYCLStockRecord);
 
   AddMenuModuleItem('MAIN_W01', cFI_FrameWXAccount);
   AddMenuModuleItem('MAIN_W02', cFI_FrameWXSendLog);

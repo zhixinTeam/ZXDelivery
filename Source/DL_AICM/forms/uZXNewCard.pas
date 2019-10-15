@@ -101,6 +101,7 @@ type
     function SaveBillProxy:Boolean;
     function SaveBillProxyPD: Boolean;
     function SaveWebOrderMatch(const nBillID,nWebOrderID,nBillType:string):Boolean;
+    function CheckYYOrderState(const nWebOrderID:string; var nHint: string):Boolean;
     procedure GetSJInfo;
     //获取司机信息
     procedure GetSJInfoEx;
@@ -632,7 +633,7 @@ var
   nCard:string;
 begin
   Result := False;
-  nOrderItem := FWebOrderItems[FWebOrderIndex];
+  nOrderItem  := FWebOrderItems[FWebOrderIndex];
   nWebOrderID := editWebOrderNo.Text;
 
   if Trim(EditValue.Text) = '' then
@@ -675,6 +676,15 @@ begin
     Exit;
   end;
 
+  {$IFDEF UseWebYYOrder}
+  if not CheckYYOrderState(nWebOrderID, nHint) then
+  begin
+    ShowMsg(nHint,sHint);
+    Writelog(nHint);
+    Exit;
+  end;
+  {$ENDIF}
+
   for nIdx:=0 to 3 do
   begin
     nCard := gDispenserManager.GetCardNo(gSysParam.FTTCEK720ID, nHint, False);
@@ -683,6 +693,7 @@ begin
     Sleep(500);
   end;
   //连续三次读卡,成功则退出。
+ // nCard := '123456';
 
   if nCard = '' then
   begin
@@ -701,7 +712,7 @@ begin
     ShowMsg(nMsg, sWarn);
     Exit;
   end;
-
+  
   if IFHasBill(EditTruck.Text) then
   begin
     ShowMsg('车辆存在未完成的提货单,无法开单,请联系管理员',sHint);
@@ -801,7 +812,7 @@ begin
   Result := True;
   if nPrint then
     PrintBillReport(nBillID, True);
-  //print report
+ //print report
 end;
 
 function TfFormNewCard.SaveBillProxyPD: Boolean;
@@ -1161,6 +1172,35 @@ begin
   begin
     Key := #0;
     GetSJName;
+  end;
+end;
+
+function TfFormNewCard.CheckYYOrderState(const nWebOrderID: string;
+  var nHint: string): Boolean;
+var
+  nStr : string;
+begin
+  Result := False;
+  nHint  := '';
+  
+  nStr   := ' Select W_State From %s Where W_WebOrderID = ''%s'' ';
+  nStr   := Format(nStr, [sTable_YYWebBill, nWebOrderID]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    if Fields[0].AsString = '1' then
+    begin
+      Result := True;
+    end
+    else
+    begin
+      nHint := '订单已失效!';
+    end;
+  end
+  else
+  begin
+    nHint := '订单不存在!';
   end;
 end;
 

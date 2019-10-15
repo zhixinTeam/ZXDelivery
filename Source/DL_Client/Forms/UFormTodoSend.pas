@@ -74,6 +74,7 @@ begin
     Items.Add(sFlag_DepDaTing); 
     Items.Add(sFlag_DepBangFang);
     Items.Add(sFlag_DepJianZhuang);
+    Items.Add(sFlag_DepXiaoShou);
   end;
 
   LoadFormConfig(Self);

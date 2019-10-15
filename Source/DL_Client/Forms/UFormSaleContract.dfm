@@ -14,7 +14,7 @@ inherited fFormSaleContract: TfFormSaleContract
     Left = 0
     Top = 0
     Width = 514
-    Height = 580
+    Height = 576
     Align = alClient
     TabOrder = 0
     TabStop = False
@@ -35,7 +35,7 @@ inherited fFormSaleContract: TfFormSaleContract
     end
     object BtnOK: TButton
       Left = 359
-      Top = 546
+      Top = 542
       Width = 70
       Height = 23
       Caption = #20445#23384
@@ -44,7 +44,7 @@ inherited fFormSaleContract: TfFormSaleContract
     end
     object BtnExit: TButton
       Left = 434
-      Top = 546
+      Top = 542
       Width = 69
       Height = 23
       Caption = #21462#28040
@@ -239,7 +239,7 @@ inherited fFormSaleContract: TfFormSaleContract
     end
     object Check1: TcxCheckBox
       Left = 11
-      Top = 548
+      Top = 544
       Caption = #34394#25311#21512#21516': '#21150#29702#32440#21345#26102#20801#35768#21464#26356#19994#21153#21592#21644#23458#25143#21517#31216'.'
       ParentFont = False
       TabOrder = 18

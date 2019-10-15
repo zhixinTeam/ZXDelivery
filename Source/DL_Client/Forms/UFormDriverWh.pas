@@ -21,6 +21,8 @@ type
     dxLayout1Item3: TdxLayoutItem;
     EditIDCard: TcxTextEdit;
     dxLayout1Item4: TdxLayoutItem;
+    EditTruckNo: TcxTextEdit;
+    dxLayout1Item6: TdxLayoutItem;
     procedure BtnOKClick(Sender: TObject);
     procedure EditNameKeyPress(Sender: TObject; var Key: Char);
   protected
@@ -93,9 +95,10 @@ begin
       Exit;
     end;
 
-    EditName.Text   := FieldByName('D_Name').AsString;
-    EditPinYin.Text := FieldByName('D_PinYin').AsString;
-    EditIDCard.Text := FieldByName('D_IDCard').AsString;
+    EditName.Text    := FieldByName('D_Name').AsString;
+    EditPinYin.Text  := FieldByName('D_PinYin').AsString;
+    EditIDCard.Text  := FieldByName('D_IDCard').AsString;
+    EditTruckNo.Text := FieldByName('D_Truck').AsString;
   end;
 end;
 
@@ -150,7 +153,8 @@ begin
   nStr := MakeSQLByStr([SF('D_Name', nName),
                         SF('D_PinYin', nPinYin),
                         SF('D_PY', GetPinYinOfStr(nName)),
-                        SF('D_IDCard', EditIDCard.Text)
+                        SF('D_IDCard', EditIDCard.Text),
+                        SF('D_Truck',  EditTruckNo.Text)
           ], sTable_DriverWh, nStr, FName = '');
   FDM.ExecuteSQL(nStr);
 
@@ -172,9 +176,10 @@ begin
   begin
     Key := #0;
 
-    if Sender = EditName then ActiveControl := EditPinYin else
-    if Sender = EditPinYin then ActiveControl := EditIDCard else
-    if Sender = EditIDCard then ActiveControl := BtnOK;
+    if Sender = EditName    then ActiveControl := EditPinYin else
+    if Sender = EditPinYin  then ActiveControl := EditIDCard else
+    if Sender = EditIDCard  then ActiveControl := EditTruckNo else
+    if Sender = EditTruckNo then ActiveControl := BtnOK;
 
     Perform(WM_NEXTDLGCTL, 0, 0);
   end;

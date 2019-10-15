@@ -3823,9 +3823,16 @@ begin
     ReQuestInit;
 
     szUrl := gSysParam.FSrvUrl + '/reservationOrder/syncReservationShopOrder';
-    FidHttp.Post(szUrl, wParam, ReStream);
-    nStr := UTF8Decode(ReStream.DataString);
-    WriteLog(' 同步微信预约信息出参：' + nStr);
+    try
+      FidHttp.Post(szUrl, wParam, ReStream);
+      nStr := UTF8Decode(ReStream.DataString);
+      WriteLog(' 同步微信预约信息出参：' + nStr);
+    except
+      on ex: Exception do
+      begin
+        WriteLog(ex.Message);
+      end;
+    end;
     if nStr <> '' then
     begin
       ReJo := SO(nStr);

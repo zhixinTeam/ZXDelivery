@@ -120,39 +120,39 @@ inherited fFrameTransfer: TfFrameTransfer
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item8: TdxLayoutItem
-          CaptionOptions.Text = #21333#25454#32534#21495':'
+          Caption = #21333#25454#32534#21495':'
           Control = EditLID
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          CaptionOptions.Text = #36710#29260#21495#30721':'
+          Caption = #36710#29260#21495#30721':'
           Control = EditTruck
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item7: TdxLayoutItem
-          CaptionOptions.Text = #26085#26399#31579#36873':'
+          Caption = #26085#26399#31579#36873':'
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item10: TdxLayoutItem
-          CaptionOptions.Visible = False
           Control = CheckDelete
           ControlOptions.ShowBorder = False
         end
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item3: TdxLayoutItem
-          CaptionOptions.Text = #21333#25454#32534#21495':'
+          Caption = #21333#25454#32534#21495':'
           Control = cxTextEdit1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          CaptionOptions.Text = #36710#29260#21495#30721':'
+          AllowRemove = False
+          Caption = #36710#29260#21495#30721':'
           Control = cxTextEdit4
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item9: TdxLayoutItem
-          CaptionOptions.Text = #29289#26009#21517#31216':'
+          Caption = #29289#26009#21517#31216':'
           Control = Edit1
           ControlOptions.ShowBorder = False
         end

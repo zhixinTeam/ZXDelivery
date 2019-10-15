@@ -154,6 +154,10 @@ const
   cBC_WX_get_shoporderbyTruck = $0523;   //微信：根据车牌号获取订单信息
   cBC_WX_get_shoporderbyTruckClt = $0524;   //微信：根据车牌号获取订单信息  客户端用
   cBC_WX_get_shoporderStatus  = $0525;   //微信：根据订单号获取订单状态
+  cBC_WX_get_shopYYWebBill    = $0526;   //微信：根据时间段获取预约订单
+  cBC_WX_get_syncYYWebState   = $0527;   //微信：推送预约订单信息状态
+  cBC_WX_SaveCustomerWxOrders = $0529;   //微信：新增客户预开单
+  cBC_WX_QueryByCar           = $0534;   //微信：查询车辆状态
 
 type
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
@@ -219,6 +223,7 @@ type
     FUPlace     : string;          //卸货地点
     FSPlace     : string;          //发货地点
     FNewOrder   : string;          //新申请单
+    FSerialNo   : string;          //记录编号
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -366,6 +371,7 @@ begin
         FPrintHY := Values['PrintHY'] = sFlag_Yes;
         FHYDan   := Values['HYDan'];
         FMemo    := Values['Memo'];
+        FSerialNo:=Values['SerialNo'];
         FLadeTime:= Values['LadeTime'];
         FCusType := Values['CusType'];
         FUPlace  := Values['UPlace'];
@@ -451,6 +457,7 @@ begin
         Values['YSValid']    := FYSValid;
         Values['Memo']       := FMemo;
         Values['HKRecord']   := FHKRecord;
+        Values['SerialNo']   := FSerialNo;
 
         if FPrintHY then
              Values['PrintHY'] := sFlag_Yes

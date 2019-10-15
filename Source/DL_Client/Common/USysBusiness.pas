@@ -118,16 +118,27 @@ function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
  const nType,nPayment,nMemo: string; const nMoney: Double;
  const nCredit: Boolean = True): Boolean;
 //保存回款记录
+function SaveCustomerKPPayment(const nCusID,nCusName,nSaleMan: string;
+ const nType,nPayment,nMemo: string; const nMoney: Double;
+ const nCredit: Boolean = True): Boolean;
+//保存回款记录
 function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
  const nEndTime: TDateTime): Boolean;
 //保存信用记录
 function IsCustomerCreditValid(const nCusID: string): Boolean;
 //客户信用是否有效
+procedure SaveCustomerPaymentEvent(const nSID,nEvent,
+      nFrom,nSolution,nDepartment: string);
+//财务收款向销售部门电脑推送消息
 
 //车牌识别
 function VeriFyTruckLicense(const nReader: string; nBill: TLadingBillItem;
                          var nMsg, nPos: string): Boolean;
 
+function GetTruckIsQueue(const nTruck: string): Boolean;
+//获取车辆是否在队列中
+function GetTruckIsOut(const nTruck: string): Boolean;
+//获取车辆是否已出队
 function IsStockValid(const nStocks: string): Boolean;
 //品种是否可以发货
 function SaveBill(const nBillData: string): string;
@@ -1208,7 +1219,7 @@ end;
 function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
  const nType,nPayment,nMemo: string; const nMoney: Double;
  const nCredit: Boolean): Boolean;
-var nStr: string;
+var nStr, nData, nSaleManName: string;
     nBool: Boolean;
     nVal,nLimit: Double;
 begin
@@ -1267,10 +1278,10 @@ begin
     FDM.ExecuteSQL(nStr);
 
     nStr := 'Insert Into %s(M_SaleMan,M_CusID,M_CusName,' +
-            'M_Type,M_Payment,M_Money,M_Date,M_Man,M_Memo) ' +
-            'Values(''%s'',''%s'',''%s'',''%s'',''%s'',%.2f,%s,''%s'',''%s'')';
+            'M_Type,M_Payment,M_Money,M_Date,M_Man,M_Memo,M_RuZhang) ' +
+            'Values(''%s'',''%s'',''%s'',''%s'',''%s'',%.2f,%s,''%s'',''%s'',''%s'')';
     nStr := Format(nStr, [sTable_InOutMoney, nSaleMan, nCusID, nCusName, nType,
-            nPayment, nVal, FDM.SQLServerNow, gSysParam.FUserID, nMemo]);
+            nPayment, nVal, FDM.SQLServerNow, gSysParam.FUserID, nMemo, sFlag_Yes]);
     FDM.ExecuteSQL(nStr);
 
     if (nLimit > 0) and (
@@ -1284,6 +1295,154 @@ begin
 
     if not nBool then
       FDM.ADOConn.CommitTrans;
+
+    {$IFDEF SendMsgInOutMoney}
+    nStr := ' Select S_Name From %s Where S_ID = ''%s'' ';
+    nStr := Format(nStr, [sTable_Salesman, nSaleMan]);
+
+    with FDM.QueryTemp(nStr) do
+    if (RecordCount > 0) then
+    begin
+      nSaleManName := Fields[0].AsString;
+    end;
+    nData := '业务员: '+nSaleManName+' 客户名称: '+nCusName+' 入金金额: '+FloatToStr(nVal);
+    SaveCustomerPaymentEvent(nCusID,nData,sFlag_DepKaiPiao,sFlag_Solution_OK,sFlag_DepXiaoShou);
+    {$ENDIF}
+    
+    Result := True;
+  except
+    Result := False;
+    if not nBool then FDM.ADOConn.RollbackTrans;
+  end;
+end;
+
+//财务收款向销售部门电脑推送消息
+procedure SaveCustomerPaymentEvent(const nSID,nEvent,
+      nFrom,nSolution,nDepartment: string);
+var
+  nStr:string;
+  nEID:string;
+begin
+  try
+    nEID := nSID + FormatDateTime('YYYYMMDD',Now);
+    nStr := 'Delete From %s Where E_ID=''%s''';
+    nStr := Format(nStr, [sTable_ManualEvent, nEID]);
+
+    FDM.ExecuteSQL(nStr);
+
+    nStr := MakeSQLByStr([
+        SF('E_ID', nEID),
+        SF('E_Key', ''),
+        SF('E_From', nFrom),
+        SF('E_Event', nEvent),
+        SF('E_Solution', nSolution),
+        SF('E_Departmen', nDepartment),
+        SF('E_Date', sField_SQLServer_Now, sfVal)
+        ], sTable_ManualEvent, '', True);
+    FDM.ExecuteSQL(nStr);
+  except
+    on E: Exception do
+    begin
+      WriteLog(e.message);
+    end;
+  end;
+end;
+
+
+//Desc: 保存nCusID的一次回款记录
+function SaveCustomerKPPayment(const nCusID,nCusName,nSaleMan: string;
+ const nType,nPayment,nMemo: string; const nMoney: Double;
+ const nCredit: Boolean): Boolean;
+var nStr, nData,nSaleManName : string;
+    nBool: Boolean;
+    nVal,nLimit: Double;
+begin
+  Result := False;
+  nVal := Float2Float(nMoney, cPrecision, False);
+  //adjust float value
+
+  {$IFNDEF NoCheckOnPayment}
+  if nVal < 0 then
+  begin
+    nLimit := GetCustomerValidMoney(nCusID, False);
+    //get money value
+    
+    if (nLimit <= 0) or (nLimit < -nVal) then
+    begin
+      nStr := '客户: %s ' + #13#10#13#10 +
+              '当前余额为[ %.2f ]元,无法支出[ %.2f ]元.';
+      nStr := Format(nStr, [nCusName, nLimit, -nVal]);
+      
+      ShowDlg(nStr, sHint);
+      Exit;
+    end;
+  end;
+  {$ENDIF}
+
+  nLimit := 0;
+  //no limit
+
+  if nCredit and (nVal > 0) and IsAutoPayCredit then
+  begin
+    nStr := 'Select A_CreditLimit From %s Where A_CID=''%s''';
+    nStr := Format(nStr, [sTable_CusAccount, nCusID]);
+
+    with FDM.QueryTemp(nStr) do
+    if (RecordCount > 0) and (Fields[0].AsFloat > 0) then
+    begin
+      if FloatRelation(nVal, Fields[0].AsFloat, rtGreater) then
+           nLimit := Float2Float(Fields[0].AsFloat, cPrecision, False)
+      else nLimit := nVal;
+
+      nStr := '客户[ %s ]当前信用额度为[ %.2f ]元,是否冲减?' +
+              #32#32#13#10#13#10 + '点击"是"将降低[ %.2f ]元的额度.';
+      nStr := Format(nStr, [nCusName, Fields[0].AsFloat, nLimit]);
+
+      if not QueryDlg(nStr, sAsk) then
+        nLimit := 0;
+      //xxxxx
+    end;
+  end;
+
+  nBool := FDM.ADOConn.InTransaction;
+  if not nBool then FDM.ADOConn.BeginTrans;
+  try
+    nStr := 'Update %s Set A_InMoney=A_InMoney+%.2f Where A_CID=''%s''';
+    nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
+    FDM.ExecuteSQL(nStr);
+
+    nStr := 'Insert Into %s(M_SaleMan,M_CusID,M_CusName,' +
+            'M_Type,M_Payment,M_Money,M_Date,M_Man,M_Memo,M_RuZhang) ' +
+            'Values(''%s'',''%s'',''%s'',''%s'',''%s'',%.2f,%s,''%s'',''%s'',''%s'')';
+    nStr := Format(nStr, [sTable_InOutMoney, nSaleMan, nCusID, nCusName, nType,
+            nPayment, nVal, FDM.SQLServerNow, gSysParam.FUserID, nMemo,sFlag_No]);
+    FDM.ExecuteSQL(nStr);
+
+    if (nLimit > 0) and (
+       not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now)) then
+    begin
+      nStr := '发生未知错误,导致冲减客户[ %s ]信用操作失败.' + #13#10 +
+              '请手动调整该客户信用额度.';
+      nStr := Format(nStr, [nCusName]);
+      ShowDlg(nStr, sHint);
+    end;
+
+    if not nBool then
+      FDM.ADOConn.CommitTrans;
+    
+    {$IFDEF SendMsgInOutMoney}
+    nStr := ' Select S_Name From %s Where S_ID = ''%s'' ';
+    nStr := Format(nStr, [sTable_Salesman, nSaleMan]);
+
+    with FDM.QueryTemp(nStr) do
+    if (RecordCount > 0) then
+    begin
+      nSaleManName := Fields[0].AsString;
+    end;
+    nData := '业务员: '+nSaleManName+' 客户名称: '+nCusName+' 入金金额: '+FloatToStr(nVal);
+    SaveCustomerPaymentEvent(nCusID,nData,sFlag_DepKaiPiao,sFlag_Solution_OK,sFlag_DepXiaoShou);
+    {$ENDIF}
+
     Result := True;
   except
     Result := False;
@@ -1880,6 +2039,38 @@ begin
           ], sTable_ManualEvent, nStr, (not nUpdate));
   //xxxxx
   FDM.ExecuteSQL(nStr);
+end;
+
+function GetTruckIsQueue(const nTruck: string): Boolean;
+var nStr: string;
+    nNow, nPDate, nMDate: TDateTime;
+begin
+  Result := False;
+  //默认不允许
+  nStr := ' Select T_InQueue From %s Where T_Truck=''%s'' and T_InQueue Is Not Null ';
+  nStr := Format(nStr, [sTable_ZTTrucks, nTruck]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    Result := True;
+  end;
+end;
+
+function GetTruckIsOut(const nTruck: string): Boolean;
+var nStr: string;
+    nNow, nPDate, nMDate: TDateTime;
+begin
+  Result := False;
+  //默认不允许
+  nStr := ' Select T_InQueue From %s Where T_Truck=''%s'' and T_InQueue Is Not Null and isnull(T_Valid,''Y'') = ''N'' ';
+  nStr := Format(nStr, [sTable_ZTTrucks, nTruck]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    Result := True;
+  end;
 end;
 
 //Date: 2014-10-16

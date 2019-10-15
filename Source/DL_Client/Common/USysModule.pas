@@ -30,7 +30,7 @@ uses
   UFrameQuerySaleTotal, UFrameZTDispatch, UFrameTrucks, UFormTruck,
   UFormRFIDCard, UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
-  UFrameBillHK, UFormBillHK, UFormCardSearch,
+  UFrameBillHK, UFormBillHK, UFormCardSearch, UFormKPPayment,UFormBillPD,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
@@ -52,6 +52,10 @@ uses
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo, UFrameXHSpot,UFormXHSpot,
   UFrameHYStock, UFrameHYData, UFrameHYRecord, UFormTransfer, UFrameTransfer,
   UFrameDriverWh,UFormDriverWh,
+
+  {$IFDEF UseYCLHY}
+  UFrameYCLHYRecord, UFormYCLHYRecord, UFrameYCLHYStock, UFormYCLHYStock,
+  {$ENDIF}
   //东义财务报表
   UFrameNotice, UFrameDaySals, UFrameMonthSales, UFrameDayPrice,
   UFrameMonthPrice, UCollectMoney, UAccReport, UFrameSaleAndMoney,

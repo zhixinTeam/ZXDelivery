@@ -480,16 +480,19 @@ var nList: TStrings;
     nStr,nSQL: string;
     i,nCount: integer;
 begin
+  BtnOK.Enabled := False;
   EditID.Text := Trim(EditID.Text);
   if EditID.Text = '' then
   begin
     EditID.SetFocus;
+    BtnOK.Enabled := True;
     ShowMsg('请填写有效的合同编号', sHint); Exit;
   end;
 
   if (not IsNumber(EditDays.Text, False)) Or (StrToInt(EditDays.Text) < 0 ) then
   begin
     EditDays.SetFocus;
+    BtnOK.Enabled := True;
     ShowMsg('请填写有效的时长', sHint); Exit;
   end;
 
@@ -511,6 +514,7 @@ begin
        begin
          nList.Free;
          EditID.SetFocus;
+         BtnOK.Enabled := True;
          ShowMsg('该编号的合同已经存在', sHint); Exit;
        end;
 

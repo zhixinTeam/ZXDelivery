@@ -35,8 +35,6 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_Money'
       ParentFont = False
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 90
     end
@@ -50,9 +48,6 @@ inherited fFramePayment: TfFramePayment
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditTruckPropertiesButtonClick
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
-      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 135
@@ -62,8 +57,6 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_Memo'
       ParentFont = False
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 135
     end
@@ -78,9 +71,6 @@ inherited fFramePayment: TfFramePayment
         end>
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
-      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       Width = 185
     end
@@ -89,8 +79,6 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_CusName'
       ParentFont = False
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 135
     end
@@ -152,11 +140,10 @@ inherited fFramePayment: TfFramePayment
   end
   object PMenu1: TPopupMenu
     AutoHotkeys = maManual
-    OnPopup = PMenu1Popup
     Left = 4
     Top = 264
     object N1: TMenuItem
-      Caption = #25171#21360#25910#25454
+      Caption = #20837#36134#23457#26680
       OnClick = N1Click
     end
   end
