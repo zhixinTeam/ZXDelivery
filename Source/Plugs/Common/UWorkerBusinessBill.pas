@@ -481,7 +481,6 @@ begin
 
     nStr := FieldByName('Z_TJStatus').AsString;
 
-    {$IFNDEF HYJC}
     {$IFNDEF NoShowPriceChange}
     if nStr  <> '' then
     begin
@@ -493,15 +492,12 @@ begin
       Exit;
     end;
     {$ELSE}
-    if nStr  <> '' then
+    if nStr  = sFlag_TJing then
     begin
-      if nStr = sFlag_TJing then
-        nData := '纸卡[ %s ]正在调价,请稍后.';
-
+      nData := '纸卡[ %s ]正在调价,请稍后.';
       nData := Format(nData, [Values['ZhiKa']]);
       Exit;
     end;
-    {$ENDIF}
     {$ENDIF}
 
     if FieldByName('Z_ValidDays').AsDateTime <= Date() then
@@ -634,13 +630,19 @@ begin
       //get bill info
 
       {$IFDEF CustomerType}
-      FListC.Values['CustomerType'] := GetCusType(FListA.Values['CusID']);
-      if FListC.Values['CustomerType'] = '' then
-        raise Exception.Create('客户' + FListA.Values['CusID'] + '分类为空');
+        {$IFDEF HYJC}    //恒宇区分AB客户，但是不区分批次号
+         if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
+           FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then
+           raise Exception.Create(nTmp.FData);
+        {$ELSE}
+        FListC.Values['CustomerType'] := GetCusType(FListA.Values['CusID']);
+        if FListC.Values['CustomerType'] = '' then
+          raise Exception.Create('客户' + FListA.Values['CusID'] + '分类为空');
 
-      if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcodeByCusType,
-         FListC.Values['StockNO'], FListC.Text, @nTmp) then
-         raise Exception.Create(nTmp.FData);
+        if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcodeByCusType,
+           FListC.Values['StockNO'], FListC.Text, @nTmp) then
+           raise Exception.Create(nTmp.FData);
+        {$ENDIF}
       {$ELSE}
       if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
          FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then

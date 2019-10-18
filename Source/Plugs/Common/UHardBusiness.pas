@@ -1278,7 +1278,7 @@ begin
   for nIdx:=Low(nTrucks) to High(nTrucks) do
   with nTrucks[nIdx] do
   begin
-    if (FStatus = sFlag_TruckZT) or (FNextStatus = sFlag_TruckZT) then
+    if {$IFNDEF HYJC} (FStatus = sFlag_TruckZT) or {$ENDIF} (FNextStatus = sFlag_TruckZT) then
     begin
       FSelected := Pos(FID, nPTruck.FHKBills) > 0;
       if FSelected then Inc(nInt); //刷卡通道对应的交货单
