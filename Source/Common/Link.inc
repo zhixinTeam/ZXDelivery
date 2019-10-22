@@ -312,6 +312,8 @@
   //使用UTF解包函数
   {$DEFINE MicroMsg}
   //使用微信
+  {$DEFINE UseMHICCard}
+  //制卡时写明华IC卡(骨料用)
 {$ENDIF}
 
 //桐乡羔羊
@@ -467,8 +469,8 @@
   {$DEFINE SendBillToBakDB}
 {$ENDIF}
 
-//广西北流
-{$IFDEF GXBL}
+//新乡孟电
+{$IFDEF XXMD}
   {$DEFINE COMMON}
   {$DEFINE HYRFID201}
   //华益读头
@@ -535,18 +537,26 @@
   //同一车两次开单间隔
  {$DEFINE UseWXServiceEx}
   //使用二期微信中间件
- {$DEFINE UseEnableStruck}
-  //启用车牌识别
- {$DEFINE UseLBCModbus}
-  //启用链板秤装车
- {$DEFINE UseBLMoney}
-  //启用保留资金
- {$DEFINE MoreNumZDLine}
-  //数量达一定值指定通道
   {$DEFINE SaveCusMoneyByOutFact}
    //出厂随车保存可用余额
   {$DEFINE UseSelectDateTime}
    //启用查询日期包含时分秒
+  {$DEFINE UseXHSpot}
+  //卸货地点
+  {$DEFINE UseYCLHY}
+  //使用录入原材料化验记录  
+ {$DEFINE TruckAutoIn}
+ //车辆自动进厂
+ {$DEFINE SendMsgInOutMoney}
+ //货款回收发送消息到销售部电脑
+ {$DEFINE NoCheckMemo}
+ //处理待办事项备注不校验
+ {$DEFINE UseWebYYOrder}
+ //使用商城预约下单
+ {$DEFINE UseOrderNoPrint}
+ //原材料出厂不打印磅单
+ {$DEFINE UseKuangDian}
+ //原材料开单使用矿点
 {$ENDIF}
 
 //湘潭恒宇建材
