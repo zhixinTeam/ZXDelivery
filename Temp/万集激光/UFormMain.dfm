@@ -1,8 +1,8 @@
 object fFormMain: TfFormMain
-  Left = 705
-  Top = 418
-  Width = 742
-  Height = 443
+  Left = 825
+  Top = 472
+  Width = 794
+  Height = 534
   Caption = #19975#38598#28608#20809
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -11,55 +11,80 @@ object fFormMain: TfFormMain
   Font.Name = #23435#20307
   Font.Style = []
   OldCreateOrder = False
+  Position = poDesktopCenter
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   object Memo1: TMemo
     Left = 0
-    Top = 41
-    Width = 734
-    Height = 199
-    Align = alClient
-    Lines.Strings = (
-      
-        'FF AA 00 1E 00 00 00 0A 34 06 01 01 00 04 00 00 00 00 00 00 00 0' +
-        '0 02 01 00 00 00 00 00 00 00 21 EE EE')
+    Top = 35
+    Width = 786
+    Height = 182
+    Align = alTop
+    ReadOnly = True
+    ScrollBars = ssVertical
     TabOrder = 0
   end
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 734
-    Height = 41
+    Width = 786
+    Height = 35
     Align = alTop
     BevelOuter = bvNone
     TabOrder = 1
+    object CheckBox1: TCheckBox
+      Left = 8
+      Top = 9
+      Width = 97
+      Height = 17
+      Caption = #21551#21160#26381#21153
+      TabOrder = 0
+      OnClick = CheckBox1Click
+    end
     object Button1: TButton
-      Left = 16
+      Left = 328
       Top = 8
       Width = 75
       Height = 25
       Caption = 'Button1'
-      TabOrder = 0
+      TabOrder = 1
       OnClick = Button1Click
     end
   end
-  object Memo2: TMemo
+  object Chart1: TChart
     Left = 0
-    Top = 240
-    Width = 734
-    Height = 176
-    Align = alBottom
-    Lines.Strings = (
-      'Memo2')
+    Top = 217
+    Width = 786
+    Height = 290
+    BackWall.Brush.Color = clWhite
+    BackWall.Brush.Style = bsClear
+    Title.Text.Strings = (
+      #25195#25551#26354#32447)
+    BottomAxis.Grid.Visible = False
+    LeftAxis.Grid.Visible = False
+    View3D = False
+    Align = alClient
+    BevelOuter = bvNone
     TabOrder = 2
-  end
-  object IdTCPClient1: TIdTCPClient
-    ConnectTimeout = 0
-    IPVersion = Id_IPv4
-    Port = 0
-    ReadTimeout = -1
-    Left = 24
-    Top = 56
+    object Series1: TLineSeries
+      Marks.ArrowLength = 8
+      Marks.Visible = False
+      SeriesColor = clRed
+      ShowInLegend = False
+      Pointer.HorizSize = 2
+      Pointer.InflateMargins = True
+      Pointer.Style = psCircle
+      Pointer.VertSize = 2
+      Pointer.Visible = True
+      XValues.DateTime = False
+      XValues.Name = 'X'
+      XValues.Multiplier = 1.000000000000000000
+      XValues.Order = loAscending
+      YValues.DateTime = False
+      YValues.Name = 'Y'
+      YValues.Multiplier = 1.000000000000000000
+      YValues.Order = loNone
+    end
   end
 end

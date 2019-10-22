@@ -14,7 +14,7 @@
 {$DEFINE cxLibrary42}
 //Ver4.2编译环境
 {$DEFINE RemObjects}
-{.$DEFINE RO_v90}
+{$DEFINE RO_v90}
 //XE.Lib启用RO支持
 
 {$DEFINE EnableBackupDB}
@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE HYJC}
+{$DEFINE YNHT}
 //特定系统
 
 //山西声威
@@ -269,6 +269,14 @@
   //北京科瑞车检
 {$ENDIF}
 
+//红塔骨料
+{$IFDEF YNHT_GL}
+  {$DEFINE YNHT}
+  //标准业务
+  {$DEFINE UseMHICCard}
+  //制卡时写明华IC卡(骨料用) 
+{$ENDIF}
+
 //云南红塔
 {$IFDEF YNHT}
   {$DEFINE UseERP_K3}
@@ -304,8 +312,6 @@
   //使用UTF解包函数
   {$DEFINE MicroMsg}
   //使用微信
-  {$DEFINE UseMHICCard}
-  //制卡时写明华IC卡(骨料用)
 {$ENDIF}
 
 //桐乡羔羊
