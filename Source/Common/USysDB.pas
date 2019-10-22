@@ -336,6 +336,7 @@ const
   sTable_BillBak      = 'S_BillBak';                 //已删交货单
   sTable_BillHK       = 'S_BillPreHK';               //开单预合卡
   sTable_XHSpot       = 'S_XHSpot';                  //卸货地点维护
+  sTable_KDInfo       = 'S_KDInfo';                  //矿点维护
   sTable_DriverWh     = 'S_DriverWh';                //司机信息维护
   sTable_YYWebBill    = 'S_YYWebBill';                //网上预约订单
 
@@ -354,6 +355,8 @@ const
   sTable_ZTLines      = 'S_ZTLines';                 //装车道
   sTable_ZTTrucks     = 'S_ZTTrucks';                //车辆队列
   sTable_AuditTruck   = 'S_AuditTruck';              //车辆审核
+
+  sTable_YCLquality   = 'YCLquality_data';           //原材料检验表
 
   sTable_Provider     = 'P_Provider';                //客户表
   sTable_Materails    = 'P_Materails';               //物料表
@@ -1104,6 +1107,15 @@ const
    T_PValue = (T_PValue * T_PTime + 新皮重) / (T_PTime + 1)
   -----------------------------------------------------------------------------}
 
+
+  sSQL_NewYCLQuality_data = 'Create Table $Table(R_ID $Inc, assay_time varChar(50), ' +
+       'assay_value_group varChar(30), equipment_id varChar(32), equipment_name varChar(50),laboratory_types varChar(50), ' +
+       'material_code varChar(32), material_name varChar(50), material_purpose varChar(50), ' +
+       'property_data varChar(502), collector_num varChar(32) )';
+  {-----------------------------------------------------------------------------
+  
+  -----------------------------------------------------------------------------}
+
   sSQL_NewPoundLog = 'Create Table $Table(R_ID $Inc, P_ID varChar(15),' +
        'P_Type varChar(1), P_Order varChar(20), P_Card varChar(16),' +
        'P_Bill varChar(20), P_Truck varChar(15), P_CusID varChar(32),' +
@@ -1358,6 +1370,14 @@ const
    卸货地点维护: S_XHSpot
    *.R_ID: 编号
    *.X_XHSpot: 卸货地点
+  -----------------------------------------------------------------------------}
+
+
+  sSQL_NewKDInfo = 'Create Table $Table(R_ID $Inc, S_KDName varChar(100) )';
+  {-----------------------------------------------------------------------------
+   矿点信息维护: S_KDInfo
+   *.R_ID     : 编号
+   *.S_KDName: 矿点名称
   -----------------------------------------------------------------------------}
 
   sSQL_NewDriverWh = 'Create Table $Table(R_ID $Inc, D_Name varChar(100), '+
@@ -2028,6 +2048,7 @@ begin
   AddSysTableItem(sTable_BillHK, sSQL_NewBillHK);
 
   AddSysTableItem(sTable_Truck, sSQL_NewTruck);
+  AddSysTableItem(sTable_YCLquality, sSQL_NewYCLQuality_data);
   AddSysTableItem(sTable_ZTLines, sSQL_NewZTLines);
   AddSysTableItem(sTable_ZTTrucks, sSQL_NewZTTrucks);
   AddSysTableItem(sTable_PoundLog, sSQL_NewPoundLog);
@@ -2069,6 +2090,8 @@ begin
 
   //卸货地点维护
   AddSysTableItem(sTable_XHSpot, sSQL_NewXHSpot);
+  //矿点信息维护
+  AddSysTableItem(sTable_KDInfo, sSQL_NewKDInfo);
   //司机信息维护
   AddSysTableItem(sTable_DriverWh,sSQL_NewDriverWh);
 

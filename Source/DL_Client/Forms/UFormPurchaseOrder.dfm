@@ -1,30 +1,30 @@
 inherited fFormPurchaseOrder: TfFormPurchaseOrder
   Left = 451
   Top = 243
-  ClientHeight = 366
-  ClientWidth = 477
+  ClientHeight = 372
+  ClientWidth = 488
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 477
-    Height = 366
+    Width = 488
+    Height = 372
     AutoControlTabOrders = False
     inherited BtnOK: TButton
-      Left = 331
-      Top = 333
+      Left = 342
+      Top = 339
       Caption = #24320#21333
       TabOrder = 8
     end
     inherited BtnExit: TButton
-      Left = 401
-      Top = 333
+      Left = 412
+      Top = 339
       TabOrder = 10
     end
     object EditValue: TcxTextEdit [2]
-      Left = 279
-      Top = 239
+      Left = 285
+      Top = 226
       ParentFont = False
       TabOrder = 7
       Text = '0.00'
@@ -32,7 +32,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 138
     end
     object EditMate: TcxTextEdit [3]
-      Left = 81
+      Left = 87
       Top = 86
       ParentFont = False
       Properties.MaxLength = 15
@@ -42,7 +42,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 125
     end
     object EditID: TcxTextEdit [4]
-      Left = 81
+      Left = 87
       Top = 36
       ParentFont = False
       Properties.MaxLength = 100
@@ -52,7 +52,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 125
     end
     object EditProvider: TcxTextEdit [5]
-      Left = 81
+      Left = 87
       Top = 61
       ParentFont = False
       Properties.ReadOnly = True
@@ -61,7 +61,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 121
     end
     object EditSalesMan: TcxTextEdit [6]
-      Left = 81
+      Left = 87
       Top = 111
       ParentFont = False
       Properties.ReadOnly = True
@@ -70,7 +70,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 121
     end
     object EditProject: TcxTextEdit [7]
-      Left = 81
+      Left = 87
       Top = 161
       ParentFont = False
       Properties.ReadOnly = True
@@ -79,7 +79,7 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 121
     end
     object EditArea: TcxTextEdit [8]
-      Left = 81
+      Left = 87
       Top = 136
       ParentFont = False
       Properties.ReadOnly = True
@@ -88,8 +88,8 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 121
     end
     object EditTruck: TcxButtonEdit [9]
-      Left = 81
-      Top = 239
+      Left = 87
+      Top = 226
       ParentFont = False
       Properties.Buttons = <
         item
@@ -102,8 +102,8 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 135
     end
     object EditCardType: TcxComboBox [10]
-      Left = 81
-      Top = 264
+      Left = 87
+      Top = 251
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.Items.Strings = (
@@ -113,24 +113,30 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
       Width = 121
     end
     object cxLabel1: TcxLabel [11]
-      Left = 221
-      Top = 264
+      Left = 227
+      Top = 251
       Caption = #27880':'#20020#26102#21345#20986#21378#26102#22238#25910';'#22266#23450#21345#20986#21378#26102#19981#22238#25910
       ParentFont = False
     end
     object EditKFValue: TcxTextEdit [12]
-      Left = 81
-      Top = 289
+      Left = 87
+      Top = 276
       ParentFont = False
       TabOrder = 15
       Text = '0.00'
       Width = 121
     end
     object EditKFLS: TcxTextEdit [13]
-      Left = 279
-      Top = 285
+      Left = 285
+      Top = 272
       ParentFont = False
       TabOrder = 16
+      Width = 121
+    end
+    object EditKuangDian: TcxComboBox [14]
+      Left = 87
+      Top = 301
+      TabOrder = 17
       Width = 121
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
@@ -197,6 +203,11 @@ inherited fFormPurchaseOrder: TfFormPurchaseOrder
           object dxLayout1Item6: TdxLayoutItem
             Caption = #30719#21457#25968#37327':'
             Control = EditKFValue
+            ControlOptions.ShowBorder = False
+          end
+          object dxLayout1Item10: TdxLayoutItem
+            Caption = #30719#28857#20449#24687#65306
+            Control = EditKuangDian
             ControlOptions.ShowBorder = False
           end
         end

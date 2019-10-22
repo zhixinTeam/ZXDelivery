@@ -41,6 +41,7 @@ const
   cFI_FrameZhiKaVerify  = $0021;                     //纸卡审核
   cFI_FramePayment      = $0022;                     //销售回款
   cFI_FrameCusCredit    = $0023;                     //信用管理
+  cFI_FramePayMentEx    = $0024;                     //临时回款
 
   cFI_FrameLadingDai    = $0030;                     //袋装提货
   cFI_FramePoundQuery   = $0031;                     //磅房查询
@@ -85,6 +86,8 @@ const
   cFI_FormXHSpot        = $2072;                     //卸货地点编辑
   cFI_FrameDriverWh     = $2073;                     //司机信息维护
   cFI_FormDriverWh      = $2074;                     //司机信息编辑
+  cFI_FormKDInfo        = $2075;                     //矿点信息编辑
+  cFI_FrameKDInfo       = $2076;                     //矿点信息维护
 
   cFI_FramePMaterailControl= $0077;                  //原材料进厂控制
   cFI_FormPMaterailControl= $1098;                   //原材料进厂控制
@@ -217,7 +220,7 @@ const
   cFI_FrameQrySaleByMonth    = $1121;                //按月统计销售数据
   cFI_FramePurchByMonth      = $1122;                //按月统计采购数据
 
-  cFI_FormWXBaseLoad    = $6011;                     //同步问信接口
+  cFI_FormPoundKZ   = $6011;                         //磅房扣杂
 
   {*Command*}
   cCmd_RefreshData      = $0002;                     //刷新数据
@@ -390,6 +393,7 @@ begin
   AddMenuModuleItem('MAIN_C07', cFI_FrameShouJu);
   AddMenuModuleItem('MAIN_C08', cFI_FrameSaleZZ);
   AddMenuModuleItem('MAIN_C09', cFI_FrameSalesCredit);
+  AddMenuModuleItem('MAIN_C10', cFI_FramePaymentEx);
 
   AddMenuModuleItem('MAIN_D01', cFI_FormZhiKa, mtForm);
   AddMenuModuleItem('MAIN_D02', cFI_FrameMakeCard);
@@ -479,13 +483,13 @@ begin
   AddMenuModuleItem('MAIN_M09', cFI_FrameOrderBase);
   AddMenuModuleItem('MAIN_M10', cFI_FramePMaterailControl);
   AddMenuModuleItem('MAIN_M11', cFI_FrameCrossCard);
-  AddMenuModuleItem('MAIN_M13', cFI_FrameYCLStock);
-  AddMenuModuleItem('MAIN_M14', cFI_FrameYCLStockRecord);
+  AddMenuModuleItem('MAIN_M15', cFI_FrameKDInfo);
+ // AddMenuModuleItem('MAIN_M13', cFI_FrameYCLStock);
+ // AddMenuModuleItem('MAIN_M14', cFI_FrameYCLStockRecord);
+ 
 
   AddMenuModuleItem('MAIN_W01', cFI_FrameWXAccount);
   AddMenuModuleItem('MAIN_W02', cFI_FrameWXSendLog);
-
-  AddMenuModuleItem('MAIN_S01', cFI_FormWXBaseLoad, mtForm);
 end;
 
 //Desc: 清理模块列表

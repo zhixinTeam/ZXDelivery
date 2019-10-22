@@ -43,6 +43,8 @@ type
     dxLayout1Item6: TdxLayoutItem;
     EditKFLS: TcxTextEdit;
     dxLayout1Item7: TdxLayoutItem;
+    EditKuangDian: TcxComboBox;
+    dxLayout1Item10: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
@@ -141,6 +143,14 @@ begin
   dxLayout1Item6.Visible := False;
   dxLayout1Item7.Visible := False;
   {$ENDIF}
+
+  {$IFDEF UseKuangDian}
+  dxLayout1Item10.Visible := True;
+  EditKuangDian.Text      := '';
+  {$ELSE}
+  dxLayout1Item10.Visible := False;
+  EditKuangDian.Text      := '';
+  {$ENDIF}
 end;
 
 procedure TfFormPurchaseOrder.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -187,6 +197,8 @@ end;
 
 //------------------------------------------------------------------------------
 procedure TfFormPurchaseOrder.InitFormData;
+var
+  nStr : string;
 begin
   with FCardData do
   begin
@@ -198,6 +210,23 @@ begin
     EditProject.Text  := Values['SQ_Project'];
     //EditValue.Text    := Values['SQ_RestValue'];
     EditValue.Text    := '0.00';
+  end;
+
+  if EditKuangDian.Properties.Items.Count < 1 then
+  begin
+    nStr := 'Select S_KDName From %s ';
+    nStr := Format(nStr, [sTable_KDInfo]);
+
+    with FDM.QueryTemp(nStr) do
+    if RecordCount > 0 then
+    begin
+      First;
+      while not Eof do
+      begin
+        EditKuangDian.Properties.Items.Add(FieldByName('S_KDName').AsString);
+        Next;
+      end;
+    end;
   end;
 end;
 
@@ -302,6 +331,8 @@ begin
 
     Values['KFValue']       := Trim(EditKFValue.Text);
     Values['KFLS']          := Trim(EditKFLS.Text);
+
+    Values['KD']            := Trim(EditKuangDian.Text);
   end;
 
   nOrder := SaveOrder(PackerEncodeStr(FListA.Text));

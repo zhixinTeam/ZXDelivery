@@ -45,6 +45,8 @@ type
     N7: TMenuItem;
     N8: TMenuItem;
     N6: TMenuItem;
+    N9: TMenuItem;
+    N10: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
@@ -57,6 +59,7 @@ type
     procedure N4Click(Sender: TObject);
     procedure N6Click(Sender: TObject);
     procedure cxView1DblClick(Sender: TObject);
+    procedure N10Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -127,7 +130,8 @@ begin
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
   Result := 'Select pl.*,(P_MValue-P_PValue-isnull(P_KZValue,0)) As P_NetWeight,' +
-            'ABS((P_MValue-P_PValue)-P_LimValue) As P_Wucha From $PL pl';
+            'ABS((P_MValue-P_PValue)-P_LimValue) As P_Wucha, '+
+            '(Select D_SerialNo from P_OrderDtl where D_ID = pl.P_Order) as D_SerialNo From $PL pl';
   //xxxxx
 
   if FJBWhere = '' then
@@ -436,6 +440,44 @@ begin
     if (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK) then
       InitFormData(FWhere);
     //display
+  end;
+end;
+
+procedure TfFramePoundQuery.N10Click(Sender: TObject);
+var
+  nID   : string;
+  nList : TStrings;
+  nP: TFormCommandParam;
+begin
+  inherited;
+  if cxView1.DataController.GetSelectedCount < 1 then
+  begin
+    ShowMsg('请选择要磅房扣重的记录', sHint);
+    Exit;
+  end;
+  if (Trim(SQLQuery.FieldByName('P_TYPE').AsString) <> 'P') then
+  begin
+    ShowMsg('不是采购业务', sHint);
+    Exit;
+  end;
+  
+  nID := SQLQuery.FieldByName('P_ID').AsString;
+
+  nList := TStringList.Create;
+  try
+    nList.Add(nID);
+
+    nP.FCommand := cCmd_EditData;
+    nP.FParamA := nList.Text;
+    CreateBaseFormItem(cFI_FormPoundKZ, '', @nP);
+
+    if (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK) then
+    begin
+      InitFormData(FWhere);
+    end;
+
+  finally
+    nList.Free;
   end;
 end;
 

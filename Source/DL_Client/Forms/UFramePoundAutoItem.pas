@@ -1164,6 +1164,15 @@ begin
 
   if nRet then
   begin
+    {$IFDEF XXMD}
+    if (FCardUsed = sFlag_Sale) and (FBillItems[0].FType = sFlag_Dai)
+       and (FBillItems[0].FNextStatus = sFlag_TruckBFM) then
+      nStr := GetTruckNO(FUIData.FTruck) + '票重:' +
+              GetValue(StrToFloatDef(EditZValue.Text,0))
+    else
+      nStr := GetTruckNO(FUIData.FTruck) + '称重完成';
+    LEDDisplay(nStr);
+    {$ELSE}
     if (FCardUsed = sFlag_Sale) and (FBillItems[0].FType = sFlag_Dai)
        and (FBillItems[0].FNextStatus = sFlag_TruckBFM) then
       nStr := GetTruckNO(FUIData.FTruck) + '票重:' +
@@ -1171,6 +1180,7 @@ begin
     else
       nStr := GetTruckNO(FUIData.FTruck) + '重量:' + GetValue(nValue);
     LEDDisplay(nStr);
+    {$ENDIF}
 
     {$IFDEF ProberShow}
       {$IFDEF MITTruckProber}

@@ -409,6 +409,10 @@ begin
             SF('O_KFLS', FListA.Values['KFLS']),
             {$ENDIF}
 
+            {$IFDEF UseKuangDian}
+            SF('O_KD', FListA.Values['KD']),
+            {$ENDIF}
+
             SF('O_Truck', FListA.Values['Truck']),
             SF('O_Man', FIn.FBase.FFrom.FUser),
             SF('O_Date', sField_SQLServer_Now, sfVal)
@@ -986,13 +990,39 @@ begin
       FNextStatus := sFlag_TruckBFM;
 
       nStr := SF('P_Order', FID);
+      {$IFDEF UseYCLHY}
       //where
       nSQL := MakeSQLByStr([
-                SF('P_KZValue', FKZValue, sfVal)
+                SF('P_KZValueEx', FKZValue, sfVal)
                 ], sTable_PoundLog, nStr, False);
         //—È ’ø€‘”
        FListA.Add(nSQL);
+      {$ELSE}
+        //where
+        nSQL := MakeSQLByStr([
+                  SF('P_KZValue', FKZValue, sfVal)
+                  ], sTable_PoundLog, nStr, False);
+          //—È ’ø€‘”
+         FListA.Add(nSQL);
+      {$ENDIF}
 
+      {$IFDEF UseYCLHY}
+      nSQL := MakeSQLByStr([
+              SF('D_Status', FStatus),
+              SF('D_NextStatus', FNextStatus),
+              SF('D_YTime', sField_SQLServer_Now, sfVal),
+              SF('D_YMan', FIn.FBase.FFrom.FUser),
+              SF('D_KZValueEx', FKZValue, sfVal),
+              SF('D_YSResult', FYSValid),
+              SF('D_Unload',   FHKRecord),
+              {$IFDEF SendUnLoadPlace}
+              SF('D_UPlace', FUPlace),
+              SF('D_SPlace', FSPlace),
+              {$ENDIF}
+              SF('D_Memo', FMemo)
+              ], sTable_OrderDtl, SF('D_ID', FID), False);
+      FListA.Add(nSQL);
+      {$ELSE}
       nSQL := MakeSQLByStr([
               SF('D_Status', FStatus),
               SF('D_NextStatus', FNextStatus),
@@ -1008,6 +1038,7 @@ begin
               SF('D_Memo', FMemo)
               ], sTable_OrderDtl, SF('D_ID', FID), False);
       FListA.Add(nSQL);
+      {$ENDIF}
 
       if FNewOrder <> '' then//«–ªª…Í«Îµ•
       begin

@@ -129,10 +129,19 @@ end;
 //------------------------------------------------------------------------------
 //Desc: ≤‚ ‘nConnStr «∑Ò”––ß
 function ConnCallBack(const nConnStr: string): Boolean;
+var
+  nstr:string;
 begin
-  FDM.ADOConn.Close;
-  FDM.ADOConn.ConnectionString := nConnStr;
-  FDM.ADOConn.Open;
+  try
+    FDM.ADOConn.Close;
+    FDM.ADOConn.ConnectionString := nConnStr;
+    FDM.ADOConn.Open;
+  except
+    on ex: Exception do
+    begin
+      ShowMessage(ex.Message);
+    end;
+  end;
   Result := FDM.ADOConn.Connected;
 end;
 
