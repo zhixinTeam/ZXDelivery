@@ -158,7 +158,7 @@ const
   cBC_WX_get_syncYYWebState   = $0527;   //微信：推送预约订单信息状态
   cBC_WX_SaveCustomerWxOrders = $0529;   //微信：新增客户预开单
   cBC_WX_QueryByCar           = $0534;   //微信：查询车辆状态
-
+  cBC_WX_IsCanCreateWXOrder   = $0531;   //微信：下单校验
 type
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
   TWorkerQueryFieldData = record

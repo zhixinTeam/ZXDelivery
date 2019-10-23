@@ -53,6 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
+
 {$DEFINE YNHT}
 //特定系统
 
@@ -709,6 +710,8 @@
   //发货卸货地点录入
   {$DEFINE DDChangeOrder}
   //短倒订单可更改
+  {$DEFINE WebOrderAutoLoss}
+  //申请单自动失效
 {$ENDIF}
 
 //锦荣骨料高疙瘩，上牛

@@ -1050,6 +1050,7 @@ begin
                 SF('D_StockName', FStockName)
                 ], sTable_OrderDtl, SF('D_ID', FID), False);
         FListA.Add(nSQL);
+        WriteLog('切换申请单更新采购明细SQL:' + nSQL);
 
         nSQL := MakeSQLByStr([
                 SF('O_BID', FNewOrder),
@@ -1060,7 +1061,7 @@ begin
                 SF('O_StockName', FStockName)
                 ], sTable_Order, SF('O_ID', FZhiKa), False);
         FListA.Add(nSQL);
-
+        WriteLog('切换申请单更新采购单SQL:' + nSQL);
         nSQL := MakeSQLByStr([
                 SF('P_CusID', FCusID),
                 SF('P_CusName', FCusName),
@@ -1068,6 +1069,7 @@ begin
                 SF('P_MName', FStockName)
                 ], sTable_PoundLog, nStr, False);
         FListA.Add(nSQL);
+        WriteLog('切换申请单更新采购磅单SQL:' + nSQL);
       end;
     end;
   end else

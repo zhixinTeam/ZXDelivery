@@ -303,6 +303,9 @@ const
   sFlag_WLBGroup      = 'WLBGroup';                  //化验室组
   sFlag_PeerWeight    = 'PeerWeight';                //每袋重量
   sFlag_AutoAudit     = 'AutoAudit';                 //数据上传金蝶自动审核
+  sFlag_DataView      = 'DataView';                  //数据处理区间
+  sFlag_VefyWebOrder  = 'VefyWebOrder';              //申请单进行金额校验
+  sFlag_WebOrderLoss  = 'WebOrderLoss';              //申请单自动失效
 
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
@@ -762,7 +765,7 @@ const
        'W_OrderNo varChar(50),W_CusID varChar(50), W_Customer varChar(80),' +
        'W_Truck varChar(32), W_MakeTime varChar(50), W_StockNo varChar(50),' +
        'W_StockName varChar(80), W_State char(1), ' +
-       'W_SyncNum Integer default 0, ' +
+       'W_SyncNum Integer default 0, W_Value $Float,' +
        'W_deleted char(1) default ''N'', W_SucessTime DateTime)';
   {-----------------------------------------------------------------------------
    网上预约: YYWebBill
@@ -777,6 +780,7 @@ const
    *.W_StockName:品种名称
    *.W_State:状态 0 预约 1 预约成功  2 预约作废
    *.W_SyncNum:同步次数
+   *.W_Value:预约量
    *.W_deleted:同步状态 N 失败 Y 成功
    *.W_SucessTime: 预约成功时间
   -----------------------------------------------------------------------------}

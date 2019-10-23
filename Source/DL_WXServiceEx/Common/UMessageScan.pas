@@ -20,7 +20,7 @@ type
     //拥有者
     FDBConn: PDBWorker;
     //数据对象
-    FListA,FListB,FListC: TStrings;
+    FListA,FListB,FListC,FListD: TStrings;
     //列表对象
     FXMLBuilder: TNativeXml;
     //XML构建器
@@ -47,6 +47,8 @@ type
     //执行预约成功单据
     procedure DoYYOverTime;
     //执行预约超时单据
+    procedure DoWebOrderAutoLoss;
+    //申请单是否失效
     function SaveSaleOutFactMsg(nList: TStrings):Boolean;
     //销售出厂消息
     function SaveOrderOutFactMsg(nList: TStrings):Boolean;
@@ -144,6 +146,7 @@ begin
   FListA := TStringList.Create;
   FListB := TStringList.Create;
   FListC := TStringList.Create;
+  FListD := TStringList.Create;
   FXMLBuilder :=TNativeXml.Create;
 
   FWaiter := TWaitObject.Create;
@@ -159,6 +162,7 @@ begin
   FListA.Free;
   FListB.Free;
   FListC.Free;
+  FListD.Free;
   FXMLBuilder.Free;
 
   FSyncLock.Free;
@@ -217,6 +221,10 @@ begin
         {$IFDEF UseWebYYOrder}
         TBusWorkerBusinessWebchat.CallMe(cBC_WX_get_shopYYWebBill,'','',@nOut);
         DoYYSuccess;
+        {$ENDIF}
+        {$IFDEF WebOrderAutoLoss}
+        TBusWorkerBusinessWebchat.CallMe(cBC_WX_get_shopYYWebBill,'','',@nOut);
+        DoWebOrderAutoLoss;
         {$ENDIF}
       end
       else if FNumOutFactMsg = 2 then
@@ -760,6 +768,97 @@ begin
       end;
       Next;
     end;
+  end;
+end;
+
+procedure TMessageScanThread.DoWebOrderAutoLoss;
+var nStr: string;
+    nInit: Int64;
+    nErr,nIdx: Integer;
+    nBool : Boolean;
+    nWebOrderID: string;
+    nOut: TWorkerWebChatData;
+    nLossDate: TDateTime;
+begin
+  nBool := False;
+
+  nStr := 'Select * From %s Where D_Name=''%s''' ;
+  nStr := Format(nStr,[sTable_SysDict, sFlag_WebOrderLoss]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nBool:= Fieldbyname('D_Value').AsString = sFlag_Yes;
+      if FieldByName('D_Index').AsInteger > 0 then
+        nLossDate := IncDay(Now, 0 - FieldByName('D_Index').AsInteger)
+      else
+      begin
+        nStr := FormatDateTime('YYYY-MM-DD',Now) + ' ' + Fieldbyname('D_Memo').AsString;
+        nLossDate := StrToDateTime(nStr);
+      end;
+    end;
+  end;
+
+  if not nBool then
+    Exit;
+
+  WriteLog('申请单过期时间节点:' + DateTime2Str(nLossDate));
+
+  nStr := ' select top 100 * from %s y where W_State = ''%s'' '+
+          ' and not exists(Select R_ID from %s w where y.W_WebOrderID=w.WOM_WebOrderID) '+
+          ' Order by W_MakeTime asc ';
+  nStr := Format(nStr,[sTable_YYWebBill, '0', sTable_WebOrderMatch]);
+  //查询最早100条网上预约单记录
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+      Exit;
+    //无新消息
+    WriteLog('共查询到网上申请单'+ IntToStr(RecordCount) + '条数据,开始筛选...');
+    nInit := GetTickCount;
+    FListB.Clear;
+    FListD.Clear;
+    First;
+    while not Eof do
+    begin
+      nWebOrderID := FieldByName('W_WebOrderID').AsString;
+      if FieldByName('W_MakeTime').AsDateTime < nLossDate then
+      begin
+        WriteLog('订单' + nWebOrderID + '已过期,下单时间:' + FieldByName('W_MakeTime').AsString
+                  + '执行取消订单动作');
+        FListB.Add(nWebOrderID);
+        FListD.Add(FieldByName('W_OrderNo').AsString);
+      end;
+      Next;
+    end;
+  end;
+
+  if (FListB.Count > 0) then
+  try
+    FDBConn.FConn.BeginTrans;
+    //开启事务
+    for nIdx:=0 to FListB.Count - 1 do
+    begin
+      FListC.Clear;
+      FListC.Values['WOM_WebOrderID'] := FListB[nIdx];
+      FListC.Values['WOM_LID']:= 'DelBill';
+      FListC.Values['WOM_StatusType']:= IntToStr(c_WeChatStatusDeleted);
+      FListC.Values['WOM_MsgType']:= IntToStr(cSendWeChatMsgType_DelBill);
+      FListC.Values['WOM_ZhiKa']:= FListD[nIdx];
+      nStr := PackerEncodeStr(FListC.Text);
+      if TBusWorkerBusinessWebchat.CallMe(cBC_WX_complete_shoporders
+                       ,nStr,'',@nOut) then
+      begin
+        nStr := ' Delete %s  where W_WebOrderID = ''%s'' ';
+        nStr := Format(nStr,[sTable_YYWebBill,FListB[nIdx]]);
+        gDBConnManager.WorkerExec(FDBConn,nStr);
+      end;
+    end;
+    FDBConn.FConn.CommitTrans;
+  except
+    if FDBConn.FConn.InTransaction then
+      FDBConn.FConn.RollbackTrans;
+    raise;
   end;
 end;
 

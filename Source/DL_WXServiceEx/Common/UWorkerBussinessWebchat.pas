@@ -161,6 +161,10 @@ type
     //订单状态同步
     function GetQueryByCar(var nData: string): Boolean;
     //查询车辆状态
+    function GetZKPrice(nMID, nOID: string): Double;
+    function GetOrderCreateStatus(nCID, nMID, nOID: string;nValue:Double;
+             var nMax:Double;var ReData:string;var nCanCreate:Boolean): Boolean;
+    function IsCanCreateWXOrder(var nData: string): Boolean;
   public
     constructor Create; override;
     destructor destroy; override;
@@ -557,6 +561,10 @@ begin
       Result := synchronizedYYOrders(nData);
     cBC_WX_QueryByCar :
       Result := GetQueryByCar(nData);
+    cBC_WX_IsCanCreateWXOrder  :
+      begin
+        Result := IsCanCreateWXOrder(nData);
+      end;
   else
     begin
       Result := False;
@@ -793,11 +801,23 @@ function TBusWorkerBusinessWebchat.GetOrderList(var nData: string): Boolean;
 var
   nStr, nType: string;
   nNode: TXmlNode;
-  nValue, nMoney, nSalesCredit: Double;
+  nValue, nMoney, nSalesCredit, nFMoney: Double;
+  nVefyWebOrder: Boolean;
 begin
   Result := False;
   BuildDefaultXML;
   nMoney := 0;
+  nFMoney := 0;
+  nVefyWebOrder := False;
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s''' ;
+  nStr := Format(nStr,[sTable_SysDict, sFlag_VefyWebOrder]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+      nVefyWebOrder:= Fieldbyname('D_Value').AsString = sFlag_Yes;
+  end;
+
   {$IFDEF UseCustomertMoney}
   nMoney := GetCustomerValidMoney(FIn.FData);
   {$ENDIF}
@@ -830,6 +850,37 @@ begin
   {$IFDEF UseERP_K3}
   nMoney := GetCustomerValidMoneyFromK3(FIn.FData);
   {$ENDIF}
+
+  if nVefyWebOrder then
+  begin
+    nStr := 'select W_OrderNo,W_StockNo,W_Value from %s y ' +
+            ' Where W_CusID=''%s'' and W_State=''0'' ' +
+            ' and not exists(Select R_ID from %s w where y.W_WebOrderID=w.WOM_WebOrderID) ';
+          //订单已审核 有效
+    nStr := Format(nStr,[sTable_YYWebBill,FIn.FData,sTable_WebOrderMatch]);
+    WriteLog('获取所有网上申请单sql:' + nStr);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        First;
+
+        while not Eof do
+        begin
+          nFMoney := nFMoney + GetZKPrice(FieldByName('W_StockNo').AsString,
+                                          FieldByName('W_OrderNo').AsString) *
+                                          FieldByName('W_Value').AsFloat;
+          Next;
+        end;
+      end;
+    end;
+    nFMoney := Float2PInt(nFMoney, cPrecision, False) / cPrecision;
+    WriteLog('已下单金额总和:' + FloatToStr(nFMoney));
+  end;
+
+  nMoney := nMoney - nFMoney;
+  WriteLog('最终可用金:' + FloatToStr(nMoney));
 
   nStr := 'select D_ZID,' +                     //销售卡片编号
     '  D_Type,' +                           //类型(袋,散)
@@ -1172,6 +1223,9 @@ begin
       gDBConnManager.ReleaseConnection(nDBConn);
     end;
   end;
+
+  if ncontractNo = '' then
+    ncontractNo := FListA.Values['WOM_ZhiKa'];
 
   wParam   := TStringList.Create;
   ReStream := TStringstream.Create('');
@@ -1761,6 +1815,8 @@ var
   nVal, nCredit: Double;
   nDBWorker: PDBWorker;
 begin
+  if FIn.FData = '' then
+    FIn.FData := nCustomer;
   Result := 0;
   nUseCredit := False;
 
@@ -3731,12 +3787,14 @@ begin
 
           OneJo  := SO(ArrsN[0].AsString);
           nStr   := MakeSQLByStr([SF('W_WebOrderID',ArrsM[i].S['orderNo']),
+            SF('W_OrderNo',  OneJo.S['contractNo']),
             SF('W_CusID',    OneJo.S['clientNo']),
             SF('W_Customer', OneJo.S['clientName']),
             SF('W_Truck',    ArrsM[i].S['licensePlate']),
             SF('W_MakeTime', ArrsM[i].S['makeTime']),
             SF('W_StockNo',  OneJo.S['materielNo']),
             SF('W_StockName',OneJo.S['materielName']),
+            SF('W_Value',    OneJo.D['quantity'], sfVal), //暂定
             SF('W_State',    '0')
             ], sTable_YYWebBill, '', True);
           FListA.Add(nStr);
@@ -3884,7 +3942,7 @@ begin
         nCreateTime := nheader.NodeByName('CreateTime').ValueAsString;
         nNum        := nheader.NodeByName('Num').ValueAsFloatDef(-1);
 
-        if (nCusID='')or(nOType='')or(nNum<=0) then
+        if (nOType='')or(nNum<=0) then
         begin
           nData  := '请求参数缺失';
           Exit;
@@ -3904,9 +3962,9 @@ begin
               end
               else
               begin
-                nStr := ' insert into %s(W_WebOrderID,W_OrderNo,W_CusID,W_Customer,W_Truck,W_MakeTime,W_StockNo,W_StockName,W_State) '+
-                        ' values(''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'')';
-                nStr := Format(nStr,[sTable_YYWebBill,nOrderNo,nZhiKa,nCusID,nClientName,nTruck,nCreateTime,nStockNo,nStockName,'0']);
+                nStr := ' insert into %s(W_WebOrderID,W_OrderNo,W_CusID,W_Customer,W_Truck,W_MakeTime,W_StockNo,W_StockName,W_State,W_Value) '+
+                        ' values(''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',''%s'',%.2f)';
+                nStr := Format(nStr,[sTable_YYWebBill,nOrderNo,nZhiKa,nCusID,nClientName,nTruck,nCreateTime,nStockNo,nStockName,'0',nNum]);
                 gDBConnManager.WorkerExec(FDBConn,nStr);
 
                 nReFlag:= sFlag_Yes;
@@ -3915,6 +3973,25 @@ begin
           end
           else if nStatus = '6' then
           begin
+            {$IFDEF WebOrderAutoLoss}
+            nStr := ' Select WOM_WebOrderID From %s Where WOM_WebOrderID=''%s'' ' ;
+            nStr := Format(nStr,[sTable_WebOrderMatch,nOrderNo]);
+            with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+            begin
+              if RecordCount > 0 then
+              begin
+                nData := '商城订单:'+nOrderNo+'已制卡,不能取消！';
+              end
+              else
+              begin
+                nStr := ' Delete %s  where W_WebOrderID = ''%s'' ';
+                nStr := Format(nStr,[sTable_YYWebBill,nOrderNo]);
+                gDBConnManager.WorkerExec(FDBConn,nStr);
+
+                nReFlag:= sFlag_Yes;
+              end;
+            end;
+            {$ELSE}
             nStr := ' Select L_WebOrderID From %s Where L_WebOrderID=''%s'' ' ;
             nStr := Format(nStr,[sTable_Bill,nOrderNo]);
             with gDBConnManager.WorkerQuery(FDBConn, nStr) do
@@ -3932,6 +4009,7 @@ begin
                 nReFlag:= sFlag_Yes;
               end;
             end;
+            {$ENDIF}
           end;
         end
         else
@@ -4115,6 +4193,209 @@ begin
 
         nData := FPacker.XMLBuilder.WriteToString;
         WriteLog('查询车辆状态出参：' + nData);
+      end;
+    end;
+  end;
+end;
+
+function TBusWorkerBusinessWebchat.GetZKPrice(nMID, nOID: string): Double;
+var nStr: string;
+    nDBConn : PDBWorker;
+    nIdx : Integer;
+begin
+  Result    := 0;
+
+  nDBConn := gDBConnManager.GetConnection(gParamManager.ActiveParam^.FDB.FID, nIdx);
+  try
+    if not Assigned(nDBConn) then Exit;
+
+    if not nDBConn.FConn.Connected then
+      nDBConn.FConn.Connected := True;
+
+    nStr := 'select D_ZID,' +                     //销售卡片编号
+      '  D_Price ' +                          //单价
+      'from %s a join %s b on a.Z_ID = b.D_ZID ' +
+      'where Z_Verified=''%s'' and (Z_InValid<>''%s'' or Z_InValid is null) ' +
+      ' and (Z_Freeze<>''%s'' or Z_Freeze is null) and D_StockNo=''%s'' and Z_ValidDays >getdate()' +
+      ' and D_ZID=''%s''';
+      //订单已审核 有效
+    nStr := Format(nStr,[sTable_ZhiKa,sTable_ZhiKaDtl,sFlag_Yes,sFlag_Yes,
+                         sFlag_Yes, nMID, nOID]);
+    WriteLog('获取订单价格sql:' + nStr);
+
+    with gDBConnManager.WorkerQuery(nDBConn, nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        Result := Float2PInt(FieldByName('D_Price').AsFloat, cPrecision, False) / cPrecision;
+      end;
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nDBConn);
+  end;
+end;
+
+function TBusWorkerBusinessWebchat.GetOrderCreateStatus(nCID, nMID,nOID: string;nValue:Double;
+             var nMax:Double;var ReData:string;var nCanCreate:Boolean): Boolean;
+var nStr, nTime, nGID, nMName, nStype: string;
+    nMoney,nFMoney,nKDMoney: Double;
+    nIdx : Integer;
+    nVefyWebOrder : Boolean;
+begin
+  Result    := False;
+  nCanCreate:= True;
+  nMoney := 0;
+  nFMoney := 0;
+  nKDMoney := 0;
+  nVefyWebOrder := False;
+
+  nStr := 'Select D_Value From %s Where D_Name=''%s''' ;
+  nStr := Format(nStr,[sTable_SysDict, sFlag_VefyWebOrder]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount > 0 then
+      nVefyWebOrder:= Fieldbyname('D_Value').AsString = sFlag_Yes;
+  end;
+
+  {$IFDEF UseCustomertMoney}
+  nMoney := GetCustomerValidMoney(nCID);
+  {$ENDIF}
+
+  //使用业务员授信
+  {$IFDEF UseSalesCredit}
+  nStr := 'select C_SaleMan from %s where C_Id=''%s''';
+  nStr := Format(nstr,[sTable_Customer, nCID]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    //writelog('111');
+    if RecordCount =  1 then
+    begin
+      //WriteLog('222');
+      if Trim(FieldByName('C_SaleMan').AsString) <> '' then
+      begin
+        nStr := FieldByName('C_SaleMan').AsString;
+        nSalesCredit := GetSalesCredit(nStr);
+        WriteLog('业务员['+ nStr +']信用:'+floattostr(nSalesCredit));
+      end;
+    end;
+  end;
+
+  if nMoney < 0 then
+    nMoney := nSalesCredit
+  else
+    nMoney := nMoney + nSalesCredit;
+  {$ENDIF}
+
+  {$IFDEF UseERP_K3}
+  nMoney := GetCustomerValidMoneyFromK3(nCID);
+  WriteLog('账户金额:' + FloatToStr(nMoney));
+  {$ENDIF}
+
+  nKDMoney := GetZKPrice(nMID,nOID) * nValue;
+  nKDMoney := Float2PInt(nKDMoney, cPrecision, False) / cPrecision;
+  WriteLog('开单金额:' + FloatToStr(nKDMoney));
+
+  if nVefyWebOrder then
+  begin
+    nStr := 'select W_OrderNo,W_StockNo,W_Value from %s y ' +
+            ' Where W_CusID=''%s'' and W_State=''0'' ' +
+            ' and not exists(Select R_ID from %s w where y.W_WebOrderID=w.WOM_WebOrderID) ';
+          //订单已审核 有效
+    nStr := Format(nStr,[sTable_YYWebBill,nCID,sTable_WebOrderMatch]);
+    WriteLog('获取所有网上申请单sql:' + nStr);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        First;
+
+        while not Eof do
+        begin
+          nFMoney := nFMoney + GetZKPrice(FieldByName('W_StockNo').AsString,
+                                          FieldByName('W_OrderNo').AsString) *
+                                          FieldByName('W_Value').AsFloat;
+          Next;
+        end;
+      end;
+    end;
+    nFMoney := Float2PInt(nFMoney, cPrecision, False) / cPrecision;
+    WriteLog('已下单金额总和:' + FloatToStr(nFMoney));
+  end;
+
+  if nKDMoney > (nMoney - nFMoney) then
+  begin
+    nCanCreate := False;
+    ReData := '下单金额:' + FloatToStr(nKDMoney) +
+               ',用户可用金额:' + FloatToStr(nMoney - nFMoney) +
+               '无法下单';
+    Exit;
+  end;
+  Result:= True;
+end;
+
+//Desc: 保存微信客户的预开订单  销售、原料单 便于做开单控制
+function TBusWorkerBusinessWebchat.IsCanCreateWXOrder(var nData: string): Boolean;
+var nStr,nCusID,nOType,nSType,nStockNo,nReFlag,nOrderNo: string;
+    nNum, nMax: Double;
+    nRoot, nheader: TXmlNode;
+    nReDs : TDataSet;
+begin
+  Result := False;
+  nReFlag:= sFlag_No; nMax:= 0;
+  WriteLog('客户开单检查入参：'+nData);
+
+  with FPacker.XMLBuilder do
+  begin
+    try
+      ReadFromString(nData);
+      nData  := '加载请求参数失败';
+
+      nheader := Root.FindNode('Head');
+      //************************************************************
+      try
+        nCusID := nheader.NodeByName('ClientNo').ValueAsString;
+        nOType := nheader.NodeByName('Type').ValueAsString;
+        nStockNo := nheader.NodeByName('StockNo').ValueAsString;
+        nSType := nheader.NodeByName('StockType').ValueAsString;
+        nNum   := nheader.NodeByName('MakeQuantity').ValueAsFloatDef(-1);
+        nOrderNo := nheader.NodeByName('ContractNo').ValueAsString;
+
+        if (nOType='1') then       ///1  销售   2  采购
+        begin
+          if (nCusID='')or(nOType='')or(nSType='')or(nOrderNo='')or(nNum<=0) then
+          begin
+            nData  := '请求参数缺失';
+            Exit;
+          end;
+          GetOrderCreateStatus(nCusID,nStockNo,nOrderNo,nNum,nMax,nStr,Result);
+          nData := nStr;
+        end
+        else
+        begin
+          Result := True;
+        end;
+
+        if Result then nReFlag:= sFlag_Yes;
+      except
+        on Ex : Exception do
+        begin
+          nData  := nData + '开单检查 参数检查失败!'+Ex.Message;
+          WriteLog(nData);
+        end;
+      end;
+    finally
+      begin
+        BuildDefaultXML;
+        with Root.NodeNew('EXMG') do
+        begin
+          NodeNew('MsgTxt').ValueAsString     := nData;
+          NodeNew('MsgResult').ValueAsString  := nReFlag;
+          NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+        end;
+
+        nData := FPacker.XMLBuilder.WriteToString;
+        WriteLog('客户开单检查出参：' + nData);
       end;
     end;
   end;

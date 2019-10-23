@@ -1061,6 +1061,14 @@ begin
   except
     fdm.ADOConn.RollbackTrans;
   end;
+
+  if Result then
+  begin
+    nStr := ' Update %s set W_deleted = ''%s'', W_State = ''%s'',W_SucessTime = %s  where W_WebOrderID = ''%s''';
+    nStr := Format(nStr,[sTable_YYWebBill, sFlag_Yes, '1', sField_SQLServer_Now, nWebOrderID]);
+    fdm.ExecuteSQL(nStr);
+    //更新为已处理
+  end;
 end;
 procedure TfFormNewCard.lvOrdersClick(Sender: TObject);
 var

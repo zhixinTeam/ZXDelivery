@@ -3510,8 +3510,23 @@ function MakeSaleViewData: Boolean;
 var nID: string;
     nStr: string;
     nList : TStrings;
-    nIdx: Integer;
+    nIdx, nInt, nMax: Integer;
+    nDataView: string;
 begin
+  nMax := 49;
+  nDataView := ' (40 + 899*rand() / 100) ';
+
+  nStr := 'Select D_Value, D_Memo From %s ' +
+          'Where D_Name=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_DataView]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    nInt := Abs(Fields[1].AsInteger - Fields[0].AsInteger) * 100 - 1;
+    nDataView := ' (' + Fields[0].AsString + ' + ' + IntToStr(nInt) + '*rand() / 100) ';
+  end;
+
   nList := TStringList.Create;
   try
     nStr := 'Select top 1000 L_ID , L_MValue From %s ' +
@@ -3533,7 +3548,7 @@ begin
           Continue;
         end;
 
-        if Fields[1].AsFloat <= 49 then
+        if Fields[1].AsFloat <= nMax then
         begin
           nStr := 'Update %s Set L_MValueview = L_MValue Where L_ID=''%s''';
           nStr := Format(nStr, [sTable_Bill, nID]);
@@ -3551,8 +3566,8 @@ begin
         end
         else
         begin
-          nStr := 'Update %s Set L_MValueview = (40 + 899*rand() / 100) Where L_ID=''%s''';
-          nStr := Format(nStr, [sTable_Bill, nID]);
+          nStr := 'Update %s Set L_MValueview = %s Where L_ID=''%s''';
+          nStr := Format(nStr, [sTable_Bill, nDataView, nID]);
           nList.Add(nStr);
 
           nStr := 'Update %s Set L_Valueview = L_MValueView - L_PValue Where L_ID=''%s''';
@@ -3573,6 +3588,7 @@ begin
     try
       for nIdx:=0 to nList.Count - 1 do
       begin
+        WriteLog('数据调整SQL:' + nList[nIdx]);
         FDM.ExecuteSQL(nList[nIdx]);
       end;
       FDM.ADOConn.CommitTrans;
@@ -3594,8 +3610,24 @@ function MakeOrderViewData: Boolean;
 var nID: string;
     nStr: string;
     nList : TStrings;
-    nIdx: Integer;
+    nIdx, nInt, nMax: Integer;
+    nDataView: string;
 begin
+  nMax := 49;
+  nDataView := ' (40 + 899*rand() / 100) ';
+
+  nStr := 'Select D_Value, D_Memo From %s ' +
+          'Where D_Name=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_DataView]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    nMax := Fields[1].AsInteger;
+    nInt := Abs(Fields[1].AsInteger - Fields[0].AsInteger) * 100 - 1;
+    nDataView := ' (' + Fields[0].AsString + ' + ' + IntToStr(nInt) + '*rand() / 100) ';
+  end;
+
   nList := TStringList.Create;
   try
     nStr := 'Select top 1000 D_ID ,D_MValue From %s ' +
@@ -3617,7 +3649,7 @@ begin
           Continue;
         end;
 
-        if Fields[1].AsFloat <= 49 then
+        if Fields[1].AsFloat <= nMax then
         begin
           nStr := 'Update %s Set D_MValueview = D_MValue Where D_ID=''%s''';
           nStr := Format(nStr, [sTable_OrderDtl, nID]);
@@ -3635,8 +3667,8 @@ begin
         end
         else
         begin
-          nStr := 'Update %s Set D_MValueview = (40 + 899*rand() / 100) Where D_ID=''%s''';
-          nStr := Format(nStr, [sTable_OrderDtl, nID]);
+          nStr := 'Update %s Set D_MValueview = %s Where D_ID=''%s''';
+          nStr := Format(nStr, [sTable_OrderDtl, nDataView, nID]);
           nList.Add(nStr);
 
           nStr := 'Update %s Set D_Valueview = D_MValueView - D_PValue Where D_ID=''%s''';
@@ -3657,6 +3689,7 @@ begin
     try
       for nIdx:=0 to nList.Count - 1 do
       begin
+        WriteLog('数据调整SQL:' + nList[nIdx]);
         FDM.ExecuteSQL(nList[nIdx]);
       end;
       FDM.ADOConn.CommitTrans;
