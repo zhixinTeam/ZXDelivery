@@ -327,6 +327,7 @@ begin
     nP.FParamB  := SQLQuery.FieldByName('D_OID').AsString;
 
     CreateBaseFormItem(cFI_FormOrderDtl, '', @nP);
+    InitFormData(FWhere);
   end;
 end;
 

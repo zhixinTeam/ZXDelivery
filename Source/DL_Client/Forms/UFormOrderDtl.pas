@@ -261,6 +261,11 @@ begin
   try
     FDM.ExecuteSQL(nSQL);
 
+    nSQL := MakeSQLByStr([SF('D_Value', StrToFloatDef(EditMValue.Text, 0)-
+            StrToFloatDef(EditPValue.Text, 0), sfVal)],
+            sTable_OrderDtl,SF('D_ID', FDetailID),False);
+    FDM.ExecuteSQL(nSQL);
+
     nSQL := MakeSQLByStr([SF('P_CusID', EditProID.Text),
             SF('P_CusName', EditProName.Text),
             SF('P_MID', EditStock.Text),
