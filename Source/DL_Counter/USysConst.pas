@@ -10,7 +10,7 @@ interface
 uses
   Windows, Classes, SysUtils, UBusinessPacker, UBusinessWorker, UBusinessConst,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
-  {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
+  UMultiModBus_JS, 
   UClientWorker, UMITPacker, UWaitItem, ULibFun, USysDB, USysLoger;
 
 type

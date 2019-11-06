@@ -11,7 +11,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
-  {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
+  UMultiModBus_JS, 
   USysConst, UFrameJS, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, Menus, ImgList, dxorgchr, cxSplitter, ComCtrls,
   ToolWin, ExtCtrls, UMemDataPool;
