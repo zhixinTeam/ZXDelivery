@@ -54,7 +54,7 @@
 //通用版本
 
 
-{$DEFINE YNHT}
+{$DEFINE XXCJ}
 //特定系统
 
 //山西声威

@@ -81,6 +81,7 @@ const
   cFI_FrameTrucks       = $0070;                     //车辆档案
   cFI_FrameTodo         = $0071;                     //待处理事件
   cFI_FrameCrossCard    = $0072;                     //办理磁卡(通行卡)
+  cFI_FrameTruckCross   = $0073;                     //车辆通行记录
 
   cFI_FrameXHSpot       = $2071;                     //卸货地点维护
   cFI_FormXHSpot        = $2072;                     //卸货地点编辑
@@ -175,6 +176,7 @@ const
   cFI_FormAdjustPrice   = $1070;                     //纸卡调价
 
   cFI_FormTrucks        = $1071;                     //车辆档案
+  cFI_FormMulTrucks     = $1072;                     //车辆档案(批量处理)
 
   cFI_FormInvoiceWeek   = $1075;                     //结算周期
   cFI_FormSaleInvoice   = $1076;                     //发票管理
@@ -483,6 +485,7 @@ begin
   AddMenuModuleItem('MAIN_M09', cFI_FrameOrderBase);
   AddMenuModuleItem('MAIN_M10', cFI_FramePMaterailControl);
   AddMenuModuleItem('MAIN_M11', cFI_FrameCrossCard);
+  AddMenuModuleItem('MAIN_M12', cFI_FrameTruckCross);
   AddMenuModuleItem('MAIN_M15', cFI_FrameKDInfo);
  // AddMenuModuleItem('MAIN_M13', cFI_FrameYCLStock);
  // AddMenuModuleItem('MAIN_M14', cFI_FrameYCLStockRecord);

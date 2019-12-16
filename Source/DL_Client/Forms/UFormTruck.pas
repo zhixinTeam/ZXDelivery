@@ -37,6 +37,16 @@ type
     dxLayout1Group4: TdxLayoutGroup;
     EditXTNum: TcxTextEdit;
     dxLayout1Item11: TdxLayoutItem;
+    EditColor: TcxTextEdit;
+    dxLayout1Item13: TdxLayoutItem;
+    EditType: TcxTextEdit;
+    dxLayout1Item12: TdxLayoutItem;
+    EditStock: TcxTextEdit;
+    dxLayout1Item14: TdxLayoutItem;
+    EditPF: TcxTextEdit;
+    dxLayout1Item15: TdxLayoutItem;
+    EditMemo: TcxTextEdit;
+    dxLayout1Item16: TdxLayoutItem;
     procedure BtnOKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   protected
@@ -54,7 +64,7 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, UMgrControl, UDataModule, UFormCtrl, USysDB, USysConst;
+  ULibFun, UMgrControl, UDataModule, UFormCtrl, USysDB, USysConst, USysBusiness;
 
 class function TfFormTruck.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
@@ -124,6 +134,11 @@ begin
 
     CheckVip.Checked   := FieldByName('T_VIPTruck').AsString = sFlag_TypeVIP;
     CheckGPS.Checked   := FieldByName('T_HasGPS').AsString = sFlag_Yes;
+    EditType.Text := FieldByName('T_Type').AsString;
+    EditColor.Text := FieldByName('T_PlateColor').AsString;
+    EditStock.Text := FieldByName('T_Stock').AsString;
+    EditPF.Text := FieldByName('T_PF').AsString;
+    EditMemo.Text := FieldByName('T_Memo').AsString;
   end;
 end;
 
@@ -193,6 +208,11 @@ begin
           {$IFDEF UseTruckXTNum}
           SF('T_XTNum', FloatToStr(nXTNum)),
           {$ENDIF}
+          SF('T_Type', EditType.Text),
+          SF('T_PlateColor', EditColor.Text),
+          SF('T_Stock', EditStock.Text),
+          SF('T_PF', EditPF.Text),
+          SF('T_Memo', EditMemo.Text),
           SF('T_LastTime', sField_SQLServer_Now, sfVal)
           ], sTable_Truck, nStr, FTruckID = '');
   FDM.ExecuteSQL(nStr);

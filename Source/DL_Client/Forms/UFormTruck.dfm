@@ -1,7 +1,7 @@
 inherited fFormTruck: TfFormTruck
-  Left = 522
-  Top = 278
-  ClientHeight = 288
+  Left = 505
+  Top = 151
+  ClientHeight = 412
   ClientWidth = 375
   Position = poMainFormCenter
   OnCreate = FormCreate
@@ -9,16 +9,16 @@ inherited fFormTruck: TfFormTruck
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 375
-    Height = 288
+    Height = 412
     inherited BtnOK: TButton
       Left = 229
-      Top = 255
-      TabOrder = 9
+      Top = 379
+      TabOrder = 14
     end
     inherited BtnExit: TButton
       Left = 299
-      Top = 255
-      TabOrder = 10
+      Top = 379
+      TabOrder = 15
     end
     object EditTruck: TcxTextEdit [2]
       Left = 93
@@ -45,54 +45,87 @@ inherited fFormTruck: TfFormTruck
     end
     object CheckValid: TcxCheckBox [5]
       Left = 23
-      Top = 170
+      Top = 294
       Caption = #36710#36742#20801#35768#24320#21333'.'
       ParentFont = False
-      TabOrder = 4
+      TabOrder = 9
       Transparent = True
       Width = 80
     end
     object CheckVerify: TcxCheckBox [6]
       Left = 23
-      Top = 222
+      Top = 346
       Caption = #39564#35777#36710#36742#24050#21040#20572#36710#22330'.'
       ParentFont = False
-      TabOrder = 7
+      TabOrder = 12
       Transparent = True
       Width = 165
     end
     object CheckUserP: TcxCheckBox [7]
       Left = 23
-      Top = 196
+      Top = 320
       Caption = #36710#36742#20351#29992#39044#32622#30382#37325'.'
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 10
       Transparent = True
       Width = 165
     end
     object CheckVip: TcxCheckBox [8]
       Left = 193
-      Top = 196
+      Top = 320
       Caption = 'VIP'#36710#36742
       ParentFont = False
-      TabOrder = 6
+      TabOrder = 11
       Transparent = True
       Width = 100
     end
     object CheckGPS: TcxCheckBox [9]
       Left = 193
-      Top = 222
+      Top = 346
       Caption = #24050#23433#35013'GPS'
       ParentFont = False
-      TabOrder = 8
+      TabOrder = 13
       Transparent = True
       Width = 100
     end
     object EditXTNum: TcxTextEdit [10]
       Left = 93
       Top = 111
+      ParentFont = False
       TabOrder = 3
       Text = '0'
+      Width = 121
+    end
+    object EditColor: TcxTextEdit [11]
+      Left = 93
+      Top = 136
+      ParentFont = False
+      TabOrder = 4
+      Width = 121
+    end
+    object EditType: TcxTextEdit [12]
+      Left = 93
+      Top = 161
+      ParentFont = False
+      TabOrder = 5
+      Width = 121
+    end
+    object EditStock: TcxTextEdit [13]
+      Left = 93
+      Top = 186
+      TabOrder = 6
+      Width = 121
+    end
+    object EditPF: TcxTextEdit [14]
+      Left = 93
+      Top = 211
+      TabOrder = 7
+      Width = 121
+    end
+    object EditMemo: TcxTextEdit [15]
+      Left = 93
+      Top = 236
+      TabOrder = 8
       Width = 121
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
@@ -126,6 +159,31 @@ inherited fFormTruck: TfFormTruck
         object dxLayout1Item11: TdxLayoutItem
           Caption = #26368#22823#24320#21333#37327':'
           Control = EditXTNum
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item13: TdxLayoutItem
+          Caption = #36710#29260#39068#33394':'
+          Control = EditColor
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item12: TdxLayoutItem
+          Caption = #36710#36742#31867#22411':'
+          Control = EditType
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item14: TdxLayoutItem
+          Caption = #21697'    '#31181':'
+          Control = EditStock
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item15: TdxLayoutItem
+          Caption = #25490#25918#26631#20934':'
+          Control = EditPF
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item16: TdxLayoutItem
+          Caption = #22791'    '#27880':'
+          Control = EditMemo
           ControlOptions.ShowBorder = False
         end
       end

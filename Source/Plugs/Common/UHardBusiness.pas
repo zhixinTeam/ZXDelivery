@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Classes, Controls, SysUtils, UMgrDBConn, UMgrParam, DB,
-  UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue,
+  UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue, DateUtils, UFormCtrl,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
@@ -808,6 +808,86 @@ begin
   end;
 end;
 
+//Date: 2019-10-26
+//Parm: 卡号;读头
+//Desc: 抬杆同时生成过闸记录
+procedure MakeTruckPassGateEx(const nCard,nReader,nSaveData: string; const nDB: PDBWorker;
+                            const nReaderType: string = '');
+var nStr: string;
+    nWait: Integer;
+    nTruck: string;
+    nLastTime: TDateTime;
+    nCanSave: Boolean;
+begin
+  nCanSave := False;
+  nWait := 30;
+
+  nStr := 'select C_TruckNo,C_LastDate from %s where C_Card=''%s'' and C_Used=''%s''';
+  nStr := Format(nStr,[sTable_Card, nCard, sFlag_Tx]);
+  with gDBConnManager.WorkerQuery(nDB, nStr) do
+  begin
+    if RecordCount <= 0 then
+    begin
+      nStr := '读取通行卡[ %s ]信息失败.';
+      nStr := Format(nStr, [nCard]);
+
+      WriteHardHelperLog(nStr);
+      Exit;
+    end;
+    nTruck := Fields[0].AsString;
+    nLastTime := Fields[1].AsDateTime;
+  end;
+
+  nStr := 'select D_Value from %s where D_Name=''%s''';
+  nStr := Format(nStr,[sTable_SysDict, sFlag_CrossWaitTime]);
+  with gDBConnManager.WorkerQuery(nDB, nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nWait := Fields[0].AsInteger;
+    end;
+  end;
+
+  if MinutesBetween(Now,nLastTime) >= nWait then
+    nCanSave := True;
+
+  if not nCanSave then
+  begin
+    nStr := '通行卡[ %s ]车辆[ %s ]在读卡器[ %s ]不能通过,上次通过时间为[ %s ],等待间隔为[ %d ]分.';
+    nStr := Format(nStr, [nCard, nTruck, nReader, DateTime2Str(nLastTime), nWait]);
+
+    WriteHardHelperLog(nStr);
+    Exit;
+  end;
+
+  nStr := Format('C_Card=''%s''', [nCard]);
+  nStr := MakeSQLByStr([
+          SF('C_LastDate', sField_SQLServer_Now, sfVal)
+          ], sTable_Card, nStr, False);
+  gDBConnManager.WorkerExec(nDB, nStr);
+
+  nStr := '通行卡[ %s ]车辆[ %s ]在读卡器[ %s ]通过,通过时间为[ %s ].';
+  nStr := Format(nStr, [nCard, nTruck, nReader, DateTime2Str(Now)]);
+  WriteHardHelperLog(nStr);
+
+  if nSaveData <> sFlag_Yes then
+  begin
+    BlueOpenDoor(nReader, nReaderType);
+    //抬杆
+    Exit;
+  end;
+
+  nStr := MakeSQLByStr([SF('C_Card', nCard),
+          SF('C_Truck', nTruck),
+          SF('C_Reader', nReader),
+          SF('C_Date', sField_SQLServer_Now, sfVal)
+          ], sTable_TruckCross, '', True);
+  gDBConnManager.WorkerExec(nDB, nStr);
+
+  BlueOpenDoor(nReader, nReaderType);
+  //抬杆
+end;
+
 //Date: 2012-4-22
 //Parm: 读头数据
 //Desc: 对nReader读到的卡号做具体动作
@@ -886,6 +966,15 @@ begin
       else
       if nReader.FType = rtQueueGate then
       begin
+        if Assigned(nReader.FOptions) then
+        begin
+          if nReader.FOptions.Values['TruckCross'] = sFlag_Yes then
+          begin
+            MakeTruckPassGateEx(nCard, nReader.FID,nReader.FOptions.Values['SaveCrossData'],
+                                nDBConn, nReaderType);
+            Exit;
+          end;
+        end;
         if nReader.FID <> '' then
           MakeTruckPassGate(nCard, nReader.FID, nDBConn, nReaderType);
         //抬杆

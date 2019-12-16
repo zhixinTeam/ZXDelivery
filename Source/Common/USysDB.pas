@@ -306,7 +306,8 @@ const
   sFlag_DataView      = 'DataView';                  //数据处理区间
   sFlag_VefyWebOrder  = 'VefyWebOrder';              //申请单进行金额校验
   sFlag_WebOrderLoss  = 'WebOrderLoss';              //申请单自动失效
-
+  sFlag_CrossWaitTime = 'CrossWaitTime';             //过闸时间间隔
+  sFlag_TruckType     = 'TruckType';                 //车辆类型
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
   sTable_User         = 'Sys_User';                  //用户表
@@ -411,7 +412,8 @@ const
 
   sTable_SalesCredit  = 'Sys_SalesCredit';           //业务员信用
   sTable_PMaterailControl = 'Sys_PMaterailControl';  //原材料进厂控制表
-  
+
+  sTable_TruckCross   = 'Sys_TruckCross';            //车辆通行记录  
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
        'D_Desc varChar(30), D_Value varChar(50), D_Memo varChar(20),' +
@@ -1055,7 +1057,7 @@ const
        'C_Card2 varChar(32), C_Card3 varChar(32),' +
        'C_Owner varChar(15), C_TruckNo varChar(15), C_Status Char(1),' +
        'C_Freeze Char(1), C_Used Char(1), C_UseTime Integer Default 0,' +
-       'C_Man varChar(32), C_Date DateTime, C_Memo varChar(500))';
+       'C_Man varChar(32), C_Date DateTime, C_LastDate DateTime, C_Memo varChar(500))';
   {-----------------------------------------------------------------------------
    磁卡表:Card
    *.R_ID:记录编号
@@ -1069,6 +1071,7 @@ const
    *.C_Freeze:是否冻结
    *.C_Man:办理人
    *.C_Date:办理时间
+   *.C_LastDate:上次活动时间
    *.C_Memo:备注信息
   -----------------------------------------------------------------------------}
 
@@ -1078,7 +1081,8 @@ const
        'T_PrePUse Char(1), T_MinPVal $Float, T_MaxPVal $Float, ' +
        'T_PValue $Float Default 0, T_PTime Integer Default 0,' +
        'T_PlateColor varChar(12),T_Type varChar(12), T_LastTime DateTime, ' +
-       'T_Card varChar(32), T_CardUse Char(1), T_Card2 varChar(32),' +
+       'T_Card varChar(32), T_CardUse Char(1), T_Card2 varChar(32), T_Memo varChar(500),' +
+       'T_Stock varChar(32), T_PF varChar(32),' +
        'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), T_HasGPS Char(1), T_GPSDate DateTime)';
   {-----------------------------------------------------------------------------
    车辆信息:Truck
@@ -1106,7 +1110,9 @@ const
    *.T_VIPTruck:是否VIP
    *.T_HasGPS:安装GPS(Y/N)
    *.T_GPSDate:GPS有效日期
-
+   *.T_Memo:备注
+   *.T_Stock:品种
+   *.T_PF:排放标准
    有效平均皮重算法:
    T_PValue = (T_PValue * T_PTime + 新皮重) / (T_PTime + 1)
   -----------------------------------------------------------------------------}
@@ -1936,6 +1942,18 @@ const
    *.C_Memo: 备注
   -----------------------------------------------------------------------------}
 
+  sSQL_NewTruckCross = 'Create Table $Table(R_ID $Inc, C_Truck varChar(32),' +
+       'C_Card varChar(32), C_Reader varChar(32), C_Date DateTime, C_Memo varchar(100))';
+  {-----------------------------------------------------------------------------
+   车辆通行记录表:
+   *.R_ID: 编号
+   *.C_Truck: 车牌号码
+   *.C_Card: 磁卡编号
+   *.C_Reader: 读卡器
+   *.C_Date: 通过时间
+   *.C_Memo: 备注
+  -----------------------------------------------------------------------------}
+
 
 function CardStatusToStr(const nStatus: string): string;
 //磁卡状态
@@ -2104,6 +2122,7 @@ begin
 
   AddSysTableItem(sTable_SalesCredit, sSQL_NewSalesCredit);
   AddSysTableItem(sTable_PMaterailControl,sSQL_NewPMControlInfo);
+  AddSysTableItem(sTable_TruckCross,sSQL_NewTruckCross);
 end;
 
 //Desc: 清理系统表

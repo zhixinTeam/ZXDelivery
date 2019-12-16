@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameTrucks;
 
+{$I Link.inc}
 interface
 
 uses
@@ -32,6 +33,8 @@ type
     N3: TMenuItem;
     VIP1: TMenuItem;
     VIP2: TMenuItem;
+    N8: TMenuItem;
+    N9: TMenuItem;
     procedure EditNamePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -44,11 +47,15 @@ type
     procedure N7Click(Sender: TObject);
     procedure VIP1Click(Sender: TObject);
     procedure VIP2Click(Sender: TObject);
+    procedure N9Click(Sender: TObject);
   private
     { Private declarations }
+    FMulModify: Boolean;
   protected
     function InitFormDataSQL(const nWhere: string): string; override;
     {*查询SQL*}
+    function GetVal(const nRow: Integer; const nField: string): string;
+    //获取指定字段
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -67,6 +74,7 @@ end;
 
 function TfFrameTrucks.InitFormDataSQL(const nWhere: string): string;
 begin
+  FMulModify := False;
   Result := 'Select * From ' + sTable_Truck;
   if nWhere <> '' then
     Result := Result + ' Where (' + nWhere + ')';
@@ -88,17 +96,56 @@ end;
 
 //Desc: 修改
 procedure TfFrameTrucks.BtnEditClick(Sender: TObject);
-var nP: TFormCommandParam;
+var nStr: string;
+    nIdx: Integer;
+    nListA, nListB: TStrings;
+    nP: TFormCommandParam;
 begin
-  if cxView1.DataController.GetSelectedCount > 0 then
+  if FMulModify then
   begin
-    nP.FCommand := cCmd_EditData;
-    nP.FParamA := SQLQuery.FieldByName('R_ID').AsString;
-    CreateBaseFormItem(cFI_FormTrucks, '', @nP);
-
-    if (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK) then
+    if cxView1.DataController.GetSelectedCount < 1 then
     begin
-      InitFormData(FWhere);
+      ShowMsg('请选择要批量编辑的记录', sHint); Exit;
+    end;
+    FMulModify := False;
+    nListA := TStringList.Create;
+    nListB := TStringList.Create;
+    try
+      for nIdx := 0 to cxView1.DataController.RowCount - 1  do
+      begin
+        nStr := GetVal(nIdx,'T_Truck');
+        if nStr = '' then
+          Continue;
+        nListA.Add(GetVal(nIdx,'R_ID'));
+        nListB.Add(nStr);
+      end;
+
+      nP.FCommand := cCmd_EditData;
+      nP.FParamA := nListA.Text;
+      nP.FParamB := nListB.Text;
+      CreateBaseFormItem(cFI_FormMulTrucks, '', @nP);
+
+      if (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK) then
+      begin
+        InitFormData(FWhere);
+      end;
+    finally
+      nListA.Free;
+      nListB.Free;
+    end;
+  end
+  else
+  begin
+    if cxView1.DataController.GetSelectedCount > 0 then
+    begin
+      nP.FCommand := cCmd_EditData;
+      nP.FParamA := SQLQuery.FieldByName('R_ID').AsString;
+      CreateBaseFormItem(cFI_FormTrucks, '', @nP);
+
+      if (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK) then
+      begin
+        InitFormData(FWhere);
+      end;
     end;
   end;
 end;
@@ -129,6 +176,11 @@ end;
 procedure TfFrameTrucks.PMenu1Popup(Sender: TObject);
 begin
   N2.Enabled := BtnEdit.Enabled;
+  {$IFDEF SpecialControl}
+  N9.Enabled := BtnEdit.Enabled;
+  {$ELSE}
+  N9.Visible := False;
+  {$ENDIF}
 end;
 
 //Desc: 车辆签到
@@ -257,6 +309,26 @@ begin
     InitFormData(FWhere);
     ShowMsg('关闭车辆VIP成功', sHint);
   end;
+end;
+
+procedure TfFrameTrucks.N9Click(Sender: TObject);
+begin
+  FMulModify := True;
+  ShowDlg('批量选中成功,请点击修改按钮进行修改','批量修改');
+end;
+
+//Desc: 获取nRow行nField字段的内容
+function TfFrameTrucks.GetVal(const nRow: Integer;
+ const nField: string): string;
+var nVal: Variant;
+begin
+  nVal := cxView1.ViewData.Rows[nRow].Values[
+            cxView1.GetColumnByFieldName(nField).Index];
+  //xxxxx
+
+  if VarIsNull(nVal) then
+       Result := ''
+  else Result := nVal;
 end;
 
 initialization
