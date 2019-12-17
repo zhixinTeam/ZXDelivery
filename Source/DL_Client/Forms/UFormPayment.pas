@@ -5,7 +5,7 @@
 unit UFormPayment;
 
 interface
-
+{$I Link.inc}
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
@@ -284,16 +284,22 @@ begin
 end;
 
 procedure TfFormPayment.BtnOKClick(Sender: TObject);
-var nP: TFormCommandParam;
+var
+  nP: TFormCommandParam;
+  nStr: string;
 begin
   if not IsDataValid then Exit;
+
+  nStr := 'SJ'+FormatDateTime('yyyymmddhhmmss',Now);
+
   if not SaveCustomerPayment(gInfo.FCusID, gInfo.FCusName,
      GetCtrlData(EditSalesMan), sFlag_MoneyHuiKuan, EditType.Text, EditDesc.Text,
-     StrToFloat(EditMoney.Text), True) then
+     StrToFloat(EditMoney.Text),nStr, True) then
   begin
     ShowMsg('回款操作失败', sError); Exit;
   end;
 
+  {$IFNDEF HYJC}
   if StrToFloat(EditMoney.Text) > 0 then
   begin
     nP.FCommand := cCmd_AddData;
@@ -302,6 +308,10 @@ begin
     nP.FParamC := EditMoney.Text;
     CreateBaseFormItem(cFI_FormShouJu, '', @nP);
   end;
+  {$ELSE}
+  if not QueryDlg('要打印编号为[ ' + nStr + ' ]的收据吗', sAsk) then Exit;
+  PrintShouJu(nStr, False);
+  {$ENDIF}
 
   ModalResult := mrOk;
   ShowMsg('回款操作成功', sHint);

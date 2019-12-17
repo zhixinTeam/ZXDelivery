@@ -672,7 +672,7 @@ const
        'M_CusID varChar(15), M_CusName varChar(80), ' +
        'M_Type Char(1), M_Payment varChar(20),' +
        'M_Money Decimal(15,5), M_ZID varChar(15), M_Date DateTime,' +
-       'M_Man varChar(32), M_Memo varChar(200))';
+       'M_Man varChar(32), M_Memo varChar(200), M_ID Carchar(20))';
   {-----------------------------------------------------------------------------
    出入金明细:CustomerInOutMoney
    *.M_ID:记录编号
@@ -686,6 +686,7 @@ const
    *.M_Date:操作日期
    *.M_Man:操作人
    *.M_Memo:描述
+   *.M_ID:回款编号
 
    *.水泥销售入金中
      金额 = 单价 x 数量 + 其它
