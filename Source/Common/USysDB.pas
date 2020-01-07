@@ -672,7 +672,7 @@ const
        'M_CusID varChar(15), M_CusName varChar(80), ' +
        'M_Type Char(1), M_Payment varChar(20),' +
        'M_Money Decimal(15,5), M_ZID varChar(15), M_Date DateTime,' +
-       'M_Man varChar(32), M_Memo varChar(200), M_ID Carchar(20))';
+       'M_Man varChar(32), M_Memo varChar(200), M_ID Carchar(20), M_RuZhang Char(1))';
   {-----------------------------------------------------------------------------
    出入金明细:CustomerInOutMoney
    *.M_ID:记录编号
@@ -1025,7 +1025,8 @@ const
        'D_YLine varChar(15), D_YLineName varChar(32), D_Unload varChar(80),' +
        'D_DelMan varChar(32), D_DelDate DateTime, D_YSResult Char(1), ' +
        'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500),'+
-       'D_WlbYTime DateTime, D_WlbYMan varchar(32),D_WlbYS char(1) Default ''N'')';
+       'D_WlbYTime DateTime, D_WlbYMan varchar(32),D_WlbYS char(1) Default ''N'','+
+       'D_Truck varChar(50),D_SerialNo varChar(50))';
   {-----------------------------------------------------------------------------
    采购订单明细表: OrderDetail
    *.R_ID: 编号
@@ -1052,6 +1053,7 @@ const
    *.D_YSResult: 验收结果
    *.D_OutFact,D_OutMan: 出厂放行
    *.D_WlbYTime,D_WlbYMan,D_WlbYS:物流部验收时间，人，结果
+   *.D_Truck, D_SerialNo:车牌号码, 质检编号
   -----------------------------------------------------------------------------}
 
   sSQL_NewCard = 'Create Table $Table(R_ID $Inc, C_Card varChar(16),' +

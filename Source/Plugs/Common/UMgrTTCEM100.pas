@@ -71,6 +71,8 @@ type
     FVPrinter: string;         //虚拟打印机
     FVHYPrinter: string;       //化验打印机
     FVType  : TM100ReaderVType;  //虚拟类型
+    FBxCardNo: string;           //吞卡机小屏
+    FPost    : string;
 
     FKeepOnce: Integer;        //单次保持
     FKeepPeer: Boolean;        //保持模式
@@ -395,6 +397,8 @@ begin
           FVReader := nTmp.AttributeByName['reader'];
           FVPrinter:= nTmp.AttributeByName['printer'];
           FVHYPrinter := nTmp.AttributeByName['hy_printer'];
+          FBxCardNo   := nTmp.AttributeByName['BxCardNo'];
+          FPost       := nTmp.AttributeByName['Post'];
 
           i := StrToIntDef(nTmp.AttributeByName['type'], 0);
           case i of

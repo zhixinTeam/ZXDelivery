@@ -53,8 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-
-{$DEFINE XXCJ}
+{$DEFINE DYGL}
 //特定系统
 
 //山西声威
@@ -229,6 +228,10 @@
   //纸卡调价时修改已提货单据价格
   {$DEFINE MITTruckProber}
   //车检由中间件控制
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+ {$DEFINE UseBXFontLED}
+ //使用出厂小屏展示
 {$ENDIF}
 
 //如东海鑫

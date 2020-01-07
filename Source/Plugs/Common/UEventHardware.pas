@@ -35,7 +35,7 @@ uses
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
-  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100,
+  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100,UMgrBXFontCard,
   UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
@@ -132,6 +132,15 @@ begin
     {$IFDEF UseLBCModbus}
     nStr := '定量装车';
     gModBusClient.LoadConfig(nCfg + 'ModBusController.xml');
+    {$ENDIF}
+
+    {$IFDEF UseBXFontLED}
+    nStr := '装车道网口小屏';
+    if FileExists(nCfg + 'BXFontLED.xml') then
+    begin
+      gBXFontCardManager := TBXFontCardManager.Create;
+      gBXFontCardManager.LoadConfig(nCfg + 'BXFontLED.xml');
+    end;
     {$ENDIF}
   except
     on E:Exception do
@@ -235,6 +244,10 @@ begin
   end; //三合一读卡器
   {$ENDIF}
 
+  {$IFDEF UseBXFontLED}
+  gBXFontCardManager.StartService;
+  {$ENDIF}
+
   {$IFDEF FixLoad}
   if Assigned(gSendCardNo) then
   gSendCardNo.StartPrinter;
@@ -302,6 +315,10 @@ begin
 
   gTruckQueueManager.StopQueue;
   //queue
+  
+  {$IFDEF UseBXFontLED}
+  gBXFontCardManager.StopService;
+  {$ENDIF}
 
   {$IFDEF FixLoad}
   if Assigned(gSendCardNo) then
