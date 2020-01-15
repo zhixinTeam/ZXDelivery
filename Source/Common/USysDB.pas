@@ -167,6 +167,7 @@ const
   sFlag_ManualC       = 'C';                         //净重超出误差范围
   sFlag_ManualD       = 'D';                         //空车出厂
   sFlag_ManualE       = 'E';                         //车牌识别
+  sFlag_ManualF       = 'F';                         //毛重超过上限
 
   sFlag_FactoryID     = 'FactoryID';                 //工厂编号
   sFlag_SysParam      = 'SysParam';                  //系统参数
@@ -371,6 +372,8 @@ const
   sTable_OrderDtl     = 'P_OrderDtl';                //采购订单明细
   sTable_OrderDtlBak  = 'P_OrderDtlBak';             //采购订单明细
   sTable_CardOther    = 'S_CardOther';               //临时称重
+
+  sTable_SaleMValueInfo = 'S_MValueSet';             //散装毛重上限表
 
   sTable_CusAccount   = 'Sys_CustomerAccount';       //客户账户
   sTable_InOutMoney   = 'Sys_CustomerInOutMoney';    //资金明细
@@ -1054,6 +1057,13 @@ const
    *.D_OutFact,D_OutMan: 出厂放行
    *.D_WlbYTime,D_WlbYMan,D_WlbYS:物流部验收时间，人，结果
    *.D_Truck, D_SerialNo:车牌号码, 质检编号
+  -----------------------------------------------------------------------------}
+
+  sSQL_NewMValueInfo = ' Create Table $Table(R_ID $Inc, S_MValueMax $Float)';
+  {-----------------------------------------------------------------------------
+   毛重上限: S_MValueSet
+   *.R_ID: 编号
+   *.S_MValueMax: 毛重上限
   -----------------------------------------------------------------------------}
 
   sSQL_NewCard = 'Create Table $Table(R_ID $Inc, C_Card varChar(16),' +
@@ -2119,6 +2129,8 @@ begin
   AddSysTableItem(sTable_KDInfo, sSQL_NewKDInfo);
   //司机信息维护
   AddSysTableItem(sTable_DriverWh,sSQL_NewDriverWh);
+  //散装毛重上限设置
+  AddSysTableItem(sTable_SaleMValueInfo, sSQL_NewMValueInfo);
 
   AddSysTableItem(sTable_MonthSales, sSQL_NewMonthSales);
   AddSysTableItem(sTable_MonthPrice, sSQL_NewMonthPrice);
