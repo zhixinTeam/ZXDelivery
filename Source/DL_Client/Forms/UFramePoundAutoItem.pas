@@ -83,6 +83,8 @@ type
     FLastCardDone: Int64;
     FLastCard, FCardTmp, FLastReader: string;
     //上次卡号, 临时卡号, 读卡器编号
+    FIsAutoTruckIn : Boolean;
+    //是否自动进厂
     FSampleIndex: Integer;
     FValueSamples: array of Double;
     //数据采样
@@ -123,6 +125,8 @@ type
     procedure LEDDisplay(const nContent: string);
     //LED显示
     function ChkPoundStatus:Boolean;
+    function CheckMValue: Boolean;
+    //验证毛重
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -140,7 +144,7 @@ implementation
 uses
   ULibFun, UFormBase, {$IFDEF HR1847}UKRTruckProber,{$ELSE}UMgrTruckProbe,{$ENDIF}
   UMgrRemoteVoice, UMgrVoiceNet, UDataModule, USysBusiness, UMgrLEDDisp,
-  USysLoger, USysConst, USysDB;
+  USysLoger, USysConst, USysDB,Dialogs;
 
 const
   cFlag_ON    = 10;
@@ -260,15 +264,17 @@ begin
   else
     WriteLog('通道:'+ FPoundTunnel.FID+'初始化成功,登陆ID:'+IntToStr(FLogin));
   {$ENDIF}
-
+  FIsAutoTruckIn := False;
   if Assigned(FPoundTunnel.FOptions) then
   with FPoundTunnel.FOptions do
   begin
+    FIsAutoTruckIn  := Values['IsAutoTruckIn']  = sFlag_Yes;
     FVirPoundID  := Values['VirPoundID'];
     FBarrierGate := Values['BarrierGate'] = sFlag_Yes;
     FEmptyPoundIdleLong := StrToInt64Def(Values['EmptyIdleLong'], 60);
     FEmptyPoundIdleShort:= StrToInt64Def(Values['EmptyIdleShort'], 5);
   end;
+  
 end;
 
 //Desc: 重置界面数据
@@ -429,6 +435,10 @@ begin
   with nBills[nIdx] do
   begin
     {$IFDEF TruckAutoIn}
+    FIsAutoTruckIn:= True;
+    {$ENDIF}
+
+    if FIsAutoTruckIn then
     if FStatus=sFlag_TruckNone then
     begin
       if FCardUsed = sFlag_Provide then
@@ -472,7 +482,7 @@ begin
         end;
       end;
     end;
-    {$ENDIF}
+
     if (FStatus <> sFlag_TruckBFP) and (FNextStatus = sFlag_TruckZT) then
       FNextStatus := sFlag_TruckBFP;
     //状态校正
@@ -797,7 +807,14 @@ begin
     end;
   end;
 
-  if (FUIData.FPData.FValue > 0) or (FUIData.FMData.FValue > 0) then
+  if FUIData.FNextStatus = sFlag_TruckBFM then
+  begin
+    if (FUIData.FMData.FValue > 0) then
+      if not CheckMValue then Exit;
+    //启用毛重上限
+  end;
+
+  if (FUIData.FPData.FValue > 0) and (FUIData.FMData.FValue > 0) then
   begin
     if FBillItems[0].FYSValid <> sFlag_Yes then //判断是否空车出厂
     begin
@@ -1396,6 +1413,59 @@ begin
   finally
     FIsChkPoundStatus:= False;
     SetUIData(True);
+  end;
+end;
+
+function TfFrameAutoPoundItem.CheckMValue: Boolean;
+var nStr, nStatus: string;
+    nVal: Double;
+begin
+  Result := True;
+  nStr   := ' Select S_MValueMax From %s ';
+  nStr   := Format(nStr, [sTable_SaleMValueInfo]);
+
+  with FDM.QueryTemp(nStr),FUIData do
+  if RecordCount > 0 then
+  begin
+    nVal := Fields[0].AsFloat;
+    if nVal <= 0 then Exit;
+
+    Result := nVal >= FUIData.FMData.FValue;
+    if Result then Exit;
+
+    nStr := '车辆[ %s ]重车超过上限,详情如下:' + #13#10 +
+            '※.毛重上限: %.2f吨' + #13#10 +
+            '※.当前毛重: %.2f吨' + #13#10 +
+            '※.超 重 量: %.2f吨' + #13#10 +
+            '是否允许过磅?';
+    nStr := Format(nStr, [FTruck, nVal, FMData.FValue, FMData.FValue-nVal]);
+
+    Result := VerifyManualEventRecord(FID + sFlag_ManualF, nStr, sFlag_Yes, False);
+    if Result then Exit; //管理员放行
+
+    AddManualEventRecord(FID + sFlag_ManualF, FTruck, nStr, sFlag_DepBangFang,
+      sFlag_Solution_YN, sFlag_DepDaTing, True);
+    WriteSysLog(nStr);
+
+    {$IFDEF AllowMultiM}//散装允许多次过磅时当车辆超毛重上限后需校正车辆状态
+    if FType = sFlag_Dai then
+      nStatus := sFlag_TruckZT
+    else
+      nStatus := sFlag_TruckFH;
+
+    AdjustBillStatus(FID, nStatus, sFlag_TruckBFM);
+
+    nStr := '提货单[%s]车辆[%s]状态校正为:当前状态[%s],下一状态[%s]';
+    nStr := Format(nStr, [FID, FTruck, nStatus, sFlag_TruckBFM]);
+    WriteSysLog(nStr);
+    {$ENDIF}
+
+    nStr := '[n1]%s毛重%.2f吨,请返回卸料.';
+    nStr := Format(nStr, [FTruck, FMData.FValue]);
+    PlayVoice(nStr);
+
+    nStr := GetTruckNO(FTruck) + '请返回卸料';
+    LEDDisplay(nStr);
   end;
 end;
 

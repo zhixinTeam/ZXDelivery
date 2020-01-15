@@ -17,7 +17,7 @@ uses
   UFrameSaleContract, UFormSaleContract, UFrameZhiKa, UFormZhiKa,
   UFormGetContract, UFormZhiKaAdjust, UFormZhiKaFixMoney, UFrameZhiKaVerify,
   UFormZhiKaVerify, UFrameShouJu, UFormShouJu, UFramePayment, UFormPayment,
-  UFrameCustomerCredit, UFormCustomerCredit, UFrameCusAccount,
+  UFrameCustomerCredit, UFormCustomerCredit, UFrameCusAccount,UFramePaymentEx,
   UFrameCusInOutMoney, UFrameInvoiceWeek, UFormInvoiceWeek, UFormInvoiceGetWeek,
   UFrameInvoice, UFormInvoice, UFormInvoiceAdjust,UFrameInvoiceK, UFormInvoiceK,
   UFrameInvoiceDtl, UFrameInvoiceZZ, UFormInvoiceZZAll, UFormInvoiceZZCus,
@@ -31,6 +31,7 @@ uses
   UFormRFIDCard, UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
   UFrameBillHK, UFormBillHK, UFormCardSearch, UFormKPPayment,UFormBillPD,
+  UFormSaleMValueInfo,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
@@ -45,13 +46,13 @@ uses
   UFramePoundMtAuto,UFramePoundMtAutoItem,UFramePoundMtQuery,
   //桐乡码头抓斗秤
   UFramePMaterailControl, UFormPMaterailControl,
-  UFormCrossCard, UFrameCrossCard,UFrameTruckCross,
+  UFormCrossCard, UFrameCrossCard,
   //通行卡业务
   //----------------------------------------------------------------------------
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo, UFrameXHSpot,UFormXHSpot,
   UFrameHYStock, UFrameHYData, UFrameHYRecord, UFormTransfer, UFrameTransfer,
-  UFrameDriverWh,UFormDriverWh, UFormMulTruck,
+  UFrameDriverWh,UFormDriverWh,UFormKDInfo,UFrameKDInfo,
 
   {$IFDEF UseYCLHY}
   UFrameYCLHYRecord, UFormYCLHYRecord, UFrameYCLHYStock, UFormYCLHYStock,

@@ -51,6 +51,7 @@ const
   cFI_FramePoundManual  = $0035;                     //手动称重
   cFI_FramePoundAuto    = $0036;                     //自动称重
 
+  cFI_FormSaleMValueInfo= $8036;                     //散装毛重上限设置
   cFI_FramePoundMtAuto  = $0040;                     //码头抓斗秤
   cFI_FramePoundMtQuery = $0041;                     //码头抓斗秤查询
 
@@ -435,6 +436,8 @@ begin
   AddMenuModuleItem('MAIN_K06', cFI_FrameStockHY_Each);
   AddMenuModuleItem('MAIN_K07', cFI_FrameBatch);
   AddMenuModuleItem('MAIN_K08', cFI_FormBatch, mtForm);
+
+  AddMenuModuleItem('MAIN_K12', cFI_FormSaleMValueInfo, mtForm);
 
   AddMenuModuleItem('MAIN_L01', cFI_FrameTruckQuery);
   AddMenuModuleItem('MAIN_L02', cFI_FrameCusAccountQuery);
