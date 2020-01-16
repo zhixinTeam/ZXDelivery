@@ -11,7 +11,8 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxLabel,
   cxListView, cxButtonEdit, cxTextEdit, cxMaskEdit, cxDropDownEdit,
-  dxLayoutControl, StdCtrls;
+  dxLayoutControl, StdCtrls, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormGetContract = class(TfFormNormal)
@@ -23,9 +24,9 @@ type
     dxLayout1Item5: TdxLayoutItem;
     ListContract: TcxListView;
     dxLayout1Item6: TdxLayoutItem;
-    dxLayout1Group2: TdxLayoutGroup;
     cxLabel1: TcxLabel;
     dxLayout1Item7: TdxLayoutItem;
+    dxLayout1Group3: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);

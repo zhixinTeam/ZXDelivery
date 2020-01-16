@@ -12,7 +12,7 @@ uses
   cxLookAndFeelPainters, ComCtrls, cxContainer, cxEdit, Menus,
   cxDropDownEdit, cxCalendar, cxCheckBox, cxLabel, cxMaskEdit,
   cxButtonEdit, cxTextEdit, cxListView, dxLayoutControl, StdCtrls,
-  cxCurrencyEdit;
+  cxCurrencyEdit, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TStockItem = record
@@ -40,8 +40,6 @@ type
     dxGroup2: TdxLayoutGroup;
     ListDetail: TcxListView;
     dxLayout1Item3: TdxLayoutItem;
-    EditStock: TcxTextEdit;
-    dxLayout1Item4: TdxLayoutItem;
     EditPrice: TcxTextEdit;
     dxLayout1Item5: TdxLayoutItem;
     EditValue: TcxTextEdit;
@@ -84,6 +82,8 @@ type
     editFreight: TcxCurrencyEdit;
     dxLayout1Item20: TdxLayoutItem;
     dxLayout1Group7: TdxLayoutGroup;
+    dxLayout1Item4: TdxLayoutItem;
+    EditStock: TcxTextEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditSManPropertiesEditValueChanged(Sender: TObject);
@@ -669,11 +669,11 @@ begin
     CreateBaseFormItem(cFI_FormGetCustom, '', @nP);
     if (nP.FCommand <> cCmd_ModalResult) or (nP.FParamA <> mrOK) then Exit;
 
-    SetCtrlData(EditSMan, nP.FParamD);
-    if EditSMan.ItemIndex < 0 then
-    begin
-      ShowMsg('无效的业务员', sHint); Exit;
-    end;
+//    SetCtrlData(EditSMan, nP.FParamD);
+//    if EditSMan.ItemIndex < 0 then
+//    begin
+//      ShowMsg('无效的业务员', sHint); Exit;
+//    end;
 
     SetCtrlData(EditCustom, nP.FParamB);
     if EditCustom.ItemIndex < 0 then

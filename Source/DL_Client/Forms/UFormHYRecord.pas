@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormHYRecord;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -11,7 +12,8 @@ uses
   UDataModule, cxGraphics, StdCtrls, cxMaskEdit, cxDropDownEdit,
   cxMCListBox, cxMemo, dxLayoutControl, cxContainer, cxEdit, cxTextEdit,
   cxControls, cxButtonEdit, cxCalendar, ExtCtrls, cxPC, cxLookAndFeels,
-  cxLookAndFeelPainters, cxGroupBox;
+  cxLookAndFeelPainters, cxGroupBox, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormHYRecord = class(TForm)
@@ -146,6 +148,9 @@ type
     cxTextEdit60: TcxTextEdit;
     Label47: TLabel;
     cxTextEdit61: TcxTextEdit;
+    dxlytmLayoutControl1Item5: TdxLayoutItem;
+    EditCXDate: TcxDateEdit;
+    dxLayoutControl1Group4: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
@@ -199,7 +204,7 @@ begin
     Caption := '检验记录 - 添加';
 
     InitFormData('');
-    Result := ShowModal = mrOK;
+    Result := ShowModal = mrOK;                                  
     Free;
   end;
 end;
@@ -314,7 +319,12 @@ end;
 //------------------------------------------------------------------------------
 procedure TfFormHYRecord.GetData(Sender: TObject; var nData: string);
 begin
-  if Sender = EditDate then nData := DateTime2Str(EditDate.Date);
+  if Sender = EditDate then
+    nData := DateTime2Str(EditDate.Date)
+  else if Sender = EditCXDate then
+  begin
+    nData := DateTime2Str(EditCXDate.Date)
+  end;
 end;
 
 function TfFormHYRecord.SetData(Sender: TObject; const nData: string): Boolean;
@@ -323,7 +333,13 @@ begin
   begin
     EditDate.Date := Str2DateTime(nData);
     Result := True;
-  end else Result := False;
+  end
+  else if Sender = EditCXDate then
+  begin
+    EditCXDate.Date := Str2DateTime(nData);
+    Result := True;
+  end
+  else Result := False;
 end;
 
 //Date: 2009-6-2
@@ -333,11 +349,12 @@ procedure TfFormHYRecord.InitFormData(const nID: string);
 var nStr: string;
 begin
   EditDate.Date := Now;
+  EditCXDate.Date := Now;
   EditMan.Text := gSysParam.FUserID;
   
   if EditStock.Properties.Items.Count < 1 then
   begin
-    nStr := 'P_ID=Select P_ID,P_Name From %s';
+    nStr := 'P_ID=Select P_ID,P_Stock From %s';
     nStr := Format(nStr, [sTable_StockParam]);
 
     FDM.FillStringsData(EditStock.Properties.Items, nStr, -1, '、');
@@ -349,7 +366,29 @@ begin
     nStr := 'Select * From %s Where R_ID=%s';
     nStr := Format(nStr, [sTable_StockRecord, nID]);
     LoadDataToForm(FDM.QuerySQL(nStr), Self, '', SetData);
+  end
+  else
+  begin
+    cxTextEdit55.Text:= '脱硫石膏';
+    cxTextEdit57.Text:= '粉煤灰,石灰石,矿渣微粉';
+    cxTextEdit25.Text:= '合格';
   end;
+  {$IFDEF JZZJ}
+  //突出显示检测项
+  Label24.Font.Color:= clRed; Label24.Font.Style:= [fsBold];
+  Label31.Font.Color:= clRed; Label31.Font.Style:= [fsBold];
+  Label32.Font.Color:= clRed; Label32.Font.Style:= [fsBold];
+  Label22.Font.Color:= clRed; Label22.Font.Style:= [fsBold];
+  Label29.Font.Color:= clRed; Label22.Font.Style:= [fsBold];
+  Label27.Font.Color:= clRed; Label27.Font.Style:= [fsBold];
+  Label28.Font.Color:= clRed; Label28.Font.Style:= [fsBold];
+  Label30.Font.Color:= clRed; Label30.Font.Style:= [fsBold];
+  Label40.Font.Color:= clRed; Label40.Font.Style:= [fsBold];
+  Label23.Font.Color:= clRed; Label23.Font.Style:= [fsBold];
+
+  Label42.Font.Color:= clRed; Label42.Font.Style:= [fsBold];
+  Label44.Font.Color:= clRed; Label44.Font.Style:= [fsBold];
+  {$ENDIF}
 end;
 
 //Desc: 设置类型
@@ -390,12 +429,17 @@ begin
     Label18.Caption := '3天抗折强度:';
     Label26.Caption := '28天抗折强度:';
   end;
+
+  cxTextEdit55.Text:= '脱硫石膏';
+  cxTextEdit57.Text:= '粉煤灰,石灰石,矿渣微粉';
+  cxTextEdit25.Text:= '合格';
 end;
 
 //Desc: 生成随机编号
 procedure TfFormHYRecord.EditIDPropertiesButtonClick(Sender: TObject;
   AButtonIndex: Integer);
 begin
+  Exit;
   EditID.Text := FDM.GetSerialID(FPrefixID, sTable_StockRecord, 'R_SerialNo');
 end;
 
@@ -436,6 +480,8 @@ begin
     nStr := 'R_ID=''' + FRecordID + '''';
     nSQL := MakeSQLByForm(Self, sTable_StockRecord, nStr, False, GetData);
   end;
+
+  {$IFDEF JZZJ} nSQL:= StringReplace(nSQL, '''''', 'Null', [rfReplaceAll]);{$ENDIF}
 
   FDM.ExecuteSQL(nSQL);
   ModalResult := mrOK;

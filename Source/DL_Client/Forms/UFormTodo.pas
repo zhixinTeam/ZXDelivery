@@ -11,7 +11,8 @@ uses
   UDataModule, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, ImgList, DB, ADODB,
   ExtCtrls, cxGroupBox, cxRadioGroup, cxMemo, cxTextEdit, cxListView,
-  cxLabel, dxLayoutControl, StdCtrls;
+  cxLabel, dxLayoutControl, StdCtrls, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormTodo = class(TfFormNormal)

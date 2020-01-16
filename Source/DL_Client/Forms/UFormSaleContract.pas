@@ -11,7 +11,8 @@ uses
   UDataModule, UFormBase, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, dxLayoutControl, cxLabel,
   cxCheckBox, cxTextEdit, cxDropDownEdit, cxMCListBox, cxMaskEdit,
-  cxButtonEdit, StdCtrls, cxMemo;
+  cxButtonEdit, StdCtrls, cxMemo, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormSaleContract = class(TBaseForm)
@@ -330,7 +331,7 @@ begin
       begin
         nStr := CombinStr([FieldByName('D_Memo').AsString,
                 FieldByName('D_Value').AsString,
-                '0', '0', '0', '0',
+                '1', '0', '0', '0',
                 FieldByName('D_ParamB').AsString], StockList1.Delimiter);
         StockList1.Items.Add(nStr);
         Next;

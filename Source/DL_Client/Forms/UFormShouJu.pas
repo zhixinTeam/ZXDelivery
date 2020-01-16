@@ -12,7 +12,8 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxDropDownEdit, cxMemo,
   cxButtonEdit, cxLabel, cxTextEdit, cxMaskEdit, cxCalendar,
-  dxLayoutControl, StdCtrls;
+  dxLayoutControl, StdCtrls, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormShouJu = class(TfFormNormal)

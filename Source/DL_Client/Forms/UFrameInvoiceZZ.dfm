@@ -23,6 +23,7 @@ inherited fFrameInvoiceZZ: TfFrameInvoiceZZ
     Height = 234
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
+      OnCustomDrawCell = cxView1CustomDrawCell
     end
   end
   inherited dxLayout1: TdxLayoutControl

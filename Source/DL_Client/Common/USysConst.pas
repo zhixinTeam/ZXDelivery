@@ -72,6 +72,7 @@ const
   cFI_FrameZhiKaDetail  = $0055;                     //纸卡明细
   cFI_FrameDispatchQuery = $0056;                    //调度查询
   cFI_FrameOrderDetailQuery = $0057;                 //采购明细
+  cFI_FrameLadingTimeOutTruck = $0058;               //装车超规定时间车辆
 
   cFI_FrameSaleInvoice  = $0061;                     //发票管理
   cFI_FrameMakeInvoice  = $0062;                     //开具发票
@@ -125,6 +126,7 @@ const
   cFI_FormBill          = $1016;                     //开提货单
   cFI_FormSanPreHK      = $1101;                     //散装预合卡
   cFI_FormDaiPD         = $2101;                     //袋装拼单卡
+
   cFI_FormShouJu        = $1017;                     //开收据
   cFI_FormZhiKaVerify   = $1018;                     //纸卡审核
   cFI_FormCusCredit     = $1019;                     //信用变动
@@ -147,12 +149,15 @@ const
   cFI_FormZhiKaAdjust   = $1035;                     //纸卡调整
   cFI_FormZhiKaFixMoney = $1036;                     //限提金额
   cFI_FormSaleAdjust    = $1037;                     //销售调剂
+  cFI_FormBillWXScan    = $1038;                     //微信扫码开销售单
+
   cFI_FormEditPrice     = $1040;                     //提货单价
   cFI_FormGetProvider   = $1041;                     //选择供应商
   cFI_FormGetMeterail   = $1042;                     //选择原材料
   cFI_FormTruckEmpty    = $1043;                     //空车出厂
   cFI_FormReadCard      = $1044;                     //读取磁卡
-  cFI_FormZTLine        = $1045;                     //装车线   
+  cFI_FormZTLine        = $1045;                     //装车线
+
 
   cFI_FormGetTruck      = $1047;                     //选择车辆
   cFI_FormGetContract   = $1048;                     //选择合同
@@ -222,6 +227,7 @@ const
 
   cFI_FrameQrySaleByMonth    = $1121;                //按月统计销售数据
   cFI_FramePurchByMonth      = $1122;                //按月统计采购数据
+  cFI_FrameCusReceivableTotal= $1123;                //客户应收统计
 
   cFI_FormPoundKZ   = $6011;                         //磅房扣杂
 
@@ -289,6 +295,8 @@ type
     FVoiceUser  : Integer;                           //语音计数
     FProberUser : Integer;                           //检测器技术
     FEmpTruckWc : Double;                            //空车出厂误差
+    FPoundOpenBackGate: Boolean;                     //过磅失败抬后杆
+    FDefaultBeltLine: string;                        //默认生产线
   end;
   //系统参数
 
@@ -413,6 +421,9 @@ begin
   AddMenuModuleItem('MAIN_D13', cFI_FormKPPayment, mtForm);
   AddMenuModuleItem('MAIN_D14', cFI_FormDaiPD, mtForm);
 
+  AddMenuModuleItem('MAIN_DS04', cFI_FormBillWXScan, mtForm);
+  //微信扫码开单
+
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);
   AddMenuModuleItem('MAIN_E03', cFI_FramePoundQuery);
@@ -448,6 +459,7 @@ begin
   AddMenuModuleItem('MAIN_L08', cFI_FrameZhiKaDetail);
   AddMenuModuleItem('MAIN_L09', cFI_FrameSaleJS);
   AddMenuModuleItem('MAIN_L10', cFI_FrameOrderDetailQuery);
+  AddMenuModuleItem('MAIN_Q01', cFI_FrameLadingTimeOutTruck);
   //财务报表
   AddMenuModuleItem('MAIN_L11', cFI_FrameNotice);
   AddMenuModuleItem('MAIN_L12', cFI_FrameDaySales);
@@ -468,6 +480,9 @@ begin
   AddMenuModuleItem('MAIN_L23', cFI_FrameCusReceivable);
   AddMenuModuleItem('MAIN_L24', cFI_FrameQrySaleByMonth);
   AddMenuModuleItem('MAIN_L25', cFI_FramePurchByMonth);
+
+  AddMenuModuleItem('MAIN_L33', cFI_FrameCusReceivableTotal);
+
 
   AddMenuModuleItem('MAIN_H01', cFI_FormTruckIn, mtForm);
   AddMenuModuleItem('MAIN_H02', cFI_FormTruckOut, mtForm);

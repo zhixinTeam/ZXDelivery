@@ -21,7 +21,9 @@ inherited fFrameInvoiceK: TfFrameInvoiceK
     Height = 237
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
+      OnCustomDrawCell = cxView1CustomDrawCell
       OptionsSelection.MultiSelect = True
+      OptionsView.DataRowHeight = 28
     end
   end
   inherited dxLayout1: TdxLayoutControl

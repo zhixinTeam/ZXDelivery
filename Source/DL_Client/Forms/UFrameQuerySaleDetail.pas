@@ -15,7 +15,8 @@ uses
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameSaleDetailQuery = class(TfFrameNormal)
@@ -101,7 +102,7 @@ end;
 
 procedure TfFrameSaleDetailQuery.OnDestroyFrame;
 begin
-  SaveDateRange(Name, FStart, FEnd);
+  SaveDateRange(Name, FStart, FEnd);            
   inherited;
 end;
 
@@ -126,7 +127,8 @@ end;
 
 function TfFrameSaleDetailQuery.InitFormDataSQL(const nWhere: string): string;
 begin
-  FEnableBackDB := True;
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   
   {$IFDEF UseSelectDateTime}
   EditDate.Text := Format('%s 至 %s', [DateTime2Str(FStart), DateTime2Str(FEnd)]);

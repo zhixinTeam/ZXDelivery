@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameBatcodeJ;
 
+{$I Link.inc}
 interface
 
 uses
@@ -14,7 +15,8 @@ uses
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameBatcode = class(TfFrameNormal)
@@ -56,11 +58,22 @@ begin
 end;
 
 function TfFrameBatcode.InitFormDataSQL(const nWhere: string): string;
+var nX:string;
 begin
-  Result := 'Select * From ' + sTable_StockBatcode;
-  if nWhere <> '' then
-    Result := Result + ' Where (' + nWhere + ')';
+  nX:= nWhere;
+  if nX='' then nX:= '1=1';
+  Result := 'Select * From ' + sTable_StockBatcode +
+            ' Where (' + nX + ')';
+
+  {$IFDEF ShowSelfData}
+  if not gSysParam.FIsAdmin  then
+    Result := Result + ' And B_Man='''+gSysParam.FUserName+'''';
+  {$ENDIF}
+  {$IFDEF MoreBeltLine}
+  Result := Result + ' Order By B_BeltLine, B_Name';
+  {$ELSE}
   Result := Result + ' Order By B_Name';
+  {$ENDIF}
 end;
 
 //Desc: Ìí¼Ó

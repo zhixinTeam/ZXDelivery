@@ -8,8 +8,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
-  cxLookAndFeelPainters, cxContainer, cxEdit, cxDropDownEdit, cxCalendar,
+  UFormNormal, cxGraphics, cxControls, cxLookAndFeels, Dialogs, 
+  cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter, cxContainer, cxEdit, cxDropDownEdit, cxCalendar,
   cxMemo, cxLabel, cxTextEdit, cxMaskEdit, dxLayoutControl, StdCtrls;
 
 type
@@ -186,12 +187,35 @@ end;
 
 //Desc: 授信
 procedure TfFormCustomerCredit.BtnOKClick(Sender: TObject);
+var nStr:string;
+    nMax,nValue:Double;
 begin
-  if IsDataValid and SaveCustomerCredit(GetCtrlData(EditCus), EditMemo.Text,
-     StrToFloat(EditCredit.Text), EditEnd.Date) then
+  if IsDataValid then
   begin
-    ModalResult := mrOk;
-    ShowMsg('授信成功', sHint);
+    nValue:= Float2Float(StrToFloat(EditCredit.Text), cPrecision, False);
+
+    nStr := 'Select D_Value From %s Where D_Name=''%s'' And D_Memo=''%s''';
+    nStr := Format(nStr, [sTable_SysDict, sFlag_SysParam, sFlag_CreditMaxMoney]);
+    with FDM.QueryTemp(nStr) do
+    begin
+      if RecordCount > 0 then
+            nMax := Fields[0].AsFloat
+      else nMax := 0 ;
+    end;
+
+    if nMax<nValue then
+    begin
+      showmessage(Format('单次授信额度不能超 %g 、请调整', [nMax]));
+      Exit;
+    end;
+
+    //********************************************************************
+    if SaveCustomerCredit(GetCtrlData(EditCus), EditMemo.Text,
+       StrToFloat(EditCredit.Text), EditEnd.Date) then
+    begin
+      ModalResult := mrOk;
+      ShowMsg('授信成功', sHint);
+    end;
   end;
 end;
 

@@ -11,7 +11,8 @@ uses
   UDataModule, cxGraphics, StdCtrls, cxMaskEdit, cxDropDownEdit,
   cxMCListBox, cxMemo, dxLayoutControl, cxContainer, cxEdit, cxTextEdit,
   cxControls, cxButtonEdit, cxCalendar, ExtCtrls, cxPC, cxLookAndFeels,
-  cxLookAndFeelPainters;
+  cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter, dxSkinscxPCPainter;
 
 type
   TfFormHYStock = class(TForm)

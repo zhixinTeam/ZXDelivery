@@ -13,7 +13,9 @@ uses
   dxLayoutControl, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, Menus,
-  cxLookAndFeels, cxLookAndFeelPainters, UBitmapPanel, cxSplitter;
+  cxLookAndFeels, cxLookAndFeelPainters, UBitmapPanel, cxSplitter,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
+  dxSkinsdxLCPainter;
 
 type
   TfFrameInvoiceK = class(TfFrameNormal)
@@ -43,6 +45,9 @@ type
     procedure BtnExitClick(Sender: TObject);
     procedure N4Click(Sender: TObject);
     procedure N3Click(Sender: TObject);
+    procedure cxView1CustomDrawCell(Sender: TcxCustomGridTableView;
+      ACanvas: TcxCanvas; AViewInfo: TcxGridTableDataCellViewInfo;
+      var ADone: Boolean);
   private
     { Private declarations }
   protected
@@ -279,6 +284,7 @@ var nList: TList;
     nParam: TKInvoiceParam;
     nItem: PInvoiceDataItem;
     nStr,nCus,nCusID,nSaleID: string;
+    nCanAdd:Boolean;
 begin
   nCount := cxView1.DataController.GetSelectedCount - 1;
   if nCount < 0 then
@@ -296,7 +302,7 @@ begin
     nCus := GetVal(0, 'R_Customer');
     nCusID := GetVal(0, 'R_CusID');
     nSaleID := GetVal(0, 'R_SaleID');
-
+                                      nCanAdd:= False;
     for nIdx:=0 to nCount do
     begin
       nStr := GetVal(nIdx, 'R_CusID');
@@ -330,7 +336,7 @@ begin
       if nVal <= 0 then Continue;
       //申请未开
 
-      New(nItem);
+      New(nItem);                     nCanAdd:= True;
       nList.Add(nItem);
       
       with nItem^ do
@@ -338,7 +344,7 @@ begin
         FValue := nVal;
         FKValue:= FValue;
 
-        FRecordID := GetVal(nIdx, 'R_ID');
+        FRecordID := GetVal(nIdx, 'R_ID');         FBeltLine:= GetVal(nIdx, 'R_BeltLine');
         FStockType := GetVal(nIdx, 'R_Type');
         FStockName := GetVal(nIdx, 'R_Stock');
         
@@ -348,11 +354,16 @@ begin
       end;
     end;
 
+    if not nCanAdd then
+    begin
+      ShowMsg('请选择有可开剩余量记录', sHint); Exit;
+    end;
+
     with nParam do
     begin
       nParam.FWeek := FNowWeek;
       nParam.FFlag := sFlag_InvRequst;
-
+      nParam.FBeltLineX:= nItem^.FBeltLine;
 
       FCusID := nCusID;
       FCustomer := nCus;
@@ -370,6 +381,30 @@ begin
       Dispose(PInvoiceDataItem(nList[nIdx]));
     nList.Free;
   end;
+end;
+
+procedure TfFrameInvoiceK.cxView1CustomDrawCell(
+  Sender: TcxCustomGridTableView; ACanvas: TcxCanvas;
+  AViewInfo: TcxGridTableDataCellViewInfo; var ADone: Boolean);
+var nValue, nReqValue, nNeed:Double;
+begin
+// if (trim(AViewInfo.RecordViewInfo.GridRecord.Values[4]) = 'HTT')
+//    and (AViewInfo.Item.ID = 4) //确定到某一列，如果不加确定是某行底色
+
+  nReqValue:= StrToFloat(AViewInfo.GridRecord.Values[TcxGridDBTableView(Sender).GetColumnByFieldName('R_ReqValue').Index]);
+  nNeed := StrToFloat(AViewInfo.GridRecord.Values[TcxGridDBTableView(Sender).GetColumnByFieldName('R_Need').Index]);
+
+  nValue:= StrToFloat(AViewInfo.GridRecord.Values[TcxGridDBTableView(Sender).GetColumnByFieldName('R_Need').Index]);
+
+  if nReqValue=nNeed then
+    ACanvas.Canvas.Font.Color := $5BC648;
+
+  if nValue<nReqValue then
+    ACanvas.Canvas.Font.Color := $4FA5FF;  // $C0C0C0;
+
+  if nValue<=0 then
+    ACanvas.Canvas.Font.Color := $C0C0C0;  // $C0C0C0;
+
 end;
 
 initialization

@@ -11,7 +11,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormBase, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxCheckBox, cxTextEdit,
-  dxLayoutControl, StdCtrls, cxMaskEdit, cxDropDownEdit, cxLabel;
+  dxLayoutControl, StdCtrls, cxMaskEdit, cxDropDownEdit, cxLabel,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormBatcode = class(TfFormNormal)
@@ -64,6 +65,9 @@ type
     dxLayout1Item20: TdxLayoutItem;
     EditBatCode: TcxTextEdit;
     dxLayout1Item21: TdxLayoutItem;
+    dxLayout1Item22: TdxLayoutItem;
+    cbb_BeltLine: TcxComboBox;
+    dxLayout1Group12: TdxLayoutGroup;
     procedure BtnOKClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesEditValueChanged(Sender: TObject);
@@ -95,7 +99,7 @@ begin
   if Assigned(nParam) then
        nP := nParam
   else Exit;
-  
+
   with TfFormBatcode.Create(Application) do
   try
     if nP.FCommand = cCmd_AddData then
@@ -110,7 +114,7 @@ begin
       FRecordID := nP.FParamA;
     end;
 
-    LoadFormData(FRecordID); 
+    LoadFormData(FRecordID);
     nP.FCommand := cCmd_ModalResult;
     nP.FParamA := ShowModal;
   finally
@@ -126,6 +130,7 @@ end;
 procedure TfFormBatcode.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
+  gSysParam.FDefaultBeltLine:= cbb_BeltLine.Text;
   ReleaseCtrlData(Self);
 end;
 
@@ -134,6 +139,29 @@ var nStr: string;
 begin
   {$IFDEF TXGY}
   EditPrefix.Properties.MaxLength := 10;
+  {$ENDIF}
+
+  {$IFNDEF MoreBeltLine}
+  dxLayout1Item22.Visible := False;
+  {$ELSE}
+  if cbb_BeltLine.Properties.Items.Count < 1 then
+  begin
+    nStr := 'Select * From %s Where D_Name=''BeltLineItem''';
+    nStr := Format(nStr, [sTable_SysDict]);
+
+    with FDM.QueryTemp(nStr) do
+    if RecordCount > 0 then
+    begin
+      First;
+      cbb_BeltLine.Properties.Items.Clear;
+      while not Eof do
+      begin
+        cbb_BeltLine.Properties.Items.Add(FieldByName('D_Memo').AsString);
+        Next;
+      end;
+    end;
+  end;
+  cbb_BeltLine.Text:= gSysParam.FDefaultBeltLine;
   {$ENDIF}
 
   {$IFDEF CustomerType}
@@ -186,6 +214,9 @@ begin
       nStr := FieldByName('B_Type').AsString;
       SetCtrlData(EditType, nStr);
       {$ENDIF}
+      {$IFDEF MoreBeltLine}
+      cbb_BeltLine.Text    := FieldByName('B_BeltLine').AsString;
+      {$ENDIF}
     end;
   end;
 
@@ -225,6 +256,9 @@ begin
                                                GetCtrlData(EditType)]);
     {$ELSE}
     nStr := 'Select R_ID From %s Where B_Stock=''%s''';
+      {$IFDEF MoreBeltLine}
+      nStr := nStr + ' And B_BeltLine='''+cbb_BeltLine.Text+'''';
+      {$ENDIF}
     nStr := Format(nStr, [sTable_StockBatcode, GetCtrlData(EditStock)]);
     {$ENDIF}
 
@@ -294,6 +328,13 @@ begin
   if not IsDataValid then Exit;
   //验证不通过
 
+  {$IFDEF MoreBeltLine}
+  if cbb_BeltLine.Text='' then
+  begin
+    ShowMsg('请选择生产线', sHint); Exit;
+  end;
+  {$ENDIF}
+
   if Check1.Checked then
        nU := sFlag_Yes
   else nU := sFlag_No;
@@ -331,6 +372,8 @@ begin
           {$IFDEF CustomerType}
           SF('B_Type', GetCtrlData(EditType)),
           {$ENDIF}
+          {$IFDEF MoreBeltLine}SF('B_BeltLine', cbb_BeltLine.Text), {$ENDIF}
+          {$IFDEF ShowSelfData}SF('B_Man', gSysParam.FUserID), {$ENDIF}
           SF('B_LastDate', sField_SQLServer_Now, sfVal)
           ], sTable_StockBatcode, nStr, False);
   end
@@ -354,6 +397,8 @@ begin
           {$IFDEF CustomerType}
           SF('B_Type', GetCtrlData(EditType)),
           {$ENDIF}
+          {$IFDEF MoreBeltLine}SF('B_BeltLine', cbb_BeltLine.Text), {$ENDIF}
+          {$IFDEF ShowSelfData}SF('B_Man', gSysParam.FUserID), {$ENDIF}
           SF('B_LastDate', sField_SQLServer_Now, sfVal)
           ], sTable_StockBatcode, nStr, FRecordID = '');
   end;

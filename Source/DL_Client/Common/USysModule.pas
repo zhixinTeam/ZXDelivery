@@ -20,29 +20,36 @@ uses
   UFrameCustomerCredit, UFormCustomerCredit, UFrameCusAccount,UFramePaymentEx,
   UFrameCusInOutMoney, UFrameInvoiceWeek, UFormInvoiceWeek, UFormInvoiceGetWeek,
   UFrameInvoice, UFormInvoice, UFormInvoiceAdjust,UFrameInvoiceK, UFormInvoiceK,
-  UFrameInvoiceDtl, UFrameInvoiceZZ, UFormInvoiceZZAll, UFormInvoiceZZCus,
-  UFormGetZhiKa, UFrameBill, UFormReadCard, UFormTruckEmpty,
-  UFormBill, UFormGetTruck, UFrameZhiKaDetail, UFormZhiKaFreeze,
-  UFormZhiKaPrice, UFrameQueryDiapatch, UFrameTruckQuery, UFrameBillCard,
-  UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,
-  UFramePoundManual, UFramePoundAuto, UFramePMaterails, UFormPMaterails,
-  UFramePProvider, UFormPProvider, UFramePoundQuery, UFrameQuerySaleDetail,
-  UFrameQuerySaleTotal, UFrameZTDispatch, UFrameTrucks, UFormTruck,
-  UFormRFIDCard, UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
+  UFrameInvoiceDtl, UFrameInvoiceZZ, UFormInvoiceZZAll, UFormInvoiceZZCus, UFormTruckEmpty,
+  UFormGetTruck, UFrameZhiKaDetail, UFormZhiKaFreeze,
+  UFormZhiKaPrice, UFrameQueryDiapatch, UFrameBillCard,
+  UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,    UFormLogin,
+  // Sale
+  UFormGetZhiKa, UFrameBill, UFormBill, UFormReadCard,  UFormBillWxScan,
+  UFrameQueryLadingTimeOutTruck, UFormSaleMValueInfo,                                               
+  UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,   
   UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
   UFrameBillHK, UFormBillHK, UFormCardSearch, UFormKPPayment,UFormBillPD,
-  UFormSaleMValueInfo,
+  UFormZTLine,
+  // For Pound
+  UFramePoundManual, UFramePoundAuto, UFramePoundAutoItem,
+  UFramePoundManualItem,
+  UFramePoundQuery, UFrameZTDispatch,
+  // Purchase
+  UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
+  UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,
+  UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,
+  UFormGetPOrderBase, UFormOrderDtl,
+  UFramePMaterails, UFormPMaterails, UFramePProvider, UFormPProvider,
+  // Query
+  UFrameQuerySaleDetail,
+  UFrameQuerySaleTotal, UFrameTrucks, UFormTruck, UFrameTruckQuery,
+  UFormRFIDCard,
   {$IFDEF MicroMsg}
   UFrameWeiXinAccount, UFormWeiXinAccount,
   UFrameWeiXinSendlog, UFormWeiXinSendlog,
   {$ENDIF}
    UMgrSDTReader,UFormSealInfo,//«¶∑‚ ‰»Î
-  {.$IFDEF XAZL}
-  UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
-  UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,
-  UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,
-  UFormGetPOrderBase, UFormOrderDtl,
-  {.$ENDIF}
   UFramePoundMtAuto,UFramePoundMtAutoItem,UFramePoundMtQuery,
   //Õ©œÁ¬ÎÕ∑◊•∂∑≥”
   UFramePMaterailControl, UFormPMaterailControl,
@@ -52,7 +59,7 @@ uses
   UFormGetWechartAccount, UFrameAuditTruck, UFormAuditTruck, UFrameBillBuDanAudit,
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo, UFrameXHSpot,UFormXHSpot,
   UFrameHYStock, UFrameHYData, UFrameHYRecord, UFormTransfer, UFrameTransfer,
-  UFrameDriverWh,UFormDriverWh,UFormKDInfo,UFrameKDInfo,
+  UFrameDriverWh,UFormDriverWh,UFormKDInfo,UFrameKDInfo, UFrameCusReceivableTotal,
 
   {$IFDEF UseYCLHY}
   UFrameYCLHYRecord, UFormYCLHYRecord, UFrameYCLHYStock, UFormYCLHYStock,

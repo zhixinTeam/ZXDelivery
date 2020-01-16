@@ -1,146 +1,264 @@
 inherited fFormTruck: TfFormTruck
-  Left = 505
-  Top = 151
-  ClientHeight = 412
-  ClientWidth = 375
+  Left = 804
+  Top = 258
+  ClientHeight = 469
+  ClientWidth = 430
+  Font.Height = -13
+  Font.Name = #24494#36719#38597#40657
   Position = poMainFormCenter
   OnCreate = FormCreate
   PixelsPerInch = 96
-  TextHeight = 12
+  TextHeight = 19
   inherited dxLayout1: TdxLayoutControl
-    Width = 375
-    Height = 412
+    Width = 430
+    Height = 469
     inherited BtnOK: TButton
-      Left = 229
-      Top = 379
-      TabOrder = 14
+      Left = 281
+      Top = 433
+      TabOrder = 16
     end
     inherited BtnExit: TButton
-      Left = 299
-      Top = 379
-      TabOrder = 15
+      Left = 351
+      Top = 433
+      TabOrder = 17
     end
     object EditTruck: TcxTextEdit [2]
-      Left = 93
-      Top = 36
+      Left = 111
+      Top = 50
       ParentFont = False
       Properties.MaxLength = 15
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 0
-      Width = 116
+      Width = 123
     end
     object EditOwner: TcxTextEdit [3]
-      Left = 93
-      Top = 61
+      Left = 287
+      Top = 50
       ParentFont = False
       Properties.MaxLength = 100
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 1
-      Width = 125
+      Width = 123
     end
     object EditPhone: TcxTextEdit [4]
-      Left = 93
-      Top = 86
+      Left = 111
+      Top = 82
       ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 2
-      Width = 121
+      Width = 385
     end
     object CheckValid: TcxCheckBox [5]
-      Left = 23
-      Top = 294
+      Left = 29
+      Top = 328
       Caption = #36710#36742#20801#35768#24320#21333'.'
       ParentFont = False
-      TabOrder = 9
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 11
       Transparent = True
-      Width = 80
+      Width = 455
     end
     object CheckVerify: TcxCheckBox [6]
-      Left = 23
-      Top = 346
+      Left = 29
+      Top = 392
       Caption = #39564#35777#36710#36742#24050#21040#20572#36710#22330'.'
       ParentFont = False
-      TabOrder = 12
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 14
       Transparent = True
       Width = 165
     end
     object CheckUserP: TcxCheckBox [7]
-      Left = 23
-      Top = 320
+      Left = 29
+      Top = 360
       Caption = #36710#36742#20351#29992#39044#32622#30382#37325'.'
       ParentFont = False
-      TabOrder = 10
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 12
       Transparent = True
       Width = 165
     end
     object CheckVip: TcxCheckBox [8]
-      Left = 193
-      Top = 320
+      Left = 199
+      Top = 360
       Caption = 'VIP'#36710#36742
       ParentFont = False
-      TabOrder = 11
-      Transparent = True
-      Width = 100
-    end
-    object CheckGPS: TcxCheckBox [9]
-      Left = 193
-      Top = 346
-      Caption = #24050#23433#35013'GPS'
-      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 13
       Transparent = True
       Width = 100
     end
+    object CheckGPS: TcxCheckBox [9]
+      Left = 199
+      Top = 392
+      Caption = #24050#23433#35013'GPS'
+      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 15
+      Transparent = True
+      Width = 100
+    end
     object EditXTNum: TcxTextEdit [10]
-      Left = 93
-      Top = 111
+      Left = 111
+      Top = 210
       ParentFont = False
-      TabOrder = 3
-      Text = '0'
-      Width = 121
-    end
-    object EditColor: TcxTextEdit [11]
-      Left = 93
-      Top = 136
-      ParentFont = False
-      TabOrder = 4
-      Width = 121
-    end
-    object EditType: TcxTextEdit [12]
-      Left = 93
-      Top = 161
-      ParentFont = False
-      TabOrder = 5
-      Width = 121
-    end
-    object EditStock: TcxTextEdit [13]
-      Left = 93
-      Top = 186
-      TabOrder = 6
-      Width = 121
-    end
-    object EditPF: TcxTextEdit [14]
-      Left = 93
-      Top = 211
-      TabOrder = 7
-      Width = 121
-    end
-    object EditMemo: TcxTextEdit [15]
-      Left = 93
-      Top = 236
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 8
-      Width = 121
+      Text = '0'
+      Width = 155
+    end
+    object edt_LimitedValue: TcxTextEdit [11]
+      Left = 111
+      Top = 242
+      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 9
+      Text = '0'
+      Width = 88
+    end
+    object edt_LimitedValueMin: TcxTextEdit [12]
+      Left = 286
+      Top = 242
+      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 10
+      Text = '0'
+      Width = 88
+    end
+    object EditColor: TcxTextEdit [13]
+      Left = 274
+      Top = 114
+      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 4
+      Width = 100
+    end
+    object EditType: TcxTextEdit [14]
+      Left = 111
+      Top = 114
+      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 3
+      Width = 100
+    end
+    object EditStock: TcxTextEdit [15]
+      Left = 111
+      Top = 146
+      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 5
+      Width = 100
+    end
+    object EditPF: TcxTextEdit [16]
+      Left = 274
+      Top = 146
+      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 6
+      Width = 100
+    end
+    object EditMemo: TcxTextEdit [17]
+      Left = 111
+      Top = 178
+      ParentFont = False
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 7
+      Width = 273
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        object dxLayout1Item9: TdxLayoutItem
-          AutoAligns = [aaVertical]
-          AlignHorz = ahClient
-          Caption = #36710#29260#21495#30721':'
-          Control = EditTruck
-          ControlOptions.ShowBorder = False
-        end
-        object dxLayout1Group3: TdxLayoutGroup
+        object dxLayout1Group6: TdxLayoutGroup
           ShowCaption = False
           Hidden = True
+          LayoutDirection = ldHorizontal
           ShowBorder = False
+          object dxLayout1Item9: TdxLayoutItem
+            AutoAligns = [aaVertical]
+            AlignHorz = ahClient
+            Caption = #36710#29260#21495#30721':'
+            Control = EditTruck
+            ControlOptions.ShowBorder = False
+          end
           object dxLayout1Item5: TdxLayoutItem
             AutoAligns = [aaVertical]
             AlignHorz = ahClient
@@ -148,43 +266,82 @@ inherited fFormTruck: TfFormTruck
             Control = EditOwner
             ControlOptions.ShowBorder = False
           end
-          object dxLayout1Item3: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            AlignHorz = ahClient
-            Caption = #32852#31995#26041#24335':'
-            Control = EditPhone
+        end
+        object dxLayout1Item3: TdxLayoutItem
+          AutoAligns = [aaVertical]
+          AlignHorz = ahClient
+          Caption = #32852#31995#26041#24335':'
+          Control = EditPhone
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Group5: TdxLayoutGroup
+          ShowCaption = False
+          Hidden = True
+          ShowBorder = False
+          object dxLayout1Group7: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            LayoutDirection = ldHorizontal
+            ShowBorder = False
+            object dxLayout1Item13: TdxLayoutItem
+              Caption = #36710#36742#31867#22411':'
+              Control = EditType
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item12: TdxLayoutItem
+              AutoAligns = [aaVertical]
+              AlignHorz = ahClient
+              Caption = #36710#29260#39068#33394':'
+              Control = EditColor
+              ControlOptions.ShowBorder = False
+            end
+          end
+          object dxLayout1Group8: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            LayoutDirection = ldHorizontal
+            ShowBorder = False
+            object dxLayout1Item14: TdxLayoutItem
+              Caption = #21697'    '#31181':'
+              Control = EditStock
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item15: TdxLayoutItem
+              AutoAligns = [aaVertical]
+              AlignHorz = ahClient
+              Caption = #25490#25918#26631#20934':'
+              Control = EditPF
+              ControlOptions.ShowBorder = False
+            end
+          end
+          object dxLayout1Item16: TdxLayoutItem
+            Caption = #22791'    '#27880':'
+            Control = EditMemo
             ControlOptions.ShowBorder = False
           end
-        end
-        object dxLayout1Item11: TdxLayoutItem
-          Caption = #26368#22823#24320#21333#37327':'
-          Control = EditXTNum
-          ControlOptions.ShowBorder = False
-        end
-        object dxLayout1Item13: TdxLayoutItem
-          Caption = #36710#29260#39068#33394':'
-          Control = EditColor
-          ControlOptions.ShowBorder = False
-        end
-        object dxLayout1Item12: TdxLayoutItem
-          Caption = #36710#36742#31867#22411':'
-          Control = EditType
-          ControlOptions.ShowBorder = False
-        end
-        object dxLayout1Item14: TdxLayoutItem
-          Caption = #21697'    '#31181':'
-          Control = EditStock
-          ControlOptions.ShowBorder = False
-        end
-        object dxLayout1Item15: TdxLayoutItem
-          Caption = #25490#25918#26631#20934':'
-          Control = EditPF
-          ControlOptions.ShowBorder = False
-        end
-        object dxLayout1Item16: TdxLayoutItem
-          Caption = #22791'    '#27880':'
-          Control = EditMemo
-          ControlOptions.ShowBorder = False
+          object dxLayout1Item11: TdxLayoutItem
+            Caption = #26368#22823#24320#21333#37327':'
+            Control = EditXTNum
+            ControlOptions.ShowBorder = False
+          end
+          object dxLayout1Group3: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            LayoutDirection = ldHorizontal
+            ShowBorder = False
+            object dxlytm_MValueMax: TdxLayoutItem
+              Caption = #27611#37325#38480#36733#19978#38480':'
+              Control = edt_LimitedValue
+              ControlOptions.ShowBorder = False
+            end
+            object dxlytm_MValeMin: TdxLayoutItem
+              AutoAligns = [aaVertical]
+              AlignHorz = ahClient
+              Caption = #27611#37325#38480#36733#19979#38480':'
+              Control = edt_LimitedValueMin
+              ControlOptions.ShowBorder = False
+            end
+          end
         end
       end
       object dxGroup2: TdxLayoutGroup [1]
@@ -231,6 +388,10 @@ inherited fFormTruck: TfFormTruck
           end
         end
       end
+    end
+    object TdxLayoutItem
+    end
+    object TdxLayoutItem
     end
   end
 end

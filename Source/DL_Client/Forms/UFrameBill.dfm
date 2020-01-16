@@ -114,7 +114,7 @@ inherited fFrameBill: TfFrameBill
       Style.BorderStyle = ebsSingle
       Style.ButtonStyle = btsHotFlat
       TabOrder = 3
-      Width = 257
+      Width = 200
     end
     object EditLID: TcxButtonEdit [7]
       Left = 81
@@ -144,7 +144,7 @@ inherited fFrameBill: TfFrameBill
       Width = 125
     end
     object CheckDelete: TcxCheckBox [9]
-      Left = 882
+      Left = 825
       Top = 36
       Caption = #26597#35810#24050#21024#38500
       ParentFont = False

@@ -13,7 +13,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxCheckBox, cxTextEdit,
-  cxMCListBox, dxLayoutControl, StdCtrls;
+  cxMCListBox, dxLayoutControl, StdCtrls, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormZhiKaFixMoney = class(TfFormNormal)

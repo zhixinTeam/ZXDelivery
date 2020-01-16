@@ -14,7 +14,8 @@ uses
   UBitmapPanel, cxSplitter, dxLayoutControl, cxGridLevel, cxClasses,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridDBTableView, cxGrid, ComCtrls, ToolWin, Menus, 
-  cxGridCustomPopupMenu, cxGridPopupMenu;
+  cxGridCustomPopupMenu, cxGridPopupMenu, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameNormal = class(TBaseFrame)
@@ -119,8 +120,8 @@ implementation
 {$R *.dfm}
 
 uses
-  ULibFun, UAdjustForm, UFormWait, UFormCtrl, UFormAdvFilter, UDataModule,
-  USysConst, USysGrid, USysDataDict, USysPopedom, USysDB;
+  ULibFun, UAdjustForm, UFormWait, UFormCtrl, UFormAdvFilter, UDataModule, USysConst, USysGrid,
+  USysDataDict, USysPopedom, USysDB;
 
 procedure TfFrameNormal.OnCreateFrame;
 var nStr: string;

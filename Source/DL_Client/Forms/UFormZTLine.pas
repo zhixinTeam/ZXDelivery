@@ -4,13 +4,15 @@
 *******************************************************************************}
 unit UFormZTLine;
 
+{$I Link.Inc}
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxDropDownEdit,
-  cxLabel, cxCheckBox, cxTextEdit, dxLayoutControl, StdCtrls;
+  cxLabel, cxCheckBox, cxTextEdit, dxLayoutControl, StdCtrls, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormZTLine = class(TfFormNormal)
@@ -42,6 +44,9 @@ type
     cxLabel5: TcxLabel;
     dxLayout1Group10: TdxLayoutGroup;
     dxLayout1Group12: TdxLayoutGroup;
+    dxLayout1Item6: TdxLayoutItem;
+    cbb_BeltLine: TcxComboBox;
+    dxLayout1Group5: TdxLayoutGroup;
     procedure BtnOKClick(Sender: TObject);
     procedure EditStockIDPropertiesChange(Sender: TObject);
   protected
@@ -144,6 +149,27 @@ begin
   ResetHintAllForm(Self, 'T', sTable_ZTLines);
   //重置表名称
 
+  {$IFNDEF MoreBeltLine}
+  dxLayout1Item6.Visible:= False;
+  {$ELSE}
+  if cbb_BeltLine.Properties.Items.Count < 1 then
+  begin
+    nStr := 'Select * From %s Where D_Name=''BeltLineItem''';
+    nStr := Format(nStr, [sTable_SysDict]);
+
+    with FDM.QueryTemp(nStr) do
+    if RecordCount > 0 then
+    begin
+      First;
+      cbb_BeltLine.Properties.Items.Clear;
+      while not Eof do
+      begin
+        cbb_BeltLine.Properties.Items.Add(FieldByName('D_Memo').AsString);
+        Next;
+      end;
+    end;
+  end;
+  {$ENDIF}
   if nID <> '' then
   begin
     EditID.Properties.ReadOnly := True;
@@ -304,6 +330,12 @@ var nIdx: Integer;
 begin
   if not IsDataValid then Exit;
 
+  {$IFDEF MoreBeltLine}
+  if cbb_BeltLine.text='' then
+  begin
+    ShowMsg('请选择该通道生产线', sHint);  Exit;
+  end;
+  {$endif}
   nList := TStringList.Create;
   try
     nIdx := Integer(EditStockID.Properties.Items.Objects[EditStockID.ItemIndex]);

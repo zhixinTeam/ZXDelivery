@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   USysBusiness, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, ComCtrls, cxContainer, cxEdit, cxTextEdit,
-  cxListView, cxMCListBox, dxLayoutControl, StdCtrls;
+  cxListView, cxMCListBox, dxLayoutControl, StdCtrls, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormLadingDai = class(TfFormNormal)

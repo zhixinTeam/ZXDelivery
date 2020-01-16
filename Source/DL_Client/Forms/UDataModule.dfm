@@ -13,7 +13,7 @@ object FDM: TFDM
   object SqlQuery: TADOQuery
     Connection = ADOConn
     Parameters = <>
-    Left = 76
+    Left = 77
     Top = 12
   end
   object Command: TADOQuery

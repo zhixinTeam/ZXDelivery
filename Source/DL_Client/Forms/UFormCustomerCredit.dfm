@@ -1,6 +1,6 @@
 inherited fFormCustomerCredit: TfFormCustomerCredit
-  Left = 301
-  Top = 288
+  Left = 713
+  Top = 257
   ClientHeight = 259
   ClientWidth = 427
   OnClose = FormClose

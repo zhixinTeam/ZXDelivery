@@ -12,7 +12,7 @@ uses
   UMgrPoundTunnels, UBusinessConst, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, Menus, ExtCtrls, cxCheckBox,
   StdCtrls, cxButtons, cxTextEdit, cxMaskEdit, cxDropDownEdit, cxLabel,
-  ULEDFont, cxRadioGroup, UFrameBase;
+  ULEDFont, cxRadioGroup, UFrameBase, dxSkinsCore, dxSkinsDefaultPainters;
 
 type
   TfFrameManualPoundItem = class(TBaseFrame)
@@ -921,7 +921,7 @@ begin
     if (Length(FBillItems) > 0) and (FCardUsed=sFlag_Sale) then
          nBool := SavePoundSale
     else nBool := SavePoundData;
-
+                         
     if nBool then
     begin
       PlayVoice(#9 + FUIData.FTruck);
@@ -929,6 +929,7 @@ begin
       
       Timer2.Enabled := True;
 
+      {$IFDEF HardMon}
       {$IFDEF MITTruckProber}
         TunnelOC(FPoundTunnel.FID, True);
       {$ELSE}
@@ -937,6 +938,7 @@ begin
         {$ELSE}
         gProberManager.TunnelOC(FPoundTunnel.FID, True);
         {$ENDIF}
+      {$ENDIF}
       {$ENDIF}
 
       //¿ªºìÂÌµÆ
@@ -971,6 +973,7 @@ begin
   Result := True;
   //default
 
+  {$IFDEF HardMon}
   {$IFDEF MITTruckProber}
     if not IsTunnelOK(FPoundTunnel.FID) then
   {$ELSE}
@@ -984,6 +987,7 @@ begin
     ShowMsg('³µÁ¾Î´Õ¾ÎÈ,ÇëÉÔºó', sHint);
     Result := False;
   end;
+  {$ENDIF}
 end;
 
 end.

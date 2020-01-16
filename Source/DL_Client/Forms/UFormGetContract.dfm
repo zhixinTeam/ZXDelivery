@@ -1,8 +1,8 @@
 inherited fFormGetContract: TfFormGetContract
   Left = 401
   Top = 134
-  Width = 445
-  Height = 300
+  Width = 588
+  Height = 364
   BorderStyle = bsSizeable
   Constraints.MinHeight = 300
   Constraints.MinWidth = 445
@@ -11,22 +11,22 @@ inherited fFormGetContract: TfFormGetContract
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 437
-    Height = 273
+    Width = 572
+    Height = 325
     inherited BtnOK: TButton
-      Left = 291
-      Top = 240
+      Left = 426
+      Top = 292
       Caption = #30830#23450
       TabOrder = 5
     end
     inherited BtnExit: TButton
-      Left = 361
-      Top = 240
+      Left = 496
+      Top = 292
       TabOrder = 6
     end
     object EditSMan: TcxComboBox [2]
-      Left = 81
-      Top = 61
+      Left = 428
+      Top = 36
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 20
@@ -37,7 +37,7 @@ inherited fFormGetContract: TfFormGetContract
     end
     object EditCustom: TcxComboBox [3]
       Left = 81
-      Top = 86
+      Top = 61
       ParentFont = False
       Properties.DropDownRows = 20
       Properties.ItemHeight = 18
@@ -62,18 +62,21 @@ inherited fFormGetContract: TfFormGetContract
     end
     object ListContract: TcxListView [5]
       Left = 23
-      Top = 132
+      Top = 107
       Width = 417
       Height = 145
       Columns = <
         item
           Caption = #21512#21516#32534#21495
+          Width = 100
         end
         item
           Caption = #19994#21153#21592
+          Width = 80
         end
         item
           Caption = #23458#25143#21517#31216
+          Width = 266
         end
         item
           Caption = #39033#30446#21517#31216
@@ -84,6 +87,12 @@ inherited fFormGetContract: TfFormGetContract
       RowSelect = True
       SmallImages = FDM.ImageBar
       Style.Edges = [bLeft, bTop, bRight, bBottom]
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 4
       ViewStyle = vsReport
       OnDblClick = ListContractDblClick
@@ -91,7 +100,7 @@ inherited fFormGetContract: TfFormGetContract
     end
     object cxLabel1: TcxLabel [6]
       Left = 23
-      Top = 111
+      Top = 86
       Caption = #26597#35810#32467#26524':'
       ParentFont = False
       Transparent = True
@@ -99,25 +108,30 @@ inherited fFormGetContract: TfFormGetContract
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         Caption = #26597#35810#26465#20214
-        object dxLayout1Item5: TdxLayoutItem
-          Caption = #21512#21516#32534#21495':'
-          Control = EditCID
-          ControlOptions.ShowBorder = False
-        end
-        object dxLayout1Group2: TdxLayoutGroup
+        object dxLayout1Group3: TdxLayoutGroup
           ShowCaption = False
           Hidden = True
+          LayoutDirection = ldHorizontal
           ShowBorder = False
+          object dxLayout1Item5: TdxLayoutItem
+            AutoAligns = [aaVertical]
+            AlignHorz = ahClient
+            Caption = #21512#21516#32534#21495':'
+            Control = EditCID
+            ControlOptions.ShowBorder = False
+          end
           object dxLayout1Item3: TdxLayoutItem
             Caption = #19994#21153#20154#21592':'
             Control = EditSMan
             ControlOptions.ShowBorder = False
           end
-          object dxLayout1Item4: TdxLayoutItem
-            Caption = #23458#25143#21517#31216':'
-            Control = EditCustom
-            ControlOptions.ShowBorder = False
-          end
+        end
+        object dxLayout1Item4: TdxLayoutItem
+          AutoAligns = [aaVertical]
+          AlignHorz = ahClient
+          Caption = #23458#25143#21517#31216':'
+          Control = EditCustom
+          ControlOptions.ShowBorder = False
         end
         object dxLayout1Item7: TdxLayoutItem
           Caption = 'cxLabel1'

@@ -14,7 +14,8 @@ uses
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameZhiKaDetail = class(TfFrameNormal)
@@ -53,6 +54,10 @@ type
     N18: TMenuItem;
     N19: TMenuItem;
     N20: TMenuItem;
+    dxLayout1Item8: TdxLayoutItem;
+    cxlbl1: TcxLabel;
+    dxLayout1Item9: TdxLayoutItem;
+    cxlbl2: TcxLabel;
     procedure EditZKPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure N1Click(Sender: TObject);
@@ -65,6 +70,9 @@ type
     procedure N15Click(Sender: TObject);
     procedure N17Click(Sender: TObject);
     procedure N20Click(Sender: TObject);
+    procedure cxView1CustomDrawCell(Sender: TcxCustomGridTableView;
+      ACanvas: TcxCanvas; AViewInfo: TcxGridTableDataCellViewInfo;
+      var ADone: Boolean);
   private
     { Private declarations }
   protected
@@ -523,6 +531,18 @@ begin
   FDM.ExecuteSQL(nStr);
 
   InitFormData(FWhere);
+end;
+
+procedure TfFrameZhiKaDetail.cxView1CustomDrawCell(
+  Sender: TcxCustomGridTableView; ACanvas: TcxCanvas;
+  AViewInfo: TcxGridTableDataCellViewInfo; var ADone: Boolean);
+begin
+  inherited;
+// if (trim(AViewInfo.RecordViewInfo.GridRecord.Values[4]) = 'HTT')
+//    and (AViewInfo.Item.ID = 4) //确定到某一列，如果不加确定是某行底色
+
+  if (AViewInfo.GridRecord.Values[TcxGridDBTableView(Sender).GetColumnByFieldName('Z_TJStatus').Index])=sFlag_TJing then
+      ACanvas.Canvas.Font.Color := $4FA5FF;  // $C0C0C0;
 end;
 
 initialization

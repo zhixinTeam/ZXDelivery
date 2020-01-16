@@ -1,6 +1,6 @@
 inherited fFormZKPrice: TfFormZKPrice
-  Left = 296
-  Top = 302
+  Left = 645
+  Top = 224
   ClientHeight = 322
   ClientWidth = 465
   OnClose = FormClose
@@ -88,6 +88,7 @@ inherited fFormZKPrice: TfFormZKPrice
       Left = 81
       Top = 199
       Enabled = False
+      ParentFont = False
       Properties.Kind = ckDateTime
       TabOrder = 7
       Width = 121
@@ -96,6 +97,7 @@ inherited fFormZKPrice: TfFormZKPrice
       Left = 81
       Top = 224
       Enabled = False
+      ParentFont = False
       Properties.Kind = ckDateTime
       TabOrder = 8
       Width = 121

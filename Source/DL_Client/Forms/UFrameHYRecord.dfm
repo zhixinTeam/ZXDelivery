@@ -1,8 +1,8 @@
 inherited fFrameHYRecord: TfFrameHYRecord
-  Width = 621
+  Width = 822
   Height = 413
   inherited ToolBar1: TToolBar
-    Width = 621
+    Width = 822
     inherited BtnAdd: TToolButton
       OnClick = BtnAddClick
     end
@@ -15,14 +15,14 @@ inherited fFrameHYRecord: TfFrameHYRecord
   end
   inherited cxGrid1: TcxGrid
     Top = 203
-    Width = 621
+    Width = 822
     Height = 210
     inherited cxView1: TcxGridDBTableView
       OnDblClick = cxView1DblClick
     end
   end
   inherited dxLayout1: TdxLayoutControl
-    Width = 621
+    Width = 822
     Height = 136
     object EditStock: TcxButtonEdit [0]
       Left = 249
@@ -43,7 +43,7 @@ inherited fFrameHYRecord: TfFrameHYRecord
       Top = 93
       Hint = 'T.P_Stock'
       ParentFont = False
-      TabOrder = 4
+      TabOrder = 5
       Width = 105
     end
     object EditID: TcxButtonEdit [2]
@@ -65,7 +65,7 @@ inherited fFrameHYRecord: TfFrameHYRecord
       Top = 93
       Hint = 'T.R_SerialNo'
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 4
       Width = 105
     end
     object cxTextEdit3: TcxTextEdit [4]
@@ -73,11 +73,11 @@ inherited fFrameHYRecord: TfFrameHYRecord
       Top = 93
       Hint = 'T.P_Name'
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 6
       Width = 105
     end
     object EditDate: TcxButtonEdit [5]
-      Left = 417
+      Left = 577
       Top = 36
       ParentFont = False
       Properties.Buttons = <
@@ -87,8 +87,19 @@ inherited fFrameHYRecord: TfFrameHYRecord
         end>
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
-      TabOrder = 2
+      TabOrder = 3
       Width = 175
+    end
+    object cbb_Type: TcxComboBox [6]
+      Left = 393
+      Top = 36
+      ParentFont = False
+      Properties.Items.Strings = (
+        'D'#12289#34955#35013
+        'S'#12289#25955#35013)
+      Properties.OnChange = cbb_TypePropertiesChange
+      TabOrder = 2
+      Width = 121
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
@@ -100,6 +111,11 @@ inherited fFrameHYRecord: TfFrameHYRecord
         object dxLayout1Item2: TdxLayoutItem
           Caption = #27700#27877#21517#31216':'
           Control = EditStock
+          ControlOptions.ShowBorder = False
+        end
+        object dxlytmLayout1Item41: TdxLayoutItem
+          Caption = #31867#22411':'
+          Control = cbb_Type
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item1: TdxLayoutItem
@@ -131,15 +147,15 @@ inherited fFrameHYRecord: TfFrameHYRecord
   end
   inherited cxSplitter1: TcxSplitter
     Top = 195
-    Width = 621
+    Width = 822
   end
   inherited TitlePanel1: TZnBitmapPanel
-    Width = 621
+    Width = 822
     inherited TitleBar: TcxLabel
       Caption = #27700#27877#26816#39564#35760#24405
       Style.IsFontAssigned = True
-      Width = 621
-      AnchorX = 311
+      Width = 822
+      AnchorX = 411
       AnchorY = 11
     end
   end

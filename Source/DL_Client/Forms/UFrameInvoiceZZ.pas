@@ -14,7 +14,8 @@ uses
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin, cxDropDownEdit, Menus;
+  ComCtrls, ToolWin, cxDropDownEdit, Menus, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFrameInvoiceZZ = class(TfFrameNormal)
@@ -41,6 +42,9 @@ type
     procedure BtnEditClick(Sender: TObject);
     procedure PMenu1Popup(Sender: TObject);
     procedure N1Click(Sender: TObject);
+    procedure cxView1CustomDrawCell(Sender: TcxCustomGridTableView;
+      ACanvas: TcxCanvas; AViewInfo: TcxGridTableDataCellViewInfo;
+      var ADone: Boolean);
   private
     { Private declarations }
   protected
@@ -280,6 +284,19 @@ begin
   begin
     InitFormData(FWhere);
   end;
+end;
+
+procedure TfFrameInvoiceZZ.cxView1CustomDrawCell(
+  Sender: TcxCustomGridTableView; ACanvas: TcxCanvas;
+  AViewInfo: TcxGridTableDataCellViewInfo; var ADone: Boolean);
+var nValue : Double;
+begin
+  inherited;
+  nValue:= StrToFloat(AViewInfo.GridRecord.Values[TcxGridDBTableView(Sender).GetColumnByFieldName('R_Need').Index]);
+
+  if nValue<=0 then
+    ACanvas.Canvas.Font.Color := $C0C0C0;  // $C0C0C0;
+
 end;
 
 initialization

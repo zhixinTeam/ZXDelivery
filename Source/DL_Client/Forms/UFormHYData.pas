@@ -11,7 +11,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxLabel, cxDropDownEdit,
   cxCalendar, cxButtonEdit, cxMaskEdit, cxTextEdit, dxLayoutControl,
-  StdCtrls;
+  StdCtrls, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormHYData = class(TfFormNormal)

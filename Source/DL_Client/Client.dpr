@@ -12,7 +12,10 @@ uses
   UFrameBase in 'Forms\UFrameBase.pas' {BaseFrame: TBaseFrame},
   UFormBase in 'Forms\UFormBase.pas' {BaseForm},
   UFrameNormal in 'Forms\UFrameNormal.pas' {fFrameNormal: TFrame},
-  UFormNormal in 'Forms\UFormNormal.pas' {fFormNormal};
+  UFormNormal in 'Forms\UFormNormal.pas' {fFormNormal},
+  UFormBillWxScan in 'Forms\UFormBillWxScan.pas' {fFormBillWx},
+  UFrameQueryLadingTimeOutTruck in 'Forms\UFrameQueryLadingTimeOutTruck.pas' {fFrameQueryLadingTimeOutTruck: TFrame},
+  UFrameCusReceivableTotal in 'Forms\UFrameCusReceivableTotal.pas' {fFrameCusReceivableTotal: TFrame};
 
 {$R *.res}
 var

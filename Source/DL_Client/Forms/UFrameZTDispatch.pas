@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   USysBusiness, UFrameBase, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, Menus, dxorgchr, cxLabel,
-  UBitmapPanel, ComCtrls, ToolWin, ExtCtrls;
+  UBitmapPanel, ComCtrls, ToolWin, ExtCtrls, dxSkinsCore,
+  dxSkinsDefaultPainters;
 
 type
   TfFrameZTDispatch = class(TBaseFrame)

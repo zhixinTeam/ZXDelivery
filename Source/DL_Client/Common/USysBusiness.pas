@@ -10,7 +10,7 @@ uses
   Windows, DB, Classes, Controls, SysUtils, UBusinessPacker, UBusinessWorker,
   UBusinessConst, ULibFun, UAdjustForm, UFormCtrl, UDataModule, UDataReport,
   UFormBase, cxMCListBox, UMgrPoundTunnels, UMgrCamera, UBase64, USysConst,
-  USysDB, USysLoger;
+  USysDB, USysLoger, StrUtils;
 
 type
   TLadingStockItem = record
@@ -151,8 +151,14 @@ function BillSaleAdjust(const nBill, nNewZK: string): Boolean;
 //交货单调拨
 function SetBillCard(const nBill,nTruck: string; nVerify: Boolean): Boolean;
 //为交货单办理磁卡
+function SaveWebOrderMatch(const nBillID, nWebOrderID, nBillType: string):Boolean;
+//保存微信订单
+
 function SaveBillLSCard(const nCard,nTruck: string): Boolean;
 //办理厂内零售磁卡
+function Get_ShopOrderByNo(const nXmlStr: string): string;
+//根据微信订单号获取销售单详情
+
 function LoadSalePlan(const nCusID: string;var nPlans: TSalePlanItems): Boolean;
 //读取销售计划
 function SaveBillCard(const nBill, nCard: string): Boolean;
@@ -188,6 +194,7 @@ function GetTruckRealLabel(const nTruck: string): string;
 procedure CapturePicture(const nTunnel: PPTTunnelItem; const nList: TStrings);
 //抓拍指定通道
 
+procedure GetLimitedLoadMValueChk(var nChk : Boolean; var nMValue: Double; const nTruck: string);
 procedure GetPoundAutoWuCha(var nWCValZ,nWCValF: Double; const nVal: Double;
  const nStation: string = '');
 //获取误差范围
@@ -255,6 +262,7 @@ function IfStockHasLs(const nStockNo: string): Boolean;
 function IFHasOrder(const nTruck: string): Boolean;
 //车辆是否存在未完成采购单
 function IsWeekValid(const nWeek: string; var nHint: string): Boolean;
+function IsWeekValidEx(const nWeek: string; var nHint: string; var nBegin,nEnd: TDateTime): Boolean;
 //周期是否有效
 function IsWeekHasEnable(const nWeek: string): Boolean;
 //周期是否启用
@@ -283,7 +291,7 @@ function PrintRCOrderReport(const nID: string;  const nAsk: Boolean): Boolean;
 function PrintPoundReport(const nPound: string; nAsk: Boolean;
                           const nMul: Boolean = False): Boolean;
 //打印榜单
-function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
+function PrintHuaYanReport(const nHID: string; const nAsk: Boolean;n28D: Boolean=False): Boolean;
 function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
 //化验单,合格证
 function PrintBillFYDReport(const nBill: string;  const nAsk: Boolean): Boolean;
@@ -364,6 +372,15 @@ function SetDDCard(const nBill,nTruck: string; nVerify: Boolean): Boolean;
 //为交货单办理磁卡
 function PrintDuanDaoReport(const nID: string; nAsk: Boolean): Boolean;
 //打印短倒单
+
+
+//车牌识别
+function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
+//车牌识别   读取nReader岗位、部门
+function VerifySnapTruck(const nReader: string; nBill: TLadingBillItem; var nMsg, nPos: string): Boolean;
+function SaveSnapStatus(const nBill: TLadingBillItem; nStatus: string): Boolean;
+procedure RemoteSnapDisPlay(const nPost, nText, nSucc: string);
+
 
 procedure CapturePictureEx(const nTunnel: PPTTunnelItem;
                          const nLogin: Integer; nList: TStrings);
@@ -873,6 +890,57 @@ begin
 end;
 
 //------------------------------------------------------------------------------
+//Date: 2019-11-07
+//Parm: 是否检查、毛重、车牌
+//Desc: 检查是否系统开启限载控制、并查找对应车辆限量值
+procedure GetLimitedLoadMValueChk(var nChk : Boolean; var nMValue: Double; const nTruck: string);
+var nStr: string;
+    nMax, nMin : Double;
+begin
+  nChk:= False;
+  nMax:= 50; nMin:=20;
+
+  if nTruck='' then Exit;
+  //***********
+  nStr := 'Select * From %s Where D_Name=''SysParam'' And D_Memo=''LimitedLoadMValueChk'' ';
+  nStr := Format(nStr, [sTable_SysDict]);
+  with FDM.QuerySQL(nStr) do
+  if RecordCount > 0 then
+  begin
+    nChk:= FieldByName('D_Value').AsString = sFlag_Yes;
+  end;
+
+  if nChk then
+  begin
+    nStr := 'Select * From %s Where T_Truck=''%s'' ';
+    nStr := Format(nStr, [sTable_Truck, nTruck]);
+    with FDM.QuerySQL(nStr) do
+    if RecordCount > 0 then
+    begin
+      nMax := FieldbyName('T_Limited').AsFloat*1000;
+      nMin := FieldbyName('T_LimitedMin').AsFloat*1000;
+    end;
+
+    if (nMin<=nMValue*1000)and(nMValue*1000<nMax) then
+    begin
+      nMValue:= 0;
+    end
+    else if nMValue*1000=nMax then
+    begin
+      nMValue:= 100;
+    end
+    else if nMValue*1000>nMax then
+    begin
+      nMValue:= nMValue*1000-nMax;
+    end
+    else if nMValue*1000<nMin then
+    begin
+      nMValue:= nMValue*1000-nMin;
+    end;
+  end
+  else nMValue:= 0;
+end;
+
 //Date: 2017-07-09
 //Parm: 包装正负误差;票重;磅站号
 //Desc: 计算nVal的误差范围
@@ -1457,9 +1525,10 @@ end;
 function SaveCustomerCredit(const nCusID,nMemo: string; const nCredit: Double;
  const nEndTime: TDateTime): Boolean;
 var nStr: string;
-    nVal: Double;
+    nVal, nMax : Double;
     nBool: Boolean;
 begin
+  Result:= False;
   nBool := FDM.ADOConn.InTransaction;
   if not nBool then FDM.ADOConn.BeginTrans;
   try
@@ -1472,7 +1541,7 @@ begin
     with FDM.QueryTemp(nStr) do
     if RecordCount > 0 then
          nStr := Fields[0].AsString
-    else nStr := sFlag_No; 
+    else nStr := sFlag_No;
 
     if nStr = sFlag_Yes then //需审核
     begin
@@ -2148,6 +2217,28 @@ begin
   Result := (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOK);
 end;
 
+function SaveWebOrderMatch(const nBillID, nWebOrderID, nBillType: string):Boolean;
+var
+  nStr:string;
+begin
+  Result := False;
+  nStr := MakeSQLByStr([SF('WOM_WebOrderID'   , nWebOrderID),
+                        SF('WOM_LID'          , nBillID),
+                        SF('WOM_StatusType'   , c_WeChatStatusCreateCard),
+                        SF('WOM_MsgType'      , cSendWeChatMsgType_AddBill),
+                        SF('WOM_BillType'     , nBillType),
+                        SF('WOM_deleted'      , sFlag_No)    ],
+                        sTable_WebOrderMatch, '', True);
+  FDM.ADOConn.BeginTrans;
+  try
+    FDM.ExecuteSQL(nStr);
+    FDM.ADOConn.CommitTrans;
+    Result := True;
+  except
+    FDM.ADOConn.RollbackTrans;
+  end;
+end;
+
 //Date: 2016-12-30
 //Parm: 磁卡号;车牌号
 //Desc: 为nTruck办理厂内零售磁卡
@@ -2155,6 +2246,15 @@ function SaveBillLSCard(const nCard,nTruck: string): Boolean;
 var nOut: TWorkerBusinessCommand;
 begin
   Result := CallBusinessSaleBill(cBC_SaveBillLSCard, nCard, nTruck, @nOut);
+end;
+
+//根据订单号获取订单信息
+function Get_ShopOrderByNo(const nXmlStr: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := '';
+  if CallBusinessWechat(cBC_WX_get_shoporderbyNO, nXmlStr, '', '' , @nOut,False) then
+    Result := nOut.FData;
 end;
 
 //Date: 2017-01-03
@@ -2499,6 +2599,31 @@ begin
   if RecordCount > 0 then
   begin
     Result := Fields[0].AsDateTime + 1 > Fields[1].AsDateTime;
+    if not Result then
+      nHint := '该结算周期已结束';
+    //xxxxx
+  end else
+  begin
+    Result := False;
+    nHint := '该结算周期已无效';
+  end;
+end;
+
+function IsWeekValidEx(const nWeek: string; var nHint: string; var nBegin,nEnd: TDateTime): Boolean;
+var nStr: string;
+begin
+  nStr := 'Select W_Begin, W_End,$Now From $W Where W_NO=''$NO''';
+  nStr := MacroValue(nStr, [MI('$W', sTable_InvoiceWeek),
+          MI('$Now', FDM.SQLServerNow), MI('$NO', nWeek)]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    nBegin := Fields[0].AsDateTime;
+    nEnd   := Fields[1].AsDateTime;
+
+    Result := Fields[1].AsDateTime + 7 > Fields[2].AsDateTime;
     if not Result then
       nHint := '该结算周期已结束';
     //xxxxx
@@ -2957,7 +3082,7 @@ begin
 end;
 
 //Desc: 打印标识为nHID的化验单
-function PrintHuaYanReport(const nHID: string; const nAsk: Boolean): Boolean;
+function PrintHuaYanReport(const nHID: string; const nAsk: Boolean;n28D: Boolean): Boolean;
 var nStr,nSR: string;
 begin
   if nAsk then
@@ -2971,7 +3096,12 @@ begin
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
 
-  nStr := 'Select hy.*,sr.*,C_Name From $HY hy ' +
+
+  {$IFNDEF HYPrintNum}
+    nStr := 'Select hy.*,sr.*,C_Name From $HY hy ' +
+  {$ELSE}
+    nStr := 'Select IsNull(H_PrintNum, 0)+1 PrintNum, hy.*,sr.*,C_Name From $HY hy ' +
+  {$ENDIF}
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
           ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
           'Where H_ID in ($ID)';
@@ -2991,6 +3121,7 @@ begin
   nStr := FDM.SqlTemp.FieldByName('P_Stock').AsString;
   nStr := GetReportFileByStock(nStr);
 
+  IF n28D then nStr:= StringReplace(nStr, '.fr3', '_28.fr3', [rfReplaceAll]);
   if not FDR.LoadReportFile(nStr) then
   begin
     nStr := '无法正确加载报表文件';
@@ -3866,6 +3997,270 @@ begin
       nList.Free;
     end;
   end; 
+end;
+
+//Date: 2018-08-03
+//Parm: 读卡器ID
+//Desc: 读取nReader岗位、部门
+function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := ''; nDept:= '';
+  //卡号
+  if CallBusinessHardware(cBC_GetPoundReaderInfo, nReader, '', @nOut)  then
+  begin
+    Result := Trim(nOut.FData);
+    nDept:= Trim(nOut.FExtParam);
+  end;
+end;
+
+//车牌识别验证
+function VerifySnapTruck(const nReader: string; nBill: TLadingBillItem;
+                         var nMsg, nPos: string): Boolean;
+var nStr, nDept: string;
+    nNeedManu, nUpdate, nST: Boolean;
+    nSnapTruck, nTruck, nEvent, nPicName: string;
+    nLen: Integer;
+begin
+  Result := False;
+  nPos := '';
+  nNeedManu := False;
+  nSnapTruck := '';
+  nDept := '';
+  nMsg := '';
+  nLen := 0;
+  nTruck := nBill.Ftruck;
+
+  nPos := ReadPoundReaderInfo(nReader,nDept);
+
+  if nPos = '' then
+  begin
+    Result := True;
+    nStr := '读卡器[ %s ]绑定岗位为空,无法进行抓拍识别.';
+    nStr := Format(nStr, [nReader]);
+    WriteLog(nStr);
+    Exit;
+  end;
+
+  nST := True;
+
+  nStr := 'Select T_SnapTruck From %s Where T_Truck=''%s''';
+  nStr := Format(nStr, [sTable_Truck, nTruck]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nST := FieldByName('T_SnapTruck').AsString = sFlag_Yes;
+    end;
+  end;
+
+  if not nST then
+  begin
+    Result := True;
+    nMsg := '车辆[ %s ]无需进行车牌识别.';
+    nMsg := Format(nMsg, [nTruck]);
+    Exit;
+  end;
+
+  nStr := 'Select D_Value,D_Index From %s Where D_Name=''%s'' and D_Memo=''%s''';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_TruckInNeedManu,nPos]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nNeedManu := FieldByName('D_Value').AsString = sFlag_Yes;
+      nLen := FieldByName('D_Index').AsInteger;
+      if nNeedManu then
+      begin
+        nStr := '读卡器[ %s ]绑定岗位[ %s ]干预规则:人工干预已启用.';
+        nStr := Format(nStr, [nReader, nPos]);
+        WriteLog(nStr);
+      end
+      else
+      begin
+        nStr := '读卡器[ %s ]绑定岗位[ %s ]干预规则:人工干预已关闭.';
+        nStr := Format(nStr, [nReader, nPos]);
+        WriteLog(nStr);
+        Result := True;
+        Exit;
+      end;
+    end
+    else
+    begin
+      Result := True;
+      nStr := '读卡器[ %s ]绑定岗位[ %s ]未配置干预规则,无法进行抓拍识别.';
+      nStr := Format(nStr, [nReader, nPos]);
+      WriteLog(nStr);
+      Exit;
+    end;
+  end;
+
+  nStr := 'Select * From %s Where S_ID=''%s'' order by R_ID desc ';
+  nStr := Format(nStr, [sTable_SnapTruck, nPos]);
+  //xxxxx
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      if not nNeedManu then
+        Result := True;
+      Exit;
+    end;
+
+    nPicName := '';
+
+    First;
+
+    while not Eof do
+    begin
+      nSnapTruck := FieldByName('S_Truck').AsString;
+      if nPicName = '' then//默认取最新一次抓拍
+        nPicName := FieldByName('S_PicName').AsString;
+      if Pos(nTruck,nSnapTruck) > 0 then
+      begin
+        Result := True;
+        nPicName := FieldByName('S_PicName').AsString;
+        //取得匹配成功的图片路径
+        nMsg := '车辆[ %s ]车牌识别成功,抓拍车牌号:[ %s ]';
+        nMsg := Format(nMsg, [nTruck,nSnapTruck]);
+        Exit;
+      end;
+      //车牌识别成功
+
+      if nLen > 0 then//模糊匹配
+      begin
+        if RightStr(nTruck,5) = RightStr(nSnapTruck,5) then
+        begin
+          Result := True;
+          nPicName := FieldByName('S_PicName').AsString;
+          //取得匹配成功的图片路径
+          nMsg := '车辆[ %s ]车牌识别成功,抓拍车牌号:[ %s ]';
+          nMsg := Format(nMsg, [nTruck,nTruck]);
+          Exit;
+        end;
+        //车牌识别成功
+      end;
+      Next;
+    end;
+  end;
+
+  nStr := 'Select * From %s Where E_ID=''%s''';
+  nStr := Format(nStr, [sTable_ManualEvent, nBill.FID+sFlag_ManualE]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nMsg := '车辆[ %s ]车牌识别失败, 请联系工作人员';
+      nMsg := Format(nMsg, [nTruck]);
+
+      if FieldByName('E_Result').AsString = 'N' then
+      begin
+        nMsg := '车辆[ %s ]车牌识别失败,管理员禁止';
+        nMsg := Format(nMsg, [nTruck]);
+        Exit;
+      end;
+      if FieldByName('E_Result').AsString = 'Y' then
+      begin
+        Result := True;
+        nMsg := '车辆[ %s ]车牌识别失败,管理员允许';
+        nMsg := Format(nMsg, [nTruck]);
+        Exit;
+      end;
+      nUpdate := True;
+    end
+    else
+    begin
+      nMsg := '车辆[ %s ]车牌识别失败,请移动车辆并关闭车灯';
+      nMsg := Format(nMsg, [nTruck]);
+      nUpdate := False;
+      if not nNeedManu then
+      begin
+        Result := True;
+        Exit;
+      end;
+    end;
+  end;
+
+  nEvent := '车辆[ %s ]车牌识别失败,请移动车辆并关闭车灯';
+  nEvent := Format(nEvent, [nTruck]);
+
+  nStr := SF('E_ID', nBill.FID+sFlag_ManualE);
+  nStr := MakeSQLByStr([
+          SF('E_ID', nBill.FID+sFlag_ManualE),
+          SF('E_Key', nPicName),
+          SF('E_From', nPos),
+          SF('E_Result', 'Null', sfVal),
+
+          SF('E_Event', nEvent),
+          SF('E_Solution', sFlag_Solution_YN),
+          SF('E_Departmen', nDept),
+          SF('E_Date', sField_SQLServer_Now, sfVal)
+          ], sTable_ManualEvent, nStr, (not nUpdate));
+  //xxxxx
+  FDM.ExecuteSQL(nStr);
+end;
+
+function SaveSnapStatus(const nBill: TLadingBillItem; nStatus: string): Boolean;
+var nStr: string;
+begin
+  Result := True;
+
+  if nStatus = sFlag_No then
+  begin
+    nStr := 'UPDate %s set L_SnapStatus=''%s'' where L_ID=''%s''';
+    nStr := format(nStr,[sTable_Bill, nStatus, nBill.FID]);
+    FDM.ExecuteSQL(nStr);
+  end
+  else
+  begin
+    nStr := 'Select * From %s Where E_ID=''%s''';
+    nStr := Format(nStr, [sTable_ManualEvent, nBill.FID+sFlag_ManualE]);
+
+    with FDM.QueryTemp(nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        if Trim(FieldByName('E_Result').AsString) <> '' then //被干预过，即使成功也不再更新
+        begin
+          Exit;
+        end;
+        nStr := 'update %s set L_SnapStatus=''%s'' where L_ID=''%s''';
+        nStr := format(nStr,[sTable_Bill, nStatus, nBill.FID]);
+        FDM.ExecuteSQL(nStr);
+
+        nStr := 'Delete From %s Where E_ID=''%s''';
+        nStr := Format(nStr, [sTable_ManualEvent, nBill.FID+sFlag_ManualE]);
+        FDM.ExecuteSQL(nStr);
+      end
+      else
+      begin
+        nStr := 'update %s set L_SnapStatus=''%s'' where L_ID=''%s''';
+        nStr := format(nStr,[sTable_Bill, nStatus, nBill.FID]);
+        FDM.ExecuteSQL(nStr);
+      end;
+    end;
+  end;
+end;
+
+procedure RemoteSnapDisPlay(const nPost, nText, nSucc: string);
+var nOut: TWorkerBusinessCommand;
+    nList: TStrings;
+begin
+  nList := TStringList.Create;
+  try
+    nList.Values['text'] := nText;
+    nList.Values['succ'] := nSucc;
+
+    CallBusinessHardware(cBC_RemoteSnapDisPlay, nPost, PackerEncodeStr(nList.Text), @nOut);
+  finally
+    nList.Free;
+  end;
 end;
 
 //Date: 2018-09-25

@@ -79,6 +79,9 @@ begin
       FIconFile := ReadString(FProgID, 'IconFile', gPath + 'Icons\Icon.ini');
       FIconFile := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase]);
 
+      FPoundOpenBackGate := ReadString('PoundParam', 'PoundOpenBackGate', 'N')='Y'; //过磅失败抬后杆
+      FDefaultBeltLine   := ReadString('BillParam', 'DefaultBeltLine', '');         //默认开单生产线
+
       FProberUser := 0;
       FVoiceUser := 0;
 

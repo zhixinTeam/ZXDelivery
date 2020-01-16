@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameHYRecord;
 
+{$I Link.inc}
 interface
 
 uses
@@ -13,7 +14,9 @@ uses
   dxLayoutControl, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, UFrameNormal,
-  Menus, UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters;
+  Menus, UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
+  dxSkinsdxLCPainter, cxDropDownEdit;
 
 type
   TfFrameHYRecord = class(TfFrameNormal)
@@ -29,6 +32,8 @@ type
     dxLayout1Item6: TdxLayoutItem;
     EditDate: TcxButtonEdit;
     dxLayout1Item1: TdxLayoutItem;
+    cbb_Type: TcxComboBox;
+    dxlytmLayout1Item41: TdxLayoutItem;
     procedure BtnAddClick(Sender: TObject);
     procedure BtnEditClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
@@ -37,6 +42,7 @@ type
     procedure cxView1DblClick(Sender: TObject);
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
+    procedure cbb_TypePropertiesChange(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -77,12 +83,27 @@ function TfFrameHYRecord.InitFormDataSQL(const nWhere: string): string;
 begin
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  Result := 'Select sr.*,P_Stock,P_Type,P_Name From $SR sr' +
+  Result := 'Select sr.*,P_Stock,P_Type,P_Name, '+
+            'CAST( (CAST(R_3DZhe1 AS DECIMAL(15,2))+CAST(R_3DZhe2 AS DECIMAL(15,2))+CAST(R_3DZhe3 AS DECIMAL(15,2)))/3 AS DECIMAL(15,2)) ZheAVG3, '+
+            'CAST( (CAST(R_3DYa1 AS DECIMAL(15,2))+CAST(R_3DYa2 AS DECIMAL(15,2))+CAST(R_3DYa3 AS DECIMAL(15,2))+  '+
+            'CAST(R_3DYa4 AS DECIMAL(15,2))+CAST(R_3DYa5 AS DECIMAL(15,2))+CAST(R_3DYa6 AS DECIMAL(15,2)))/6 AS DECIMAL(15,2)) YaAVG3, '  +
+            'CAST( (CAST(ISNULL(R_28Zhe1,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Zhe2,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Zhe3,0) AS DECIMAL(15,2)))/3 AS DECIMAL(15,2)) ZheAVG28,' +
+            'CAST( (CAST(ISNULL(R_28Ya1,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya2,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya3,0) AS DECIMAL(15,2))+ ' +
+            'CAST(ISNULL(R_28Ya4,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya5,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya6,0) AS DECIMAL(15,2)))/6 AS DECIMAL(15,2)) YaAVG28 '+
+            ' From $SR sr' +
             ' Left Join $SP sp On sp.P_ID=sr.R_PID ';
 
   if nWhere = '' then
        Result := Result + 'Where (R_Date>=''$Start'' and R_Date<''$End'')'
   else Result := Result + 'Where (' + nWhere + ')';
+
+  if cbb_Type.Text<>'' then
+    Result := Result + ' And P_Type = ''' + Copy(cbb_Type.Text, 1, 1) + ''' ';
+    
+  {$IFDEF ShowSelfData}
+  if not gSysParam.FIsAdmin  then
+    Result := Result + ' And R_Man='''+gSysParam.FUserName+'''';
+  {$ENDIF}
 
   Result := MacroValue(Result, [MI('$SR', sTable_StockRecord),
             MI('$SP', sTable_StockParam), MI('$Start', DateTime2Str(FStart)),
@@ -177,6 +198,17 @@ begin
   begin
     nStr := SQLQuery.FieldByName('R_ID').AsString;
     ShowStockRecordViewForm(nStr);
+  end;
+end;
+
+procedure TfFrameHYRecord.cbb_TypePropertiesChange(Sender: TObject);
+begin
+  begin
+    cbb_Type.Text := Trim(cbb_Type.Text);
+    if cbb_Type.Text = '' then Exit;
+
+    FWhere := 'P_Type = ''' + Copy(cbb_Type.Text, 0, 1) + '''';
+    InitFormData(FWhere);
   end;
 end;
 

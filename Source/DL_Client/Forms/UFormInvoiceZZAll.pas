@@ -6,12 +6,14 @@ unit UFormInvoiceZZAll;
 
 interface
 
+{$I Link.Inc}
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, dxLayoutControl, StdCtrls, cxControls, cxMemo,
   cxButtonEdit, cxLabel, cxTextEdit, cxContainer, cxEdit, cxMaskEdit,
   cxDropDownEdit, cxCalendar, cxGraphics, cxLookAndFeels,
-  cxLookAndFeelPainters, cxRadioGroup;
+  cxLookAndFeelPainters, cxRadioGroup, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormInvoiceZZAll = class(TfFormNormal)
@@ -32,6 +34,8 @@ type
     //上次执行
     FNowYear,FNowWeek,FWeekName: string;
     //周期参数
+    FSTime,FETime: TDateTime;
+    //周期区间
     procedure InitFormData;
     //载入数据
     procedure ShowNowWeek;
@@ -166,7 +170,9 @@ begin
     ShowMsg('请选择有效的周期', sHint); Exit;
   end;
 
-  if not IsWeekValid(FNowWeek, nStr) then
+  {$IFNDEF MoreBeltLine}
+  if not IsWeekValid(FNowWeek, nStr) then   {$ELSE}
+  if not IsWeekValidEx(FNowWeek, nStr, FSTime, FETime) then {$ENDIF}
   begin
     EditWeek.SetFocus;
     ShowMsg(nStr, sHint); Exit;
@@ -178,12 +184,14 @@ begin
     ShowDlg(nStr, sHint); Exit;
   end;
 
+  {$IFNDEF AllowUnsettlement}
   nInt := IsPreWeekOver(FNowWeek);
   if nInt > 0 then
   begin
     nStr := Format('以前周期还有[ %d ]笔未结算完毕,请先处理!', [nInt]);
     ShowDlg(nStr, sHint); Exit;
   end;
+  {$ENDIF}
 
   if IsWeekHasEnable(FNowWeek) then
   begin
@@ -200,7 +208,7 @@ begin
 
   BtnOK.Enabled := False;
   try
-    EditMemo.Clear;          
+    EditMemo.Clear;
     ZZ_All(nInt > 0);
   except
     on E:Exception do
@@ -226,6 +234,15 @@ begin
             ' R_Type,R_Stock,R_Price,R_Value,R_PreHasK,R_ReqValue,R_KPrice,' +
             ' R_KValue,R_KOther,R_Man,R_Date From %s';
     //move into normal table
+
+    {$IFDEF MoreBeltLine}
+    nStr := 'Insert Into %s(R_Week,R_CusID,R_Customer,R_SaleID,R_SaleMan,' +
+            'R_Type,R_Stock,R_Price,R_Value,R_PreHasK,R_ReqValue,R_KPrice,' +
+            'R_KValue,R_KOther,R_Man,R_Date,R_BeltLine) ' +
+            ' Select R_Week,R_CusID,R_Customer,R_SaleID,R_SaleMan,' +
+            ' R_Type,R_Stock,R_Price,R_Value,R_PreHasK,R_ReqValue,R_KPrice,' +
+            ' R_KValue,R_KOther,R_Man,R_Date,R_BeltLine From %s';
+    {$ENDIF}
 
     nStr := Format(nStr, [sTable_InvoiceReq, sTable_InvReqtemp]);
     FDM.ExecuteSQL(nStr);
@@ -256,11 +273,11 @@ begin
   //清空临时表
 
   nSQL := 'Select L_SaleID,L_CusID,L_Type,L_StockName,L_Price,' +
-          'Sum(L_Value) as L_Value,L_SaleMan,L_CusName From $Bill ' +
-          'Where L_OutFact Is Not Null ' +
-          'Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_Type,L_StockName,L_Price';
-  nSQL := MacroValue(nSQL, [MI('$Bill', sTable_Bill)]);
-  //同客户同品种同单价合并
+          'Sum(L_Value) as L_Value,L_SaleMan,L_CusName '+{$IFDEF MoreBeltLine}',L_BeltLine '+ {$ENDIF}
+          'From $Bill Where L_OutFact Is Not Null ' +    {$IFDEF MoreBeltLine}' And L_OutFact >=''$STime'' And L_OutFact <''$ETime'' '+ {$ENDIF}
+          'Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_Type,L_StockName,L_Price'{$IFDEF MoreBeltLine} + ',L_BeltLine' {$ENDIF};
+  nSQL := MacroValue(nSQL, [MI('$Bill', sTable_Bill),MI('$STime', Date2Str(FSTime)),MI('$ETime', Date2Str(FETime + 1)) ]);
+  //同厂区（生产线）、同客户同品种同单价合并
 
   nStr := 'Select ''$W'' As R_Week,''$Man'' As R_Man,$Now As R_Date,' +
           'b.* From ($Bill) b ';
@@ -270,31 +287,36 @@ begin
 
   nStr := 'Insert Into %s(R_Week,R_Man,R_Date,R_SaleID,R_CusID,' +
           'R_Type,R_Stock,R_Price,R_Value,R_SaleMan,R_Customer) Select * From (%s) t';
+  {$IFDEF MoreBeltLine}
+  nStr := 'Insert Into %s(R_Week,R_Man,R_Date,R_SaleID,R_CusID,' +
+          'R_Type,R_Stock,R_Price,R_Value,R_SaleMan,R_Customer,R_BeltLine) Select * From (%s) t';
+  {$ENDIF}
   nStr := Format(nStr, [sTable_InvReqtemp, nSQL]);
 
   ShowHintText('开始计算客户总提货量...');
   FDM.ExecuteSQL(nStr);
   ShowHintText('客户总提货量计算完毕!');
 
+  {$IFNDEF NotZZCombine}
   //----------------------------------------------------------------------------
-  nSQL := 'Select I_CusID,I_SaleID,D_Type,D_Stock,D_Price,' +
+  nSQL := 'Select I_CusID,I_SaleID,D_Type,D_Stock,D_Price,' + {$IFDEF MoreBeltLine} 'D_BeltLine, ' +  {$ENDIF}
           'Sum(D_Value) As D_Value From (Select * From $Dtl ' +
           '  Left Join $Inv On I_ID=D_Invoice ' +
           'Where I_Status=''$Use'' And I_Week<>''$W''' +
-          ') inv Group By I_CusID,I_SaleID,D_Type,D_Stock,D_Price';
+          ') inv Group By I_CusID,I_SaleID,D_Type,D_Stock,D_Price'+ {$IFDEF MoreBeltLine} ', D_BeltLine'{$ENDIF};
   nSQL := MacroValue(nSQL, [MI('$Dtl', sTable_InvoiceDtl), MI('$W', FNowWeek),
           MI('$Inv', sTable_Invoice), MI('$Use', sFlag_InvHasUsed)]);
   //非本周期的所有发票
 
   nStr := 'Update %s Set R_PreHasK=D_Value From (%s) t ' +
           'Where I_CusID=R_CusID And I_SaleID=R_SaleID And D_Type=R_Type And ' +
-          'D_Stock=R_Stock And D_Price=R_Price';
+          'D_Stock=R_Stock And D_Price=R_Price' {$IFDEF MoreBeltLine} + ' And R_BeltLine=D_BeltLine'{$ENDIF};
   nStr := Format(nStr, [sTable_InvReqtemp, nSQL]);
 
   ShowHintText('开始计算客户本周期之前总开票量...');
   FDM.ExecuteSQL(nStr);
   ShowHintText('客户本周期之前总开票量计算完毕!');
-
+  {$ENDIF}
   //----------------------------------------------------------------------------
   {+2011.02.15: 暂时未使用非申请
   nSQL := 'Select I_CusID,D_Type,D_Stock,D_Price,Sum(D_Value) As D_Value From' +
@@ -317,10 +339,10 @@ begin
   ShowHintText('客户本周期非申请已开票量计算完毕!');
   }
   //----------------------------------------------------------------------------
-  nSQL := 'Select I_CusID,I_SaleID,D_Type,D_Stock,D_Price,Sum(D_Value) As D_Value From' +
-          '( Select * From $Dtl Left Join $Inv On I_ID=D_Invoice ' +
+  nSQL := 'Select I_CusID,I_SaleID,D_Type,D_Stock,D_Price,Sum(D_Value) As D_Value' + {$IFDEF MoreBeltLine} ', D_BeltLine ' +  {$ENDIF}
+          'From ( Select * From $Dtl Left Join $Inv On I_ID=D_Invoice ' +
           '  Where I_Status=''$Use'' And I_Week=''$W'' And I_Flag=''$Req''' +
-          ') inv Group By I_CusID,I_SaleID,D_Type,D_Stock,D_Price';
+          ') inv Group By I_CusID,I_SaleID,D_Type,D_Stock,D_Price'{$IFDEF MoreBeltLine} +', D_BeltLine '{$ENDIF};
   nSQL := MacroValue(nSQL, [MI('$Dtl', sTable_InvoiceDtl), MI('$W', FNowWeek),
           MI('$Inv', sTable_Invoice), MI('$Use', sFlag_InvHasUsed),
           MI('$Req', sFlag_InvRequst)]);
@@ -328,7 +350,7 @@ begin
 
   nStr := 'Update %s Set R_KValue=D_Value From (%s) t ' +
           'Where I_CusID=R_CusID And I_SaleID=R_SaleID And D_Type=R_Type And ' +
-          'D_Stock=R_Stock And D_Price=R_Price';
+          'D_Stock=R_Stock And D_Price=R_Price'{$IFDEF MoreBeltLine} + ' And R_BeltLine=D_BeltLine'{$ENDIF};
   nStr := Format(nStr, [sTable_InvReqtemp, nSQL]);
 
   ShowHintText('开始计算客户本周期申请已开票量...');
@@ -336,12 +358,13 @@ begin
   ShowHintText('客户本周期申请已开票量计算完毕!');
 
   //----------------------------------------------------------------------------
+  {$IFNDEF NotZZCombine}
   if nNeedCombine then
   begin
     nSQL := 'Update $T Set $T.R_KPrice=$R.R_KPrice,$T.R_ReqValue=$R.R_ReqValue ' +
             'From $R Where $R.R_Week=''$W'' And $T.R_CusID=$R.R_CusID And ' +
             '$T.R_SaleID=$R.R_SaleID And $T.R_Type=$R.R_Type And ' +
-            '$T.R_Stock=$R.R_Stock And $T.R_Price=$R.R_Price';
+            '$T.R_Stock=$R.R_Stock And $T.R_Price=$R.R_Price'{$IFDEF MoreBeltLine} + ' And $T.R_BeltLine=$R.R_BeltLine'{$ENDIF};
     nStr := MacroValue(nSQL, [MI('$T', sTable_InvReqtemp),
             MI('$R', sTable_InvoiceReq), MI('$W', FNowWeek)]);
     //xxxxx
@@ -350,6 +373,7 @@ begin
     FDM.ExecuteSQL(nStr);
     ShowHintText('合并上次扎账数据完毕!');
   end;
+  {$ENDIF}
 
   nSQL := 'Update %s Set R_KPrice=R_Price,R_ReqValue=R_Value-' +
           'IsNull(R_PreHasK,0)-IsNull(R_KOther,0) ' +

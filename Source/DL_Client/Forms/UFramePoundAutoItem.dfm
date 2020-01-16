@@ -594,6 +594,38 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     ScrollBars = ssVertical
     TabOrder = 24
   end
+  object Chk_PoundStatus: TcxCheckBox
+    Left = 511
+    Top = 29
+    Caption = #19978#30917#19981#26816#26597#22320#30917#29366#24577
+    ParentFont = False
+    TabOrder = 25
+    Width = 136
+  end
+  object Chk3: TcxCheckBox
+    Left = 756
+    Top = 29
+    Caption = #31105#27490#36710#29260#19981#31526#36710#36742#19978#30917
+    ParentFont = False
+    TabOrder = 26
+    Width = 151
+  end
+  object Chk_UseSnapTruck: TcxCheckBox
+    Left = 651
+    Top = 29
+    Caption = #21551#29992#36710#29260#35782#21035
+    ParentFont = False
+    TabOrder = 27
+    Width = 108
+  end
+  object Chk_StopUse: TcxCheckBox
+    Left = 386
+    Top = 29
+    Caption = #26242#20572#35813#30917#36807#30917#19994#21153
+    ParentFont = False
+    TabOrder = 28
+    Width = 122
+  end
   object Timer1: TTimer
     OnTimer = Timer1Timer
     Left = 420

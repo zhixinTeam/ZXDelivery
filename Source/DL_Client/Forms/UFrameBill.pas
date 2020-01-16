@@ -15,7 +15,8 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, Menus,
   UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters,
-  cxCheckBox;
+  cxCheckBox, dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
+  dxSkinsdxLCPainter;
 
 type
   TfFrameBill = class(TfFrameNormal)
@@ -118,7 +119,8 @@ end;
 function TfFrameBill.InitFormDataSQL(const nWhere: string): string;
 var nStr: string;
 begin
-  FEnableBackDB := True;
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
 
   {$IFDEF UseSelectDateTime}
   EditDate.Text := Format('%s 至 %s', [DateTime2Str(FStart), DateTime2Str(FEnd)]);

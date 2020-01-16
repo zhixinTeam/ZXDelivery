@@ -10,7 +10,6 @@ inherited fFormInvoiceGetWeek: TfFormInvoiceGetWeek
   inherited dxLayout1: TdxLayoutControl
     Width = 296
     Height = 134
-    AutoContentSizes = [acsWidth, acsHeight]
     inherited BtnOK: TButton
       Left = 150
       Top = 101
@@ -47,8 +46,6 @@ inherited fFormInvoiceGetWeek: TfFormInvoiceGetWeek
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        AutoAligns = [aaHorizontal]
-        AlignVert = avClient
         Caption = #35831#36873#25321':'
         object dxLayout1Item3: TdxLayoutItem
           Caption = #25152#22312#24180#20221':'

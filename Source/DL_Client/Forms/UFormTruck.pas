@@ -11,7 +11,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormBase, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxDropDownEdit,
-  cxTextEdit, dxLayoutControl, StdCtrls, cxCheckBox;
+  cxTextEdit, dxLayoutControl, StdCtrls, cxCheckBox, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormTruck = class(TfFormNormal)
@@ -37,16 +38,24 @@ type
     dxLayout1Group4: TdxLayoutGroup;
     EditXTNum: TcxTextEdit;
     dxLayout1Item11: TdxLayoutItem;
+    dxlytm_MValueMax: TdxLayoutItem;
+    edt_LimitedValue: TcxTextEdit;
+    dxLayout1Group5: TdxLayoutGroup;
+    dxLayout1Group6: TdxLayoutGroup;
+    dxlytm_MValeMin: TdxLayoutItem;
+    edt_LimitedValueMin: TcxTextEdit;
+    dxLayout1Item12: TdxLayoutItem;
     EditColor: TcxTextEdit;
     dxLayout1Item13: TdxLayoutItem;
     EditType: TcxTextEdit;
-    dxLayout1Item12: TdxLayoutItem;
-    EditStock: TcxTextEdit;
     dxLayout1Item14: TdxLayoutItem;
-    EditPF: TcxTextEdit;
+    EditStock: TcxTextEdit;
     dxLayout1Item15: TdxLayoutItem;
-    EditMemo: TcxTextEdit;
+    EditPF: TcxTextEdit;
+    dxLayout1Group7: TdxLayoutGroup;
+    dxLayout1Group8: TdxLayoutGroup;
     dxLayout1Item16: TdxLayoutItem;
+    EditMemo: TcxTextEdit;
     procedure BtnOKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   protected
@@ -127,7 +136,15 @@ begin
     {$IFDEF UseTruckXTNum}
     EditXTNum.Text := FieldByName('T_XTNum').AsString;
     {$ENDIF}
-    
+
+    {$IFDEF LimitedLoadMValueChk}  //毛重限载控制
+    edt_LimitedValue.Text:= FieldByName('T_Limited').AsString;
+    edt_LimitedValueMin.Text:= FieldByName('T_LimitedMin').AsString;
+    {$ELSE}
+    dxlytm_MValueMax.Visible:= False;
+    dxlytm_MValeMins.Visible:= False;
+    {$ENDIF}
+
     CheckVerify.Checked := FieldByName('T_NoVerify').AsString = sFlag_No;
     CheckValid.Checked := FieldByName('T_Valid').AsString = sFlag_Yes;
     CheckUserP.Checked := FieldByName('T_PrePUse').AsString = sFlag_Yes;
@@ -156,7 +173,7 @@ begin
   end;
   if FTruckID = '' then
   begin
-    nStr := ' select T_Truck from %s where T_Truck=''%s''';
+    nStr := ' Select T_Truck from %s where T_Truck=''%s''';
     nStr := Format(nStr,[sTable_Truck, nTruck]);
     with FDM.QuerySQL(nStr) do
     begin
@@ -213,6 +230,11 @@ begin
           SF('T_Stock', EditStock.Text),
           SF('T_PF', EditPF.Text),
           SF('T_Memo', EditMemo.Text),
+          {$IFDEF LimitedLoadMValueChk}  //毛重限载控制
+          SF('T_Limited', StrToFloatDef(edt_LimitedValue.Text,50)),
+          SF('T_LimitedMin', StrToFloatDef(edt_LimitedValueMin.Text,20)),
+          {$ENDIF}
+
           SF('T_LastTime', sField_SQLServer_Now, sfVal)
           ], sTable_Truck, nStr, FTruckID = '');
   FDM.ExecuteSQL(nStr);

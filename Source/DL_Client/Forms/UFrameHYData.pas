@@ -13,7 +13,9 @@ uses
   dxLayoutControl, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, UBitmapPanel,
-  cxSplitter, Menus, cxLookAndFeels, cxLookAndFeelPainters, cxCheckBox;
+  cxSplitter, Menus, cxLookAndFeels, cxLookAndFeelPainters, cxCheckBox,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
+  dxSkinsdxLCPainter;
 
 type
   TfFrameHYData = class(TfFrameNormal)
@@ -37,6 +39,7 @@ type
     EditID: TcxButtonEdit;
     dxLayout1Item8: TdxLayoutItem;
     N3: TMenuItem;
+    N281: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -47,6 +50,7 @@ type
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure Check1Click(Sender: TObject);
+    procedure N281Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -235,6 +239,16 @@ procedure TfFrameHYData.Check1Click(Sender: TObject);
 begin
   inherited;
   InitFormData('');
+end;
+
+procedure TfFrameHYData.N281Click(Sender: TObject);
+var nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('H_ID').AsString;
+    PrintHuaYanReport(nStr, False,true);
+  end;
 end;
 
 initialization

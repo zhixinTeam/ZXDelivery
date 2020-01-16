@@ -1,8 +1,8 @@
 inherited fFormSaleContract: TfFormSaleContract
   Left = 477
   Top = 235
-  Width = 522
-  Height = 607
+  Width = 565
+  Height = 652
   BorderIcons = [biSystemMenu, biMinimize]
   OldCreateOrder = True
   OnClose = FormClose
@@ -13,8 +13,8 @@ inherited fFormSaleContract: TfFormSaleContract
   object dxLayoutControl1: TdxLayoutControl
     Left = 0
     Top = 0
-    Width = 514
-    Height = 576
+    Width = 549
+    Height = 613
     Align = alClient
     TabOrder = 0
     TabStop = False
@@ -34,8 +34,8 @@ inherited fFormSaleContract: TfFormSaleContract
       Width = 437
     end
     object BtnOK: TButton
-      Left = 359
-      Top = 542
+      Left = 394
+      Top = 579
       Width = 70
       Height = 23
       Caption = #20445#23384
@@ -43,8 +43,8 @@ inherited fFormSaleContract: TfFormSaleContract
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
-      Left = 434
-      Top = 542
+      Left = 469
+      Top = 579
       Width = 69
       Height = 23
       Caption = #21462#28040
@@ -76,28 +76,34 @@ inherited fFormSaleContract: TfFormSaleContract
         item
           DataIndex = 1
           Text = #27700#27877#31867#22411
-          Width = 74
+          Width = 177
         end
         item
           Alignment = taCenter
           DataIndex = 2
           Text = #25968#37327'('#21544')'
-          Width = 70
+          Width = 82
         end
         item
           Alignment = taCenter
           DataIndex = 3
           Text = #21333#20215'('#20803'/'#21544')'
-          Width = 82
+          Width = 92
         end
         item
           Alignment = taCenter
           DataIndex = 4
           Text = #37329#39069'('#20803')'
-          Width = 80
+          Width = 90
         end>
       ParentFont = False
       Style.Edges = [bLeft, bTop, bRight, bBottom]
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -15
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 17
       OnClick = StockList1Click
     end
@@ -239,7 +245,7 @@ inherited fFormSaleContract: TfFormSaleContract
     end
     object Check1: TcxCheckBox
       Left = 11
-      Top = 544
+      Top = 581
       Caption = #34394#25311#21512#21516': '#21150#29702#32440#21345#26102#20801#35768#21464#26356#19994#21153#21592#21644#23458#25143#21517#31216'.'
       ParentFont = False
       TabOrder = 18
@@ -252,7 +258,7 @@ inherited fFormSaleContract: TfFormSaleContract
       Hint = 'T.C_ZKDays'
       ParentFont = False
       TabOrder = 10
-      Text = '1'
+      Text = '600'
       Width = 145
     end
     object cxLabel1: TcxLabel

@@ -11,7 +11,8 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxListView,
   cxDropDownEdit, cxTextEdit, cxMaskEdit, cxButtonEdit, cxMCListBox,
-  dxLayoutControl, StdCtrls;
+  dxLayoutControl, StdCtrls, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormGetZhiKa = class(TfFormNormal)
@@ -188,6 +189,9 @@ begin
   begin
     nStr := Format('C_SaleMan=''%s''', [GetCtrlData(EditSalesMan)]);
     LoadCustomer(EditName.Properties.Items, nStr);
+    EditID.Text:= '';
+    EditName.Text:= '';
+    EditZK.Properties.Items.clear;
   end;
 end;
 

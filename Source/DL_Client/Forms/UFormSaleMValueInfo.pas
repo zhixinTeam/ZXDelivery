@@ -11,7 +11,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormBase, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxDropDownEdit,
-  cxTextEdit, dxLayoutControl, StdCtrls, cxCheckBox;
+  cxTextEdit, dxLayoutControl, StdCtrls, cxCheckBox, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormSaleMValueInfo = class(TfFormNormal)

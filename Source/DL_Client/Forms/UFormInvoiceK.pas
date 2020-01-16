@@ -5,17 +5,19 @@
 unit UFormInvoiceK;
 
 interface
-
+{$I Link.Inc}
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UDataModule, cxGraphics, dxLayoutControl, cxMemo, cxTextEdit,
   cxMCListBox, cxDropDownEdit, cxCalendar, cxContainer, cxEdit, cxMaskEdit,
-  cxButtonEdit, StdCtrls, cxControls, cxLookAndFeels, cxLookAndFeelPainters;
+  cxButtonEdit, StdCtrls, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   PInvoiceDataItem = ^TInvoiceDataItem;
   TInvoiceDataItem = record
-    FRecordID: string;    //记录 
+    FRecordID: string;    //记录
+    FBeltLine: string;    //生产厂区
     FStockType: string;   //类型
     FStockName: string;   //品种
     FPrice: Double;       //提货价
@@ -35,6 +37,7 @@ type
     FSaleMan: string;     //业务员号
     FCusID: string;       //客户编号
     FCustomer: string;    //客户名称
+    FBeltLineX: string;   //生产厂区
   end;
 
   TfFormInvoiceK = class(TForm)
@@ -422,13 +425,14 @@ begin
             Format('I_Flag=''%s''', [FParam.FFlag]),
             Format('I_OutMan=''%s''', [gSysParam.FUserID]),
             Format('I_OutDate=%s', [FDM.SQLServerNow]),
+            {$IFDEF MoreBeltLine}Format('I_BeltLine=''%s''', [FParam.FBeltLineX]), {$ENDIF}
             Format('I_Memo=''%s''', [EditMemo.Text])],
             sTable_Invoice, Format('I_ID=''%s''', [EditInvoice.Text]), False);
     FDM.ExecuteSQL(nSQL);
 
     nSQL := 'Insert Into %s(D_Invoice, D_Type, D_Stock, D_Price, D_Value,' +
-            'D_KPrice, D_DisCount, D_DisMoney) Values(''%s'', ''$Type'', ' +
-            '''$Stock'', $Price, $Value, $KPrice, $ZK, $ZMon)';
+            'D_KPrice, D_DisCount, D_DisMoney'+{$IFDEF MoreBeltLine} ', D_BeltLine '+{$ENDIF}') Values(''%s'', ''$Type'', ' +
+            '''$Stock'', $Price, $Value, $KPrice, $ZK, $ZMon'+{$IFDEF MoreBeltLine} ', ''$BeltLine'' '+{$ENDIF}')';
     nSQL := Format(nSQL, [sTable_InvoiceDtl, EditInvoice.Text]);
 
     nCount := FDataItem.Count - 1;
@@ -441,6 +445,7 @@ begin
       nStr := MacroValue(nSQL, [MI('$Type', FStockType),
               MI('$Stock', FStockName), MI('$Price', FloatToStr(FPrice)),
               MI('$Value', FloatToStr(FKValue)), MI('$KPrice', FloatToStr(FKPrice)),
+              MI('$BeltLine', FBeltLine),
               MI('$ZK', FloatToStr(FZPrice)), MI('$ZMon', FloatToStr(nVal))]);
       FDM.ExecuteSQL(nStr);
     end;

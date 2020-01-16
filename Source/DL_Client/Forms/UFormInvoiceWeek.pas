@@ -11,7 +11,8 @@ uses
   Dialogs, UFormNormal, dxLayoutControl, StdCtrls, cxControls, cxMemo,
   cxButtonEdit, cxLabel, cxTextEdit, cxContainer, cxEdit, cxMaskEdit,
   cxDropDownEdit, cxCalendar, cxGraphics, cxLookAndFeels,
-  cxLookAndFeelPainters;
+  cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormInvoiceWeek = class(TfFormNormal)

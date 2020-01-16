@@ -14,7 +14,8 @@ uses
   cxCheckBox, cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel,
   UBitmapPanel, cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter;
 
 type
   TfFramePoundQuery = class(TfFrameNormal)
@@ -124,7 +125,7 @@ end;
 
 function TfFramePoundQuery.InitFormDataSQL(const nWhere: string): string;
 begin
-  FEnableBackDB := True;
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
   //启用备份数据库
 
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);

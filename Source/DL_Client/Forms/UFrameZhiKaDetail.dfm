@@ -1,7 +1,8 @@
 inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
-  Width = 686
+  Width = 823
+  Height = 430
   inherited ToolBar1: TToolBar
-    Width = 686
+    Width = 823
     inherited BtnAdd: TToolButton
       Caption = #21150#29702
       Visible = False
@@ -18,11 +19,12 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
   end
   inherited cxGrid1: TcxGrid
     Top = 205
-    Width = 686
-    Height = 162
+    Width = 823
+    Height = 225
     LevelTabs.Slants.Kind = skCutCorner
     inherited cxView1: TcxGridDBTableView
       PopupMenu = PMenu1
+      OnCustomDrawCell = cxView1CustomDrawCell
       OptionsSelection.MultiSelect = True
     end
     inherited cxLevel1: TcxGridLevel
@@ -30,14 +32,14 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
     end
   end
   inherited dxLayout1: TdxLayoutControl
-    Width = 686
+    Width = 823
     Height = 138
     object cxTextEdit1: TcxTextEdit [0]
       Left = 81
-      Top = 93
+      Top = 96
       Hint = 'T.Z_ID'
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 5
       Width = 112
     end
     object EditCus: TcxButtonEdit [1]
@@ -84,27 +86,59 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
     end
     object cxTextEdit4: TcxTextEdit [4]
       Left = 256
-      Top = 93
+      Top = 96
       Hint = 'T.D_StockName'
       ParentFont = False
-      TabOrder = 4
+      TabOrder = 6
       Width = 135
     end
     object cxTextEdit2: TcxTextEdit [5]
       Left = 617
-      Top = 93
+      Top = 96
       Hint = 'T.C_Name'
       ParentFont = False
-      TabOrder = 6
+      TabOrder = 8
       Width = 121
     end
     object cxTextEdit3: TcxTextEdit [6]
       Left = 454
-      Top = 93
+      Top = 96
       Hint = 'T.D_Value'
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 7
       Width = 100
+    end
+    object cxlbl1: TcxLabel [7]
+      Left = 695
+      Top = 36
+      AutoSize = False
+      ParentColor = False
+      ParentFont = False
+      Style.Color = 5219839
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -15
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.TextColor = clWhite
+      Style.IsFontAssigned = True
+      Height = 22
+      Width = 40
+    end
+    object cxlbl2: TcxLabel [8]
+      Left = 644
+      Top = 36
+      Caption = #20923#32467#20013':'
+      ParentColor = False
+      ParentFont = False
+      Style.Color = clWhite
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.TextColor = clBlack
+      Style.IsFontAssigned = True
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
@@ -121,6 +155,16 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
         object dxLayout1Item6: TdxLayoutItem
           Caption = #26085#26399#31579#36873':'
           Control = EditDate
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item9: TdxLayoutItem
+          ShowCaption = False
+          Control = cxlbl2
+          ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Item8: TdxLayoutItem
+          ShowCaption = False
+          Control = cxlbl1
           ControlOptions.ShowBorder = False
         end
       end
@@ -152,15 +196,15 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
   end
   inherited cxSplitter1: TcxSplitter
     Top = 197
-    Width = 686
+    Width = 823
   end
   inherited TitlePanel1: TZnBitmapPanel
-    Width = 686
+    Width = 823
     inherited TitleBar: TcxLabel
       Caption = #32440#21345#26126#32454#26597#35810
       Style.IsFontAssigned = True
-      Width = 686
-      AnchorX = 343
+      Width = 823
+      AnchorX = 412
       AnchorY = 11
     end
   end
@@ -176,7 +220,7 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
     AutoHotkeys = maManual
     OnPopup = PMenu1Popup
     Left = 2
-    Top = 270
+    Top = 273
     object N4: TMenuItem
       Caption = #8251#32440#21345#20923#32467#8251
       Enabled = False

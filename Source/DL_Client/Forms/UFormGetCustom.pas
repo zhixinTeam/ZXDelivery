@@ -10,7 +10,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxContainer, cxEdit, cxTextEdit,
   cxMaskEdit, cxDropDownEdit, dxLayoutControl, StdCtrls, cxControls,
-  ComCtrls, cxListView, cxButtonEdit, cxLabel;
+  ComCtrls, cxListView, cxButtonEdit, cxLabel, cxLookAndFeels,
+  cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormGetCustom = class(TfFormNormal)
@@ -22,9 +24,9 @@ type
     dxLayout1Item5: TdxLayoutItem;
     ListCustom: TcxListView;
     dxLayout1Item6: TdxLayoutItem;
-    dxLayout1Group2: TdxLayoutGroup;
     cxLabel1: TcxLabel;
     dxLayout1Item7: TdxLayoutItem;
+    dxLayout1Group3: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);

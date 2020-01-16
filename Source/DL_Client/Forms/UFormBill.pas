@@ -13,7 +13,8 @@ uses
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxMaskEdit,
   cxDropDownEdit, cxListView, cxTextEdit, cxMCListBox, dxLayoutControl,
   UMgrSDTReader,
-  StdCtrls, cxButtonEdit, cxCheckBox, cxCalendar;
+  StdCtrls, cxButtonEdit, cxCheckBox, cxCalendar, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormBill = class(TfFormNormal)
@@ -57,6 +58,11 @@ type
     dxLayout1Item18: TdxLayoutItem;
     editDate: TcxDateEdit;
     dxLayout1Item19: TdxLayoutItem;
+    dxLayout1Group4: TdxLayoutGroup;
+    dxLayout1Group6: TdxLayoutGroup;
+    dxlytm_SCX: TdxLayoutItem;
+    cbb_BeltLine: TcxComboBox;
+    dxLayout1Group9: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -285,7 +291,14 @@ begin
   dxLayout1Item16.Visible := False;
   cbbXHSpot.Text := '';
   {$ENDIF}
-
+  
+  {$IFDEF MoreBeltLine}
+  //不同生产线不同批次
+  dxlytm_SCX.Visible := True;
+  cbb_BeltLine.Text:= '';
+  {$ELSE}
+  dxlytm_SCX.Visible := False;
+  {$ENDIF}
   AdjustCtrlData(Self);
 
   gSDTReaderManager.OnSDTEvent := SyncCard;
@@ -303,6 +316,7 @@ begin
     nIni.Free;
   end;
 
+  gSysParam.FDefaultBeltLine:= cbb_BeltLine.Text;
   ReleaseCtrlData(Self);
 end;
 
@@ -463,6 +477,27 @@ begin
       end;
     end;
   end;
+
+  {$IFDEF MoreBeltLine}
+  if cbb_BeltLine.Properties.Items.Count < 1 then
+  begin
+    nStr := 'Select * From %s Where D_Name=''BeltLineItem''';
+    nStr := Format(nStr, [sTable_SysDict]);
+
+    with FDM.QueryTemp(nStr) do
+    if RecordCount > 0 then
+    begin
+      First;
+      cbb_BeltLine.Properties.Items.Clear;
+      while not Eof do
+      begin
+        cbb_BeltLine.Properties.Items.Add(FieldByName('D_Memo').AsString);
+        Next;
+      end;
+    end;
+  end;
+  cbb_BeltLine.Text:= gSysParam.FDefaultBeltLine;
+  {$ENDIF}
 end;
 
 //Desc: 刷新水泥列表到窗体
@@ -695,6 +730,12 @@ begin
     ShowMsg('请先办理提货单', sHint); Exit;
   end;
 
+  {$IFDEF MoreBeltLine}
+  if cbb_BeltLine.Text='' then
+  begin
+    ShowMsg('请选择生产线', sHint); Exit;
+  end;
+  {$ENDIF}
   {$IFDEF UseBLMoney}
   nLimit := GetCustomerValidMoney(gInfo.FCusID, False);
   nBLMoney := 0;
@@ -707,7 +748,7 @@ begin
   end;
   if nLimit < nBLMoney then
   begin
-    ShowMsg('客户可用资金为'+FloatToStr(nLimit)+'已不足'+FloatToStr(nBLMoney), sHint);
+    ShowMsg('客户可用资金为:'+FloatToStr(nLimit)+'已不足'+FloatToStr(nBLMoney), sHint);
     Exit;
   end;
   {$ENDIF}
@@ -765,7 +806,7 @@ begin
       if not FSelecte then Continue;
       //xxxxx
 
-      Values['Type'] := FType;
+      Values['Type']  := FType;
       Values['StockNO'] := FStockNO;
       Values['StockName'] := FStockName;
       Values['Seal']  := FStockSeal;
@@ -800,6 +841,7 @@ begin
     begin
       Values['Bills'] := PackerEncodeStr(nList.Text);
       Values['ZhiKa'] := gInfo.FZhiKa;
+      {$IFDEF MoreBeltLine}Values['BeltLine'] := cbb_BeltLine.Text;{$ENDIF}
       Values['Truck'] := EditTruck.Text;
       Values['Ident'] := EditIdent.Text;
       Values['SJName']:= EditSJName.Text;

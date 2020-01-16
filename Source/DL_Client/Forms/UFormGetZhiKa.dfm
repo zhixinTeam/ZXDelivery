@@ -1,8 +1,8 @@
 inherited fFormGetZhiKa: TfFormGetZhiKa
-  Left = 351
-  Top = 280
-  Width = 431
-  Height = 467
+  Left = 729
+  Top = 240
+  Width = 445
+  Height = 492
   BorderStyle = bsSizeable
   Position = poDesktopCenter
   OnClose = FormClose
@@ -10,17 +10,17 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 423
-    Height = 440
+    Width = 429
+    Height = 453
     inherited BtnOK: TButton
-      Left = 277
-      Top = 407
+      Left = 283
+      Top = 420
       Caption = #30830#23450
       TabOrder = 6
     end
     inherited BtnExit: TButton
-      Left = 347
-      Top = 407
+      Left = 353
+      Top = 420
       TabOrder = 7
     end
     object ListInfo: TcxMCListBox [2]
@@ -40,6 +40,12 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
         end>
       ParentFont = False
       Style.Edges = [bLeft, bTop, bRight, bBottom]
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -12
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 0
     end
     object EditID: TcxButtonEdit [3]
@@ -52,6 +58,12 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -12
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 1
       OnKeyPress = OnCtrlKeyPress
       Width = 124
@@ -65,52 +77,70 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Properties.ImmediateDropDown = False
       Properties.ItemHeight = 18
       Properties.OnChange = EditSalesManPropertiesChange
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -12
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 2
-      Width = 121
+      Width = 138
     end
     object EditName: TcxComboBox [5]
       Left = 81
-      Top = 182
+      Top = 187
       ParentFont = False
       Properties.DropDownRows = 20
       Properties.ImmediateDropDown = False
       Properties.IncrementalSearch = False
       Properties.ItemHeight = 18
       Properties.OnEditValueChanged = EditNamePropertiesEditValueChanged
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -12
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 3
       OnKeyPress = EditNameKeyPress
-      Width = 185
+      Width = 325
     end
     object ListDetail: TcxListView [6]
       Left = 23
-      Top = 264
+      Top = 279
       Width = 355
       Height = 154
       Checkboxes = True
       Columns = <
         item
           Caption = #27700#27877#31867#22411
-          Width = 120
+          Width = 180
         end
         item
           Caption = #21333#20215'('#20803'/'#21544')'
-          Width = 100
+          Width = 80
         end
         item
           Caption = #21150#29702#37327'('#21544')'
-          Width = 100
+          Width = 80
         end>
       HideSelection = False
       ParentFont = False
       ReadOnly = True
       RowSelect = True
       Style.Edges = [bLeft, bTop, bRight, bBottom]
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -13
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 5
       ViewStyle = vsReport
     end
     object EditZK: TcxComboBox [7]
       Left = 81
-      Top = 239
+      Top = 249
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 20
@@ -118,9 +148,15 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Properties.IncrementalSearch = False
       Properties.ItemHeight = 20
       Properties.OnEditValueChanged = EditZKPropertiesEditValueChanged
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -12
+      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
       TabOrder = 4
       OnKeyPress = EditNameKeyPress
-      Width = 368
+      Width = 325
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup

@@ -12,7 +12,7 @@ uses
   UDataModule, UFormBase, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, dxLayoutControl, cxCheckBox,
   cxLabel, StdCtrls, cxMaskEdit, cxDropDownEdit, cxMCListBox, cxMemo,
-  cxTextEdit;
+  cxTextEdit, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormCustomer = class(TBaseForm)
@@ -406,7 +406,7 @@ begin
     if Fields[0].AsInteger > 0 then
     begin
       nStr := '客户[ %s ]已存在!!' + #13#10#13#10 +
-              '客户重名可能会导致回款、办卡等操作错误';
+              '客户重名会导致回款、办卡等操作错误、禁止此操作';
       nStr := Format(nStr, [EditName.Text]);
       ShowMsg(nStr, sHint);
       Exit;

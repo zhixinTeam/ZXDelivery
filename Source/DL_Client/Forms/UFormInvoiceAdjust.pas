@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormBase, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxTextEdit, cxMemo,
-  dxLayoutControl, StdCtrls, cxLabel;
+  dxLayoutControl, StdCtrls, cxLabel, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinsdxLCPainter;
 
 type
   TfFormInvoiceAdjust = class(TfFormNormal)
