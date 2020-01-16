@@ -85,6 +85,7 @@ type
 
     function GetCustomerValidMoney(nCustomer: string): Double;
     //获取客户可用金
+    function GetCustomerFixMoney(nCustomer: string): Double;
     function GetCustomerValidMoneyFromK3(nCustomer: string): Double;
     //获取客户可用金(K3)
     function GetInOutValue(nBegin, nEnd, nType: string): string;
@@ -803,10 +804,12 @@ var
   nNode: TXmlNode;
   nValue, nMoney, nSalesCredit, nFMoney: Double;
   nVefyWebOrder: Boolean;
+  nTotalFixMoney, nZKFixMoney: Double;
+  nFixZK : Boolean;
 begin
   Result := False;
   BuildDefaultXML;
-  nMoney := 0;
+  nMoney := 0;   nTotalFixMoney := 0; nZKFixMoney := 0;
   nFMoney := 0;
   nVefyWebOrder := False;
 
@@ -851,6 +854,11 @@ begin
   nMoney := GetCustomerValidMoneyFromK3(FIn.FData);
   {$ENDIF}
 
+  {$IFDEF UseCustomerFixMoney}
+  //限提纸卡总金额
+  nTotalFixMoney := GetCustomerFixMoney(FIn.FData);
+  {$ENDIF}
+  
   if nVefyWebOrder then
   begin
     nStr := 'select W_OrderNo,W_StockNo,W_Value from %s y ' +
@@ -894,7 +902,9 @@ begin
     '  Z_Name,' +                           //客户名称
     '  Z_Lading,' +                         //提货方式
     '  Z_CID, ' +                           //合同编号
-    '  Z_Name ' +                           //纸卡名称
+    '  Z_Name, ' +                          //纸卡名称
+    '  IsNull(Z_FixedMoney, 0) Z_FixedMoney, ' +   //限提额度
+    '  Z_OnlyMoney ' +                      //是否限提   Y 限提
     {$IFDEF SXDY}
     '  ,a.Z_XHSpot ' +                        //卸货地点
     {$ENDIF}
@@ -932,6 +942,12 @@ begin
       {$IFDEF WxShowCusMoney}
       NodeNew('CusMoney').ValueAsString := FloatToStr(nMoney);
       {$ENDIF}
+      
+      {$IFDEF UseCustomerFixMoney}
+      //可用金去除限提纸卡总金额
+      nMoney:= nMoney- nTotalFixMoney;
+      if nMoney<0 then nMoney:= 0;
+      {$ENDIF}
     end;
 
     nNode := Root.NodeNew('Items');
@@ -954,6 +970,19 @@ begin
         else
           NodeNew('ContractType').ValueAsString := '2';
         NodeNew('BillName').ValueAsString        := FieldByName('Z_Name').AsString;
+        
+        {$IFDEF UseCustomerFixMoney}
+        //当前限提纸卡金额
+        nFixZK:= False;
+        if FieldByName('Z_FixedMoney').AsString=sFlag_Yes then
+        begin
+          nFixZK:= True;
+          nZKFixMoney := FieldByName('Z_FixedMoney').AsFloat;
+          if nZKFixMoney<0 then nZKFixMoney:= 0;
+          NodeNew('BillName').ValueAsString:= '(限提:'+FloatToStr(nZKFixMoney)+'元)'+FieldByName('Z_Name').AsString;
+        end;
+        {$ENDIF}
+        
         {$IFDEF SXDY}
         NodeNew('UnloadingPlace').ValueAsString  := FieldByName('Z_XHSpot').AsString;
         {$ENDIF}
@@ -962,6 +991,14 @@ begin
         try
           nValue := nMoney / FieldByName('D_Price').AsFloat;
           nValue := Float2PInt(nValue, cPrecision, False) / cPrecision;
+
+          {$IFDEF UseCustomerFixMoney}
+          //限提纸卡使用限提额度
+          IF nFixZK then
+          begin
+            nValue := nZKFixMoney / FieldByName('D_Price').AsFloat;
+          end;
+          {$ENDIF}
         except
           nValue := 0;
         end;
