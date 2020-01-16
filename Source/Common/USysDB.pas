@@ -168,6 +168,7 @@ const
   sFlag_ManualD       = 'D';                         //空车出厂
   sFlag_ManualE       = 'E';                         //车牌识别
   sFlag_ManualF       = 'F';                         //毛重超过上限
+  sFlag_ManualG       = 'G';                         //批次预警提醒
 
   sFlag_FactoryID     = 'FactoryID';                 //工厂编号
   sFlag_SysParam      = 'SysParam';                  //系统参数
@@ -179,6 +180,7 @@ const
   sFlag_ViaBillCard   = 'ViaBillCard';               //直接制卡
   sFlag_PayCredit     = 'Pay_Credit';                //回款冲信用
   sFlag_CreditVerify  = 'CreditVerify';              //信用审核
+  sFlag_CreditMaxMoney = 'CreditMaxMoney';            //单次信用申请上限
   sFlag_SettleValid   = 'SettleValid';               //结算有效期
   sFlag_HYValue       = 'HYMaxValue';                //化验批次量
   sFlag_SaleManDept   = 'SaleManDepartment';         //业务员部门编号
@@ -252,6 +254,7 @@ const
   sFlag_FobiddenInMul = 'FobiddenInMul';             //禁止多次进厂
   sFlag_StockKuWei    = 'StockKuWei';                //物料库位
   sFlag_CustomerType  = 'CustomerType';              //客户分类
+  sFlag_NoBatchAuto   = 'NoBatchAuto';               //无需批次品种
 
   sFlag_BusGroup      = 'BusFunction';               //业务编码组
   sFlag_BillNo        = 'Bus_Bill';                  //交货单号
@@ -271,6 +274,7 @@ const
   sFlag_OrderBase     = 'Bus_OrderBase';             //采购申请单号
   sFlag_Grab          = 'Bus_Grab';                  //抓斗称单据号
 
+  sFlag_DepSys        = '系统消息';                  //系统
   sFlag_Departments   = 'Departments';               //部门列表
   sFlag_DepDaTing     = '大厅';                      //服务大厅
   sFlag_DepJianZhuang = '监装';                      //监装
@@ -283,6 +287,7 @@ const
   sFlag_Solution_YN   = 'Y=通过;N=禁止';
   sFlag_Solution_YNI  = 'Y=通过;N=禁止;I=忽略';
   sFlag_Solution_OK   = 'O=知道了';
+  sFlag_Solution_YNt  = 'Y=已收到;I=忽略';
 
   sFlag_LSStock       = 'ls-sn-00';                  //零售水泥编号(预开)
   sFlag_LSCustomer    = 'ls-kh-00';                  //零售客户编号(预开)
@@ -415,8 +420,10 @@ const
 
   sTable_SalesCredit  = 'Sys_SalesCredit';           //业务员信用
   sTable_PMaterailControl = 'Sys_PMaterailControl';  //原材料进厂控制表
-
+  sTable_SnapTruck    = 'Sys_SnapTruck';             //车辆抓拍记录
   sTable_TruckCross   = 'Sys_TruckCross';            //车辆通行记录  
+
+
   {*新建表*}
   sSQL_NewSysDict = 'Create Table $Table(D_ID $Inc, D_Name varChar(15),' +
        'D_Desc varChar(30), D_Value varChar(50), D_Memo varChar(20),' +
@@ -836,7 +843,8 @@ const
        'D_Type Char(1), D_StockNo varChar(20), D_StockName varChar(80),' +
        'D_Price $Float, D_Value $Float, ' +
        'D_FLPrice $Float Default 0, D_YunFei $Float Default 0,' +
-       'D_PPrice $Float, D_TPrice Char(1) Default ''Y'')';
+       'D_PPrice $Float, D_TPrice Char(1) Default ''Y'', '+
+       'D_Man varchar(20), D_TJDate DateTime ) ';
   {-----------------------------------------------------------------------------
    纸卡明细:ZhiKaDtl
    *.R_ID:记录编号
@@ -849,6 +857,8 @@ const
    *.D_YunFei: 运费单价
    *.D_PPrice:调价前单价
    *.D_TPrice:允许调价
+   *.D_Man   :调价人
+   *.D_TJDate:调价时间
   -----------------------------------------------------------------------------}
 
   sSQL_NewPriceRule = 'Create Table $Table(R_ID $Inc, R_StockNo varChar(20), ' +
@@ -888,7 +898,8 @@ const
        'L_Seal1 varChar(32), L_Seal2 varChar(32), L_Seal3 varChar(32),' +
        'L_KuWei varChar(20), L_CusType char(1),' +
        'L_XHSpot varChar(30), L_Freight $Float, L_Ident varChar(30),' +
-       'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320))';
+       'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320),' +
+       'L_SnapStatus Char(1) Default ''Y'', L_BeltLine varChar(50), )';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号
@@ -935,6 +946,7 @@ const
    *.L_XHSpot:卸货点
    *.L_Freight:运费
    *.L_Ident:身份证号
+   *.L_BeltLine : 订单发货生产线或生产厂区
   -----------------------------------------------------------------------------}
 
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +
@@ -1096,7 +1108,8 @@ const
        'T_PlateColor varChar(12),T_Type varChar(12), T_LastTime DateTime, ' +
        'T_Card varChar(32), T_CardUse Char(1), T_Card2 varChar(32), T_Memo varChar(500),' +
        'T_Stock varChar(32), T_PF varChar(32),' +
-       'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), T_HasGPS Char(1), T_GPSDate DateTime)';
+       'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), '+
+       'T_Limited $Float, T_LimitedMin $Float, T_HasGPS Char(1), T_GPSDate DateTime)';
   {-----------------------------------------------------------------------------
    车辆信息:Truck
    *.R_ID: 记录号
@@ -1116,13 +1129,15 @@ const
    *.T_PlateColor: 车牌颜色
    *.T_Type: 车型
    *.T_LastTime: 上次活动
-   *.T_Card: 电子标签
-   *.T_CardUse: 使用电子签(Y/N)
+   *.T_Card    : 电子标签
+   *.T_CardUse : 使用电子签(Y/N)
    *.T_NoVerify: 不校验时间
-   *.T_Valid: 是否有效
+   *.T_Valid   : 是否有效
    *.T_VIPTruck:是否VIP
-   *.T_HasGPS:安装GPS(Y/N)
-   *.T_GPSDate:GPS有效日期
+   *.T_HasGPS  :安装GPS(Y/N)
+   *.T_GPSDate :GPS有效日期
+   *.T_Limited :毛重限载上限
+   *.T_LimitedMin :毛重限载下限
    *.T_Memo:备注
    *.T_Stock:品种
    *.T_PF:排放标准
@@ -1203,7 +1218,7 @@ const
 
   sSQL_NewZTLines = 'Create Table $Table(R_ID $Inc, Z_ID varChar(15),' +
        'Z_Name varChar(32), Z_StockNo varChar(20), Z_Stock varChar(80),' +
-       'Z_StockType Char(1), Z_PeerWeight Integer,' +
+       'Z_StockType Char(1), Z_PeerWeight Integer, Z_BeltLine varChar(50),' +
        'Z_QueueMax Integer, Z_VIPLine Char(1), Z_Valid Char(1), Z_Index Integer)';
   {-----------------------------------------------------------------------------
    装车线配置: ZTLines
@@ -1218,6 +1233,7 @@ const
    *.Z_VIPLine: VIP通道
    *.Z_Valid: 是否有效
    *.Z_Index: 顺序索引
+   *.Z_BeltLine : 生产线
   -----------------------------------------------------------------------------}
 
   sSQL_NewZTTrucks = 'Create Table $Table(R_ID $Inc, T_Truck varChar(15),' +
@@ -1227,7 +1243,8 @@ const
        'T_InLade DateTime, T_VIP Char(1), T_Valid Char(1), T_Bill varChar(15),' +
        'T_Value $Float, T_PeerWeight Integer, T_Total Integer Default 0,' +
        'T_Normal Integer Default 0, T_BuCha Integer Default 0,' +
-       'T_PDate DateTime, T_IsPound Char(1),T_HKBills varChar(200))';
+       'T_PDate DateTime, T_IsPound Char(1),T_HKBills varChar(200),'+
+       'T_BeltLine varChar(50) )';
   {-----------------------------------------------------------------------------
    待装车队列: ZTTrucks
    *.R_ID: 记录号
@@ -1252,6 +1269,7 @@ const
    *.T_PDate: 过磅时间
    *.T_IsPound: 需过磅(Y/N)
    *.T_HKBills: 合卡交货单列表
+   *.T_BeltLine : 生产线
   -----------------------------------------------------------------------------}
 
   sSQL_NewAuditTruck = 'Create Table $Table(R_ID $Inc, A_ID varChar(50),' +
@@ -1340,7 +1358,7 @@ const
        'R_ZhiKa varChar(15), R_CusID varChar(15), R_Customer varChar(80),' +
        'R_CusPY varChar(80), R_SaleID varChar(15), R_SaleMan varChar(50), ' +
        'R_Type Char(1), R_Stock varChar(20), R_StockName varChar(80), ' +
-       'R_Price $Float, R_Value $Float, R_YunFei $Float,' +
+       'R_Price $Float, R_Value $Float, R_YunFei $Float, R_BeltLine varChar(50),' +
        'R_PreHasK $Float Default 0, R_ReqValue $Float, R_KPrice $Float,' +
        'R_KValue $Float Default 0, R_KOther $Float Default 0,' +
        'R_KMan varChar(32),R_KDate DateTime,R_Man varChar(32),R_Date DateTime)';
@@ -1355,6 +1373,7 @@ const
    *.R_SaleMan:业务员名
    *.R_Type:水泥类型(D,S)
    *.R_Stock,R_StockName:水泥品种
+   *.R_BeltLine:生产线、厂区
    *.R_Price:单价
    *.R_Value:提货量
    *.R_YunFei:运费单价
@@ -1585,7 +1604,7 @@ const
        'R_JZSYSZB varChar(32),R_JZSBGMD varChar(32),R_JZSSSDJMD varChar(32),R_JZSKXL varChar(32),' +
        'R_JZSFKS475 varChar(32),R_JZSFKS236 varChar(32),R_JZSFKS118 varChar(32),' +
        'R_JZSFKS060 varChar(32),R_JZSFKS030 varChar(32),R_JZSFKS015 varChar(32),R_JZSXDMS varChar(32),' +
-       'R_Date DateTime, R_Man varChar(32))';
+       'R_Date DateTime, R_Man varChar(32), R_CXDate DateTime)';
   {-----------------------------------------------------------------------------
    检验记录:StockRecord
    *.R_ID:记录编号
@@ -1654,6 +1673,8 @@ const
    *.R_JZSFKS030:方孔筛0.3
    *.R_JZSFKS015:方孔筛0.15
    *.R_JZSXDMS:细度模数
+   *.R_Man      :录入人
+   *.R_CXDate   :成型时间
   -----------------------------------------------------------------------------}
 
   sSQL_NewYCLStockRecord = 'Create Table $Table(R_ID $Inc, R_SerialNo varChar(15),' +
@@ -1701,21 +1722,23 @@ const
   sSQL_NewStockHuaYan = 'Create Table $Table(H_ID $Inc, H_No varChar(15),' +
        'H_Custom varChar(15), H_CusName varChar(80), H_SerialNo varChar(15),' +
        'H_Truck varChar(15), H_Value $Float, H_BillDate DateTime,' +
-       'H_EachTruck Char(1), H_ReportDate DateTime, H_Reporter varChar(32),H_KindType char(1))';
+       'H_EachTruck Char(1), H_ReportDate DateTime, H_Reporter varChar(32),'+
+       'H_KindType char(1), H_PrintNum int Not Null Default 0 )';
   {-----------------------------------------------------------------------------
    开化验单:StockHuaYan
    *.H_ID:记录编号
    *.H_No:化验单号
    *.H_Custom:客户编号
-   *.H_CusName:客户名称
-   *.H_SerialNo:水泥编号
-   *.H_Truck:提货车辆
-   *.H_Value:提货量
-   *.H_BillDate:提货日期
-   *.H_EachTruck: 随车开单
-   *.H_ReportDate:报告日期
-   *.H_Reporter:报告人
-   *.H_KindType:是否补单：Y：是
+   *.H_CusName   : 客户名称
+   *.H_SerialNo  : 水泥编号
+   *.H_Truck     : 提货车辆
+   *.H_Value     : 提货量
+   *.H_BillDate  : 提货日期
+   *.H_EachTruck : 随车开单
+   *.H_ReportDate: 报告日期
+   *.H_Reporter  : 报告人
+   *.H_KindType  : 是否补单：Y：是
+   *.H_PrintNum  : 打印次数
   -----------------------------------------------------------------------------}
 
   sSQL_NewStockBatcode = 'Create Table $Table(R_ID $Inc, B_Stock varChar(32),' +
@@ -1723,7 +1746,8 @@ const
        'B_Base Integer, B_Incement Integer, B_Length Integer, B_Type char(1), ' +
        'B_Value $Float, B_Low $Float, B_High $Float, B_Interval Integer,' +
        'B_AutoNew Char(1), B_UseDate Char(1), B_FirstDate DateTime,' +
-       'B_LastDate DateTime, B_HasUse $Float Default 0, B_Batcode varChar(32))';
+       'B_LastDate DateTime, B_HasUse $Float Default 0, B_Batcode varChar(32),'+
+       'B_Man VarChar(20) )';
   {-----------------------------------------------------------------------------
    批次编码表: Batcode
    *.R_ID: 编号
@@ -1744,6 +1768,7 @@ const
    *.B_HasUse: 已使用
    *.B_Batcode: 当前批次号
    *.B_Type: 批次分类
+   *.B_Man : 录入人
   -----------------------------------------------------------------------------}
 
   sSQL_NewK3SalePlan = 'Create Table $Table(R_ID $Inc, S_InterID Integer,' +
@@ -1955,6 +1980,16 @@ const
    *.C_Memo: 备注
   -----------------------------------------------------------------------------}
 
+  sSQL_SnapTruck = 'Create Table $Table(R_ID $Inc, S_ID varChar(20), ' +
+       'S_Truck varChar(20), S_Date DateTime)';
+  {-----------------------------------------------------------------------------
+   车牌识别记录
+   *.R_ID:记录编号
+   *.S_ID: 抓拍岗位
+   *.S_Truck:抓拍车牌号
+   *.S_Date: 抓拍时间
+  -----------------------------------------------------------------------------}
+  
   sSQL_NewTruckCross = 'Create Table $Table(R_ID $Inc, C_Truck varChar(32),' +
        'C_Card varChar(32), C_Reader varChar(32), C_Date DateTime, C_Memo varchar(100))';
   {-----------------------------------------------------------------------------
@@ -2137,6 +2172,8 @@ begin
 
   AddSysTableItem(sTable_SalesCredit, sSQL_NewSalesCredit);
   AddSysTableItem(sTable_PMaterailControl,sSQL_NewPMControlInfo);
+
+  AddSysTableItem(sTable_SnapTruck,sSQL_SnapTruck);
   AddSysTableItem(sTable_TruckCross,sSQL_NewTruckCross);
 end;
 

@@ -17,7 +17,7 @@
 {$DEFINE RO_v90}
 //XE.Lib启用RO支持
 
-{$DEFINE EnableBackupDB}
+{.$DEFINE EnableBackupDB}
 //备用数据库支持
 {.$DEFINE EnableDoubleDB}
 //双数据库支持
@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE DYGL}
+{$DEFINE YNHT}
 //特定系统
 
 //山西声威
@@ -764,4 +764,109 @@
   //使用二期微信中间件
   //补单可以修改补单日期
   {$DEFINE BuDanChangeDate} 
+{$ENDIF}
+
+//焦作中晶
+{$IFDEF JZZJ}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {.$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {.$DEFINE PrintHeGeZheng}
+  {$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE UseCustomerFixMoney}
+  //微信订单量限提纸卡做区分
+
+  {$DEFINE PrintHY}
+  //出厂打印化验单
+  {$DEFINE SaveHyDanEvent}
+  //生成推送化验单事件
+  {$DEFINE WxShowCusMoney}
+  //微信端显示客户金额
+  {$DEFINE CastMoney}
+  //对吨位及金额小数位后2位四舍五入
+  {$DEFINE NoCheckOrderValue}
+  //自助机原材料开卡不检查订单剩余量
+  {$DEFINE ProberShow}
+  //车检发送小屏
+  {.$DEFINE FixLoad}
+  //定制放灰
+  {$DEFINE OrderNoMulCard}
+  //采购禁止一车多单
+  {$DEFINE CapturePictureEx}
+  //磅房抓拍模式扩展
+  {$DEFINE BusinessOnly}
+  //车辆同一时间只能进行1种业务
+  {$DEFINE ForceMemo}
+  //强制输入备注
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE AlwaysUseDate}
+  //报表查询始终使用日期条件
+  {$DEFINE AllowMultiM}
+  //允许多次过重车
+  {.$DEFINE IdentCard}
+  //身份证信息
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
+  {$DEFINE UseFreight}
+  //使用运费
+ {$DEFINE UseWXServiceEx}
+  //使用二期微信中间件
+ {$DEFINE PoundMAfterAutoOutFact}
+  //销售单过毛重后自动出厂
+ {$DEFINE UseBXFontLED}
+  //出厂票箱小屏
+  {$DEFINE RemoteSnap}
+  //车牌识别
+  {$DEFINE LimitedLoadMValueChk}
+  //毛重限载检查
+  {$DEFINE PoundOpenBackGate}
+  //过磅异常倒车下磅
+  {$DEFINE HYPrintNum}
+  //化验单打印次数	
+  {$DEFINE UseJSLogin}
+  //计数器登录模块	
+  {$DEFINE MoreBeltLine}
+  //销售不同生产线或厂区批次编号不同
+  {$DEFINE ShowSelfData}
+  //化验室数据只显示个人数据
+  {.$DEFINE UseOPCMode}
+  //计数器OPC通信
+  {$DEFINE ZJModBusTCPJSQ}
+  //ModBusTCP计数器
+  {$DEFINE JSQUseMITService}
+  //计数器与MIT交互
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE XTaskThread}
+  //定时任务线程
+  {$DEFINE AllowUnsettlement}
+  //发票允许之前周期未结算
+  {$DEFINE NotZZCombine}
+  //发票不做之前周期结算合并
 {$ENDIF}

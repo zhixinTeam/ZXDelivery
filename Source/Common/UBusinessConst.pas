@@ -63,7 +63,13 @@ const
   cBC_GetPostBills            = $0030;   //获取岗位交货单
   cBC_SavePostBills           = $0031;   //保存岗位交货单
   cBC_MakeSanPreHK            = $0032;   //执行散装预合卡
+  cBC_BX6K1ShowText           = $0033;   //袋装刷卡网口小屏显示
+  cBC_IsTruckInQueue          = $0034;   //车辆是否在队列
+  
 
+  cBC_GetStockBatcodeMoreBeltLine= $0035;   //获取同品种不同生产线、不同厂区批次编号
+  cBC_GetPoundReaderInfo      = $0050;   //获取磅站读卡器岗位、部门
+  cBC_RemoteSnapDisPlay       = $0051;   //车牌识别显示屏
   cBC_GetStockBatcodeByCusType= $0052;   //获取批次编号
   cBC_ChangeDispatchMode      = $0053;   //切换调度模式
   cBC_GetPoundCard            = $0054;   //获取磅站卡号
@@ -72,6 +78,7 @@ const
   cBC_PrintFixCode            = $0057;   //喷码
   cBC_PrinterEnable           = $0058;   //喷码机启停
   cBC_GetStockBatcode         = $0059;   //获取批次编号
+
 
   cBC_JSStart                 = $0060;
   cBC_JSStop                  = $0061;
@@ -89,6 +96,7 @@ const
   cBC_PlayVoice               = $0077;
   cBC_OpenDoorByReader        = $0078;
   cBC_ShowTxt                 = $0079;   //车检:发送小屏
+
 
   cBC_SyncCustomer            = $0080;   //远程同步客户
   cBC_SyncSaleMan             = $0081;   //远程同步业务员
