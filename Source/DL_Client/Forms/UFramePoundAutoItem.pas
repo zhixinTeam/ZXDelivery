@@ -1446,20 +1446,7 @@ begin
     AddManualEventRecord(FID + sFlag_ManualF, FTruck, nStr, sFlag_DepBangFang,
       sFlag_Solution_YN, sFlag_DepDaTing, True);
     WriteSysLog(nStr);
-
-    {$IFDEF AllowMultiM}//散装允许多次过磅时当车辆超毛重上限后需校正车辆状态
-    if FType = sFlag_Dai then
-      nStatus := sFlag_TruckZT
-    else
-      nStatus := sFlag_TruckFH;
-
-    AdjustBillStatus(FID, nStatus, sFlag_TruckBFM);
-
-    nStr := '提货单[%s]车辆[%s]状态校正为:当前状态[%s],下一状态[%s]';
-    nStr := Format(nStr, [FID, FTruck, nStatus, sFlag_TruckBFM]);
-    WriteSysLog(nStr);
-    {$ENDIF}
-
+    
     nStr := '[n1]%s毛重%.2f吨,请返回卸料.';
     nStr := Format(nStr, [FTruck, FMData.FValue]);
     PlayVoice(nStr);
