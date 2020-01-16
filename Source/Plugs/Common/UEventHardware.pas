@@ -35,7 +35,8 @@ uses
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
   {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
-  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100,UMgrBXFontCard,
+  UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100, UMgrBXFontCard,
+  UMgrRemoteSnap,
   UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
@@ -134,8 +135,17 @@ begin
     gModBusClient.LoadConfig(nCfg + 'ModBusController.xml');
     {$ENDIF}
 
+    {$IFDEF RemoteSnap}
+    nStr := '海康威视远程抓拍';
+    if FileExists(nCfg + 'RemoteSnap.xml') then
+    begin
+      //gHKSnapHelper := THKSnapHelper.Create;
+      gHKSnapHelper.LoadConfig(nCfg + 'RemoteSnap.xml');
+    end;
+    {$ENDIF}
+
     {$IFDEF UseBXFontLED}
-    nStr := '装车道网口小屏';
+    nStr := '装车道/出厂 网口小屏';
     if FileExists(nCfg + 'BXFontLED.xml') then
     begin
       gBXFontCardManager := TBXFontCardManager.Create;
@@ -235,7 +245,7 @@ begin
   {$IFDEF MITTruckProber}
   gProberManager.StartProber;
   {$ENDIF} //truck
-
+                                                
   {$IFDEF TTCEM100}
   if Assigned(gM100ReaderManager) then
   begin
@@ -254,12 +264,20 @@ begin
   //sendcard
   {$ENDIF}
 
+  {$IFDEF RemoteSnap}
+  gHKSnapHelper.StartSnap;
+  //remote snap
   {$IFDEF UseLBCModbus}
   if Assigned(gModBusClient) then
   begin
     gModBusClient.OnStatusChange := WhenLBCWeightStatusChange;
     gModBusClient.StartPrinter;
   end;
+  {$ENDIF}  {$ENDIF}
+
+  {$IFDEF UseBXFontLED}
+  //网口小屏
+  gBXFontCardManager.StartService;
   {$ENDIF}
 end;
 
@@ -315,6 +333,11 @@ begin
 
   gTruckQueueManager.StopQueue;
   //queue
+
+  {$IFDEF RemoteSnap}
+  gHKSnapHelper.StopSnap;
+  //remote snap
+  {$ENDIF}
   
   {$IFDEF UseBXFontLED}
   gBXFontCardManager.StopService;

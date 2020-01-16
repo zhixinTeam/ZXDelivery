@@ -10,7 +10,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UDataModule, UTrayIcon, UcxChinese, UMgrPlug, cxGraphics, cxControls,
-  cxLookAndFeelPainters, dxSkinsCore,
+  cxLookAndFeelPainters, dxSkinsCore, UWorkThread, 
   dxSkinsDefaultPainters, dxSkinsdxNavBar2Painter, cxContainer, cxEdit,
   ExtCtrls, ComCtrls, cxLabel, dxNavBarCollns, cxClasses, dxNavBarBase,
   dxNavBar, cxLookAndFeels;
@@ -57,6 +57,7 @@ type
     { Private declarations }
     FTrayIcon: TTrayIcon;
     {*状态栏图标*}
+    XWorker:TWorkThread;
   protected
     procedure SetHintText(const nLabel: TcxLabel);
     {*提示信息*}
@@ -207,7 +208,11 @@ begin
   {$IFDEF HYJC}
   sysInFactTimeOut.Visible := True;
   {$ENDIF}
-end;
+
+  {$IFDEF XTaskThread}
+  XWorker:= TWorkThread.Create;
+  // 定时任务
+  {$ENDIF}end;
 
 procedure TfFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
 var nStr: string;
@@ -217,6 +222,11 @@ begin
     ROModule.ActiveServer([stTcp, stHttp], False, nStr);
     //stop server
 
+    {$IFDEF XTaskThread}
+    XWorker.Terminate;
+    XWorker.Free;
+    // 定时任务
+    {$ENDIF} 
     FormSaveConfig;
     //save config
 

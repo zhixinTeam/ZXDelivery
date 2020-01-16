@@ -21,6 +21,7 @@ type
     FStockName  : string;
     FStockType  : string;
     FStockGroup : string;
+    FLineGroup  : string;      //装车线分组
     FPeerWeight : Integer;
 
     FQueueMax   : Integer;
@@ -39,6 +40,7 @@ type
     FStockNo    : string;      //物料号
     FStockName  : string;      //品种名
     FStockGroup : string;      //品种分组
+    FLineGroup  : string;      //装车线分组
     FLine       : string;      //装车线
     FBill       : string;      //交货单
     FHKBills    : string;      //合卡单
@@ -1043,6 +1045,11 @@ begin
         FLineID     := FieldByName('Z_ID').AsString;
         FName       := FieldByName('Z_Name').AsString;
 
+        FLineGroup  := '';
+        {$IFDEF MoreBeltLine}
+        FLineGroup  := FieldByName('Z_BeltLine').AsString;
+        {$ENDIF}
+
         FStockNo    := FieldByName('Z_StockNo').AsString;
         FStockName  := FieldByName('Z_Stock').AsString;
         FStockType  := FieldByName('Z_StockType').AsString;
@@ -1166,6 +1173,10 @@ begin
         FStockNo    := FieldByName('T_StockNo').AsString;
         FStockGroup := GetStockMatchGroup(FStockNo);
 
+        FLineGroup  := '';
+        {$IFDEF MoreBeltLine}
+        FLineGroup  := FieldByName('T_BeltLine').AsString;
+        {$ENDIF}
         FLine       := FieldByName('T_Line').AsString;
         FBill       := FieldByName('T_Bill').AsString;
         FHKBills    := FieldByName('T_HKBills').AsString;
@@ -1352,6 +1363,17 @@ begin
 
       if BillInLine(FTruckPool[i].FBill, FTrucks, True) >= 0 then Continue;
       //6.交货单已经在队列中
+
+      {$IFDEF MoreBeltLine}
+      if (FTruckPool[i].FLineGroup <> '') then
+      begin
+        if (FLineGroup <> '') and
+          (FLineGroup <> FTruckPool[i].FLineGroup) then Continue;
+      end;
+      //7.车辆指定通道类型不匹配
+      WriteLog('车辆进队成功:'+FTruckPool[i].FTruck+','+FTruckPool[i].FStockNo+' '+FTruckPool[i].FStockName+
+               ',当前装车线:'+FLineID);
+      {$ENDIF}
 
       MakePoolTruckIn(i, FOwner.Lines[nIdx]);
       //车辆进队列
@@ -1617,6 +1639,14 @@ begin
 
     if not IsStockMatch(FStockNo, nLine) then Continue;
     //5.两个通道品种不匹配
+
+    {$IFDEF MoreBeltLine}
+    if (nLine.FLineGroup <> '') then
+    begin
+      if (FLineGroup <> '') And (nLine.FLineGroup <> FLineGroup) then Continue;
+    end;
+    //6.分组不同
+    {$ENDIF}
 
     Result := False;
     Break;

@@ -13,8 +13,8 @@ uses
   Windows, Forms, Classes, SysUtils, ULibFun, UBusinessWorker, UBusinessPacker,
   UTaskMonitor, UBaseObject, USysShareMem, USysLoger, UMITConst, UMITPacker,
   {$IFDEF HardMon}UEventHardware, UWorkerHardware,{$ENDIF}
-  UWorkerBusiness, UWorkerBusinessBill, UWorkerBusinessOrder,
-  {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF} UMemDataPool,
+  UWorkerBusiness, UWorkerBusinessBill, UWorkerBusinessOrder, 
+  {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF} UMemDataPool,  UHardBusiness,
   UMgrDBConn, UMgrParam, UMgrPlug, UMgrChannel, UChannelChooser,
   USAPConnection, UWorkerBusinessDuanDao;
 

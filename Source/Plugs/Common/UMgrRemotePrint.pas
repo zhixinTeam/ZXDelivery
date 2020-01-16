@@ -175,6 +175,7 @@ begin
     //xxxxx
   finally
     FSyncLock.Leave;
+    WriteLog('添加打印任务：' + nBill);
   end;
 end;
 

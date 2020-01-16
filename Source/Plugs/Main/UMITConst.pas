@@ -64,6 +64,8 @@ type
 
     FDisplayDPI : Integer;                           //屏幕分辨率
     FAutoMin    : Boolean;                           //自动最小化
+
+    FOutFactPrint:string;                            //出厂小票打印机
   end;
   //系统参数
 
@@ -147,6 +149,9 @@ begin
         FParam     := ParamStr(1);
         FIconFile  := ReadString(FProgID, 'IconFile', gPath + 'Icons\Icon.ini');
         FIconFile  := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase]);
+
+        FOutFactPrint := ReadString('ExOPtions', 'OutFactPrinter', '');
+        //自动出厂打印机
 
         FLocalMAC   := MakeActionID_MAC;
         GetLocalIPConfig(FLocalName, FLocalIP);

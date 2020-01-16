@@ -10,6 +10,7 @@ interface
 uses
   Windows, Classes, Controls, DB, SysUtils, UBusinessWorker, UBusinessPacker,
   {$IFDEF MicroMsg}UMgrRemoteWXMsg,{$ENDIF}
+  {$IFDEF HardMon} UMgrRemotePrint, {$ENDIF}
   UWorkerBusiness, UBusinessConst, UMgrDBConn, ULibFun, UFormCtrl, UBase64,
   USysLoger, USysDB, UMITConst;
 
@@ -303,229 +304,222 @@ var nIdx: Integer;
     nOut: TWorkerBusinessCommand;
 begin
   Result := False;
-  nTruck := FListA.Values['Truck'];
-  if not VerifyTruckNO(nTruck, nData) then Exit;
-
-  nStr := 'Select %s as T_Now,T_LastTime,T_NoVerify,T_Valid From %s ' +
-          'Where T_Truck=''%s''';
-  nStr := Format(nStr, [sField_SQLServer_Now, sTable_Truck, nTruck]);
-
-  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-  begin
-    if RecordCount > 0 then
-      if FieldByName('T_Valid').AsString = sFlag_No then
-      begin
-        nData := '车辆[ %s ]被管理员禁止开单.';
-        nData := Format(nData, [nTruck]);
-        Exit;
-      end;
-  end;
-
-  {$IFDEF BusinessOnly}
-  nStr := 'Select top 10 * From %s Where O_Truck=''%s'' order by O_Date desc';
-  nStr := Format(nStr, [sTable_Order, nTruck]);
-
-  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-  begin
-    if RecordCount > 0 then
+  try
+    {$IFDEF MoreBeltLine}
+    if FListA.Values['BeltLine']='' then
     begin
-      First;
-
-      while not Eof do
-      begin
-        if Trim(FieldByName('O_Card').AsString) <> '' then
-        begin
-          nStr := '车辆[ %s ]在未完成[ %s ]采购单之前禁止开单.';
-          nData := Format(nStr, [nTruck, FieldByName('O_ID').AsString]);
-          Exit;
-        end;
-        Next;
-      end;
-    end;
-  end;
-  {$ENDIF}
-  //----------------------------------------------------------------------------
-  SetLength(FStockItems, 0);
-  SetLength(FMatchItems, 0);
-  //init
-
-  {$IFDEF SanPreHK}
-  FSanMultiBill := True;
-  {$ELSE}
-  FSanMultiBill := AllowedSanMultiBill;
-  {$ENDIF}//散装允许开多单
-
-  nStr := 'Select M_ID,M_Group From %s Where M_Status=''%s'' ';
-  nStr := Format(nStr, [sTable_StockMatch, sFlag_Yes]);
-  //品种分组匹配
-
-  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-  if RecordCount > 0 then
-  begin
-    SetLength(FStockItems, RecordCount);
-    nIdx := 0;
-    First;
-
-    while not Eof do
-    begin
-      FStockItems[nIdx].FStock := Fields[0].AsString;
-      FStockItems[nIdx].FGroup := Fields[1].AsString;
-
-      Inc(nIdx);
-      Next;
-    end;
-  end;
-
-  nStr := 'Select R_ID,T_Bill,T_StockNo,T_Type,T_InFact,T_Valid From %s ' +
-          'Where T_Truck=''%s'' ';
-  nStr := Format(nStr, [sTable_ZTTrucks, nTruck]);
-  //还在队列中车辆
-
-  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-  if RecordCount > 0 then
-  begin
-    SetLength(FMatchItems, RecordCount);
-    nIdx := 0;
-    First;
-
-    while not Eof do
-    begin
-      if (FieldByName('T_Type').AsString = sFlag_San) and (not FSanMultiBill) then
-      begin
-        nStr := '车辆[ %s ]在未完成[ %s ]交货单之前禁止开单.';
-        nData := Format(nStr, [nTruck, FieldByName('T_Bill').AsString]);
-        Exit;
-      end else
-
-      if (FieldByName('T_Type').AsString = sFlag_Dai) and
-         (FieldByName('T_InFact').AsString <> '') then
-      begin
-        nStr := '车辆[ %s ]在未完成[ %s ]交货单之前禁止开单.';
-        nData := Format(nStr, [nTruck, FieldByName('T_Bill').AsString]);
-        Exit;
-      end else
-
-      if FieldByName('T_Valid').AsString = sFlag_No then
-      begin
-        nStr := '车辆[ %s ]有已出队的交货单[ %s ],需先处理.';
-        nData := Format(nStr, [nTruck, FieldByName('T_Bill').AsString]);
-        Exit;
-      end;
-
-      with FMatchItems[nIdx] do
-      begin
-        FStock := FieldByName('T_StockNo').AsString;
-        FGroup := GetStockGroup(FStock);
-        FRecord := FieldByName('R_ID').AsString;
-      end;
-
-      Inc(nIdx);
-      Next;
-    end;
-  end;
-
-  //东义，出厂一小时禁止开单
-  {$IFDEF Between2BillTime}
-  nStr := 'select top 1 L_OutFact from %s where '+
-          'l_truck=''%s'' order by L_OutFact desc';
-  nStr := Format(nStr,[sTable_Bill,nTruck]);
-  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
-  begin
-    if recordcount > 0 then
-    begin
-      if (Now - FieldByName('L_OutFact').AsDateTime)*24*60 < sFlag_Between2BillsTime then
-      begin
-        nStr := '车辆[ %s ]出厂未到半小时,禁止开单.';
-        nData := Format(nStr, [nTruck]);
-        Exit;
-      end;
-    end;
-  end;
-  {$ENDIF}
-
-  TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo, nTruck, '', @nOut);
-  //保存车牌号
-
-  //----------------------------------------------------------------------------
-  nStr := 'Select zk.*,ht.C_Area,cus.C_Name,cus.C_PY,sm.S_Name From $ZK zk ' +
-          ' Left Join $HT ht On ht.C_ID=zk.Z_CID ' +
-          ' Left Join $Cus cus On cus.C_ID=zk.Z_Customer ' +
-          ' Left Join $SM sm On sm.S_ID=Z_SaleMan ' +
-          'Where Z_ID=''$ZID''';
-  nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa),
-          MI('$HT', sTable_SaleContract),
-          MI('$Cus', sTable_Customer),
-          MI('$SM', sTable_Salesman),
-          MI('$ZID', FListA.Values['ZhiKa'])]);
-  //纸卡信息
-
-  with gDBConnManager.WorkerQuery(FDBConn, nStr),FListA do
-  begin
-    if RecordCount < 1 then
-    begin
-      nData := Format('纸卡[ %s ]已丢失.', [Values['ZhiKa']]);
-      Exit;
-    end;
-
-    if FieldByName('Z_Freeze').AsString = sFlag_Yes then
-    begin
-      nData := Format('纸卡[ %s ]已被管理员冻结.', [Values['ZhiKa']]);
-      Exit;
-    end;
-
-    if FieldByName('Z_InValid').AsString = sFlag_Yes then
-    begin
-      nData := Format('纸卡[ %s ]已被管理员作废.', [Values['ZhiKa']]);
-      Exit;
-    end;
-
-    nStr := FieldByName('Z_TJStatus').AsString;
-
-    {$IFNDEF NoShowPriceChange}
-    if nStr  <> '' then
-    begin
-      if nStr = sFlag_TJOver then
-           nData := '纸卡[ %s ]已调价,请重新开单.'
-      else nData := '纸卡[ %s ]正在调价,请稍后.';
-
-      nData := Format(nData, [Values['ZhiKa']]);
-      Exit;
-    end;
-    {$ELSE}
-    if nStr  = sFlag_TJing then
-    begin
-      nData := '纸卡[ %s ]正在调价,请稍后.';
-      nData := Format(nData, [Values['ZhiKa']]);
+      nData := '请选择生产线后、再操作.';
+      nData := Format(nData, [nTruck]);
       Exit;
     end;
     {$ENDIF}
 
-    if FieldByName('Z_ValidDays').AsDateTime <= Date() then
+    nTruck := FListA.Values['Truck'];
+    if not VerifyTruckNO(nTruck, nData) then Exit;
+
+    nStr := 'Select %s as T_Now,T_LastTime,T_NoVerify,T_Valid From %s ' +
+            'Where T_Truck=''%s''';
+    nStr := Format(nStr, [sField_SQLServer_Now, sTable_Truck, nTruck]);
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
     begin
-      nData := Format('纸卡[ %s ]已在[ %s ]过期.', [Values['ZhiKa'],
-               Date2Str(FieldByName('Z_ValidDays').AsDateTime)]);
-      Exit;
+      if RecordCount > 0 then
+        if FieldByName('T_Valid').AsString = sFlag_No then
+        begin
+          nData := '车辆[ %s ]被管理员禁止开单.';
+          nData := Format(nData, [nTruck]);
+          Exit;
+        end;
     end;
 
-    {$IFDEF UseFreight}
-    Values['XHSpot'] := FieldByName('Z_XHSpot').AsString;
-    if FieldByName('Z_Lading').AsString = sflag_songh then
-      Values['Freight'] := FieldByName('Z_Freight').AsString;
-    {$ENDIF}  //运费
+    {$IFDEF BusinessOnly}
+    nStr := 'Select top 10 * From %s Where O_Truck=''%s'' order by O_Date desc';
+    nStr := Format(nStr, [sTable_Order, nTruck]);
 
-    Values['Lading'] := FieldByName('Z_Lading').AsString;
-    Values['Project'] := FieldByName('Z_Project').AsString;
-    Values['Area'] := FieldByName('Z_Area').AsString;
-    Values['CusID'] := FieldByName('Z_Customer').AsString;
-    Values['CusName'] := FieldByName('C_Name').AsString;
-    Values['CusPY'] := FieldByName('C_PY').AsString;
-    Values['SaleID'] := FieldByName('Z_SaleMan').AsString;
-    Values['SaleMan'] := FieldByName('S_Name').AsString;
-    Values['ZKMoney'] := FieldByName('Z_OnlyMoney').AsString;
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        First;
+
+        while not Eof do
+        begin
+          if Trim(FieldByName('O_Card').AsString) <> '' then
+          begin
+            nStr := '车辆[ %s ]在未完成[ %s ]采购单之前禁止开单.';
+            nData := Format(nStr, [nTruck, FieldByName('O_ID').AsString]);
+            Exit;
+          end;
+          Next;
+        end;
+      end;
+    end;
+    {$ENDIF}
+    //----------------------------------------------------------------------------
+    SetLength(FStockItems, 0);
+    SetLength(FMatchItems, 0);
+    //init
+
+    {$IFDEF SanPreHK}
+    FSanMultiBill := True;
+    {$ELSE}
+    FSanMultiBill := AllowedSanMultiBill;
+    {$ENDIF}//散装允许开多单
+
+    nStr := 'Select M_ID,M_Group From %s Where M_Status=''%s'' ';
+    nStr := Format(nStr, [sTable_StockMatch, sFlag_Yes]);
+    //品种分组匹配
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    if RecordCount > 0 then
+    begin
+      SetLength(FStockItems, RecordCount);
+      nIdx := 0;
+      First;
+
+      while not Eof do
+      begin
+        FStockItems[nIdx].FStock := Fields[0].AsString;
+        FStockItems[nIdx].FGroup := Fields[1].AsString;
+
+        Inc(nIdx);
+        Next;
+      end;
+    end;
+
+    nStr := 'Select R_ID,T_Bill,T_StockNo,T_Type,T_InFact,T_Valid From %s ' +
+            'Where T_Truck=''%s'' ';
+    nStr := Format(nStr, [sTable_ZTTrucks, nTruck]);
+    //还在队列中车辆
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    if RecordCount > 0 then
+    begin
+      SetLength(FMatchItems, RecordCount);
+      nIdx := 0;
+      First;
+
+      while not Eof do
+      begin
+        if (FieldByName('T_Type').AsString = sFlag_San) and (not FSanMultiBill) then
+        begin
+          nStr := '车辆[ %s ]在未完成[ %s ]交货单之前禁止开单.';
+          nData := Format(nStr, [nTruck, FieldByName('T_Bill').AsString]);
+          Exit;
+        end else
+
+        if (FieldByName('T_Type').AsString = sFlag_Dai) and
+           (FieldByName('T_InFact').AsString <> '') then
+        begin
+          nStr := '车辆[ %s ]在未完成[ %s ]交货单之前禁止开单.';
+          nData := Format(nStr, [nTruck, FieldByName('T_Bill').AsString]);
+          Exit;
+        end else
+
+        if FieldByName('T_Valid').AsString = sFlag_No then
+        begin
+          nStr := '车辆[ %s ]有已出队的交货单[ %s ],需先处理.';
+          nData := Format(nStr, [nTruck, FieldByName('T_Bill').AsString]);
+          Exit;
+        end;
+
+        with FMatchItems[nIdx] do
+        begin
+          FStock := FieldByName('T_StockNo').AsString;
+          FGroup := GetStockGroup(FStock);
+          FRecord := FieldByName('R_ID').AsString;
+        end;
+
+        Inc(nIdx);
+        Next;
+      end;
+    end;
+
+    //东义，出厂一小时禁止开单
+    {$IFDEF Between2BillTime}
+    nStr := 'select top 1 L_OutFact from %s where '+
+            'l_truck=''%s'' order by L_OutFact desc';
+    nStr := Format(nStr,[sTable_Bill,nTruck]);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if recordcount > 0 then
+      begin
+        if (Now - FieldByName('L_OutFact').AsDateTime)*24*60 < sFlag_Between2BillsTime then
+        begin
+          nStr := '车辆[ %s ]出厂未到一个小时,禁止开单.';
+          nData := Format(nStr, [nTruck]);
+          Exit;
+        end;
+      end;
+    end;
+    {$ENDIF}
+
+    TWorkerBusinessCommander.CallMe(cBC_SaveTruckInfo, nTruck, '', @nOut);
+    //保存车牌号
+
+    //----------------------------------------------------------------------------
+    nStr := 'Select zk.*,ht.C_Area,cus.C_Name,cus.C_PY,sm.S_Name From $ZK zk ' +
+            ' Left Join $HT ht On ht.C_ID=zk.Z_CID ' +
+            ' Left Join $Cus cus On cus.C_ID=zk.Z_Customer ' +
+            ' Left Join $SM sm On sm.S_ID=Z_SaleMan ' +
+            'Where Z_ID=''$ZID''';
+    nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa),
+            MI('$HT', sTable_SaleContract),
+            MI('$Cus', sTable_Customer),
+            MI('$SM', sTable_Salesman),
+            MI('$ZID', FListA.Values['ZhiKa'])]);
+    //纸卡信息
+
+    with gDBConnManager.WorkerQuery(FDBConn, nStr),FListA do
+    begin
+      if RecordCount < 1 then
+      begin
+        nData := Format('纸卡[ %s ]已丢失.', [Values['ZhiKa']]);
+        Exit;
+      end;
+
+      if FieldByName('Z_Freeze').AsString = sFlag_Yes then
+      begin
+        nData := Format('纸卡[ %s ]已被管理员冻结.', [Values['ZhiKa']]);
+        Exit;
+      end;
+
+      if FieldByName('Z_InValid').AsString = sFlag_Yes then
+      begin
+        nData := Format('纸卡[ %s ]已被管理员作废.', [Values['ZhiKa']]);
+        Exit;
+      end;
+
+      nStr := FieldByName('Z_TJStatus').AsString;
+
+      {$IFNDEF NoShowPriceChange}
+      if nStr  <> '' then
+      begin
+        if nStr = sFlag_TJOver then
+             nData := '纸卡[ %s ]已调价,请重新开单.'
+        else nData := '纸卡[ %s ]正在调价,请稍后.';
+
+        nData := Format(nData, [Values['ZhiKa']]);
+        Exit;
+      end;
+      {$ELSE}
+      if nStr = sFlag_TJing then
+      begin
+        nData := '纸卡[ %s ]正在调价,请稍后.';
+        nData := Format(nData, [Values['ZhiKa']]);
+        Exit;
+      end;
+      {$ENDIF}
+
+      Inc(nIdx);
+      Next;
+    end;
+
+    Result := True;
+    //verify done
+  finally
+    if not Result then WriteLog('开单校验未通过：'+nData);
   end;
-
-  Result := True;
-  //verify done
 end;
 
 //Date: 2014-09-15
@@ -533,14 +527,16 @@ end;
 function TWorkerBusinessBills.SaveBills(var nData: string): Boolean;
 var nIdx: Integer;
     nVal,nMoney, nPeerWeight: Double;
-    nStr,nSQL,nFixMoney: string;
+    nStr,nSQL,nFixMoney,nParam: string;
     {$IFDEF TruckInNow}
     nStatus, nNextStatus: string;
     {$ENDIF}
     nOut, nTmp: TWorkerBusinessCommand;
     nLine:string;
+    nList:TStrings;
 begin
   Result := False;
+  nList := TStringList.Create;
   FListA.Text := PackerDecodeStr(FIn.FData);
   if not VerifyBeforSave(nData) then Exit;
 
@@ -629,6 +625,11 @@ begin
       FListC.Text := PackerDecodeStr(FListB[nIdx]);
       //get bill info
 
+      {$IFDEF JZZJ}
+      // 焦作中晶所有车都开化验单
+      FListC.Values['PrintHY']:= 'Y';
+      {$ENDIF}
+                                   
       {$IFDEF CustomerType}
         {$IFDEF HYJC}    //恒宇区分AB客户，但是不区分批次号
          if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
@@ -644,9 +645,27 @@ begin
            raise Exception.Create(nTmp.FData);
         {$ENDIF}
       {$ELSE}
-      if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
-         FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then
-         raise Exception.Create(nTmp.FData);
+
+        {$IFDEF MoreBeltLine}
+          begin
+            // 多生产线、多厂区不同批次获取
+            with nList do
+            begin
+              Clear;
+              Values['StockNO'] := FListC.Values['StockNO'];
+              Values['BeltLine']:= FListA.Values['BeltLine'];
+            end;
+            nParam:= PackerEncodeStr(nList.Text);
+            //*******************
+            if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcodeMoreBeltLine,
+               nParam, FListC.Values['Value'], @nTmp) then
+               raise Exception.Create(nTmp.FData);
+          end;
+        {$ELSE}
+          if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
+             FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then
+             raise Exception.Create(nTmp.FData);
+         {$ENDIF}
       {$ENDIF}
 
       {$IFDEF BatchInHYOfBill}
@@ -684,6 +703,10 @@ begin
               SF('L_StockName', FListC.Values['StockName']),
               SF('L_Value', FListC.Values['Value'], sfVal),
               SF('L_Price', FListC.Values['Price'], sfVal),
+
+              {$IFDEF MoreBeltLine} //生产线
+              SF('L_BeltLine', FListA.Values['BeltLine']),
+              {$ENDIF}
 
               {$IFDEF PrintGLF}
               SF('L_PrintGLF', FListC.Values['PrintGLF']),
@@ -743,7 +766,10 @@ begin
       gDBConnManager.WorkerExec(FDBConn, nStr);
       //更新磅单基本信息
 
-      nStr := 'Update %s Set B_HasUse=B_HasUse+%s Where B_Batcode=''%s''';
+      nStr := 'UPDate %s Set B_HasUse=B_HasUse+%s Where B_Batcode=''%s''';
+          {$IFDEF MoreBeltLine}
+           nStr := nStr + ' And B_BeltLine='''+FListA.Values['BeltLine']+'''';
+          {$endif}       /// 更新对应生产线或生产厂区批次
       nStr := Format(nStr, [sTable_StockBatcode, FListC.Values['Value'],
               FListC.Values['HYDan']]);
       gDBConnManager.WorkerExec(FDBConn, nStr);
@@ -870,6 +896,9 @@ begin
             {$IFDEF ChkPeerWeight}
             SF('T_PeerWeight',floattostr(nPeerWeight)),
             {$ENDIF}
+
+            {$IFDEF MoreBeltLine}SF('T_BeltLine' , FListA.Values['BeltLine']), {$ENDIF}
+
             SF('T_HKBills' , nOut.FData + '.')
             ], sTable_ZTTrucks, '', True);
           gDBConnManager.WorkerExec(FDBConn, nSQL);
@@ -1312,12 +1341,13 @@ function TWorkerBusinessBills.DeleteBill(var nData: string): Boolean;
 var nIdx: Integer;
     nHasOut: Boolean;
     nVal,nMoney: Double;
-    nStr,nP,nFix,nRID,nCus,nBill,nZK,nHY: string;
+    nStr,nP,nFix,nRID,nCus,nBill,nZK,nHY,nFact: string;
 begin
   Result := False;
   //init
 
   nStr := 'Select L_ZhiKa,L_Value,L_Price,L_CusID,L_OutFact,L_ZKMoney,L_HYDan ' +
+          {$IFDEF MoreBeltLine} ',L_BeltLine ' + {$ENDIF}
           'From %s Where L_ID=''%s''';
   nStr := Format(nStr, [sTable_Bill, FIn.FData]);
 
@@ -1344,6 +1374,10 @@ begin
     nHY  := FieldByName('L_HYDan').AsString;
     nZK  := FieldByName('L_ZhiKa').AsString;
     nFix := FieldByName('L_ZKMoney').AsString;
+
+    {$IFDEF MoreBeltLine}
+    nFact := FieldByName('L_BeltLine').AsString;
+    {$ENDIF}
 
     nVal := FieldByName('L_Value').AsFloat;
     nMoney := Float2Float(nVal*FieldByName('L_Price').AsFloat, cPrecision, True);
@@ -1426,6 +1460,9 @@ begin
     end;
 
     nStr := 'Update %s Set B_HasUse=B_HasUse-%.2f Where B_Batcode=''%s''';
+        {$IFDEF MoreBeltLine}
+         nStr := nStr + ' And B_BeltLine='''+nFact+'''';
+        {$endif}
     nStr := Format(nStr, [sTable_StockBatcode, nVal, nHY]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
     //释放使用的批次号
@@ -2031,7 +2068,7 @@ begin
         FNextStatus := sFlag_TruckOut;
       end;
 
-      if FStatus = sFlag_BillNew then
+      if (FStatus = sFlag_BillNew)or(FStatus = '') then
       begin
         FStatus     := sFlag_TruckNone;
         FNextStatus := sFlag_TruckNone;
@@ -2058,7 +2095,7 @@ end;
 //Parm: 交货单[FIn.FData];岗位[FIn.FExtParam]
 //Desc: 保存指定岗位提交的交货单列表
 function TWorkerBusinessBills.SavePostBillItems(var nData: string): Boolean;
-var nStr,nSQL,nTmp,nFixMoney: string;
+var nStr,nPrintTask,nSQL,nTmp,nFixMoney,nBeltLine: string;
     f,m,nVal,nMVal: Double;
     i,nIdx,nInt: Integer;
     nBills: TLadingBillItems;
@@ -2268,6 +2305,11 @@ begin
       nSQL := Format(nSQL, [sTable_ZTTrucks, sField_SQLServer_Now, FID]);
       FListA.Add(nSQL);
       //更新队列车辆提货状态
+
+      nSQL := 'UPDate %s Set L_InTime=L_Date Where L_InTime Is Null And L_ID=''%s''';
+      nSQL := Format(nSQL, [sTable_Bill, FID]);
+      FListA.Add(nSQL);
+      //如果没有进厂时间则更新
     end;
   end else
 
@@ -2314,6 +2356,16 @@ begin
       nData := Format(nData, [PostTypeToStr(FIn.FExtParam)]);
       Exit;
     end;
+
+    {$IFDEF MoreBeltLine}
+    nSQL := ' Select L_HYDan, L_BeltLine From %s Where L_ID=''%s'' ';
+    nSQL := Format(nSQL, [sTable_Bill, nBills[0].FID]);
+    with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+    if RecordCount > 0 then
+    begin
+      nBeltLine:= Fields[1].AsString;
+    end;
+    {$ENDIF}
 
     with nBills[0] do
     begin
@@ -2397,6 +2449,9 @@ begin
           begin
             nSQL := 'Update %s Set B_HasUse=B_HasUse+(%.2f - %.2f) ' +
                     'Where B_Batcode=''%s''';
+            {$IFDEF MoreBeltLine}
+            nSQL := nSQL + ' And B_BeltLine='''+nBeltLine+'''';
+            {$endif}
             nSQL := Format(nSQL, [sTable_StockBatcode, FValue, nVal,
                     Fields[0].AsString]);
             FListA.Add(nSQL);
@@ -2434,6 +2489,9 @@ begin
         //释放冻结金
 
         nSQL := 'Update %s Set B_HasUse=B_HasUse-%.2f Where B_Batcode=''%s''';
+            {$IFDEF MoreBeltLine}
+            nSQL := nSQL + ' And B_BeltLine='''+nBeltLine+'''';
+            {$endif}
         nSQL := Format(nSQL, [sTable_StockBatcode, FValue, FHYDan]);
         FListA.Add(nSQL);
         //释放使用的批次号
@@ -2778,11 +2836,15 @@ begin
                  nBills[0].FZhiKa, '', @nOut);
   {$ENDIF}
 
+  {$IFDEF PoundMAfterAutoOutFact} //焦作中晶水泥 毛重后自动出厂
+  if Result then
+  {$ENDIF}
+
   if FIn.FExtParam = sFlag_TruckBFM then //称量毛重
   begin
     if Assigned(gHardShareData) then
-      gHardShareData('TruckOut:' + nBills[0].FCard);
-    //磅房处理自动出厂
+      gHardShareData('TruckOut:'+nBills[0].FCard);
+    //处理自动出厂
   end;
 
   {$IFDEF MicroMsg}

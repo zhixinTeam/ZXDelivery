@@ -77,6 +77,12 @@ type
     //定制放灰调用小屏显示
     function LineClose(var nData: string): Boolean;
     //定制放灰
+    function RemoteSnap_DisPlay(var nData: string): Boolean;
+    // 车牌识别小屏
+    function PoundReaderInfo(var nData: string): Boolean;
+    //读取磅站读卡器岗位、部门
+    function BX6K1ShowText(var nData: string): Boolean;
+    function IsTruckInQueue(var nData: string): Boolean;
   public
     constructor Create; override;
     destructor destroy; override;
@@ -89,9 +95,9 @@ type
 implementation
 
 uses
-	{$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+	{$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF} UMgrBXFontCard,
   {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
-  UMgrHardHelper, UMgrCodePrinter, UMgrQueue, UTaskMonitor,
+  UMgrHardHelper, UMgrCodePrinter, UMgrQueue, UTaskMonitor, UMgrRemoteSnap,
   UMgrTruckProbe, UMgrERelay;
 
 //Date: 2012-3-13
@@ -255,9 +261,14 @@ begin
    cBC_ShowTxt              : Result := TruckProbe_ShowTxt(nData);
    
    cBC_OpenDoorByReader     : Result := OpenDoorByReader(nData);
+   cBC_RemoteSnapDisPlay    : Result := RemoteSnap_DisPlay(nData);
+   cBC_GetPoundReaderInfo   : Result := PoundReaderInfo(nData);     //  获取读卡器绑定的标示
+
 
    cBC_ShowLedTxt           : Result := ShowLedText(nData);
    cBC_LineClose            : Result := LineClose(nData);
+   cBC_BX6K1ShowText        : Result := BX6K1ShowText(nData);
+   cBC_IsTruckInQueue       : Result := IsTruckInQueue(nData);
    //xxxxxx
    else
     begin
@@ -780,6 +791,38 @@ begin
     gHYReaderManager.OpenDoor(Trim(nReader));
 end;
 
+//Date: 2018-08-14
+//Parm: 岗位[FIn.FData] 发送内容[FIn.FExt]
+//Desc: 向指定通道的显示屏发送内容
+function THardwareCommander.RemoteSnap_DisPlay(var nData: string): Boolean;
+var nInt: Integer;
+begin
+  Result := True;
+  if not Assigned(gHKSnapHelper) then Exit;
+
+  FListA.Clear;
+  FListA.Text := PackerDecodeStr(FIn.FExtParam);
+
+  if FListA.Values['succ'] = sFlag_No then
+         nInt := 3
+  else nInt := 2;
+
+  gHKSnapHelper.Display(FIn.FData,FListA.Values['text'], nInt);
+  nData := Format('车牌识别小屏 -> %s:%s:%s', [FIn.FData, FListA.Values['text'],
+                                                          FListA.Values['succ']]);
+  WriteLog(nData);
+end;
+
+//Date: 2018-08-03
+//Parm: 读卡器ID[FIn.FData;
+//Desc: 获取指定磅站读卡器上的岗位、部门
+function THardwareCommander.PoundReaderInfo(var nData: string): Boolean;
+var nStr, nPoundID: string;
+begin
+  Result := True;
+  FOut.FData := gHardwareHelper.GetReaderInfo(FIn.FData, FOut.FExtParam);
+end;
+
 //Date: 2018-02-27
 //Parm: 通道号[FIn.FData] 发送内容[FIn.FExt]
 //Desc: 向指定通道的显示屏发送内容
@@ -814,6 +857,129 @@ begin
   else
     gERelayManager.LineClose(nTunnel);
   Result := True;
+end;
+
+function THardwareCommander.BX6K1ShowText(var nData: string): Boolean;
+var nTruck, nMName, nTunnel:string;
+    nList: TStrings;
+    nTitleM, nDataM : TBXDisplayMode;
+begin
+  Result := True;
+  try
+    nList := TStringList.Create;
+    nList.Text := PackerDecodeStr(FIn.FData);
+
+    nTunnel:= nList.Values['Tunnel'];
+    nMName := nList.Values['MName'];
+    nTruck := nList.Values['Truck'];
+
+    if nTunnel<>'' then
+    if Assigned(gBXFontCardManager) then
+    begin
+      gBXFontCardManager.InitDisplayMode(nTitleM);
+      gBXFontCardManager.InitDisplayMode(nDataM);
+
+      //title
+      nTitleM.FDisplayMode := 1;
+      nTitleM.FNewLine := BX_NewLine_02;
+      nTitleM.FSpeed   := $03;
+
+      //Data
+      nDataM.FDisplayMode := 1;
+      nDataM.FNewLine := BX_NewLine_02;
+      nDataM.FSpeed   := $03;
+
+      WriteLog(Format('BX6K1ShowText 向网口小屏 %s 发送 %s %s', [nTunnel, nTruck, nMName]));
+
+      if Pos('ZT',nTunnel)>0 then
+        gBXFontCardManager.Display(nTruck, nMName, nTunnel, 3600, 3600, @nTitleM, @nDataM)
+      else gBXFontCardManager.Display(nTruck, nMName, nTunnel, 3, 100, @nTitleM, @nDataM);
+    end
+    else WriteLog('网口小屏管理器不存在');
+  finally
+    nList.free;
+  end;
+end;
+
+//Date: 2012-4-24
+//Parm: 车牌;通道;是否检查先后顺序;提示信息
+//Desc: 检查nTuck是否可以在nTunnel装车
+function THardwareCommander.IsTruckInQueue(var nData: string): Boolean;
+var i,nIdx,nInt: Integer;
+    nList: TStrings;
+    nLineItem, nPLine: PLineItem;
+    nHint, nTruck,nTunnel,nMType: string;
+begin
+  Result := False;
+
+  try
+    nList := TStringList.Create;
+    nList.Text := PackerDecodeStr(FIn.FData);
+
+    nTruck := nList.Values['Truck'];
+    nTunnel:= nList.Values['Tunnel'];
+    nMType := nList.Values['MType'];
+
+    with gTruckQueueManager do
+    try
+      SyncLock.Enter;
+      nIdx := GetLine(nTunnel);
+
+      if nIdx < 0 then
+      begin
+        nData := Format('通道[ %s ]无效.', [nTunnel]);
+        Exit;
+      end;
+
+      nPLine := Lines[nIdx];
+      nIdx := TruckInLine(nTruck, nPLine.FTrucks);
+
+      if (nIdx < 0) and (nMType <> '') and (
+         ((nMType = sFlag_Dai) and IsDaiQueueClosed) or
+         ((nMType = sFlag_San) and IsSanQueueClosed)) then
+      begin
+        for i:=Lines.Count - 1 downto 0 do
+        begin
+          if Lines[i] = nPLine then Continue;
+          nLineItem := Lines[i];
+          nInt := TruckInLine(nTruck, nLineItem.FTrucks);
+
+          if nInt < 0 then Continue;
+          //不在当前队列
+          if not StockMatch(nPLine.FStockNo, nLineItem) then Continue;
+          //刷卡道与队列道品种不匹配
+
+          nIdx := nPLine.FTrucks.Add(nLineItem.FTrucks[nInt]);
+          nLineItem.FTrucks.Delete(nInt);
+          //挪动车辆到新道
+
+          nHint := 'Update %s Set T_Line=''%s'' ' +
+                   'Where T_Truck=''%s'' And T_Line=''%s''';
+          nHint := Format(nHint, [sTable_ZTTrucks, nPLine.FLineID, nTruck,
+                  nLineItem.FLineID]);
+          gTruckQueueManager.AddExecuteSQL(nHint);
+
+          nHint := '车辆[ %s ]自主换道[ %s->%s ]';
+          nHint := Format(nHint, [nTruck, nLineItem.FName, nPLine.FName]);
+          WriteLog(nHint);
+          Break;
+        end;
+      end;
+      //袋装重调队列
+
+      if nIdx < 0 then
+      begin
+        nData := Format('车辆[ %s ]不在[ %s ]队列中.', [nTruck, nPLine.FName]);
+        Exit;
+      end;
+
+      Result := True;
+    finally
+      SyncLock.Leave;
+    end;
+  finally
+
+  end;
 end;
 
 initialization

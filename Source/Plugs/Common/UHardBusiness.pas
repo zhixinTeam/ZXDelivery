@@ -8,14 +8,17 @@ unit UHardBusiness;
 interface
 
 uses
-  Windows, Classes, Controls, SysUtils, UMgrDBConn, UMgrParam, DB,
+  Windows, Classes, Controls, SysUtils, UMgrDBConn, UMgrParam, DB, UMITConst,
   UBusinessWorker, UBusinessConst, UBusinessPacker, UMgrQueue, DateUtils, UFormCtrl,
   {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
+
   {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
-  UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint,
+  UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint, UMgrBXFontCard,
+  UMgrRemoteSnap,
   UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100, UMgrSendCardNo;
 
+procedure ShowTextByBXFontCard(nCard, nTitle, nData:string);
 procedure WhenReaderCardArrived(const nReader: THHReaderItem);
 procedure WhenHYReaderCardArrived(const nReader: PHYReaderItem);
 procedure WhenBlueReaderCardArrived(nHost: TBlueReaderHost; nCard: TBlueReaderCard);
@@ -44,6 +47,9 @@ procedure WhenLBCWeightStatusChange(const nTunnel: PLBTunnel);
 {$ENDIF}
 
 procedure SetInFactTimeOut(nTime:Integer);
+
+procedure AutoTruckOutFact(const nCard : string);
+//自动出厂implementation
 
 implementation
 
@@ -371,6 +377,8 @@ procedure BlueOpenDoor(const nReader: string;const nReaderType: string = '');
 var nIdx: Integer;
 begin
   nIdx := 0;
+  if Copy(nReader,0,1)='V' then Exit;
+  
   if nReader <> '' then
   while nIdx < 5 do
   begin
@@ -400,6 +408,31 @@ begin
   end;
 end;
 
+//Date: 2017-10-16
+//Parm: 内容;岗位;业务成功
+//Desc: 发送HKLED 小屏显示
+procedure MakeGateHKLEDDisplay(const nText,nPost: string; const nSucc: Boolean);
+var nStr: string;
+    nInt: Integer;
+begin
+  try
+    if nSucc then
+         nInt := 2
+    else nInt := 3;
+
+    gHKSnapHelper.Display(nPost, nText, nInt);
+    //小屏显示
+    WriteHardHelperLog('发送海康 '+nPost+' 小屏：' + nText);
+  except
+    on nErr: Exception do
+    begin
+      nStr := '发送海康小屏[ %s ]显示失败,描述: %s';
+      nStr := Format(nStr, [nPost, nErr.Message]);
+      WriteHardHelperLog(nStr);
+    end;
+  end;
+end;
+
 //Date: 2012-4-22
 //Parm: 卡号
 //Desc: 对nCard放行进厂
@@ -422,10 +455,6 @@ begin
 
   nCardType := '';
   if not GetCardUsed(nCard, nCardType) then Exit;
-
-//  if nCardType = sFlag_Provide then
-//        nRet := GetLadingOrders(nCard, sFlag_TruckIn, nTrucks)
-//  else  nRet := GetLadingBills(nCard, sFlag_TruckIn, nTrucks);
 
   if nCardType = sFlag_Provide then
     nRet := GetLadingOrders(nCard, sFlag_TruckIn, nTrucks) else
@@ -652,7 +681,7 @@ end;
 //Parm: 卡号;读头;打印机;化验单打印机
 //Desc: 对nCard放行出厂
 function MakeTruckOut(const nCard,nReader,nPrinter: string;
- const nHYPrinter: string = '';const nReaderType: string = ''): Boolean;
+ const nHYPrinter: string = '';const nReaderType: string = ''; nBxCardNo: string = ''): Boolean;
 var nStr,nCardType: string;
     nIdx: Integer;
     nRet: Boolean;
@@ -663,11 +692,8 @@ var nStr,nCardType: string;
 begin
   Result := False;
   nCardType := '';
+  WriteHardHelperLog('MakeTruckOut 进入, 打印机:'+nPrinter+'、'+nHYPrinter+' 读卡器：'+nReader+' 卡号:'+nCard);
   if not GetCardUsed(nCard, nCardType) then Exit;
-
-//  if nCardType = sFlag_Provide then
-//        nRet := GetLadingOrders(nCard, sFlag_TruckOut, nTrucks)
-//  else  nRet := GetLadingBills(nCard, sFlag_TruckOut, nTrucks);
 
   if nCardType = sFlag_Provide then
     nRet := GetLadingOrders(nCard, sFlag_TruckOut, nTrucks) else
@@ -705,10 +731,6 @@ begin
     Exit;
   end;
 
-//  if nCardType = sFlag_Provide then
-//        nRet := SaveLadingOrders(sFlag_TruckOut, nTrucks)
-//  else  nRet := SaveLadingBills(sFlag_TruckOut, nTrucks);
-
   if nCardType = sFlag_Provide then
     nRet := SaveLadingOrders(sFlag_TruckOut, nTrucks) else
   if nCardType = sFlag_Sale then
@@ -725,9 +747,19 @@ begin
     Exit;
   end;
 
-  if nReader <> '' then
+  if (nReader <> '') then
     BlueOpenDoor(nReader, nReaderType); //抬杆
   Result := True;
+
+  {$IFDEF JZZJ}
+  nBxCardNo:= 'EastOut';
+  if nReader = 'VY192168026045' then nBxCardNo:= 'WestOut';
+  {$ENDIF}
+  {$IFDEF UseBXFontLED}
+  nStr := '\C3%s \C1请出厂,祝您一路顺风,欢迎您再次光临.';
+  nStr := Format(nStr, [nTrucks[0].FTruck]);
+  ShowTextByBXFontCard(nBxCardNo, '', nStr);
+  {$ENDIF}
 
   for nIdx:=Low(nTrucks) to High(nTrucks) do
   begin
@@ -994,6 +1026,7 @@ end;
 //Parm: 读头数据
 //Desc: 华益读头磁卡动作
 procedure WhenHYReaderCardArrived(const nReader: PHYReaderItem);
+var nIdx: Integer;
 begin
   {$IFDEF DEBUG}
   WriteHardHelperLog(Format('华益标签 %s:%s', [nReader.FTunnel, nReader.FCard]));
@@ -1001,9 +1034,20 @@ begin
 
   if nReader.FVirtual then
   begin
-    case nReader.FVType of
-      rt900 :gHardwareHelper.SetReaderCard(nReader.FVReader, 'H' + nReader.FCard, False);
-      rt02n :g02NReader.SetReaderCard(nReader.FVReader, 'H' + nReader.FCard);
+    for nIdx:=Low(nReader.FVReaders) to High(nReader.FVReaders) do
+    begin
+      case nReader.FVType of
+       rt900:
+        gHardwareHelper.SetReaderCard(nReader.FVReaders[nIdx],
+                                      'H' + nReader.FCard, False);
+       rt02n:
+        g02NReader.SetReaderCard(nReader.FVReader[nIdx],
+                                 'H' + nReader.FCard);
+      end;
+
+      if nReader.FVMultiInterval > 0 then
+        Sleep(nReader.FVMultiInterval);
+      //xxxxx
     end;
   end else g02NReader.ActiveELabel(nReader.FTunnel, nReader.FCard);
 end;
@@ -1090,6 +1134,36 @@ end;
 procedure WriteNearReaderLog(const nEvent: string);
 begin
   gSysLoger.AddLog(T02NReader, '现场近距读卡器', nEvent);
+end;
+
+// 发送网口小屏显示信息
+procedure ShowTextByBXFontCard(nCard, nTitle, nData:string);
+var nStr  : string;
+    nTitleM, nDataM : TBXDisplayMode;
+begin
+  if nCard<>'' then
+  if Assigned(gBXFontCardManager) then
+  begin
+    gBXFontCardManager.InitDisplayMode(nTitleM);
+    gBXFontCardManager.InitDisplayMode(nDataM);
+
+    //title
+    nTitleM.FDisplayMode := 1;
+    nTitleM.FNewLine := BX_NewLine_02;
+    nTitleM.FSpeed   := $03;
+
+    //Data
+    nDataM.FDisplayMode := 3;
+    nDataM.FNewLine := BX_NewLine_02;
+    nDataM.FSpeed   := $03;
+
+    WriteNearReaderLog(Format('向网口小屏 %s 发送 %s %s', [nCard, nTitle, nData]));
+
+    if Pos('ZT',nCard)>0 then
+      gBXFontCardManager.Display(nTitle, nData, nCard, 3600, 3600, @nTitleM, @nDataM)
+    else gBXFontCardManager.Display(nTitle, nData, nCard, 3, 100, @nTitleM, @nDataM);
+  end
+  else WriteNearReaderLog('网口小屏管理器不存在');
 end;
 
 //Date: 2012-4-24
@@ -1653,6 +1727,7 @@ begin
   if gTruckQueueManager.IsTruckAutoOut then
   begin
     nReader := gHardwareHelper.GetReaderLastOn(nCardNo);
+    WriteHardHelperLog(Format('自动出厂 设置读卡器卡号 %s:%s ', [nReader,nCardNo]));
     if nReader <> '' then
       gHardwareHelper.SetReaderCard(nReader, nCardNo);
     //模拟刷卡
@@ -1858,6 +1933,15 @@ begin
   finally
     gDBConnManager.ReleaseConnection(nDBConn);
   end;
+end;
+
+//Desc: 对nCard放行出厂
+procedure AutoTruckOutFact(const nCard : string);
+var nStr,nCardType: string;
+begin
+  WriteHardHelperLog('自动出厂 '+nCard);
+  MakeTruckOut(nCard, '', gSysParam.FOutFactPrint, nStr);
+  ///自动出厂
 end;
 
 end.
