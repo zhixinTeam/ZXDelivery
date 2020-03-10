@@ -3108,9 +3108,15 @@ begin
           '  left join SEOrder o on o.fInterID=e.fInterID' +
           '  left join t_Organization org on org.FItemID=o.FcustID' +
           '  left join t_ICItem i on i.FItemID=e.FItemID ' +
-          'WHERE e.FDate>=%s-1 and o.FcustID=''%s'' and ' +
-          '  o.FCancellation=0 and o.FStatus=1';
-  nStr := Format(nStr, [sField_SQLServer_Now, FIn.FData]);
+          'WHERE (e.FDate>=convert(varchar(10),$Now,120) or (' +
+          ' e.FDate>=convert(varchar(10),$Now-1,120) and ' +
+          ' $Now<convert(varchar(10),$Now,120) + '' 08:00:00'')) and ' +
+          ' o.FcustID=''$ID'' and o.FCancellation=0 and o.FStatus=1';
+  //当天或昨天至今天八点的单据
+  
+  nStr := MacroValue(nStr, [MI('$Now', sField_SQLServer_Now),
+          MI('$ID', FIn.FData)]);
+  //xxxxx
 
   nWorker := nil;
   try

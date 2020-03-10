@@ -303,7 +303,7 @@ begin
           'Sum(D_Value) As D_Value From (Select * From $Dtl ' +
           '  Left Join $Inv On I_ID=D_Invoice ' +
           'Where I_Status=''$Use'' And I_Week<>''$W''' +
-          ') inv Group By I_CusID,I_SaleID,D_Type,D_Stock,D_Price'+ {$IFDEF MoreBeltLine} ', D_BeltLine'{$ENDIF};
+          ') inv Group By I_CusID,I_SaleID,D_Type,D_Stock,D_Price'{$IFDEF MoreBeltLine} + ', D_BeltLine'{$ENDIF};
   nSQL := MacroValue(nSQL, [MI('$Dtl', sTable_InvoiceDtl), MI('$W', FNowWeek),
           MI('$Inv', sTable_Invoice), MI('$Use', sFlag_InvHasUsed)]);
   //非本周期的所有发票

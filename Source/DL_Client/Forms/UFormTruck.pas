@@ -141,8 +141,8 @@ begin
     edt_LimitedValue.Text:= FieldByName('T_Limited').AsString;
     edt_LimitedValueMin.Text:= FieldByName('T_LimitedMin').AsString;
     {$ELSE}
-    dxlytm_MValueMax.Visible:= False;
-    dxlytm_MValeMins.Visible:= False;
+    edt_LimitedValue.Visible:= False;
+    edt_LimitedValueMin.Visible:= False;
     {$ENDIF}
 
     CheckVerify.Checked := FieldByName('T_NoVerify').AsString = sFlag_No;
