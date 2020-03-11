@@ -1,6 +1,6 @@
 object fFormMain: TfFormMain
-  Left = 825
-  Top = 472
+  Left = 343
+  Top = 261
   Width = 794
   Height = 534
   Caption = #19975#38598#28608#20809
@@ -43,11 +43,11 @@ object fFormMain: TfFormMain
       OnClick = CheckBox1Click
     end
     object Button1: TButton
-      Left = 328
+      Left = 112
       Top = 8
       Width = 75
       Height = 25
-      Caption = 'Button1'
+      Caption = 'LockTruck'
       TabOrder = 1
       OnClick = Button1Click
     end

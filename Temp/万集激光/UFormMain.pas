@@ -55,7 +55,7 @@ begin
   begin
     LoadConfig('D:\Program Files\MyVCL\znlib\Hardware\WJLaser.xml');
     EventMode := emMain;
-    OnCardEvent := OnData;
+    OnDataEvent := OnData;
   end;
 end;
 
@@ -109,18 +109,17 @@ begin
     nLaser.FName, nLaser.FHighLaser, nReal, nLaser.FHighUnderLaser, 
     nLaser.FOffsetFrontLaser, nLaser.FHighFrontLaser,
     nLaser.FOffsetBackLaser, nLaser.FHighBackLaser,
-    nLaser.FTruckHigh, nLaser.FTruckLong]));
+    nLaser.FTruckHeight, nLaser.FTruckLong]));
   //xxxxx
 
 end;
 
 procedure TfFormMain.Button1Click(Sender: TObject);
-var nVal, nVal1, nVal2: Double;
 begin
-  nVal := 679;
-  nVal1 := Cos(120 * Pi / 180);
-  nVal2 := nVal * Sin(120 * Pi / 180);
-  WriteLog(Format('X=%.2f  Y=%.2f', [nVal1, nVal2]));
+  gWJLaserManager.ActiveLaserPort('01001', 'b');
+  if gWJLaserManager.LockTruck('01001', 0, 0, 0) then
+       WriteLog('锁定成功')
+  else WriteLog('锁定失败');
 end;
 
 end.
