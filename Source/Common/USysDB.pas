@@ -621,7 +621,8 @@ const
        'C_FaRen varChar(50), C_LiXiRen varChar(50), C_WeiXin varChar(15),' +
        'C_Phone varChar(15), C_Fax varChar(15), C_Tax varChar(32),' +
        'C_Bank varChar(35), C_Account varChar(18), C_SaleMan varChar(15),' +
-       'C_Param varChar(32), C_Memo varChar(50), C_Type char(1), C_XuNi Char(1))';
+       'C_Param varChar(32), C_Memo varChar(50), C_Type char(1), C_XuNi Char(1),'+
+       'C_custSerilaNo varchar(100),C_Type char(1))';
   {-----------------------------------------------------------------------------
    客户信息表: Customer
    *.R_ID: 记录号
@@ -682,7 +683,9 @@ const
        'M_CusID varChar(15), M_CusName varChar(80), ' +
        'M_Type Char(1), M_Payment varChar(20),' +
        'M_Money Decimal(15,5), M_ZID varChar(15), M_Date DateTime,' +
-       'M_Man varChar(32), M_Memo varChar(200), M_ID Carchar(20), M_RuZhang Char(1))';
+       'M_Man varChar(32), M_Memo varChar(200), M_ID varChar(20), M_RuZhang Char(1),'+
+       'M_Price $Float,M_StockName varChar(40),M_PriceStock varchar(500),M_PayType int,'+
+       'M_AcceptNum varchar(100), M_PayingUnit varchar(100),M_PayingMan varchar(100))';
   {-----------------------------------------------------------------------------
    出入金明细:CustomerInOutMoney
    *.M_ID:记录编号
@@ -844,7 +847,8 @@ const
        'D_Price $Float, D_Value $Float, ' +
        'D_FLPrice $Float Default 0, D_YunFei $Float Default 0,' +
        'D_PPrice $Float, D_TPrice Char(1) Default ''Y'', '+
-       'D_Man varchar(20), D_TJDate DateTime ) ';
+       'D_Man varchar(20), D_TJDate DateTime,Z_XHSpot varchar(30),Z_Freight $Float Default 0, '+
+       'Z_Area varchar(30)) ';
   {-----------------------------------------------------------------------------
    纸卡明细:ZhiKaDtl
    *.R_ID:记录编号
@@ -899,7 +903,8 @@ const
        'L_KuWei varChar(20), L_CusType char(1),' +
        'L_XHSpot varChar(30), L_Freight $Float, L_Ident varChar(30),' +
        'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320),' +
-       'L_SnapStatus Char(1) Default ''Y'', L_BeltLine varChar(50), )';
+       'L_SnapStatus Char(1) Default ''Y'', L_BeltLine varChar(50),L_NowVaildMoney $Float,'+
+       'L_HYPrintCount int Default 0,L_WebOrderID varchar(32),L_SJName varchar(32))';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号
@@ -1000,7 +1005,7 @@ const
        'O_Truck varChar(15), O_OStatus Char(1),' +
        'O_Man varChar(32), O_Date DateTime,' +
        'O_KFValue varChar(16), O_KFLS varChar(32),' +
-       'O_DelMan varChar(32), O_DelDate DateTime, O_Memo varChar(500))';
+       'O_DelMan varChar(32), O_DelDate DateTime, O_Memo varChar(500),O_KD varchar(100))';
   {-----------------------------------------------------------------------------
    采购订单表: Order
    *.R_ID: 编号
@@ -1041,7 +1046,8 @@ const
        'D_DelMan varChar(32), D_DelDate DateTime, D_YSResult Char(1), ' +
        'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500),'+
        'D_WlbYTime DateTime, D_WlbYMan varchar(32),D_WlbYS char(1) Default ''N'','+
-       'D_Truck varChar(50),D_SerialNo varChar(50))';
+       'D_SerialNo varChar(50),D_MValueView $Float,D_SerialNo varchar(32), '+
+       'D_KZValueEx  $Float)';
   {-----------------------------------------------------------------------------
    采购订单明细表: OrderDetail
    *.R_ID: 编号
@@ -1109,7 +1115,8 @@ const
        'T_Card varChar(32), T_CardUse Char(1), T_Card2 varChar(32), T_Memo varChar(500),' +
        'T_Stock varChar(32), T_PF varChar(32),' +
        'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), '+
-       'T_Limited $Float, T_LimitedMin $Float, T_HasGPS Char(1), T_GPSDate DateTime)';
+       'T_Limited $Float, T_LimitedMin $Float, T_HasGPS Char(1), T_GPSDate DateTime,'+
+       'T_XTNum decimal(15, 5) Default 0,T_IDCard varchar(50))';
   {-----------------------------------------------------------------------------
    车辆信息:Truck
    *.R_ID: 记录号
@@ -1164,7 +1171,8 @@ const
        'P_FactID varChar(32), P_PStation varChar(10), P_MStation varChar(10),' +
        'P_Direction varChar(10), P_PModel varChar(10), P_Status Char(1),' +
        'P_Valid Char(1), P_PrintNum Integer Default 1, P_KZValue $Float,' +
-       'P_DelMan varChar(32), P_DelDate DateTime, P_Memo varChar(320))';
+       'P_DelMan varChar(32), P_DelDate DateTime, P_Memo varChar(320),'+
+       'P_BID varChar(32),P_ValueView $Float,P_MValueView $Float)';
   {-----------------------------------------------------------------------------
    过磅记录: Materails
    *.P_ID: 编号
@@ -1481,7 +1489,8 @@ const
 
   sSQL_NewProvider = 'Create Table $Table(R_ID $Inc, P_ID varChar(32),' +
        'P_Name varChar(80),P_PY varChar(80), P_Phone varChar(20),' +
-       'P_Saler varChar(32),p_WechartAccount varchar(32),P_Memo varChar(50))';
+       'P_Saler varChar(32),p_WechartAccount varchar(32),P_Memo varChar(50),'+
+       'P_CustSerialNo varchar(100))';
   {-----------------------------------------------------------------------------
    供应商: Provider
    *.P_ID: 编号
@@ -1496,7 +1505,7 @@ const
   sSQL_NewMaterails = 'Create Table $Table(R_ID $Inc, M_ID varChar(32),' +
        'M_Name varChar(80),M_PY varChar(80),M_Unit varChar(20),M_Price $Float,' +
        'M_PrePValue Char(1), M_PrePTime Integer, M_Memo varChar(50), ' +
-       'M_YS2Times char(1), M_HYSYS char(1))';
+       'M_YS2Times char(1), M_HYSYS char(1),M_HasLs char(1),M_IsSale char(1),M_AutoKZ char(1) default ''N'')';
   {-----------------------------------------------------------------------------
    物料表: Materails
    *.M_ID: 编号
@@ -1747,7 +1756,7 @@ const
        'B_Value $Float, B_Low $Float, B_High $Float, B_Interval Integer,' +
        'B_AutoNew Char(1), B_UseDate Char(1), B_FirstDate DateTime,' +
        'B_LastDate DateTime, B_HasUse $Float Default 0, B_Batcode varChar(32),'+
-       'B_Man VarChar(20) )';
+       'B_Man VarChar(20))';
   {-----------------------------------------------------------------------------
    批次编码表: Batcode
    *.R_ID: 编号
