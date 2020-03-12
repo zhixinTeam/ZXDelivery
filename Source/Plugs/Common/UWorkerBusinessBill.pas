@@ -511,8 +511,28 @@ begin
       end;
       {$ENDIF}
 
-      Inc(nIdx);
-      Next;
+      if FieldByName('Z_ValidDays').AsDateTime <= Date() then
+      begin
+        nData := Format('纸卡[ %s ]已在[ %s ]过期.', [Values['ZhiKa'],
+                 Date2Str(FieldByName('Z_ValidDays').AsDateTime)]);
+        Exit;
+      end;
+
+      {$IFDEF UseFreight}
+      Values['XHSpot'] := FieldByName('Z_XHSpot').AsString;
+      if FieldByName('Z_Lading').AsString = sflag_songh then
+        Values['Freight'] := FieldByName('Z_Freight').AsString;
+      {$ENDIF}  //运费
+
+      Values['Lading'] := FieldByName('Z_Lading').AsString;
+      Values['Project'] := FieldByName('Z_Project').AsString;
+      Values['Area'] := FieldByName('Z_Area').AsString;
+      Values['CusID'] := FieldByName('Z_Customer').AsString;
+      Values['CusName'] := FieldByName('C_Name').AsString;
+      Values['CusPY'] := FieldByName('C_PY').AsString;
+      Values['SaleID'] := FieldByName('Z_SaleMan').AsString;
+      Values['SaleMan'] := FieldByName('S_Name').AsString;
+      Values['ZKMoney'] := FieldByName('Z_OnlyMoney').AsString;
     end;
 
     Result := True;
