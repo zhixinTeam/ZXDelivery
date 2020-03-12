@@ -622,7 +622,7 @@ const
        'C_Phone varChar(15), C_Fax varChar(15), C_Tax varChar(32),' +
        'C_Bank varChar(35), C_Account varChar(18), C_SaleMan varChar(15),' +
        'C_Param varChar(32), C_Memo varChar(50), C_Type char(1), C_XuNi Char(1),'+
-       'C_custSerilaNo varchar(100),C_Type char(1))';
+       'C_custSerilaNo varchar(100))';
   {-----------------------------------------------------------------------------
    客户信息表: Customer
    *.R_ID: 记录号
@@ -1046,8 +1046,7 @@ const
        'D_DelMan varChar(32), D_DelDate DateTime, D_YSResult Char(1), ' +
        'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500),'+
        'D_WlbYTime DateTime, D_WlbYMan varchar(32),D_WlbYS char(1) Default ''N'','+
-       'D_SerialNo varChar(50),D_MValueView $Float,D_SerialNo varchar(32), '+
-       'D_KZValueEx  $Float)';
+       'D_SerialNo varChar(50),D_MValueView $Float,D_KZValueEx  $Float)';
   {-----------------------------------------------------------------------------
    采购订单明细表: OrderDetail
    *.R_ID: 编号
