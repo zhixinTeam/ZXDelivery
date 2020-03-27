@@ -15,7 +15,7 @@ uses
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, UBitmapPanel,
   cxSplitter, Menus, cxLookAndFeels, cxLookAndFeelPainters, cxCheckBox,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
-  dxSkinsdxLCPainter;
+  dxSkinsdxLCPainter, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameHYData = class(TfFrameNormal)

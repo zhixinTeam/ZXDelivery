@@ -462,7 +462,7 @@ begin
 
   if FRecordID = '' then
   begin
-    nStr := 'Select Count(*) From %s Where R_SerialNo=''%s''';
+    nStr := 'Select Count(*) From %s Where R_SerialNo=''%s'' And DatePart(yyyy, R_Date)=DatePart(yyyy, GETDATE())';
     nStr := Format(nStr, [sTable_StockRecord, EditID.Text]);
     //≤È—Ø±‡∫≈ «∑Ò¥Ê‘⁄
 

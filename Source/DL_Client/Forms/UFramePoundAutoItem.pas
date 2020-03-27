@@ -311,7 +311,7 @@ begin
 
     FIsSaving    := False;
     FEmptyPoundInit := 0;
-
+                           
     if not FIsWeighting then
     begin
       gPoundTunnelManager.ClosePort(FPoundTunnel.FID);
@@ -1369,7 +1369,7 @@ begin
       {$ENDIF}
     {$ENDIF} //¿ªºìÂÌµÆ
 
-    Timer2.Enabled := True;
+    Timer2.Enabled := True;  FIsWeighting := False;
     SetUIData(True);
   except
     on E: Exception do

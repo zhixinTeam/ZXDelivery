@@ -1,10 +1,10 @@
 object fFormLogin: TfFormLogin
-  Left = 821
-  Top = 335
+  Left = 433
+  Top = 368
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  ClientHeight = 255
-  ClientWidth = 400
+  ClientHeight = 245
+  ClientWidth = 358
   Color = clBtnFace
   Font.Charset = GB2312_CHARSET
   Font.Color = clWindowText
@@ -23,131 +23,87 @@ object fFormLogin: TfFormLogin
   object Image1: TImage
     Left = 0
     Top = 0
-    Width = 400
+    Width = 358
     Height = 132
     Align = alTop
     AutoSize = True
     Proportional = True
   end
   object LabelCopy: TLabel
-    Left = 6
-    Top = 229
-    Width = 389
-    Height = 21
-    Alignment = taCenter
-    AutoSize = False
+    Left = 10
+    Top = 225
+    Width = 162
+    Height = 12
     Caption = #8251'.xxxx'#36719#20214#26377#38480#36131#20219#20844#21496#21046#20316
-    Font.Charset = GB2312_CHARSET
-    Font.Color = clSilver
-    Font.Height = -16
-    Font.Name = #24494#36719#38597#40657
-    Font.Style = []
-    ParentFont = False
   end
   object GroupBox1: TGroupBox
     Left = 10
     Top = 135
-    Width = 383
-    Height = 89
+    Width = 336
+    Height = 80
     TabOrder = 0
     object BtnExit: TSpeedButton
-      Left = 312
-      Top = 46
-      Width = 61
-      Height = 29
+      Left = 280
+      Top = 43
+      Width = 50
+      Height = 22
       Caption = #36864#20986
       Flat = True
-      Font.Charset = GB2312_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = #24494#36719#38597#40657
-      Font.Style = []
-      ParentFont = False
       OnClick = BtnExitClick
     end
     object BtnSet: TSpeedButton
-      Left = 312
+      Left = 280
       Top = 20
-      Width = 61
-      Height = 29
+      Width = 50
+      Height = 22
       Caption = #35774#32622
       Flat = True
-      Font.Charset = GB2312_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = #24494#36719#38597#40657
-      Font.Style = []
-      ParentFont = False
       OnClick = BtnSetClick
     end
     object Label1: TLabel
-      Left = 26
-      Top = 21
-      Width = 36
-      Height = 21
+      Left = 32
+      Top = 23
+      Width = 30
+      Height = 12
       Caption = #29992#25143':'
       Font.Charset = GB2312_CHARSET
       Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = #24494#36719#38597#40657
+      Font.Height = -12
+      Font.Name = #23435#20307
       Font.Style = []
       ParentFont = False
     end
     object Edit_Pwd: TLabeledEdit
       Left = 65
-      Top = 53
-      Width = 144
-      Height = 26
+      Top = 45
+      Width = 141
+      Height = 20
       BevelKind = bkTile
       BorderStyle = bsNone
-      EditLabel.Width = 36
-      EditLabel.Height = 21
+      EditLabel.Width = 30
+      EditLabel.Height = 12
       EditLabel.Caption = #23494#30721':'
-      EditLabel.Font.Charset = GB2312_CHARSET
-      EditLabel.Font.Color = clWindowText
-      EditLabel.Font.Height = -16
-      EditLabel.Font.Name = #24494#36719#38597#40657
-      EditLabel.Font.Style = []
-      EditLabel.ParentFont = False
-      Font.Charset = GB2312_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = #24494#36719#38597#40657
-      Font.Style = []
       LabelPosition = lpLeft
-      ParentFont = False
       PasswordChar = '*'
       TabOrder = 1
     end
     object BtnLogin: TButton
-      Left = 217
+      Left = 215
       Top = 20
-      Width = 94
-      Height = 56
+      Width = 65
+      Height = 45
       Caption = #30331#24405
-      Font.Charset = GB2312_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -16
-      Font.Name = #24494#36719#38597#40657
-      Font.Style = []
-      ParentFont = False
       TabOrder = 2
       OnClick = BtnLoginClick
     end
     object Edit_User: TComboBox
       Left = 65
-      Top = 19
-      Width = 143
-      Height = 27
+      Top = 20
+      Width = 141
+      Height = 20
       AutoComplete = False
       BevelKind = bkTile
-      Font.Charset = GB2312_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -13
-      Font.Name = #24494#36719#38597#40657
-      Font.Style = []
-      ItemHeight = 19
-      ParentFont = False
+      ItemHeight = 12
       TabOrder = 0
     end
   end

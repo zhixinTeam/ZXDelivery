@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameZTDispatch;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -56,6 +57,8 @@ type
     FLines: TZTLineItems;
     FTrucks: TZTTruckItems;
     //队列数据
+    FNeedShow:string;    // 分厂区显示通道
+  private
     procedure RefreshData(const nRefreshLine: Boolean);
     //刷新队列
     function FindNode(const nID: string): TdxOcNode;
@@ -63,6 +66,7 @@ type
     procedure InitZTLineItem(const nNode: TdxOcNode);
     procedure InitZTTruckItem(const nNode: TdxOcNode);
     //节点风格
+    procedure GetBeltLines;
   public
     { Public declarations }
     function FrameTitle: string; override;
@@ -310,7 +314,7 @@ procedure TfFrameZTDispatch.RefreshData(const nRefreshLine: Boolean);
 var nIdx: Integer;
     nP: TdxOcNode;
 begin
-  ShowWaitForm(ParentForm, '读取队列');
+  ShowWaitForm(ParentForm, '读取队列');  GetBeltLines;
   try
     if not LoadTruckQueue(FLines, FTrucks, nRefreshLine) then Exit;
     FLastRefresh := GetTickCount;
@@ -319,10 +323,16 @@ begin
   end;
 
   dxChart1.BeginUpdate;
-  try
+  try                       
     dxChart1.Clear;
     for nIdx:=Low(FLines) to High(FLines) do
     begin
+      {$IFDEF MoreBeltLine}
+      IF gSysParam.FDefaultBeltLine<>'' then
+      begin
+        IF Pos(FLines[nIdx].FID,FNeedShow)=0 then Continue;
+      end;
+      {$ENDIF}
       nP := dxChart1.AddChild(nil, Pointer(nIdx));
       InitZTLineItem(nP);
     end;
@@ -390,6 +400,30 @@ begin
     end;
   end;
 end;
+
+//Desc: 获取厂区车道
+procedure TfFrameZTDispatch.GetBeltLines;
+var nStr,nEvent: string;
+begin
+  FNeedShow:= '';
+  with FTrucks[Integer(dxChart1.Selected.Data)] do
+  begin
+    nStr := 'Select * From %s Where Z_BeltLine=''%s'' '; //
+    nStr := Format(nStr, [sTable_ZTLines, gSysParam.FDefaultBeltLine]);
+
+    with FDM.QuerySQL(nStr) do
+    begin
+      while not Eof do
+      begin
+        FNeedShow:= FNeedShow +','+ FieldByName('Z_ID').AsString;
+        Next;
+      end;
+    end;
+  end;
+end;
+
+
+
 
 initialization
   gControlManager.RegCtrl(TfFrameZTDispatch, TfFrameZTDispatch.FrameID);

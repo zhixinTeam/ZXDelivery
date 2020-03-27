@@ -15,7 +15,7 @@ uses
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, Menus,
   cxLookAndFeels, cxLookAndFeelPainters, UBitmapPanel, cxSplitter,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
-  dxSkinsdxLCPainter;
+  dxSkinsdxLCPainter, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameInvoiceK = class(TfFrameNormal)

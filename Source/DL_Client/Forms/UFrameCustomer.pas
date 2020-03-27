@@ -15,7 +15,9 @@ uses
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu, cxCheckBox;
 
 type
   TfFrameCustomer = class(TfFrameNormal)
@@ -39,6 +41,11 @@ type
     N5: TMenuItem;
     N6: TMenuItem;
     N7: TMenuItem;
+    N8: TMenuItem;
+    N9: TMenuItem;
+    N10: TMenuItem;
+    Chk1: TcxCheckBox;
+    dxlytmLayout1Item7: TdxLayoutItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -51,6 +58,11 @@ type
     procedure N4Click(Sender: TObject);
     procedure N6Click(Sender: TObject);
     procedure N7Click(Sender: TObject);
+    procedure N9Click(Sender: TObject);
+    procedure N10Click(Sender: TObject);
+    procedure cxView1CustomDrawCell(Sender: TcxCustomGridTableView;
+      ACanvas: TcxCanvas; AViewInfo: TcxGridTableDataCellViewInfo;
+      var ADone: Boolean);
   private
     { Private declarations }
     FListA: TStrings;
@@ -60,6 +72,7 @@ type
     procedure OnCreateFrame; override;
     procedure OnDestroyFrame; override;
     //创建释放
+    procedure UPDateCusStatus(nShow:Boolean;nCusID:string);
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -101,6 +114,9 @@ begin
   if nWhere = '' then
        Result := Result + ' Where C_XuNi<>''$Yes'''
   else Result := Result + ' Where (' + nWhere + ')';
+
+  if Chk1.Checked=False then
+    Result := Result + ' And C_IsShow=''Y'' ';
 
   Result := MacroValue(Result, [MI('$Cus', sTable_Customer),
             MI('$Sale', sTable_Salesman), MI('$Yes', sFlag_Yes)]);
@@ -419,6 +435,62 @@ begin
 
   InitFormData(FWhere);
   ShowMsg('取消商城关联成功！', sHint);
+end;
+
+procedure TfFrameCustomer.UPDateCusStatus(nShow:Boolean;nCusID:string);
+var nStr : string;
+begin
+  try
+    if nShow then
+      nStr := 'UPDate %s set C_IsShow=''Y'' Where C_ID=''%s'''
+    else nStr := 'UPDate %s set C_IsShow=''N'' Where C_ID=''%s''';
+
+    nStr := Format(nStr,[sTable_Customer, nCusID]);
+    FDM.ExecuteSQL(nStr);
+  finally
+    InitFormData(FWhere);
+  end;
+end;
+
+procedure TfFrameCustomer.N9Click(Sender: TObject);
+var nID : string;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then
+  begin
+    ShowMsg('请选择要操作的记录', sHint);
+    Exit;
+  end;
+
+  nID := SQLQuery.FieldByName('C_ID').AsString;
+  UPDateCusStatus(False, nID);
+end;
+
+procedure TfFrameCustomer.N10Click(Sender: TObject);
+var nID : string;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then
+  begin
+    ShowMsg('请选择要操作的记录', sHint);
+    Exit;
+  end;
+
+  nID := SQLQuery.FieldByName('C_ID').AsString;
+  UPDateCusStatus(True, nID);
+end;
+
+procedure TfFrameCustomer.cxView1CustomDrawCell(
+  Sender: TcxCustomGridTableView; ACanvas: TcxCanvas;
+  AViewInfo: TcxGridTableDataCellViewInfo; var ADone: Boolean);
+var nShow:string;
+begin
+// if (trim(AViewInfo.RecordViewInfo.GridRecord.Values[4]) = 'HTT')
+//    and (AViewInfo.Item.ID = 4) //确定到某一列，如果不加确定是某行底色
+                                                      
+//  nShow:= (AViewInfo.GridRecord.Values[TcxGridDBTableView(Sender).GetColumnByFieldName('C_IsShow').Index]);
+//
+//  if nShow='N' then
+//    ACanvas.Canvas.Font.Color := $C0C0C0;  // $C0C0C0;
+
 end;
 
 initialization

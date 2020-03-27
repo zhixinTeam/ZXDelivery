@@ -3092,7 +3092,7 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end else Result := False;
 
-  nSR := 'Select * From %s sr ' +
+  nSR := 'Select DATEPART(YEAR,R_Date) RTime,* From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
 
@@ -3103,8 +3103,8 @@ begin
     nStr := 'Select IsNull(H_PrintNum, 0)+1 PrintNum, hy.*,sr.*,C_Name From $HY hy ' +
   {$ENDIF}
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
-          ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
-          'Where H_ID in ($ID)';
+          ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' + {$IFDEF SRecordNeedDistinguish} ' And RTime=DATEPART(YEAR,H_BillDate) '+ {$ENDIF}
+          ' Where H_ID in ($ID)';
   //xxxxx
 
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
@@ -3124,7 +3124,7 @@ begin
   IF n28D then nStr:= StringReplace(nStr, '.fr3', '_28.fr3', [rfReplaceAll]);
   if not FDR.LoadReportFile(nStr) then
   begin
-    nStr := '无法正确加载报表文件';
+    nStr := '无法正确加载报表文件:' + nStr;
     ShowMsg(nStr, sHint); Exit;
   end;
 
