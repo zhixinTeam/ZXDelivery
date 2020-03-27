@@ -622,7 +622,7 @@ const
        'C_Phone varChar(15), C_Fax varChar(15), C_Tax varChar(32),' +
        'C_Bank varChar(35), C_Account varChar(18), C_SaleMan varChar(15),' +
        'C_Param varChar(32), C_Memo varChar(50), C_Type char(1), C_XuNi Char(1),'+
-       'C_custSerilaNo varchar(100))';
+       'C_custSerilaNo varchar(100), C_IsShow Char(1) )';
   {-----------------------------------------------------------------------------
    客户信息表: Customer
    *.R_ID: 记录号
@@ -643,6 +643,7 @@ const
    *.C_Memo: 备注信息
    *.C_Type: 客户分类
    *.C_XuNi: 虚拟(临时)客户
+   *.C_IsShow 是否显示
   -----------------------------------------------------------------------------}
   
   sSQL_NewCusAccount = 'Create Table $Table(R_ID $Inc, A_CID varChar(15),' +
