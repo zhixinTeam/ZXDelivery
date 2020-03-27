@@ -316,8 +316,12 @@
   //使用UTF解包函数
   {$DEFINE MicroMsg}
   //使用微信
-  {$DEFINE UseMHICCard}
+  {.$DEFINE UseMHICCard}
   //制卡时写明华IC卡(骨料用)
+  {$DEFINE TruckAutoIn}
+  //自动进厂
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
 {$ENDIF}
 
 //桐乡羔羊
