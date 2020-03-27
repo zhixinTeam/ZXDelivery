@@ -56,46 +56,35 @@ inherited fFrameCustomer: TfFrameCustomer
     end
     object cxTextEdit1: TcxTextEdit [2]
       Left = 81
-      Top = 94
+      Top = 93
       Hint = 'T.C_ID'
       ParentFont = False
-      TabOrder = 3
+      TabOrder = 2
       Width = 105
     end
     object cxTextEdit2: TcxTextEdit [3]
       Left = 249
-      Top = 94
+      Top = 93
       Hint = 'T.C_Name'
       ParentFont = False
-      TabOrder = 4
+      TabOrder = 3
       Width = 150
     end
     object cxTextEdit3: TcxTextEdit [4]
       Left = 450
-      Top = 94
+      Top = 93
       Hint = 'T.C_LiXiRen'
       ParentFont = False
-      TabOrder = 5
+      TabOrder = 4
       Width = 135
     end
     object cxTextEdit4: TcxTextEdit [5]
       Left = 648
-      Top = 94
+      Top = 93
       Hint = 'T.C_Phone'
       ParentFont = False
-      TabOrder = 6
+      TabOrder = 5
       Width = 135
-    end
-    object Chk1: TcxCheckBox [6]
-      Left = 404
-      Top = 36
-      Caption = #26174#31034#38544#34255#23458#25143
-      ParentColor = False
-      ParentFont = False
-      Style.BorderColor = clWhite
-      Style.Color = clWhite
-      TabOrder = 2
-      Width = 121
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
@@ -107,12 +96,6 @@ inherited fFrameCustomer: TfFrameCustomer
         object dxLayout1Item2: TdxLayoutItem
           Caption = #23458#25143#21517#31216':'
           Control = EditName
-          ControlOptions.ShowBorder = False
-        end
-        object dxlytmLayout1Item7: TdxLayoutItem
-          Caption = 'cxCheckBox1'
-          ShowCaption = False
-          Control = Chk1
           ControlOptions.ShowBorder = False
         end
       end

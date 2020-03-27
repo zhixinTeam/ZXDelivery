@@ -44,8 +44,6 @@ type
     N8: TMenuItem;
     N9: TMenuItem;
     N10: TMenuItem;
-    Chk1: TcxCheckBox;
-    dxlytmLayout1Item7: TdxLayoutItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -114,9 +112,6 @@ begin
   if nWhere = '' then
        Result := Result + ' Where C_XuNi<>''$Yes'''
   else Result := Result + ' Where (' + nWhere + ')';
-
-  if Chk1.Checked=False then
-    Result := Result + ' And C_IsShow=''Y'' ';
 
   Result := MacroValue(Result, [MI('$Cus', sTable_Customer),
             MI('$Sale', sTable_Salesman), MI('$Yes', sFlag_Yes)]);
