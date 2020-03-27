@@ -1113,7 +1113,7 @@ const
        'T_PValue $Float Default 0, T_PTime Integer Default 0,' +
        'T_PlateColor varChar(12),T_Type varChar(12), T_LastTime DateTime, ' +
        'T_Card varChar(32), T_CardUse Char(1), T_Card2 varChar(32), T_Memo varChar(500),' +
-       'T_Stock varChar(32), T_PF varChar(32),' +
+       'T_Stock varChar(32), T_PF varChar(32), T_SnapTruck Char(1) Default ''Y'',' +
        'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), '+
        'T_Limited $Float, T_LimitedMin $Float, T_HasGPS Char(1), T_GPSDate DateTime,'+
        'T_XTNum decimal(15, 5) Default 0,T_IDCard varchar(50))';
