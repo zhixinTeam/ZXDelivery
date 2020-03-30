@@ -28,8 +28,8 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
     procedure UserList(const nWrite: Boolean);
@@ -90,6 +90,14 @@ begin
   try
     if nWrite then
     begin
+      nStr := nIni.ReadString(Name, 'SaveUser', '');
+      if nStr <> 'Y' then
+      begin
+        if nStr = '' then
+          nIni.WriteString(Name, 'SaveUser', 'N');
+        Exit;
+      end;
+
       if Edit_User.ItemIndex >= 0 then Exit;
       nStr := 'User_' + IntToStr(Edit_User.Items.Count);
       nIni.WriteString(Name, nStr, Edit_User.Text);
@@ -129,20 +137,19 @@ end;
 //------------------------------------------------------------------------------
 //Desc: 测试nConnStr是否有效
 function ConnCallBack(const nConnStr: string): Boolean;
-var
-  nstr:string;
 begin
   try
     FDM.ADOConn.Close;
     FDM.ADOConn.ConnectionString := nConnStr;
     FDM.ADOConn.Open;
+    Result := FDM.ADOConn.Connected;
   except
-    on ex: Exception do
+    on nErr: Exception do
     begin
-      ShowMessage(ex.Message);
+      Result := False;
+      ShowDlg(nErr.Message, sWarn);
     end;
   end;
-  Result := FDM.ADOConn.Connected;
 end;
 
 //Desc: 设置

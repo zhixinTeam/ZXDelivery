@@ -905,7 +905,7 @@ const
        'L_XHSpot varChar(30), L_Freight $Float, L_Ident varChar(30),' +
        'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320),' +
        'L_SnapStatus Char(1) Default ''Y'', L_BeltLine varChar(50),L_NowVaildMoney $Float,'+
-       'L_HYPrintCount int Default 0,L_WebOrderID varchar(32),L_SJName varchar(32))';
+       'L_HYPrintCount int Default 0,L_WebOrderID varchar(32), L_SJName varchar(32))';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号
@@ -952,6 +952,7 @@ const
    *.L_XHSpot:卸货点
    *.L_Freight:运费
    *.L_Ident:身份证号
+   *.L_SJName:司机姓名
    *.L_BeltLine : 订单发货生产线或生产厂区
   -----------------------------------------------------------------------------}
 
@@ -1074,7 +1075,7 @@ const
    *.D_YSResult: 验收结果
    *.D_OutFact,D_OutMan: 出厂放行
    *.D_WlbYTime,D_WlbYMan,D_WlbYS:物流部验收时间，人，结果
-   *.D_Truck, D_SerialNo:车牌号码, 质检编号
+   *.D_SerialNo:质检编号
   -----------------------------------------------------------------------------}
 
   sSQL_NewMValueInfo = ' Create Table $Table(R_ID $Inc, S_MValueMax $Float)';

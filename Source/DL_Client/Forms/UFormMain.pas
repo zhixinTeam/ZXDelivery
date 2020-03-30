@@ -12,8 +12,7 @@ uses
   UMgrMenu, UTrayIcon, UDataModule, USysFun, UFrameBase, cxGraphics,
   cxControls, cxLookAndFeelPainters, ExtCtrls, Menus,
   UBitmapPanel, cxPC, cxClasses, dxNavBarBase, dxNavBarCollns, dxNavBar,
-  cxSplitter, ComCtrls, StdCtrls, cxLookAndFeels, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxNavBar2Painter, dxSkinscxPCPainter;
+  cxSplitter, ComCtrls, StdCtrls, cxLookAndFeels;
 
 type
   TfMainForm = class(TForm)
@@ -49,7 +48,6 @@ type
     procedure FormSaveConfig;
     {*配置信息*}
     procedure SetHintText(const nLabel: TLabel);
-    procedure SaveBillParamConfig;
     {*提示信息*}
     procedure DoMenuClick(Sender: TObject);
     {*菜单事件*}
@@ -149,21 +147,6 @@ begin
   end;
 end;
 
-//Desc: 保存最后选择开单生产线配置
-procedure TfMainForm.SaveBillParamConfig;
-var nIni: TIniFile;
-begin
-  nIni := TIniFile.Create(gPath + sConfigFile);
-  try
-    if Splitter1.State = ssClosed then
-      Splitter1.State := ssOpened;
-    Application.ProcessMessages;
-
-    nIni.WriteString('BillParam', 'DefaultBeltLine', gSysParam.FDefaultBeltLine);
-  finally
-    nIni.Free;
-  end;
-end;
 //------------------------------------------------------------------------------
 //Desc: 创建
 procedure TfMainForm.FormCreate(Sender: TObject);
@@ -225,7 +208,6 @@ begin
   ShowWaitForm(Self, '正在退出系统', True);
   try
     FormSaveConfig;          //窗体配置
-    SaveBillParamConfig;
 
     WriteLog('系统关闭');
     {$IFNDEF debug}

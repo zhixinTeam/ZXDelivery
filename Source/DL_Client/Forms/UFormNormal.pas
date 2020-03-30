@@ -9,8 +9,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UDataModule, UFormBase, ULibFun, UAdjustForm, USysConst, dxLayoutControl,
-  StdCtrls, cxControls, cxGraphics, cxLookAndFeels, cxLookAndFeelPainters,
-  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  StdCtrls, cxControls;
 
 type
   TfFormNormal = class(TBaseForm)
@@ -81,8 +80,8 @@ begin
         begin
           if TWinControl(nObj).CanFocus then
             TWinControl(nObj).SetFocus;
+          //xxxxx
         end;
-        //xxxxx
         
         if nStr <> '' then
           ShowMsg(nStr, sHint);

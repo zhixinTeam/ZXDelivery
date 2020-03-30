@@ -12,10 +12,7 @@ uses
   dxPrnPg, ULibFun, dxWrap, dxPrnDev, dxPSCompsProvider, dxPSFillPatterns,
   dxPSEdgePatterns, cxLookAndFeels, dxPSCore, dxPScxCommon, dxPScxGrid6Lnk,
   XPMan, dxLayoutLookAndFeels, cxEdit, ImgList, Controls, cxGraphics, DB,
-  ADODB, dxBkgnd, dxPSPDFExportCore, dxPSPDFExport, cxDrawTextUtils,
-  dxPSPrVwStd, dxPScxEditorProducers, dxPScxExtEditorProducers,
-  dxPScxPageControlProducer, dxSkinsCore, dxSkinscxPCPainter,
-  dxSkinsDefaultPainters;
+  ADODB, dxBkgnd;
 
 type
   TFDM = class(TDataModule)
@@ -377,11 +374,8 @@ begin
   Result := '';
   try
     nStr := 'Select getDate()';
-    {$IFDEF HYJC}
-    nTmp := FormatDateTime('YYMMDDHHMM', QueryTemp(nStr).Fields[0].AsDateTime);
-    {$ELSE}
     nTmp := FormatDateTime('YYMMDD', QueryTemp(nStr).Fields[0].AsDateTime);
-    {$ENDIF}
+
     nStr := 'Select Top 1 $K,$F From $T Where $F Like ''$P$D%'' Order By $F DESC';
     nStr := MacroValue(nStr, [MI('$T', nTable), MI('$F', nField),
             MI('$D', nTmp), MI('$K', nKey), MI('$P', nPrefix)]);

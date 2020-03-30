@@ -9,9 +9,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UDataModule, StdCtrls, dxLayoutControl, cxContainer, cxEdit, cxTextEdit,
-  cxMaskEdit, cxDropDownEdit, cxCalendar, cxControls, cxGraphics,
-  cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  cxMaskEdit, cxDropDownEdit, cxCalendar, cxControls;
 
 type
   TfFormDateFilter = class(TForm)

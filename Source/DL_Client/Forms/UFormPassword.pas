@@ -9,8 +9,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UDataModule, StdCtrls, ExtCtrls, dxLayoutControl, cxControls,
-  cxContainer, cxEdit, cxTextEdit, UFormBase, cxGraphics, cxLookAndFeels,
-  cxLookAndFeelPainters;
+  cxContainer, cxEdit, cxTextEdit, UFormBase;
 
 type
   TfFormPassword = class(TBaseForm)
