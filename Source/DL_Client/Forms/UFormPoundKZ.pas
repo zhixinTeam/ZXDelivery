@@ -124,7 +124,7 @@ begin
     nOldPoundKZ         := FieldByName('P_KZValue').AsString;
     EditD_SerialNo.Text := FieldByName('D_SerialNo').AsString;
     EditTruck.Text      := FieldByName('P_Truck').AsString;
-    EditKZ.Text         := FloatToStr(FieldByName('P_KZValueEx').AsFloat);
+//    EditKZ.Text         := FloatToStr(FieldByName('P_KZValueEx').AsFloat);
     EditPoundKZ.Text    := FloatToStr(FieldByName('P_KZValue').AsFloat);
     EditStockName.Text  := FieldByName('P_MName').AsString;
   end;

@@ -990,21 +990,14 @@ begin
       FNextStatus := sFlag_TruckBFM;
 
       nStr := SF('P_Order', FID);
-      {$IFDEF UseYCLHY}
+
       //where
       nSQL := MakeSQLByStr([
-                SF('P_KZValueEx', FKZValue, sfVal)
+                SF('P_KZValue', FKZValue, sfVal)
                 ], sTable_PoundLog, nStr, False);
         //验收扣杂
        FListA.Add(nSQL);
-      {$ELSE}
-        //where
-        nSQL := MakeSQLByStr([
-                  SF('P_KZValue', FKZValue, sfVal)
-                  ], sTable_PoundLog, nStr, False);
-          //验收扣杂
-         FListA.Add(nSQL);
-      {$ENDIF}
+
 
       {$IFDEF UseYCLHY}
       nSQL := MakeSQLByStr([

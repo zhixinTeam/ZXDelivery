@@ -11,7 +11,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxButtonEdit, cxMCListBox,
   cxLabel, cxMemo, cxTextEdit, cxMaskEdit, cxDropDownEdit, dxLayoutControl,
-  StdCtrls, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  StdCtrls;
 
 type
   TfFormPayment = class(TfFormNormal)
@@ -289,9 +289,7 @@ var
   nStr: string;
 begin
   if not IsDataValid then Exit;
-
   nStr := 'SJ'+FormatDateTime('yyyymmddhhmmss',Now);
-
   if not SaveCustomerPayment(gInfo.FCusID, gInfo.FCusName,
      GetCtrlData(EditSalesMan), sFlag_MoneyHuiKuan, EditType.Text, EditDesc.Text,
      StrToFloat(EditMoney.Text),nStr, True) then
