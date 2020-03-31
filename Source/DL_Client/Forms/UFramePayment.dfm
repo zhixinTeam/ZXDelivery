@@ -35,8 +35,6 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_Money'
       ParentFont = False
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 90
     end
@@ -50,9 +48,6 @@ inherited fFramePayment: TfFramePayment
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditTruckPropertiesButtonClick
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
-      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 135
@@ -62,8 +57,6 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_Memo'
       ParentFont = False
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 135
     end
@@ -78,9 +71,6 @@ inherited fFramePayment: TfFramePayment
         end>
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
-      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       Width = 185
     end
@@ -89,38 +79,37 @@ inherited fFramePayment: TfFramePayment
       Top = 93
       Hint = 'T.M_CusName'
       ParentFont = False
-      Style.BorderColor = clWindowFrame
-      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 135
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item2: TdxLayoutItem
-          CaptionOptions.Text = #23458#25143#21517#31216':'
+          Caption = #23458#25143#21517#31216':'
           Control = EditID
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          CaptionOptions.Text = #26085#26399#31579#36873':'
+          Caption = #26085#26399#31579#36873':'
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item7: TdxLayoutItem
-          CaptionOptions.Text = #23458#25143#21517#31216':'
+          Caption = #23458#25143#21517#31216':'
           Control = cxTextEdit4
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item1: TdxLayoutItem
-          CaptionOptions.Text = #37329#39069'('#20803'):'
+          Caption = #37329#39069'('#20803'):'
           Control = cxTextEdit1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
+          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          CaptionOptions.Text = #22791#27880#20449#24687':'
+          Caption = #22791#27880#20449#24687':'
           Control = cxTextEdit2
           ControlOptions.ShowBorder = False
         end
@@ -151,16 +140,11 @@ inherited fFramePayment: TfFramePayment
   end
   object PMenu1: TPopupMenu
     AutoHotkeys = maManual
-    OnPopup = PMenu1Popup
     Left = 4
     Top = 264
     object N1: TMenuItem
       Caption = #20837#36134#23457#26680
       OnClick = N1Click
-    end
-    object N2: TMenuItem
-      Caption = #25171#21360#25910#25454
-      OnClick = N2Click
     end
   end
 end
