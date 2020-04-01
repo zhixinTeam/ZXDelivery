@@ -131,6 +131,8 @@ type
     function ChkPoundStatus:Boolean;
     function CheckMValue: Boolean;
     //验证毛重
+    function CheckTruckMValue: Boolean;
+    //验证车辆毛重
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -273,7 +275,7 @@ begin
   if Assigned(FPoundTunnel.FOptions) then
   with FPoundTunnel.FOptions do
   begin
-    FIsAutoTruckIn  := Values['IsAutoTruckIn']  = sFlag_Yes;
+    FIsAutoTruckIn:= Values['IsAutoTruckIn']  = sFlag_Yes;
     FVirPoundID  := Values['VirPoundID'];
     FBarrierGate := Values['BarrierGate'] = sFlag_Yes;
     FEmptyPoundIdleLong := StrToInt64Def(Values['EmptyIdleLong'], 60);
@@ -492,6 +494,7 @@ begin
       else
       if FCardUsed = sFlag_Sale then
       begin
+        {$IFNDEF YNHT}
         if not GetTruckIsQueue(FTruck) then
         begin
           nStr := '[n1]%s不能过磅,请等待';
@@ -506,6 +509,7 @@ begin
           PlayVoice(nStr);
           Exit;
         end;
+        {$ENDIF}
         
         if SaveLadingBills(sFlag_TruckIn, nBills) then
         begin
@@ -858,6 +862,10 @@ begin
     if (FUIData.FMData.FValue > 0) then
       if not CheckMValue then Exit;
     //启用毛重上限
+    {$IFDEF LimitedLoadMaxValue}
+    if (FUIData.FMData.FValue > 0) then
+      if not CheckTruckMValue then Exit;
+    {$ENDIF}
   end;
 
   if (FUIData.FPData.FValue > 0) and (FUIData.FMData.FValue > 0) then
@@ -1566,6 +1574,50 @@ begin
 
     nStr := GetTruckNO(FTruck) + '请返回卸料';
     LEDDisplay(nStr);
+    Result := False;
+  end;
+end;
+
+function TfFrameAutoPoundItem.CheckTruckMValue: Boolean;
+var nStr, nStatus: string;
+    nVal: Double;
+begin
+  Result := True;
+  nVal   := 0;
+  nStr   := ' Select T_Limited From %s Where T_Truck = ''%s''  ';
+  nStr   := Format(nStr, [sTable_Truck, FUIData.FTruck]);
+
+  with FDM.QueryTemp(nStr),FUIData do
+  if RecordCount > 0 then
+  begin
+    nVal := Fields[0].AsFloat;
+    if nVal <= 0 then Exit;
+
+    Result := nVal >= FUIData.FMData.FValue;
+    if Result then Exit;
+
+    nStr := '车辆[ %s ]重车超过上限,详情如下:' + #13#10 +
+            '※.毛重上限: %.2f吨' + #13#10 +
+            '※.当前毛重: %.2f吨' + #13#10 +
+            '※.超 重 量: %.2f吨' + #13#10 +
+            '是否允许过磅?';
+    nStr := Format(nStr, [FTruck, nVal, FMData.FValue, FMData.FValue-nVal]);
+
+    Result := VerifyManualEventRecord(FID + sFlag_ManualF, nStr, sFlag_Yes, False);
+    if Result then Exit; //管理员放行
+
+    AddManualEventRecord(FID + sFlag_ManualF, FTruck, nStr, sFlag_DepBangFang,
+      sFlag_Solution_YN, sFlag_DepBangFang, True);
+    WriteSysLog(nStr);
+    
+
+    nStr := '[n1]%s毛重%.2f吨,请返回卸料.';
+    nStr := Format(nStr, [FTruck, FMData.FValue]);
+    PlayVoice(nStr);
+
+    nStr := GetTruckNO(FTruck) + '请返回卸料';
+    LEDDisplay(nStr);
+    Result := False;
   end;
 end;
 

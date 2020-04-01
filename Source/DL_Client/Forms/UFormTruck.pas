@@ -114,6 +114,18 @@ end;
 procedure TfFormTruck.LoadFormData(const nID: string);
 var nStr: string;
 begin
+  {$IFDEF LimitedLoadMValueChk}  //毛重限载控制
+  dxlytm_MValueMax.Visible := True;
+  dxlytm_MValeMin.Visible  := True;
+  {$ELSE}
+  dxlytm_MValueMax.Visible := False;
+  dxlytm_MValeMin.Visible  := False;
+  {$ENDIF}
+
+  {$IFDEF LimitedLoadMaxValue}
+  dxlytm_MValueMax.Visible := True;
+  {$ENDIF}
+  
   if nID <> '' then
   begin
     nStr := 'Select * From %s Where R_ID=%s';
@@ -140,11 +152,9 @@ begin
     {$IFDEF LimitedLoadMValueChk}  //毛重限载控制
     edt_LimitedValue.Text:= FieldByName('T_Limited').AsString;
     edt_LimitedValueMin.Text:= FieldByName('T_LimitedMin').AsString;
-    {$ELSE}
-    dxlytm_MValueMax.Visible:= False;
-    dxlytm_MValeMin.Visible:= False;
-    edt_LimitedValue.Visible:= False;
-    edt_LimitedValueMin.Visible:= False;
+    {$ENDIF}
+    {$IFDEF LimitedLoadMaxValue}
+    edt_LimitedValue.Text:= FieldByName('T_Limited').AsString;
     {$ENDIF}
 
     CheckVerify.Checked := FieldByName('T_NoVerify').AsString = sFlag_No;
@@ -235,6 +245,10 @@ begin
           {$IFDEF LimitedLoadMValueChk}  //毛重限载控制
           SF('T_Limited', StrToFloatDef(edt_LimitedValue.Text,50)),
           SF('T_LimitedMin', StrToFloatDef(edt_LimitedValueMin.Text,20)),
+          {$ELSE}
+            {$IFDEF LimitedLoadMaxValue}
+            SF('T_Limited', StrToFloatDef(edt_LimitedValue.Text,0)),
+            {$ENDIF}
           {$ENDIF}
 
           SF('T_LastTime', sField_SQLServer_Now, sfVal)
