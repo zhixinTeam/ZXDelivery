@@ -1,8 +1,8 @@
 inherited fFormGetContract: TfFormGetContract
   Left = 401
   Top = 134
-  Width = 588
-  Height = 364
+  Width = 597
+  Height = 345
   BorderStyle = bsSizeable
   Constraints.MinHeight = 300
   Constraints.MinWidth = 445
@@ -11,21 +11,21 @@ inherited fFormGetContract: TfFormGetContract
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 572
-    Height = 325
+    Width = 581
+    Height = 306
     inherited BtnOK: TButton
-      Left = 426
-      Top = 292
+      Left = 435
+      Top = 273
       Caption = #30830#23450
       TabOrder = 5
     end
     inherited BtnExit: TButton
-      Left = 496
-      Top = 292
+      Left = 505
+      Top = 273
       TabOrder = 6
     end
     object EditSMan: TcxComboBox [2]
-      Left = 428
+      Left = 437
       Top = 36
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
@@ -89,8 +89,8 @@ inherited fFormGetContract: TfFormGetContract
       Style.Edges = [bLeft, bTop, bRight, bBottom]
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 4

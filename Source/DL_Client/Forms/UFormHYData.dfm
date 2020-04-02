@@ -1,49 +1,43 @@
 inherited fFormHYData: TfFormHYData
   Left = 661
   Top = 254
-  ClientHeight = 307
+  ClientHeight = 248
   ClientWidth = 444
   Constraints.MinHeight = 245
   Constraints.MinWidth = 460
-  Font.Height = -13
-  Font.Name = #24494#36719#38597#40657
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
-  TextHeight = 19
+  TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 444
-    Height = 307
+    Height = 248
     inherited BtnOK: TButton
-      Left = 281
-      Top = 266
-      Width = 72
-      Height = 27
+      Left = 300
+      Top = 212
+      Width = 64
+      Height = 25
       Caption = #30830#23450
-      Font.Height = -16
-      Font.Name = #24494#36719#38597#40657
       ParentFont = False
       TabOrder = 9
     end
     inherited BtnExit: TButton
-      Left = 358
-      Top = 266
-      Width = 72
-      Height = 27
-      Font.Height = -16
-      Font.Name = #24494#36719#38597#40657
+      Left = 369
+      Top = 212
+      Width = 64
+      Height = 25
       ParentFont = False
       TabOrder = 10
     end
     object EditTruck: TcxTextEdit [2]
-      Left = 87
-      Top = 198
+      Left = 81
+      Top = 156
       ParentFont = False
       Properties.MaxLength = 100
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 6
@@ -51,23 +45,23 @@ inherited fFormHYData: TfFormHYData
       Width = 147
     end
     object EditValue: TcxTextEdit [3]
-      Left = 309
-      Top = 198
+      Left = 303
+      Top = 156
       ParentFont = False
       Properties.MaxLength = 100
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 7
       OnKeyPress = EditNameKeyPress
-      Width = 89
+      Width = 118
     end
     object EditSMan: TcxComboBox [4]
-      Left = 87
-      Top = 50
+      Left = 81
+      Top = 36
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.IncrementalSearch = False
@@ -76,34 +70,34 @@ inherited fFormHYData: TfFormHYData
       Properties.OnEditValueChanged = EditSManPropertiesEditValueChanged
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 0
       OnKeyPress = EditNameKeyPress
-      Width = 328
+      Width = 340
     end
     object EditCustom: TcxComboBox [5]
-      Left = 87
-      Top = 82
+      Left = 81
+      Top = 61
       ParentFont = False
       Properties.DropDownRows = 20
       Properties.IncrementalSearch = False
       Properties.ItemHeight = 18
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 1
       OnKeyPress = EditCustomKeyPress
-      Width = 328
+      Width = 340
     end
     object EditNo: TcxButtonEdit [6]
-      Left = 309
-      Top = 166
+      Left = 303
+      Top = 131
       ParentFont = False
       Properties.Buttons = <
         item
@@ -113,23 +107,23 @@ inherited fFormHYData: TfFormHYData
       Properties.OnButtonClick = EditNoPropertiesButtonClick
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 5
       OnKeyPress = EditNameKeyPress
-      Width = 89
+      Width = 118
     end
     object EditDate: TcxDateEdit [7]
-      Left = 87
-      Top = 166
+      Left = 81
+      Top = 131
       ParentFont = False
       Properties.Kind = ckDateTime
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 4
@@ -137,23 +131,23 @@ inherited fFormHYData: TfFormHYData
       Width = 147
     end
     object EditName: TcxTextEdit [8]
-      Left = 87
-      Top = 114
+      Left = 81
+      Top = 86
       ParentFont = False
       Properties.MaxLength = 80
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 2
       OnKeyPress = EditNameKeyPress
-      Width = 328
+      Width = 340
     end
     object cxLabel2: TcxLabel [9]
-      Left = 29
-      Top = 146
+      Left = 23
+      Top = 111
       AutoSize = False
       ParentFont = False
       Properties.Alignment.Vert = taBottomJustify
@@ -162,11 +156,11 @@ inherited fFormHYData: TfFormHYData
       Transparent = True
       Height = 15
       Width = 466
-      AnchorY = 161
+      AnchorY = 126
     end
     object chk_IsBD: TCheckBox [10]
-      Left = 29
-      Top = 230
+      Left = 23
+      Top = 181
       Width = 97
       Height = 17
       Caption = #26159#21542#34917#21333

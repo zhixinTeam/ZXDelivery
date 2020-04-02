@@ -10,17 +10,17 @@ inherited fFormGetTruck: TfFormGetTruck
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 440
-    Height = 282
+    Width = 432
+    Height = 270
     inherited BtnOK: TButton
-      Left = 294
-      Top = 249
+      Left = 286
+      Top = 237
       Caption = #30830#23450
       TabOrder = 4
     end
     inherited BtnExit: TButton
-      Left = 364
-      Top = 249
+      Left = 356
+      Top = 237
       TabOrder = 5
     end
     object EditTruck: TcxButtonEdit [2]
@@ -76,7 +76,7 @@ inherited fFormGetTruck: TfFormGetTruck
     end
     object Check1: TcxCheckBox [5]
       Left = 11
-      Top = 249
+      Top = 237
       Caption = #26174#31034#20840#37096#36710#36742
       ParentFont = False
       TabOrder = 3

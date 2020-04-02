@@ -1,8 +1,8 @@
 inherited fFormSaleContract: TfFormSaleContract
   Left = 477
   Top = 235
-  Width = 565
-  Height = 652
+  Width = 529
+  Height = 603
   BorderIcons = [biSystemMenu, biMinimize]
   OldCreateOrder = True
   OnClose = FormClose
@@ -13,8 +13,8 @@ inherited fFormSaleContract: TfFormSaleContract
   object dxLayoutControl1: TdxLayoutControl
     Left = 0
     Top = 0
-    Width = 549
-    Height = 613
+    Width = 513
+    Height = 564
     Align = alClient
     TabOrder = 0
     TabStop = False
@@ -34,8 +34,8 @@ inherited fFormSaleContract: TfFormSaleContract
       Width = 437
     end
     object BtnOK: TButton
-      Left = 394
-      Top = 579
+      Left = 358
+      Top = 530
       Width = 70
       Height = 23
       Caption = #20445#23384
@@ -43,8 +43,8 @@ inherited fFormSaleContract: TfFormSaleContract
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
-      Left = 469
-      Top = 579
+      Left = 433
+      Top = 530
       Width = 69
       Height = 23
       Caption = #21462#28040
@@ -100,8 +100,8 @@ inherited fFormSaleContract: TfFormSaleContract
       Style.Edges = [bLeft, bTop, bRight, bBottom]
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -15
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 17
@@ -245,7 +245,7 @@ inherited fFormSaleContract: TfFormSaleContract
     end
     object Check1: TcxCheckBox
       Left = 11
-      Top = 581
+      Top = 532
       Caption = #34394#25311#21512#21516': '#21150#29702#32440#21345#26102#20801#35768#21464#26356#19994#21153#21592#21644#23458#25143#21517#31216'.'
       ParentFont = False
       TabOrder = 18

@@ -54,7 +54,7 @@ object fFormInvoiceK: TfFormInvoiceK
     end
     object EditMemo: TcxMemo
       Left = 83
-      Top = 129
+      Top = 114
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
@@ -72,7 +72,7 @@ object fFormInvoiceK: TfFormInvoiceK
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 0
@@ -86,37 +86,37 @@ object fFormInvoiceK: TfFormInvoiceK
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 1
       Text = '0'
-      Width = 160
+      Width = 152
     end
     object EditZheKou: TcxTextEdit
       Left = 271
-      Top = 69
+      Top = 64
       ParentFont = False
       Properties.ReadOnly = True
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 3
       Text = '0'
-      Width = 160
+      Width = 152
     end
     object EditStock: TcxTextEdit
       Left = 83
-      Top = 214
+      Top = 199
       ParentFont = False
       Properties.ReadOnly = True
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 6
@@ -124,35 +124,35 @@ object fFormInvoiceK: TfFormInvoiceK
     end
     object EditPrice: TcxTextEdit
       Left = 271
-      Top = 214
+      Top = 199
       ParentFont = False
       Properties.ReadOnly = True
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 7
-      Width = 160
+      Width = 152
     end
     object EditValue: TcxTextEdit
       Left = 271
-      Top = 244
+      Top = 224
       OnFocusChanged = EditValueFocusChanged
       ParentFont = False
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 9
-      Width = 160
+      Width = 152
     end
     object ListDetail: TcxMCListBox
       Left = 25
-      Top = 274
+      Top = 249
       Width = 374
       Height = 100
       HeaderSections = <
@@ -187,13 +187,13 @@ object fFormInvoiceK: TfFormInvoiceK
     end
     object EditZK: TcxTextEdit
       Left = 83
-      Top = 244
+      Top = 224
       ParentFont = False
       Properties.ReadOnly = True
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 8
@@ -201,27 +201,27 @@ object fFormInvoiceK: TfFormInvoiceK
     end
     object EditCus: TcxTextEdit
       Left = 83
-      Top = 99
+      Top = 89
       ParentFont = False
       Properties.ReadOnly = True
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 4
-      Width = 348
+      Width = 340
     end
     object EditSale: TcxTextEdit
       Left = 83
-      Top = 69
+      Top = 64
       ParentFont = False
       Properties.ReadOnly = True
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 2

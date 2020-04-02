@@ -2,7 +2,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
   Left = 729
   Top = 240
   Width = 445
-  Height = 492
+  Height = 456
   BorderStyle = bsSizeable
   Position = poDesktopCenter
   OnClose = FormClose
@@ -11,16 +11,16 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 429
-    Height = 453
+    Height = 417
     inherited BtnOK: TButton
       Left = 283
-      Top = 420
+      Top = 384
       Caption = #30830#23450
       TabOrder = 6
     end
     inherited BtnExit: TButton
       Left = 353
-      Top = 420
+      Top = 384
       TabOrder = 7
     end
     object ListInfo: TcxMCListBox [2]
@@ -43,7 +43,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 0
@@ -61,7 +61,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 1
@@ -80,7 +80,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 2
@@ -88,7 +88,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
     end
     object EditName: TcxComboBox [5]
       Left = 81
-      Top = 187
+      Top = 182
       ParentFont = False
       Properties.DropDownRows = 20
       Properties.ImmediateDropDown = False
@@ -98,7 +98,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 3
@@ -107,7 +107,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
     end
     object ListDetail: TcxListView [6]
       Left = 23
-      Top = 279
+      Top = 264
       Width = 355
       Height = 154
       Checkboxes = True
@@ -131,8 +131,8 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Style.Edges = [bLeft, bTop, bRight, bBottom]
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 5
@@ -140,7 +140,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
     end
     object EditZK: TcxComboBox [7]
       Left = 81
-      Top = 249
+      Top = 239
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 20
@@ -151,7 +151,7 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 4

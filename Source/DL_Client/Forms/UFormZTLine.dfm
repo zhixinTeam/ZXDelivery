@@ -2,25 +2,27 @@ inherited fFormZTLine: TfFormZTLine
   Left = 645
   Top = 334
   Caption = #35013#36710#32447#37197#32622
-  ClientHeight = 315
-  ClientWidth = 599
+  ClientHeight = 262
+  ClientWidth = 592
   Position = poMainFormCenter
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 599
-    Height = 315
+    Width = 592
+    Height = 262
     Font.Height = -13
     Font.Name = #24494#36719#38597#40657
     ParentFont = False
     inherited BtnOK: TButton
-      Left = 450
-      Top = 279
+      Left = 443
+      Top = 226
+      ParentFont = False
       TabOrder = 12
     end
     inherited BtnExit: TButton
-      Left = 520
-      Top = 279
+      Left = 513
+      Top = 226
+      ParentFont = False
       TabOrder = 13
     end
     object EditName: TcxTextEdit [2]
@@ -31,12 +33,12 @@ inherited fFormZTLine: TfFormZTLine
       Properties.ReadOnly = False
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 1
-      Width = 207
+      Width = 210
     end
     object EditID: TcxTextEdit [3]
       Left = 87
@@ -46,8 +48,8 @@ inherited fFormZTLine: TfFormZTLine
       Properties.ReadOnly = False
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 0
@@ -55,15 +57,15 @@ inherited fFormZTLine: TfFormZTLine
     end
     object EditMax: TcxTextEdit [4]
       Left = 87
-      Top = 186
+      Top = 153
       Hint = 'T.Z_QueueMax'
       HelpType = htKeyword
       HelpKeyword = 'I'
       ParentFont = False
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 7
@@ -72,7 +74,7 @@ inherited fFormZTLine: TfFormZTLine
     end
     object CheckValid: TcxCheckBox [5]
       Left = 14
-      Top = 279
+      Top = 226
       Hint = 'T.Z_Valid'
       Caption = #36890#36947#26377#25928
       ParentFont = False
@@ -84,21 +86,21 @@ inherited fFormZTLine: TfFormZTLine
     end
     object EditStockName: TcxTextEdit [6]
       Left = 360
-      Top = 84
+      Top = 75
       Hint = 'T.Z_Stock'
       ParentFont = False
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 4
-      Width = 207
+      Width = 210
     end
     object cxLabel2: TcxLabel [7]
       Left = 302
-      Top = 186
+      Top = 153
       Caption = #27880': '#35813#21442#25968#29992#20110#25511#21046#27599#38431#26368#22810#26377#22810#23569#36710#36742'.'
       ParentFont = False
       Style.Font.Charset = GB2312_CHARSET
@@ -111,15 +113,15 @@ inherited fFormZTLine: TfFormZTLine
     end
     object EditPeer: TcxTextEdit [8]
       Left = 87
-      Top = 220
+      Top = 181
       Hint = 'T.Z_PeerWeight'
       HelpType = htKeyword
       HelpKeyword = 'I'
       ParentFont = False
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 9
@@ -128,7 +130,7 @@ inherited fFormZTLine: TfFormZTLine
     end
     object cxLabel4: TcxLabel [9]
       Left = 302
-      Top = 220
+      Top = 181
       Caption = #27880': '#35813#21442#25968#29992#20110#35013#36710#35745#25968#26102#35745#31639#34955#25968'.'
       ParentFont = False
       Style.Font.Charset = GB2312_CHARSET
@@ -141,7 +143,7 @@ inherited fFormZTLine: TfFormZTLine
     end
     object EditStockID: TcxComboBox [10]
       Left = 87
-      Top = 84
+      Top = 75
       ParentFont = False
       Properties.DropDownRows = 20
       Properties.ItemHeight = 20
@@ -149,8 +151,8 @@ inherited fFormZTLine: TfFormZTLine
       Properties.OnChange = EditStockIDPropertiesChange
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 2
@@ -158,7 +160,7 @@ inherited fFormZTLine: TfFormZTLine
     end
     object EditType: TcxComboBox [11]
       Left = 87
-      Top = 152
+      Top = 125
       Hint = 'T.Z_VIPLine'
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
@@ -170,8 +172,8 @@ inherited fFormZTLine: TfFormZTLine
         '4.'#33337#36816)
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 5
@@ -180,7 +182,7 @@ inherited fFormZTLine: TfFormZTLine
     end
     object cxLabel5: TcxLabel [12]
       Left = 302
-      Top = 152
+      Top = 125
       Caption = #27880': '#35813#21442#25968#24433#21709#36827#38431#21015#30340#21457#36135#21333#31867#22411'.'
       ParentFont = False
       Style.Font.Charset = GB2312_CHARSET
@@ -193,15 +195,15 @@ inherited fFormZTLine: TfFormZTLine
     end
     object cbb_BeltLine: TcxComboBox [13]
       Left = 87
-      Top = 118
+      Top = 100
       Hint = 'T.Z_BeltLine'
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.ItemHeight = 18
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 3

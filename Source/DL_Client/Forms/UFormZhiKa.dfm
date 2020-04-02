@@ -1,29 +1,29 @@
 inherited fFormZhiKa: TfFormZhiKa
   Left = 629
   Top = 200
-  Width = 504
-  Height = 557
+  Width = 508
+  Height = 540
   BorderStyle = bsSizeable
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 488
-    Height = 518
+    Width = 492
+    Height = 501
     inherited BtnOK: TButton
-      Left = 342
-      Top = 485
+      Left = 346
+      Top = 468
       TabOrder = 18
     end
     inherited BtnExit: TButton
-      Left = 412
-      Top = 485
+      Left = 416
+      Top = 468
       TabOrder = 19
     end
     object ListDetail: TcxListView [2]
       Left = 23
-      Top = 247
+      Top = 243
       Width = 438
       Height = 188
       Checkboxes = True
@@ -48,8 +48,8 @@ inherited fFormZhiKa: TfFormZhiKa
       Style.Edges = [bLeft, bTop, bRight, bBottom]
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 13
@@ -57,32 +57,32 @@ inherited fFormZhiKa: TfFormZhiKa
       OnClick = ListDetailClick
     end
     object EditPrice: TcxTextEdit [3]
-      Left = 252
-      Top = 444
+      Left = 256
+      Top = 436
       ParentFont = False
       Properties.OnEditValueChanged = EditPricePropertiesEditValueChanged
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 15
       Width = 79
     end
     object EditValue: TcxTextEdit [4]
-      Left = 388
-      Top = 444
+      Left = 392
+      Top = 436
       ParentFont = False
       Properties.OnEditValueChanged = EditPricePropertiesEditValueChanged
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 16
@@ -191,7 +191,7 @@ inherited fFormZhiKa: TfFormZhiKa
       Width = 121
     end
     object cxLabel2: TcxLabel [12]
-      Left = 445
+      Left = 449
       Top = 186
       AutoSize = False
       Caption = #20803
@@ -204,7 +204,7 @@ inherited fFormZhiKa: TfFormZhiKa
     end
     object Check1: TcxCheckBox [13]
       Left = 11
-      Top = 485
+      Top = 468
       Caption = #23436#25104#21518#25171#24320#38480#25552#31383#21475
       ParentFont = False
       Style.BorderColor = clWindowFrame
@@ -276,15 +276,15 @@ inherited fFormZhiKa: TfFormZhiKa
     end
     object EditStock: TcxTextEdit [19]
       Left = 87
-      Top = 444
+      Top = 436
       ParentFont = False
       Properties.ReadOnly = True
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -16
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 14

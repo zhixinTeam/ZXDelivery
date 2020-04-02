@@ -1,10 +1,10 @@
 object fFormHYRecord: TfFormHYRecord
-  Left = 971
-  Top = 136
+  Left = 615
+  Top = 152
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
-  ClientHeight = 706
-  ClientWidth = 597
+  ClientHeight = 683
+  ClientWidth = 596
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,8 +22,8 @@ object fFormHYRecord: TfFormHYRecord
   object dxLayoutControl1: TdxLayoutControl
     Left = 0
     Top = 0
-    Width = 597
-    Height = 706
+    Width = 596
+    Height = 683
     Align = alClient
     TabOrder = 0
     TabStop = False
@@ -31,8 +31,8 @@ object fFormHYRecord: TfFormHYRecord
     AutoControlTabOrders = False
     LookAndFeel = FDM.dxLayoutWeb1
     object BtnOK: TButton
-      Left = 441
-      Top = 672
+      Left = 440
+      Top = 649
       Width = 70
       Height = 23
       Caption = #20445#23384
@@ -40,8 +40,8 @@ object fFormHYRecord: TfFormHYRecord
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
-      Left = 516
-      Top = 672
+      Left = 515
+      Top = 649
       Width = 70
       Height = 23
       Caption = #21462#28040
@@ -63,8 +63,8 @@ object fFormHYRecord: TfFormHYRecord
       Properties.OnButtonClick = EditIDPropertiesButtonClick
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 0
@@ -72,7 +72,7 @@ object fFormHYRecord: TfFormHYRecord
     end
     object EditStock: TcxComboBox
       Left = 81
-      Top = 68
+      Top = 61
       Hint = 'E.R_PID'
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
@@ -84,16 +84,16 @@ object fFormHYRecord: TfFormHYRecord
       Properties.OnEditValueChanged = EditStockPropertiesEditValueChanged
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 1
-      Width = 485
+      Width = 493
     end
     object wPanel: TPanel
       Left = 23
-      Top = 164
+      Top = 143
       Width = 415
       Height = 262
       Align = alClient
@@ -1320,14 +1320,14 @@ object fFormHYRecord: TfFormHYRecord
     end
     object EditDate: TcxDateEdit
       Left = 81
-      Top = 100
+      Top = 86
       Hint = 'E.R_Date'
       ParentFont = False
       Properties.Kind = ckDateTime
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 2
@@ -1341,27 +1341,27 @@ object fFormHYRecord: TfFormHYRecord
       Properties.ReadOnly = True
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 7
-      Width = 257
+      Width = 210
     end
     object EditCXDate: TcxDateEdit
       Left = 364
-      Top = 100
+      Top = 86
       Hint = 'E.R_CXDate'
       ParentFont = False
       Properties.Kind = ckDateTime
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
-      Style.Font.Height = -13
-      Style.Font.Name = #24494#36719#38597#40657
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
       TabOrder = 3
-      Width = 200
+      Width = 210
     end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
       ShowCaption = False
