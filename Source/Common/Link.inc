@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE YNHT}
+{$DEFINE XPDS}
 //特定系统
 
 //山西声威
@@ -719,6 +719,12 @@
   //短倒订单可更改
   {$DEFINE WebOrderAutoLoss}
   //申请单自动失效
+ {$DEFINE BasisWeightWithPM}
+ //库底计量: 定量装车时过皮毛中
+ {$DEFINE BasisWeight}
+ //库底计量: 定量装车
+  {$DEFINE TruckAutoIn}
+  //自动进厂
 {$ENDIF}
 
 //锦荣骨料高疙瘩，上牛

@@ -1130,9 +1130,10 @@ begin
   end;
   
   if FCardUsed = sFlag_Provide then
-       Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel, FLogin)
-  else Result := SaveDuanDaoItems(nNextStatus, FBillItems, FPoundTunnel, FLogin);
+       FSaveResult := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel, FLogin)
+  else FSaveResult := SaveDuanDaoItems(nNextStatus, FBillItems, FPoundTunnel, FLogin);
   //保存称重
+  Result := FSaveResult;
 end;
 
 //Desc: 读取表头数据
@@ -1318,21 +1319,25 @@ begin
       {$ENDIF}
 
       nStr := '数据保存失败,请重新过磅.';
-      {$IFDEF PoundOpenBackGate}
-      if gSysParam.FPoundOpenBackGate then
-        nStr := nStr + ',请倒车下磅';
-      {$ENDIF}
+      {$IFDEF XPDS}
       PlayVoice(nStr);
-
-      begin
-        nOPenDoor:= sFlag_No; //默认打开副道闸
+      {$ELSE}
         {$IFDEF PoundOpenBackGate}
-          if gSysParam.FPoundOpenBackGate then
-            nOPenDoor:=  sFlag_Yes; //特殊情况过磅失败打开主道闸(后杆)
+        if gSysParam.FPoundOpenBackGate then
+          nStr := nStr + ',请倒车下磅';
         {$ENDIF}
-        OpenDoorByReader(FLastReader, nOPenDoor);
-        //打开副道闸
-      end;
+        PlayVoice(nStr);
+
+        begin
+          nOPenDoor:= sFlag_No; //默认打开副道闸
+          {$IFDEF PoundOpenBackGate}
+            if gSysParam.FPoundOpenBackGate then
+              nOPenDoor:=  sFlag_Yes; //特殊情况过磅失败打开主道闸(后杆)
+          {$ENDIF}
+          OpenDoorByReader(FLastReader, nOPenDoor);
+          //打开副道闸
+        end;
+      {$ENDIF}
     end;
 
     Timer_SaveFail.Enabled := True;

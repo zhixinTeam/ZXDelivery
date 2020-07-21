@@ -2206,8 +2206,8 @@ function TWorkerBusinessCommander.SyncRemoteStockBill(var nData: string): Boolea
 var nID,nIdx,nCheckerID: Integer;
     nVal,nMoney: Double;
     nK3Worker: PDBWorker;
-    nStr,nSQL,nBill,nStockID: string;
-    nAutoAudit: Boolean;
+    nStr,nSQL,nBill,nStockID,nLID: string;
+    nAutoAudit, nExit: Boolean;
 begin
   Result := False;
 
@@ -2289,6 +2289,27 @@ begin
     
     while not Eof do
     begin
+      {$IFDEF XPDS}
+      nExit := False;
+      nLID := FieldByName('L_ID').AsString;
+      nSQL := 'select Finterid from ICStockBill where FHeadSelfB0147 = ''$IN''';
+      nSQL := MacroValue(nSQL, [MI('$IN', nLID)]);
+
+      with gDBConnManager.WorkerQuery(nK3Worker, nSQL) do
+      begin
+        if RecordCount > 0 then
+        begin
+          WriteLog('提货单' + nLID + '已上传，主键为:' + FieldByName('Finterid').AsString);
+          nExit := True;
+        end;
+      end;
+
+      if nExit then
+      begin
+        Next;
+        Continue;
+      end;
+      {$ENDIF}
       nSQL :='DECLARE @ret1 int, @FInterID int, @BillNo varchar(200) '+
             'Exec @ret1=GetICMaxNum @TableName=''%s'',@FInterID=@FInterID output '+
             'EXEC p_BM_GetBillNo @ClassType =21,@BillNo=@BillNo OUTPUT ' +

@@ -314,6 +314,9 @@ const
   sFlag_WebOrderLoss  = 'WebOrderLoss';              //申请单自动失效
   sFlag_CrossWaitTime = 'CrossWaitTime';             //过闸时间间隔
   sFlag_TruckType     = 'TruckType';                 //车辆类型
+  sFlag_DefaultPValue = 'DefaultPValue';             //默认皮重
+  sFlag_PValueWuCha   = 'PValueWuCha';               //皮重浮动范围
+  
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
   sTable_User         = 'Sys_User';                  //用户表

@@ -37,7 +37,7 @@ uses
   {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
   UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100, UMgrBXFontCard,
   UMgrRemoteSnap,
-  UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo;
+  UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo, UMgrBasisWeight;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
 begin
@@ -151,6 +151,11 @@ begin
       gBXFontCardManager := TBXFontCardManager.Create;
       gBXFontCardManager.LoadConfig(nCfg + 'BXFontLED.xml');
     end;
+    {$ENDIF}
+    {$IFDEF BasisWeight}
+    nStr := '定量装车业务';
+    gBasisWeightManager := TBasisWeightManager.Create;
+    gBasisWeightManager.LoadConfig(nCfg + 'Tunnels.xml');
     {$ENDIF}
   except
     on E:Exception do
@@ -267,17 +272,24 @@ begin
   {$IFDEF RemoteSnap}
   gHKSnapHelper.StartSnap;
   //remote snap
+  {$ENDIF}
   {$IFDEF UseLBCModbus}
   if Assigned(gModBusClient) then
   begin
     gModBusClient.OnStatusChange := WhenLBCWeightStatusChange;
     gModBusClient.StartPrinter;
   end;
-  {$ENDIF}  {$ENDIF}
+  {$ENDIF}
 
   {$IFDEF UseBXFontLED}
   //网口小屏
   gBXFontCardManager.StartService;
+  {$ENDIF}
+
+  {$IFDEF BasisWeight}
+  //gBasisWeightManager.TunnelManager.OnUserParseWeight := WhenParsePoundWeight;
+  gBasisWeightManager.OnStatusChange := WhenBasisWeightStatusChange;
+  gBasisWeightManager.StartService;
   {$ENDIF}
 end;
 
@@ -357,6 +369,10 @@ begin
   {$IFDEF UseModbusJS}
   if Assigned(gModbusJSManager) then
   gModbusJSManager.StopReader;
+  {$ENDIF}
+  {$IFDEF BasisWeight}
+  gBasisWeightManager.StopService;
+  gBasisWeightManager.OnStatusChange := nil;
   {$ENDIF}
 end;
 
