@@ -60,7 +60,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, Registry, ULibFun, UDataModule, UDataReport, USysLoger, UFormConn,
-  DB, USysDB;
+  DB, USysDB, StrUtils;
 
 var
   gPath: string;               //程序路径
@@ -251,13 +251,24 @@ end;
 //Desc: 打印nBill交货单号
 function PrintBillReport(const nBill: string; var nHint: string;
  const nPrinter: string = ''; const nMoney: string = '0'): Boolean;
-var nStr: string;
+var nStr, nCusType: string;
     nDS: TDataSet;
+    nParam: TReportParamItem;
 begin
   nHint := '';
-  Result := False;
-  
-  nStr := 'Select *,%s As L_ValidMoney From %s b,%s c,%s d Where '+
+  Result := False;       WriteLog(Format('打印销售小票：%s %s ', [nBill, nPrinter]) );
+
+  nStr := 'Select * From %s Left Join %s On L_CusID=C_ID Where L_ID=''%s''';
+  nStr := Format(nStr, [sTable_Bill, sTable_Customer, nBill]);
+  nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
+  if Assigned(nDS) then
+  if nDS.RecordCount > 0 then
+  begin
+    nCusType:= nDS.FieldByName('C_Type').AsString;
+    nCusType:= Format(',''%s'' As CusType ', [nCusType]);
+  end;
+
+  nStr := 'Select *,%s As L_ValidMoney '+nCusType+' From %s b,%s c,%s d Where '+
           ' b.L_Truck=c.T_Truck and b.L_ZhiKa=d.Z_ID and L_ID=''%s''';
   nStr := Format(nStr, [nMoney, sTable_Bill,sTable_Truck,sTable_ZhiKa, nBill]);
 
@@ -274,7 +285,7 @@ begin
   nStr := gPath + 'Report\LadingBill.fr3';
   if not FDR.LoadReportFile(nStr) then
   begin
-    nHint := '无法正确加载报表文件';
+    nHint := '无法正确加载报表文件 '+ nStr;
     Exit;
   end;
 
@@ -310,8 +321,8 @@ var nStr: string;
     nDS: TDataSet;
 begin
   nHint := '';
-  Result := False;
-  
+  Result := False;            WriteLog(Format('打印原料小票：%s %s ', [nOrder,nPrinter]) );
+
   nStr := 'Select * From %s oo Inner Join %s od on oo.O_ID=od.D_OID Where D_ID=''%s''';
   nStr := Format(nStr, [sTable_Order, sTable_OrderDtl, nOrder]);
 
@@ -350,7 +361,7 @@ begin
     Result := gPath + 'Report\HuaYan42_DJ.fr3'
   else if Pos('gsysl', Result) > 0 then
     Result := gPath + 'Report\HuaYan_gsl.fr3'
-  else if Pos('kzf', Result) > 0 then
+  else if (Pos('kzf', Result) > 0)or(Pos('kzwf', Result) > 0) then
     Result := gPath + 'Report\HuaYan_kzf.fr3'
   else if Pos('qz', Result) > 0 then
     Result := gPath + 'Report\HuaYan_qz.fr3'
@@ -366,19 +377,44 @@ end;
 //Desc: 打印标识为nHID的化验单
 function PrintHuaYanReport(const nBill: string; var nHint: string;
  const nPrinter: string = ''): Boolean;
-var nStr,nSR: string;
+var nStr,nSR,nCusType,nBatCode: string;
+    nDS: TDataSet;
 begin
   nHint := '';
-  Result := False;
-  
+  Result := False;       WriteLog(Format('打印化验单：%s %s ', [nBill, nPrinter]) );
+
+  nStr := 'Select * From %s Left Join %s On L_CusID=C_ID Where L_ID=''%s''';
+  nStr := Format(nStr, [sTable_Bill, sTable_Customer, nBill]);
+  nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
+  if Assigned(nDS) then
+  if nDS.RecordCount > 0 then
+  begin
+    nCusType:= StringReplace((nDS.FieldByName('C_Type').AsString), ' ', '', [rfReplaceAll]);
+    nBatCode:= nDS.FieldByName('L_HYDan').AsString;
+  end;
+
+  nStr := 'Select * From %s Where R_SerialNo=''%s''';
+  nStr := Format(nStr, [sTable_StockRecord, nBatCode]);
+  nDS := FDM.SQLQuery(nStr, FDM.SQLQuery1);
+  if Assigned(nDS) then
+  if nDS.RecordCount = 0 then
+  begin
+    WriteLog(Format('%s %s 化验检验数据尚未录入、无法打印化验单', [nBill, nBatCode]) );
+    Exit;
+  end;
+
   nSR := 'Select * From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
 
-  nStr := 'Select hy.*,sr.*,C_Name From $HY hy ' +
+  {$IFNDEF HYPrintNum}
+    nStr := 'Select hy.*,sr.*,C_Name From $HY hy ' +
+  {$ELSE}
+    nStr := 'Select IsNull(H_PrintNum, 0)+1 PrintNum, hy.*,sr.*,C_Name From $HY hy ' +
+  {$ENDIF}
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
           ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
-          'Where H_Reporter=''$ID''';
+          ' Where H_Reporter=''$ID''';
   //xxxxx
 
   nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
@@ -395,6 +431,15 @@ begin
   nStr := FDM.SqlTemp.FieldByName('P_Stock').AsString;
   nStr := GetReportFileByStock(nStr);
 
+  {$IFDEF BehalfConsignor}
+  //振新代发货
+  if nCusType<>'' then
+  begin
+    nStr:= LeftStr(nStr, Length(nStr)-4) + '_'+ nCusType +'.fr3';
+    WriteLog(nStr);
+  end;
+  {$ENDIF}
+
   if not FDR.LoadReportFile(nStr) then
   begin
     nHint := '无法正确加载报表文件: ' + nStr;
@@ -408,6 +453,20 @@ begin
   FDR.Dataset1.DataSet := FDM.SqlTemp;
   FDR.PrintReport;
   Result := FDR.PrintSuccess;
+
+  if Result then
+  begin
+    nStr := 'UPDate $HY Set H_PrintNum=isNull(H_PrintNum, 0)+1 ' +
+            'Where H_Reporter=''$ID''';
+    //xxxxx
+
+    nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
+                              MI('$ID', nBill)]);
+    try
+      FDM.ExecuteSQL(nStr);
+    except
+    end;
+  end;
 end;
 
 //Desc: 打印标识为nID的合格证
@@ -417,12 +476,12 @@ var nStr,nSR: string;
     nField: TField;
 begin
   nHint := '';
-  Result := False;
+  Result := False;                    WriteLog('打印合格证：' + nBill);
 
   {$IFDEF HeGeZhengSimpleData}
   nSR := 'Select * from %s b ' +
-          ' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
-          'Where b.L_ID=''%s''';
+         ' Left Join %s sp On sp.P_Stock=b.L_StockName ' +
+         ' Where b.L_ID=''%s'' ';
   nStr := Format(nSR, [sTable_Bill, sTable_StockParam, nBill]);
   {$ELSE}
   nSR := 'Select R_SerialNo,P_Stock,P_Name,P_QLevel From %s sr ' +

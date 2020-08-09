@@ -21,4 +21,10 @@ object FDM: TFDM
     Left = 82
     Top = 74
   end
+  object Qry_OPer: TADOQuery
+    Connection = ADOConn
+    Parameters = <>
+    Left = 31
+    Top = 128
+  end
 end
