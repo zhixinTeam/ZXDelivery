@@ -36,7 +36,7 @@ uses
   {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
   UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100, UMgrBXFontCard,
-  UMgrRemoteSnap, UMgrBasisWeight, UScanTimingTask, UWorkThread,
+  UMgrRemoteSnap, UScanTimingTask, UWorkThread,
   UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo, UMgrBasisWeight;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;

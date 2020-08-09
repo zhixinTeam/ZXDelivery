@@ -1929,7 +1929,7 @@ end;
 //Parm: 主机;卡号
 //Desc: 对nHost.nCard新到卡号作出动作
 procedure WhenReaderCardIn(const nCard: string; const nHost: PReaderHost);
-var nStr: string;
+var nStr, nVoiceCard: string;
     nIsLBC,nIsZZC:string;
 begin
   if nHost.FType = rtOnce then
@@ -1948,6 +1948,9 @@ begin
 
   if nHost.FType = rtKeep then
   begin
+    nIsLBC := 'N';
+    nIsZZC := 'N';
+
     if Assigned(nHost.FOptions) then
     begin
       if nHost.FOptions.Values['IsGrab'] = sFlag_Yes then
@@ -1956,40 +1959,24 @@ begin
         Exit;
       end;
 
-      if nHost.FOptions.Values['IsBasisWeight'] = sFlag_Yes then
+      nIsLBC := nHost.FOptions.Values['IsLBC'];
+      nIsZZC := nHost.FOptions.Values['IsZZC'];
+      ///
+      if (nHost.FOptions.Values['IsBasisWeight'] = sFlag_Yes)or
+          (nHost.FOptions.Values['BasisWeight'] = sFlag_Yes) then
       begin
-        MakeTruckWeightFirst(nCard, nHost.FTunnel, nHost.FOptions.Values['VoiceCard']);
+        nVoiceCard:= nHost.FOptions.Values['VoiceCard'];
+        if nVoiceCard='' then nVoiceCard:= nHost.FTunnel;
+
+        MakeTruckWeightFirst(nCard, nHost.FTunnel, nVoiceCard);
 
         gBasisWeightManager.SetParam(nHost.FTunnel, 'LEDText', nHost.FLEDText, True);
         //附加参数
         Exit;
       end;
     end;
-    if Assigned(nHost.FOptions) then
-         nIsLBC := nHost.FOptions.Values['IsLBC']
-    else nIsLBC := 'N';
 
-    if Assigned(nHost.FOptions) then
-         nIsZZC := nHost.FOptions.Values['IsZZC']
-    else nIsZZC := 'N';
-
-    {$IFDEF BasisWeightWithPM}
-    if Assigned(nHost.FOptions) then
-    begin
-      if nHost.FOptions.Values['BasisWeight'] = sFlag_Yes then
-      begin
-        WriteHardHelperLog('开始进入定量装车');
-        MakeTruckWeightFirst(nCard, nHost.FTunnel);
-        Exit;
-      end;
-    end;
     MakeTruckLadingSan(nCard, nHost.FTunnel, nIsLBC, nIsZZC);
-    {$ELSE}
-    MakeTruckLadingSan(nCard, nHost.FTunnel, nIsLBC, nIsZZC);
-    {$ENDIF}
-
-    gBasisWeightManager.SetParam(nHost.FTunnel, 'LEDText', nHost.FLEDText, True);
-    //附加参数
   end;
 end;
 
