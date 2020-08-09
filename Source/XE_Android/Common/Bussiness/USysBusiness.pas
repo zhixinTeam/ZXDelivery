@@ -57,6 +57,11 @@ function GetLadingBills(const nCard,nPost: string;
 function SaveLadingBills(const nPost: string; const nData: TLadingBillItems): Boolean;
 //保存指定岗位的交货单
 
+function GetLadePlace(var nPlaces: string): Boolean;
+//Desc: 获取装车点
+function GetKJReson(var nResons: string): Boolean;
+//Desc: 获取验收扣减原因
+
 
 function GetPurchaseOrders(const nCard,nPost: string;
  var nBills: TLadingBillItems): Boolean;
@@ -270,6 +275,28 @@ function BillSaleAdjust(const nBill, nNewZK: string): Boolean;
 var nOut: TWorkerBusinessCommand;
 begin
   Result := CallBusinessSaleBill(cBC_SaleAdjust, nBill, nNewZK, @nOut);
+end;
+
+//Date: 2020-06-08
+//Parm:
+//Desc: 获取验收扣减原因
+function GetKJReson(var nResons: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessPurchaseOrder(cBC_GetKJReson, '', '', @nOut);
+  nResons:= PackerDecodeStr(nOut.FData);
+  //xxxxx
+end;
+
+//Date: 2020-06-08
+//Parm:
+//Desc: 获取装车点
+function GetLadePlace(var nPlaces: string): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  Result := CallBusinessSaleBill(cBC_GetLadePlace, '', '', @nOut);
+  nPlaces:= PackerDecodeStr(nOut.FData);
+  //xxxxx
 end;
 
 //Date: 2014-09-17

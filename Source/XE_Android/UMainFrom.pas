@@ -23,6 +23,8 @@ type
     BtnSetup: TSpeedButton;
     Label1: TLabel;
     BtnLogin: TButton;
+    btn1: TSpeedButton;
+    BtnBlue: TButton;
     procedure FormActivate(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure BtnReadCardClick(Sender: TObject);
@@ -36,10 +38,13 @@ type
     procedure ScrollBox_MenuClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnLoginClick(Sender: TObject);
+    procedure btn1Click(Sender: TObject);
+    procedure BtnBlueClick(Sender: TObject);
   private
     { Private declarations }
     function UserLogin: Boolean;
     procedure RegisterDelphiNativeMethods;
+    procedure PrintTest;
   public
     { Public declarations }
     procedure OnNewIntent(Intent: JIntent);
@@ -53,7 +58,7 @@ implementation
 {$R *.fmx}
 
 uses
-  UUserSetup, UReadCard, USearchTruck, ULogin,  // Forms
+  UUserSetup, UReadCard, USearchTruck, ULogin,  UFrmBluetoothSet, // Forms
   UBase64, UBusinessConst, USysBusiness, UNFCManager,//Bussiness
 
   FMX.PlatForm.Android,                  //MainActivity
@@ -61,6 +66,8 @@ uses
   Androidapi.NativeActivity,
   Androidapi.Helpers,
   Androidapi.JNIBridge,
+
+  UGlobal, uTasks, UBluetoothThread,
 
   Androidapi.JNI,
   Androidapi.JNI.Os,
@@ -109,6 +116,14 @@ begin
 end;
 {$ENDREGION}
 
+procedure TMainForm.BtnBlueClick(Sender: TObject);
+begin
+  Layout_Menu.Visible := False;
+  if not Assigned(FrmBluetoothSet) then
+     FrmBluetoothSet := TFrmBluetoothSet.Create(Self);
+  FrmBluetoothSet.Show;
+end;
+
 procedure TMainForm.BtnExitClick(Sender: TObject);
 begin
   SaveParamToIni;
@@ -125,6 +140,30 @@ end;
 
 procedure TMainForm.BtnReadCardClick(Sender: TObject);
 begin
+  gOPType:= otPurYS;
+  if not Assigned(FrmReadCard) then
+     FrmReadCard := TFrmReadCard.Create(Self);
+  FrmReadCard.Show;
+end;
+
+procedure TMainForm.PrintTest;
+var xTask:TTaskType;
+begin
+  {$IFDEF APPUseBluetoothPrint}
+  FillChar(xTask, SizeOf(TTaskType), #0);
+  //*********
+  xTask.ItemId  := '';
+  xTask.nCardMM := '111';
+  //**************************************************
+  if Assigned(gBlthThread) then
+    gBlthThread.PriorityTaskManager.AddTask(xTask);
+
+  {$ENDIF}
+end;
+
+procedure TMainForm.btn1Click(Sender: TObject);
+begin
+  gOPType:= otSaleFH;
   if not Assigned(FrmReadCard) then
      FrmReadCard := TFrmReadCard.Create(Self);
   FrmReadCard.Show;
@@ -190,6 +229,10 @@ begin
   Log.d('OnCreate');
   LoadParamFromIni;
   RegisterDelphiNativeMethods;
+
+  {$IFDEF APPUseBluetoothPrint}
+  gBlthThread:= TBluetoothThread.Create(False);
+  {$ENDIF}
 end;
 
 procedure TMainForm.FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;

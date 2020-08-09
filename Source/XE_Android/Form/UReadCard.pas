@@ -5,7 +5,8 @@ interface
 uses
   System.SysUtils, System.Types, System.UITypes, System.Classes, System.Variants, 
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
-  UAndroidFormBase, FMX.Edit, FMX.Controls.Presentation, FMX.Layouts;
+  UAndroidFormBase, FMX.Edit, FMX.Controls.Presentation, FMX.Layouts,
+  UGlobal;
 
 type
   TFrmReadCard = class(TfrmFormBase)
@@ -33,8 +34,7 @@ implementation
 
 uses
   UNFCManager,FMX.Helpers.Android,Androidapi.Helpers,
-
-  UMainFrom,UShowOrderInfo;
+  UMainFrom,UShowOrderInfo,UShowFHBillInfo;
 
 {$R *.fmx}
 
@@ -51,11 +51,30 @@ begin
   nStr := Trim(EditCardNO.Text);
   if nStr='' then Exit;
 
-  gCardNO := nStr;
+  try
+    gCardNO := nStr;
 
-  if not Assigned(FrmShowOrderInfo) then
-    FrmShowOrderInfo := TFrmShowOrderInfo.Create(nil);
-  FrmShowOrderInfo.Show;
+    case gOPType of
+
+      otPurYS :
+        begin
+          if not Assigned(FrmShowOrderInfo) then
+            FrmShowOrderInfo := TFrmShowOrderInfo.Create(nil);
+          FrmShowOrderInfo.Show;
+        end;
+
+      otSaleFH :
+        begin
+          if not Assigned(FrmShowFHBillInfo) then
+            FrmShowFHBillInfo := TFrmShowFHBillInfo.Create(nil);
+
+          FrmShowFHBillInfo.FCardNo:= nStr;
+          FrmShowFHBillInfo.Show;
+        end;
+    end;
+  finally
+    EditCardNO.Text:= '';
+  end;
 end;
 
 procedure TFrmReadCard.FormActivate(Sender: TObject);

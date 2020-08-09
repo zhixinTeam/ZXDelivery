@@ -1,0 +1,144 @@
+inherited FrmShowFHBillInfo: TFrmShowFHBillInfo
+  Caption = 'frmFormBase1'
+  ClientWidth = 351
+  OnActivate = FormActivate
+  DesignerMasterStyle = 0
+  inherited MainVertScrollBox: TScrollBox
+    Size.Width = 351.000000000000000000
+    Viewport.Width = 351.000000000000000000
+    Viewport.Height = 480.000000000000000000
+    inherited MainLayout: TLayout
+      Size.Width = 351.000000000000000000
+      object Label6: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 11.000000000000000000
+        Position.Y = 180.000000000000000000
+        Size.Width = 82.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        Text = #29289#26009#21517#31216':'
+        TabOrder = 0
+      end
+      object Label8: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 11.000000000000000000
+        Position.Y = 234.000000000000000000
+        Size.Width = 82.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        Text = #36710'  '#29260'  '#21495':'
+        TabOrder = 2
+      end
+      object lblTruck: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 92.000000000000000000
+        Position.Y = 234.000000000000000000
+        Size.Width = 209.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        TabOrder = 3
+      end
+      object lblMName: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 92.000000000000000000
+        Position.Y = 182.000000000000000000
+        Size.Width = 209.000000000000000000
+        Size.Height = 46.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        TabOrder = 4
+      end
+      object Label4: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 11.000000000000000000
+        Position.Y = 124.000000000000000000
+        Size.Width = 82.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        Text = #23458#25143#21517#31216':'
+        TabOrder = 5
+      end
+      object lblCusName: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 92.000000000000000000
+        Position.Y = 122.000000000000000000
+        Size.Width = 209.000000000000000000
+        Size.Height = 57.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        TabOrder = 6
+      end
+      object lblLID: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 92.000000000000000000
+        Position.Y = 88.000000000000000000
+        Size.Width = 209.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        TabOrder = 7
+      end
+      object Label1: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 11.000000000000000000
+        Position.Y = 88.000000000000000000
+        Size.Width = 82.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        Text = #25552#36135#21333#21495':'
+        TabOrder = 8
+      end
+      object BtnOK: TSpeedButton
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 75.000000000000000000
+        Position.Y = 393.000000000000000000
+        Size.Width = 73.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        Text = #30830#23450
+        TextSettings.Font.Size = 18.000000000000000000
+        OnClick = BtnOKClick
+      end
+      object BtnCancel: TSpeedButton
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 195.000000000000000000
+        Position.Y = 393.000000000000000000
+        Size.Width = 73.000000000000000000
+        Size.Height = 48.000000000000000000
+        Size.PlatformDefault = False
+        Text = #36820#22238
+        TextSettings.Font.Size = 18.000000000000000000
+        OnClick = BtnCancelClick
+      end
+      object cbb_Place: TComboBox
+        Position.X = 94.000000000000000000
+        Position.Y = 283.000000000000000000
+        Size.Width = 204.000000000000000000
+        Size.Height = 22.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 11
+      end
+      object lbl1: TLabel
+        StyledSettings = [Family, Style, FontColor]
+        Position.X = 11.000000000000000000
+        Position.Y = 283.000000000000000000
+        Size.Width = 82.000000000000000000
+        Size.Height = 23.000000000000000000
+        Size.PlatformDefault = False
+        TextSettings.Font.Size = 16.000000000000000000
+        Text = #35013#36710#22534#22330':'
+        TabOrder = 1
+      end
+    end
+  end
+  object tmr1: TTimer
+    OnTimer = tmr1Timer
+    Left = 304
+    Top = 16
+  end
+end

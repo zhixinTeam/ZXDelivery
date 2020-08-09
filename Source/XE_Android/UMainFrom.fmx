@@ -23,9 +23,9 @@ object MainForm: TMainForm
     Size.PlatformDefault = False
     object BtnReadCard: TSpeedButton
       StyledSettings = [Family, Style, FontColor]
-      Position.X = 43.000000000000000000
+      Position.X = 24.000000000000000000
       Position.Y = 136.000000000000000000
-      Size.Width = 240.000000000000000000
+      Size.Width = 287.000000000000000000
       Size.Height = 48.000000000000000000
       Size.PlatformDefault = False
       Text = #21047#21345#39564#25910
@@ -34,9 +34,9 @@ object MainForm: TMainForm
     end
     object BtnExit: TSpeedButton
       StyledSettings = [Family, Style, FontColor]
-      Position.X = 43.000000000000000000
-      Position.Y = 328.000000000000000000
-      Size.Width = 240.000000000000000000
+      Position.X = 25.000000000000000000
+      Position.Y = 346.000000000000000000
+      Size.Width = 287.000000000000000000
       Size.Height = 48.000000000000000000
       Size.PlatformDefault = False
       Text = #36864#20986
@@ -45,9 +45,9 @@ object MainForm: TMainForm
     end
     object BtnSetup: TSpeedButton
       StyledSettings = [Family, Style, FontColor]
-      Position.X = 43.000000000000000000
-      Position.Y = 232.000000000000000000
-      Size.Width = 240.000000000000000000
+      Position.X = 24.000000000000000000
+      Position.Y = 278.000000000000000000
+      Size.Width = 287.000000000000000000
       Size.Height = 48.000000000000000000
       Size.PlatformDefault = False
       Text = #35774#32622
@@ -82,15 +82,15 @@ object MainForm: TMainForm
           TabOrder = 0
           OnClick = ScrollBox_MenuClick
           Viewport.Width = 348.000000000000000000
-          Viewport.Height = 487.200000000000000000
+          Viewport.Height = 482.200000000000000000
           object Rectangle_Menu: TRectangle
-            Position.Y = 328.000000000000000000
-            Size.Width = 345.000000000000000000
-            Size.Height = 151.000000000000000000
+            Position.Y = 280.000000000000000000
+            Size.Width = 353.000000000000000000
+            Size.Height = 199.000000000000000000
             Size.PlatformDefault = False
             object BtnSet: TButton
               Align = Center
-              Size.Width = 345.000000000000000000
+              Size.Width = 353.000000000000000000
               Size.Height = 49.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 0
@@ -99,8 +99,8 @@ object MainForm: TMainForm
             end
             object BtnExit2: TButton
               Align = Bottom
-              Position.Y = 102.000000000000000000
-              Size.Width = 345.000000000000000000
+              Position.Y = 150.000000000000000000
+              Size.Width = 353.000000000000000000
               Size.Height = 49.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 1
@@ -109,16 +109,37 @@ object MainForm: TMainForm
             end
             object BtnLogin: TButton
               Align = Top
-              Size.Width = 345.000000000000000000
+              Size.Width = 353.000000000000000000
               Size.Height = 49.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 2
               Text = #37325#26032#30331#24405
               OnClick = BtnLoginClick
             end
+            object BtnBlue: TButton
+              Align = Top
+              Position.Y = 49.000000000000000000
+              Size.Width = 353.000000000000000000
+              Size.Height = 49.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 3
+              Text = #34013#29273#35774#22791#36830#25509
+              OnClick = BtnBlueClick
+            end
           end
         end
       end
+    end
+    object btn1: TSpeedButton
+      StyledSettings = [Family, Style, FontColor]
+      Position.X = 24.000000000000000000
+      Position.Y = 210.000000000000000000
+      Size.Width = 287.000000000000000000
+      Size.Height = 48.000000000000000000
+      Size.PlatformDefault = False
+      Text = #22534#22330#35013#36710
+      TextSettings.Font.Size = 20.000000000000000000
+      OnClick = btn1Click
     end
   end
 end

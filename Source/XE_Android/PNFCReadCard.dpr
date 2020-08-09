@@ -4,7 +4,8 @@ uses
   System.StartUpCopy,
   FMX.Forms,
   UMainFrom in 'UMainFrom.pas' {MainForm},
-  UAndroidFormBase in 'Form\UAndroidFormBase.pas' {frmFormBase};
+  UAndroidFormBase in 'Form\UAndroidFormBase.pas' {frmFormBase},
+  UBluetoothThread in 'Common\Bussiness\UBluetoothThread.pas';
 
 {$R *.res}
 

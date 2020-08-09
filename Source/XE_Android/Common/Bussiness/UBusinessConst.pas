@@ -11,7 +11,7 @@ interface
 
 uses
   System.JSON, Classes, SysUtils, UBusinessPacker, FMX.Dialogs, UBase64,
-  UWifiManager,
+  UWifiManager, UBluetoothThread,
   System.IniFiles,                       //Ini
   System.IOUtils;                        //TPath;
 
@@ -52,6 +52,8 @@ const
   cBC_LogOffOrderCard         = $0043;
   cBC_GetPostOrders           = $0044;   //获取岗位采购单
   cBC_SavePostOrders          = $0045;   //保存岗位采购单
+  cBC_GetKJReson              = $0100;   //扣减原因
+  cBC_GetLadePlace            = $0036;   //手持装车点 （堆场）
 
   cBC_GetPostBills            = $0030;   //获取岗位交货单
   cBC_SavePostBills           = $0031;   //保存岗位交货单
@@ -95,6 +97,8 @@ type
     FAutoLogin:Boolean;
 
     FSvrService:string;
+    FBlthPrinterName : string;
+    FBlthPrinterMAC  : string;
   end;
 
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
@@ -138,6 +142,11 @@ type
     FStatus     : string;          //当前状态
     FNextStatus : string;          //下一状态
 
+    FLadeLine   : string;
+    FLadeLineName : string;        //装车点
+    FAutoDoP    : string;          //验收后根据预置皮重做自动结算
+    FMemo2      : string;
+
     FPData      : TPoundStationData; //称皮
     FMData      : TPoundStationData; //称毛
     FFactory    : string;          //工厂编号
@@ -148,6 +157,7 @@ type
 
     FKZValue    : Double;          //供应扣除
     FMemo       : string;          //动作备注
+    FYSValid    : string;          //验收结果，Y验收成功；N拒收；
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -191,9 +201,11 @@ resourcestring
   sCLI_HardwareCommand        = 'CLI_HardwareCommand';  //硬件指令
   sCLI_BusinessPurchaseOrder  = 'CLI_BusinessPurchaseOrder'; //采购单相关
 
-var gSysParam: TSystemParam;
+var gSysParam   : TSystemParam;
+    gBlthThread : TBluetoothThread;
 
 implementation
+
 
 //Date: 2014-09-17
 //Parm: 交货单数据;解析结果
@@ -232,6 +244,10 @@ begin
         FIsVIP      := Values['IsVIP'];
         FStatus     := Values['Status'];
         FNextStatus := Values['NextStatus'];
+
+        FLadeLine   := Values['LadeLine'];
+        FLadeLineName := Values['LadeLineName'];
+        FAutoDoP    := Values['AutoDoP'];
 
         FFactory    := Values['Factory'];
         FPModel     := Values['PModel'];
@@ -279,6 +295,8 @@ begin
         else FKZValue := 0;
 
         FMemo := Values['Memo'];
+        FYSValid := Values['YSValid'];
+        FMemo2:= Values['Memo2'];
       end;
 
       Inc(nInt);
@@ -328,6 +346,10 @@ begin
         Values['Status']     := FStatus;
         Values['NextStatus'] := FNextStatus;
 
+        Values['LadeLine']     := FLadeLine;
+        Values['LadeLineName'] := FLadeLineName;
+        Values['AutoDoP']    := FAutoDoP ;
+
         Values['Factory']    := FFactory;
         Values['PModel']     := FPModel;
         Values['PType']      := FPType;
@@ -355,6 +377,8 @@ begin
 
         Values['KZValue']    := FloatToStr(FKZValue);
         Values['Memo']       := FMemo;
+        Values['YSValid']    := FYSValid;
+        Values['Memo2']      := FMemo2;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));
@@ -392,6 +416,8 @@ begin
       FAutoLogin:= ReadBool('ActivityConfig', 'AutoLogin', False);
 
       FSvrService:= DecodeBase64(ReadString('ActivityConfig' ,'SvrService', ''));
+      FBlthPrinterName:= DecodeBase64(ReadString('ActivityConfig' ,'BlthPrinterName', ''));
+      FBlthPrinterMAC := DecodeBase64(ReadString('ActivityConfig' ,'BlthPrinterMAC', ''));
     end;
   finally
     FreeAndNil(nIniFile);
@@ -419,6 +445,8 @@ begin
       WriteString('ActivityConfig' ,'ServIP', EncodeBase64(FServIP));
       WriteInteger('ActivityConfig' ,'ServPort', FServPort);
       WriteString('ActivityConfig' ,'SvrService', EncodeBase64(FSvrService));
+      WriteString('ActivityConfig' ,'BlthPrinterName', EncodeBase64(FBlthPrinterName));
+      WriteString('ActivityConfig' ,'BlthPrinterMAC',  EncodeBase64(FBlthPrinterMAC));
     end;
   finally
     FreeAndNil(nIniFile);

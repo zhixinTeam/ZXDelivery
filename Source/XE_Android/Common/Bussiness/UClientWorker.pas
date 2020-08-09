@@ -53,6 +53,7 @@ type
   public
     function GetFlagStr(const nFlag: Integer): string; override;
     class function FunctionName: string; override;
+    function GetFixedServiceURL: string; override;
   end;
 
   TClientBusinessPurchaseOrder = class(TClient2MITWorker)
@@ -290,6 +291,13 @@ begin
    cWorker_GetPackerName : Result := sBus_BusinessCommand;
    cWorker_GetMITName    : Result := sBus_BusinessSaleBill;
   end;
+end;
+
+function TClientBusinessSaleBill.GetFixedServiceURL: string;
+var nStrURL: string;
+begin
+  nStrURL := 'http://%s:%d/Soap?service=SrvBusiness';
+  Result  := Format(nStrURL, [gSysParam.FServIP, gSysParam.FServPort]);
 end;
 
 //------------------------------------------------------------------------------
