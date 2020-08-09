@@ -164,11 +164,34 @@ end;
 
 //Desc: 删除
 procedure TfFrameCustomer.BtnDelClick(Sender: TObject);
-var nStr,nSQL: string;
+var nStr,nSQL,nCID,nCName: string;
 begin
   if cxView1.DataController.GetSelectedCount < 1 then
   begin
     ShowMsg('请选择要删除的记录', sHint); Exit;
+  end;
+
+  if SQLQuery.FieldByName('C_CustSerilaNo').AsString<>'' then
+  begin
+    ShowMsg('请先解除该客户绑定的微信账号', sHint); Exit;
+  end;
+
+  nCID  := SQLQuery.FieldByName('C_ID').AsString;
+  nCName:= SQLQuery.FieldByName('C_Name').AsString;
+  nStr:= 'Select * From S_Bill Where L_CusID='''+nCID+'''';
+  with FDM.QuerySQL(nStr) do
+  if RecordCount>0 then
+  begin
+    nStr:= Format('客户 %s 已提货禁止删除',[nCName]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr:= 'Select * From Sys_CustomerInOutMoney Where M_CusID='''+nCID+'''';
+  with FDM.QuerySQL(nStr) do
+  if RecordCount>0 then
+  begin
+    nStr:= Format('客户 %s 已缴款禁止删除',[nCName]);
+    ShowMsg(nStr, sHint); Exit;
   end;
 
   nStr := SQLQuery.FieldByName('C_Name').AsString;

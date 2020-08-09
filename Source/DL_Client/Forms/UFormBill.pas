@@ -63,6 +63,12 @@ type
     dxlytm_SCX: TdxLayoutItem;
     cbb_BeltLine: TcxComboBox;
     dxLayout1Group9: TdxLayoutGroup;
+    dxlytmLayout1Item20: TdxLayoutItem;
+    edt_PValue: TcxTextEdit;
+    dxLayout1Group10: TdxLayoutGroup;
+    dxlytmLayout1Item201: TdxLayoutItem;
+    cbb_Line: TcxComboBox;
+    dxLayout1Group11: TdxLayoutGroup;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -89,6 +95,7 @@ type
     procedure GetSJName;
     //获取司机名称
     procedure SyncCard(const nCard: TIdCardInfoStr;const nReader: TSDTReaderItem);
+    function  GetDCLineID(nName: string):string;
   public
     { Public declarations }
     class function CreateForm(const nPopedom: string = '';
@@ -211,7 +218,9 @@ begin
     else
     begin
       FBuDanFlag := sFlag_No;
-      dxLayout1Item19.Visible := false;
+      dxLayout1Item19.Visible := False;
+      dxlytmLayout1Item20.Visible:= False;
+      dxlytmLayout1Item201.Visible:= False;
     end;
 
     if Assigned(nParam) then
@@ -498,6 +507,25 @@ begin
   end;
   cbb_BeltLine.Text:= gSysParam.FDefaultBeltLine;
   {$ENDIF}
+
+  if cbb_Line.Properties.Items.Count < 1 then
+  begin
+    nStr := 'Select * From %s Where D_Name=''LadePlaceItem''';
+    nStr := Format(nStr, [sTable_SysDict]);
+
+    with FDM.QueryTemp(nStr) do
+    if RecordCount > 0 then
+    begin
+      First;
+      cbb_Line.Properties.Items.Clear;
+      while not Eof do
+      begin
+        cbb_Line.Properties.Items.Add(FieldByName('D_Memo').AsString);
+        Next;
+      end;
+    end;
+  end;
+  cbb_Line.Text:= gSysParam.FDefaultBeltLine;
 end;
 
 //Desc: 刷新水泥列表到窗体
@@ -648,6 +676,20 @@ begin
   end;
 end;
 
+function TfFormBill.GetDCLineID(nName: string):string;
+var nStr:string;
+begin
+  nStr := 'Select * From %s Where D_Name=''LadePlaceItem'' And  D_Memo='''+nName+'''';
+  nStr := Format(nStr, [sTable_SysDict]);
+
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    First;
+    result:= FieldByName('D_Value').AsString;
+  end;
+end;
+
 //Desc: 添加
 procedure TfFormBill.BtnAddClick(Sender: TObject);
 var nIdx: Integer;
@@ -730,6 +772,17 @@ begin
     ShowMsg('请先办理提货单', sHint); Exit;
   end;
 
+  {$IFDEF BuDanPValue}
+  if FBuDanFlag=sFlag_Yes then
+  begin
+    if StrToFloatDef(Trim(edt_PValue.Text),0)=0 then
+    begin
+      ShowMsg('请填写车辆皮重', sHint);
+      edt_PValue.SetFocus;
+      Exit;
+    end;
+  end;
+  {$ENDIF}
   {$IFDEF MoreBeltLine}
   if cbb_BeltLine.Text='' then
   begin
@@ -842,15 +895,19 @@ begin
       Values['Bills'] := PackerEncodeStr(nList.Text);
       Values['ZhiKa'] := gInfo.FZhiKa;
       {$IFDEF MoreBeltLine}Values['BeltLine'] := cbb_BeltLine.Text;{$ENDIF}
+      Values['BDLine'] := GetDCLineID(cbb_Line.Text);
+      Values['BDLineName'] := cbb_Line.Text;
+
       Values['Truck'] := EditTruck.Text;
       Values['Ident'] := EditIdent.Text;
       Values['SJName']:= EditSJName.Text;
       Values['L_XHSpot']:= cbbXHSpot.Text;
       Values['Lading'] := GetCtrlData(EditLading);
-      Values['IsVIP'] := GetCtrlData(EditType);
-      Values['BuDan'] := FBuDanFlag;
+      Values['IsVIP']  := GetCtrlData(EditType);
+      Values['BuDan']  := FBuDanFlag;
       Values['BuDanDate'] := editDate.Text;
-      Values['Card']  := gInfo.FCard;
+      Values['BDPValue']:= Trim(edt_PValue.Text);
+      Values['Card']   := gInfo.FCard;
     end;
 
     BtnOK.Enabled := False;

@@ -14,7 +14,9 @@ uses
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin, Menus;
+  ComCtrls, ToolWin, Menus, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
 
 type
   TfFramePayment = class(TfFrameNormal)
@@ -84,22 +86,26 @@ begin
 end;
 
 function TfFramePayment.InitFormDataSQL(const nWhere: string): string;
+var nStr:string;
 begin
   FEnableBackDB := True;
-  
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
-  
-  Result := 'Select iom.*,sm.S_Name From $IOM iom ' +
+  {$IFDEF PayMentZhika} nStr:= ',zk.* '; {$ENDIF}
+
+  Result := 'Select iom.*,sm.S_Name'+nStr+' From $IOM iom ' +
             ' Left Join $SM sm On sm.S_ID=iom.M_SaleMan ' +
+            {$IFDEF PayMentZhika}
+            ' Left Join $ZhiKa zk On zk.Z_ID=iom.M_ZID ' +
+            {$ENDIF}
             'Where M_Type=''$HK'' ';
             
   if nWhere = '' then
        Result := Result + 'And (M_Date>=''$Start'' And M_Date <''$End'')'
   else Result := Result + 'And (' + nWhere + ')';
 
-  Result := MacroValue(Result, [MI('$SM', sTable_Salesman),
-            MI('$IOM', sTable_InOutMoney), MI('$HK', sFlag_MoneyHuiKuan),
-            MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
+  Result := MacroValue(Result, [MI('$SM', sTable_Salesman),  MI('$ZhiKa', sTable_ZhiKa),
+                                MI('$IOM', sTable_InOutMoney), MI('$HK', sFlag_MoneyHuiKuan),
+                                MI('$Start', Date2Str(FStart)), MI('$End', Date2Str(FEnd + 1))]);
   //xxxxx
 end;
 

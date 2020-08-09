@@ -79,8 +79,11 @@ begin
       FIconFile := ReadString(FProgID, 'IconFile', gPath + 'Icons\Icon.ini');
       FIconFile := StringReplace(FIconFile, '$Path\', gPath, [rfIgnoreCase]);
 
+      FPoundLEDTxt:= ReadString(FProgID, 'PoundLEDDefaultTxt', ' 善用资源  服务建设');
+
       FPoundOpenBackGate := ReadString('PoundParam', 'PoundOpenBackGate', 'N')='Y'; //过磅失败抬后杆
       FDefaultBeltLine   := ReadString('BillParam', 'DefaultBeltLine', '');         //默认开单生产线
+      FDefaultZTLines    := ReadString('BillParam', 'DefaultZTLines', '');          //默认显示栈台
 
       FProberUser := 0;
       FVoiceUser := 0;

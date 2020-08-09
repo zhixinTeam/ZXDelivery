@@ -266,6 +266,10 @@ inherited fFrameZhiKaDetail: TfFrameZhiKaDetail
       Caption = #20215#26684#35843#25972
       OnClick = N6Click
     end
+    object N21: TMenuItem
+      Caption = #23450#26102#39044#35843#25972#20215#26684
+      OnClick = N21Click
+    end
     object N13: TMenuItem
       Caption = #35843#20215#35760#24405
       OnClick = N13Click

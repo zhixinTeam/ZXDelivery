@@ -58,6 +58,7 @@ type
     cxlbl1: TcxLabel;
     dxLayout1Item9: TdxLayoutItem;
     cxlbl2: TcxLabel;
+    N21: TMenuItem;
     procedure EditZKPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure N1Click(Sender: TObject);
@@ -73,6 +74,7 @@ type
     procedure cxView1CustomDrawCell(Sender: TcxCustomGridTableView;
       ACanvas: TcxCanvas; AViewInfo: TcxGridTableDataCellViewInfo;
       var ADone: Boolean);
+    procedure N21Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -94,6 +96,7 @@ type
     function GetAreaName: string;
     function GetVal(const nRow: Integer; const nField: string): string;
     //获取指定字段
+    procedure SetQuerySTime;
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -103,7 +106,7 @@ implementation
 
 {$R *.dfm}
 uses
-  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormDateFilter,
+  ULibFun, UMgrControl, USysConst, USysDB, UDataModule, UFormDateFilter, UFormZhiKaPricePre,
   UFormBase, UFrameBase, UFormBaseInfo;
 
 //------------------------------------------------------------------------------
@@ -162,7 +165,18 @@ end;
 procedure TfFrameZhiKaDetail.AfterInitFormData;
 begin
   FDateFilte := True;
-  FValidFilte := True;
+  FValidFilte := True;   SetQuerySTime;
+end;
+
+procedure TfFrameZhiKaDetail.SetQuerySTime;
+var nStr:string;
+begin
+  nStr := 'Select * From Sys_Dict Where D_Name=''SysSTime''';
+  with FDM.QueryTemp(nStr) do
+  begin
+    if recordCount>0 then
+      FStart:= fieldByName('D_Value').AsDateTime;
+  end;
 end;
 
 //Desc: 查询
@@ -543,6 +557,58 @@ begin
 
   if (AViewInfo.GridRecord.Values[TcxGridDBTableView(Sender).GetColumnByFieldName('Z_TJStatus').Index])=sFlag_TJing then
       ACanvas.Canvas.Font.Color := $4FA5FF;  // $C0C0C0;
+end;
+
+procedure TfFrameZhiKaDetail.N21Click(Sender: TObject);
+var nList: TStrings;
+    nIdx,nLen: Integer;
+    nP: TFormCommandParam;
+    nStr,nRID,nZID,nStock,nType: string;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then
+    Exit;
+  //xxxxx
+
+  nList := TStringList.Create;
+  try
+    nType := GetVal(0, 'D_Type');
+    nStock := GetVal(0, 'D_StockNO');
+    nLen := cxView1.DataController.GetSelectedCount - 1;
+
+    for nIdx:=0 to nLen do
+    begin
+      nRID := GetVal(nIdx, 'D_RID');
+      nZID := GetVal(nIdx, 'Z_ID');
+      if (nRID = '') or (nZID = '') then Continue;
+      
+      if (GetVal(nIdx, 'D_Type') <> nType) or
+         (GetVal(nIdx, 'D_StockNO') <> nStock) then
+      begin
+        nStr := '只有同品种的水泥才能统一调价,记录[ %s ]不符合要求.';
+        nStr := Format(nStr, [nRID]);
+        ShowDlg(nStr, sHint, Handle); Exit;
+      end;
+
+      nStr := Format('%s;%s;%s;%s;%s;%s', [nRID,GetVal(nIdx, 'D_Price'), nZID, nStock, GetVal(0, 'D_StockName'),'0']);
+      nList.Add(nStr);
+    end;
+
+    if nList.Count < 1 then
+    begin
+      ShowMsg('选中记录无效', sHint); Exit;
+    end;
+
+    nP.FCommand := cCmd_ModalResult;
+    nP.FParamB := nList.Text;
+    CreateBaseFormItem(cFI_FormAdjustPricePre, '', @nP);
+
+    if (nP.FCommand = cCmd_ModalResult) and (nP.FParamA = mrOk) then
+    begin
+      InitFormData(FWhere);
+    end;
+  finally
+    nList.Free;
+  end;
 end;
 
 initialization

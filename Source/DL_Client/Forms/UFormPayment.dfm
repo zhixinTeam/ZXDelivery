@@ -1,7 +1,7 @@
 inherited fFormPayment: TfFormPayment
   Left = 715
   Top = 285
-  ClientHeight = 400
+  ClientHeight = 435
   ClientWidth = 388
   OnClose = FormClose
   OnCreate = FormCreate
@@ -9,50 +9,51 @@ inherited fFormPayment: TfFormPayment
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 388
-    Height = 400
+    Height = 435
     inherited BtnOK: TButton
       Left = 242
-      Top = 367
-      TabOrder = 12
+      Top = 402
+      TabOrder = 13
     end
     inherited BtnExit: TButton
       Left = 312
-      Top = 367
-      TabOrder = 13
+      Top = 402
+      TabOrder = 14
     end
     object EditType: TcxComboBox [2]
-      Left = 81
-      Top = 285
+      Left = 87
+      Top = 295
       ParentFont = False
       Properties.IncrementalSearch = False
-      Properties.ItemHeight = 18
+      Properties.ItemHeight = 22
       Properties.MaxLength = 20
+      Properties.OnChange = EditTypePropertiesChange
       TabOrder = 8
       Width = 105
     end
     object EditMoney: TcxTextEdit [3]
-      Left = 249
-      Top = 285
+      Left = 255
+      Top = 295
       ParentFont = False
       TabOrder = 9
       Text = '0'
       Width = 125
     end
     object EditDesc: TcxMemo [4]
-      Left = 81
-      Top = 310
+      Left = 87
+      Top = 345
       Lines.Strings = (
         #38144#21806#22238#27454#25110#39044#20184#27454)
       ParentFont = False
       Properties.MaxLength = 200
       Properties.ScrollBars = ssVertical
-      TabOrder = 11
+      TabOrder = 12
       Height = 45
       Width = 369
     end
     object cxLabel2: TcxLabel [5]
       Left = 340
-      Top = 285
+      Top = 295
       AutoSize = False
       Caption = #20803
       ParentFont = False
@@ -61,13 +62,13 @@ inherited fFormPayment: TfFormPayment
       Transparent = True
       Height = 20
       Width = 25
-      AnchorY = 295
+      AnchorY = 305
     end
     object ListInfo: TcxMCListBox [6]
       Left = 23
       Top = 36
-      Width = 427
-      Height = 110
+      Width = 342
+      Height = 101
       HeaderSections = <
         item
           Text = #20449#24687#39033
@@ -76,15 +77,15 @@ inherited fFormPayment: TfFormPayment
         item
           AutoSize = True
           Text = #20449#24687#20869#23481
-          Width = 338
+          Width = 253
         end>
       ParentFont = False
       Style.Edges = [bLeft, bTop, bRight, bBottom]
       TabOrder = 0
     end
     object EditID: TcxButtonEdit [7]
-      Left = 81
-      Top = 146
+      Left = 87
+      Top = 156
       ParentFont = False
       Properties.Buttons = <
         item
@@ -97,33 +98,33 @@ inherited fFormPayment: TfFormPayment
       Width = 124
     end
     object EditSalesMan: TcxComboBox [8]
-      Left = 268
-      Top = 146
+      Left = 274
+      Top = 156
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 20
       Properties.ImmediateDropDown = False
-      Properties.ItemHeight = 18
+      Properties.ItemHeight = 22
       Properties.OnChange = EditSalesManPropertiesChange
       TabOrder = 2
       Width = 121
     end
     object EditName: TcxComboBox [9]
-      Left = 81
-      Top = 171
+      Left = 87
+      Top = 181
       ParentFont = False
       Properties.DropDownRows = 20
       Properties.ImmediateDropDown = False
       Properties.IncrementalSearch = False
-      Properties.ItemHeight = 18
+      Properties.ItemHeight = 22
       Properties.OnEditValueChanged = EditNamePropertiesEditValueChanged
       TabOrder = 3
       OnKeyPress = EditNameKeyPress
       Width = 185
     end
     object EditIn: TcxTextEdit [10]
-      Left = 81
-      Top = 228
+      Left = 87
+      Top = 238
       ParentFont = False
       Properties.ReadOnly = True
       TabOrder = 4
@@ -131,8 +132,8 @@ inherited fFormPayment: TfFormPayment
       Width = 90
     end
     object EditOut: TcxTextEdit [11]
-      Left = 264
-      Top = 228
+      Left = 270
+      Top = 238
       ParentFont = False
       Properties.ReadOnly = True
       TabOrder = 6
@@ -140,8 +141,8 @@ inherited fFormPayment: TfFormPayment
       Width = 75
     end
     object cxLabel1: TcxLabel [12]
-      Left = 176
-      Top = 228
+      Left = 182
+      Top = 238
       AutoSize = False
       Caption = #20803
       ParentFont = False
@@ -150,11 +151,11 @@ inherited fFormPayment: TfFormPayment
       Transparent = True
       Height = 20
       Width = 25
-      AnchorY = 238
+      AnchorY = 248
     end
     object cxLabel3: TcxLabel [13]
       Left = 340
-      Top = 228
+      Top = 238
       AutoSize = False
       Caption = #20803
       ParentFont = False
@@ -162,7 +163,18 @@ inherited fFormPayment: TfFormPayment
       Transparent = True
       Height = 20
       Width = 25
-      AnchorY = 238
+      AnchorY = 248
+    end
+    object cbb_ZhiKa: TcxComboBox [14]
+      Left = 87
+      Top = 320
+      ParentFont = False
+      Properties.IncrementalSearch = False
+      Properties.ItemHeight = 22
+      Properties.MaxLength = 20
+      Properties.ReadOnly = True
+      TabOrder = 11
+      Width = 105
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -252,6 +264,11 @@ inherited fFormPayment: TfFormPayment
             Control = cxLabel2
             ControlOptions.ShowBorder = False
           end
+        end
+        object dxlytmLayout1Item11: TdxLayoutItem
+          Caption = #20805#20540#32440#21345#65306
+          Control = cbb_ZhiKa
+          ControlOptions.ShowBorder = False
         end
         object dxLayout1Item5: TdxLayoutItem
           Caption = #22791#27880#20449#24687':'

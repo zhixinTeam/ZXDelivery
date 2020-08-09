@@ -45,6 +45,8 @@ type
     dxLayout1Item7: TdxLayoutItem;
     EditKuangDian: TcxComboBox;
     dxLayout1Item10: TdxLayoutItem;
+    chk_AutoP: TCheckBox;
+    dxlytmLayout1Item11: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
@@ -326,8 +328,16 @@ begin
     Values['StockNO']       := FCardData.Values['SQ_StockNo'];
     Values['StockName']     := FCardData.Values['SQ_StockName'];
     if nCardType='L' then
-          Values['Value']   := EditValue.Text
-    else  Values['Value']   := '0.00';
+      Values['Value']   := EditValue.Text
+    else
+    begin
+      Values['Value']   := '0.00';
+      {$IFDEF PurYSAfterAutoPoundP}
+      if chk_AutoP.Checked then
+           Values['AutoPoundP']:= 'Y'
+      else Values['AutoPoundP']:= 'N';
+      {$ENDIF}
+    end;
 
     Values['KFValue']       := Trim(EditKFValue.Text);
     Values['KFLS']          := Trim(EditKFLS.Text);

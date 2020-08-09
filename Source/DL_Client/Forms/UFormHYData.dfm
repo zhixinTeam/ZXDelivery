@@ -81,6 +81,7 @@ inherited fFormHYData: TfFormHYData
     object EditCustom: TcxComboBox [5]
       Left = 81
       Top = 61
+      Hint = #28857#20987#31354#26684#38190#12289#22312#24377#20986#31383#21475#36873#25321#23458#25143
       ParentFont = False
       Properties.DropDownRows = 20
       Properties.IncrementalSearch = False
@@ -168,6 +169,14 @@ inherited fFormHYData: TfFormHYData
       ParentColor = False
       TabOrder = 8
     end
+    object cxlbl1: TcxLabel [11]
+      Left = 23
+      Top = 86
+      Caption = '         '#28857#20987#31354#26684#38190#12289#22312#24377#20986#31383#21475#36873#25321#23458#25143
+      ParentColor = False
+      ParentFont = False
+      Style.Color = clWhite
+    end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Item13: TdxLayoutItem
@@ -180,6 +189,12 @@ inherited fFormHYData: TfFormHYData
         object dxLayout1Item3: TdxLayoutItem
           Caption = #23458#25143#21517#31216':'
           Control = EditCustom
+          ControlOptions.ShowBorder = False
+        end
+        object dxlytmLayout1Item11: TdxLayoutItem
+          Caption = 'cxLabel1'
+          ShowCaption = False
+          Control = cxlbl1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item9: TdxLayoutItem

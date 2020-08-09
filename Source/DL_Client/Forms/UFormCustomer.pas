@@ -270,14 +270,15 @@ begin
   FDM.FillStringsData(EditWX.Properties.Items, nStr, 6, '.');
   AdjustStringsItem(EditWX.Properties.Items, False);
 
-  {$IFDEF CustomerType}
+
   nStr := 'D_Value=Select D_Value,D_Memo From %s Where D_Name=''%s''';
   nStr := Format(nStr, [sTable_SysDict, sFlag_CustomerType]);
 
   FDM.FillStringsData(EditType.Properties.Items, nStr, -1, '.');
   AdjustStringsItem(EditType.Properties.Items, False);
+  {$IFDEF CustomerType}
   {$ELSE}
-  dxLayoutControl1Item23.Visible := False;
+  //dxLayoutControl1Item23.Visible := False;
   {$ENDIF}
 
   if nID <> '' then
@@ -393,6 +394,8 @@ begin
     EditType.SetFocus;
     ShowMsg('请选择客户类型', sHint); Exit;
   end;
+  EditType.Text := StringReplace(EditType.Text, ' ', '', [rfReplaceAll]);
+  EditType.Text := StringReplace(EditType.Text, '=', '', [rfReplaceAll]);
   {$ENDIF}
 
   {$IFDEF InfoOnly}

@@ -43,6 +43,8 @@ type
     dxLayout1Item15: TdxLayoutItem;
     cxLabel3: TcxLabel;
     dxLayout1Group4: TdxLayoutGroup;
+    dxlytmLayout1Item11: TdxLayoutItem;
+    cbb_ZhiKa: TcxComboBox;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditSalesManPropertiesChange(Sender: TObject);
@@ -51,11 +53,13 @@ type
       AButtonIndex: Integer);
     procedure EditNameKeyPress(Sender: TObject; var Key: Char);
     procedure BtnOKClick(Sender: TObject);
+    procedure EditTypePropertiesChange(Sender: TObject);
   protected
     { Private declarations }
     function OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean; override;
     procedure InitFormData(const nID: string);
     //载入数据
+    procedure AutoSelectZhiKa;
     procedure ClearCustomerInfo;
     function LoadCustomerInfo(const nID: string): Boolean;
     //载入客户
@@ -128,6 +132,18 @@ begin
   ReleaseCtrlData(Self);
 end;
 
+function GetRightStr(SubStr, Str: string): string;
+var
+   i: integer;
+begin
+   i := pos(SubStr, Str);
+   if i > 0 then
+     Result := Copy(Str
+       , i + Length(SubStr)
+       , Length(Str) - i - Length(SubStr) + 1)
+   else
+     Result := '';
+end;
 //------------------------------------------------------------------------------
 procedure TfFormPayment.InitFormData(const nID: string);
 begin
@@ -135,8 +151,11 @@ begin
   LoadSaleMan(EditSalesMan.Properties.Items);
 
   LoadSysDictItem(sFlag_PaymentItem2, EditType.Properties.Items);
-  EditType.ItemIndex := 0;
-  
+  EditType.ItemIndex := -1;
+  {$IFNDEF PayMentZhika}
+  dxlytmLayout1Item11.Visible:= False;
+  {$ENDIF}
+
   if nID <> '' then
   begin
     ActiveControl := EditMoney;
@@ -171,7 +190,7 @@ begin
     ShowMsg(nStr, sHint); Exit;
   end;
 
-  with nDS,gInfo do       
+  with nDS,gInfo do
   begin
     FCusID := nID;
     FCusName := FieldByName('C_Name').AsString;
@@ -197,6 +216,11 @@ begin
     EditIn.Text := Format('%.2f', [FieldByName('A_InMoney').AsFloat]);
     EditOut.Text := Format('%.2f', [FieldByName('A_OutMoney').AsFloat]);
   end;
+
+  nStr := 'Z_ID=Select Z_ID,Z_Name From %s Where Z_Customer=''%s''';
+  nStr := Format(nStr, [sTable_ZhiKa, gInfo.FCusID]);
+  FDM.FillStringsData(cbb_ZhiKa.Properties.Items, nStr, -1, '.');
+  AdjustStringsItem(cbb_ZhiKa.Properties.Items, False);
 
   ActiveControl := EditMoney;
 end;
@@ -255,9 +279,32 @@ begin
       InsertStringsItem(EditName.Properties.Items, nStr);
       SetCtrlData(EditName, nP.FParamB);
     end;
+
+    AutoSelectZhiKa;
   end;
 end;
 
+//Desc: 自动选择充值纸卡
+procedure TfFormPayment.AutoSelectZhiKa;
+var nIdx:Integer;
+    nStr:string;
+begin
+  cbb_ZhiKa.ItemIndex := -1;
+  nStr:= EditType.Text;
+  {$IFDEF HXZX}
+  //汇款  =  现金
+  if nStr='汇款' then nStr:= '现金';
+  {$ENDIF}
+  
+  for nIdx := 0 to cbb_ZhiKa.Properties.Items.Count - 1 do
+  begin
+    if (Pos(nStr, cbb_ZhiKa.Properties.Items.ValueFromIndex[nIdx]) > 0)
+        or (nStr=cbb_ZhiKa.Properties.Items.ValueFromIndex[nIdx] ) then
+    begin
+      cbb_ZhiKa.ItemIndex := nIdx;
+    end;
+  end;
+end;
 //------------------------------------------------------------------------------
 function TfFormPayment.OnVerifyCtrl(Sender: TObject; var nHint: string): Boolean;
 begin
@@ -286,33 +333,88 @@ end;
 procedure TfFormPayment.BtnOKClick(Sender: TObject);
 var
   nP: TFormCommandParam;
-  nStr: string;
+  nStr,nZID,nZName,nData: string;
+  nList : TStrings;
 begin
-  if not IsDataValid then Exit;
-  nStr := 'SJ'+FormatDateTime('yyyymmddhhmmss',Now);
-  if not SaveCustomerPayment(gInfo.FCusID, gInfo.FCusName,
-     GetCtrlData(EditSalesMan), sFlag_MoneyHuiKuan, EditType.Text, EditDesc.Text,
-     StrToFloat(EditMoney.Text),nStr, True) then
-  begin
-    ShowMsg('回款操作失败', sError); Exit;
-  end;
+  try
+    BtnOK.Enabled:= False;
+    if not IsDataValid then Exit;
 
-  {$IFNDEF HYJC}
-  if StrToFloat(EditMoney.Text) > 0 then
-  begin
-    nP.FCommand := cCmd_AddData;
-    nP.FParamA := gInfo.FCusName;
-    nP.FParamB := '销售回款或预付款';
-    nP.FParamC := EditMoney.Text;
-    CreateBaseFormItem(cFI_FormShouJu, '', @nP);
-  end;
-  {$ELSE}
-  if not QueryDlg('要打印编号为[ ' + nStr + ' ]的收据吗', sAsk) then Exit;
-  PrintShouJu(nStr, False);
-  {$ENDIF}
+    {$IFDEF PayMentZhika}
+    if EditType.Text='' then
+    begin
+      ShowMsg('需选择付款方式','提示');
+      EditType.SetFocus;
+      Exit;
+    end;
 
-  ModalResult := mrOk;
-  ShowMsg('回款操作成功', sHint);
+    nZID  := GetCtrlData(cbb_ZhiKa);
+    nZName:= GetRightStr('.', cbb_ZhiKa.Text);
+    IF (nZID='')or(cbb_ZhiKa.ItemIndex<0) then
+    begin
+      ShowMsg('需选择充值纸卡','提示');
+      Exit;
+
+      if not QueryDlg('确定本次缴款不进行纸卡充值操作么？', sAsk) then
+        Exit;
+    end;
+    {$ENDIF}
+
+    nStr := 'SJ'+FormatDateTime('yyyymmddhhmmss',Now);
+    if not SaveCustomerPayment(gInfo.FCusID, gInfo.FCusName,
+       GetCtrlData(EditSalesMan), sFlag_MoneyHuiKuan, EditType.Text, EditDesc.Text,
+       StrToFloat(EditMoney.Text),nStr,nZID, True) then
+    begin
+      ShowMsg('回款操作失败', sError); Exit;
+    end;
+
+    {$IFDEF JoinShouJuInfo}
+    nList:= TStringList.Create;
+
+    try
+      with nList do
+      begin
+        Values['CusName']:= gInfo.FCusName;
+        Values['Type']   := EditType.Text;
+        Values['Money']  := EditMoney.Text;
+        Values['ZhiKa']  := nZName;
+        Values['Memo']   := EditDesc.Text;
+      end;
+
+      nData:= nList.Text;
+    finally
+      nList.Free;
+    end;
+    {$ENDIF}
+
+    {$IFNDEF HYJC}
+    {$IFNDEF HXTYS}
+    if StrToFloat(EditMoney.Text) > 0 then   {$ENDIF}
+    begin
+      nP.FCommand := cCmd_AddData;
+      nP.FParamA := gInfo.FCusName;
+      nP.FParamB := {$IFNDEF HXZX} '销售回款或预付款'{$ELSE}EditType.Text{$ENDIF};
+      nP.FParamC := EditMoney.Text;
+      nP.FParamD := nData ;
+      nP.FParamE := nStr;
+
+      CreateBaseFormItem(cFI_FormShouJu, '', @nP);
+    end;
+    {$ELSE}
+    if not QueryDlg('要打印编号为[ ' + nStr + ' ]的收据吗', sAsk) then Exit;
+    PrintShouJu(nStr, False);
+    {$ENDIF}
+
+    ModalResult := mrOk;
+    ShowMsg('回款操作成功', sHint);
+  finally
+    BtnOK.Enabled:= True;
+  end;
+end;
+
+procedure TfFormPayment.EditTypePropertiesChange(Sender: TObject);
+begin
+  AutoSelectZhiKa;
 end;
 
 initialization

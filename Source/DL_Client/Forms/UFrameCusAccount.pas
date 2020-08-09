@@ -15,7 +15,9 @@ uses
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters, USysPopedom,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
 
 type
   TfFrameCusAccount = class(TfFrameNormal)
@@ -121,7 +123,12 @@ begin
   {$ELSE}
   N4.Visible := False;
   {$ENDIF}
-  N6.Enabled := gSysParam.FIsAdmin;
+  N7.Visible := (gPopedomManager.HasPopedom(PopedomItem, sPopedom_Edit))or
+                  gSysParam.FIsAdmin ;
+  //修改期初
+
+  N6.Visible := (gPopedomManager.HasPopedom(PopedomItem, sPopedom_Delete))or
+                  gSysParam.FIsAdmin ;
 end;
 
 //Desc: 快捷菜单

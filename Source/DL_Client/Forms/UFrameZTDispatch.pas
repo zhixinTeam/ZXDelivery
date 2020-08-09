@@ -403,13 +403,27 @@ end;
 
 //Desc: 获取厂区车道
 procedure TfFrameZTDispatch.GetBeltLines;
-var nStr,nEvent: string;
+var nStr,nLines: string;
 begin
   FNeedShow:= '';
   with FTrucks[Integer(dxChart1.Selected.Data)] do
   begin
-    nStr := 'Select * From %s Where Z_BeltLine=''%s'' '; //
-    nStr := Format(nStr, [sTable_ZTLines, gSysParam.FDefaultBeltLine]);
+    nStr := 'Select * From $TB Where 1=1 '; //
+
+    if gSysParam.FDefaultBeltLine<>'' then
+    begin
+      nStr := nStr + ' And Z_BeltLine=''$BeltLine'' '; //
+    end;
+
+    if gSysParam.FDefaultZTLines<>'' then
+    begin
+      nLines:= StringReplace(gSysParam.FDefaultZTLines, ',', ''',''', [rfReplaceAll]);
+      nStr := nStr + ' And Z_ID in( ''$ZTLines'' ) '; //
+    end;
+
+    nStr:= MacroValue(nStr, [MI('$TB', sTable_ZTLines),
+                             MI('$BeltLine', gSysParam.FDefaultBeltLine),
+                             MI('$ZTLines', nLines ) ]);
 
     with FDM.QuerySQL(nStr) do
     begin

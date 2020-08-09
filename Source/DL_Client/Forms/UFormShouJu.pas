@@ -44,6 +44,8 @@ type
     EditBank: TcxComboBox;
     dxLayout1Item13: TdxLayoutItem;
     dxLayout1Group6: TdxLayoutGroup;
+    dxlytmLayout1Item14: TdxLayoutItem;
+    edt_MID: TcxTextEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditMoneyExit(Sender: TObject);
@@ -57,6 +59,8 @@ type
     //前缀编号
     FIDLength: integer;
     //前缀长度
+    FMID, FMemox : string;
+  private
     procedure InitFormData(const nID: string);
     //载入数据
     procedure GetData(Sender: TObject; var nData: string);
@@ -85,6 +89,7 @@ var
 class function TfFormShouJu.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
 var nP: PFormCommandParam;
+    nList : TStrings;
 begin
   Result := nil;
   if Assigned(nParam) then
@@ -101,6 +106,24 @@ begin
       EditName.Text := nP.FParamA;
       EditReason.Text := nP.FParamB;
       EditMoney.Text := nP.FParamC;
+      FMemox         := nP.FParamD;
+      edt_MID.Text   := nP.FParamE;
+      edt_MID.Visible:= False;
+
+      {$IFDEF JoinShouJuInfo}
+      nList:= TStringList.Create;
+      nList.Text:= nP.FParamD;
+      try
+        FMemox  := nList.Values['ZhiKa'];
+        EditMemo.Text:= nList.Values['Memo'];
+      finally
+        nList.Free;
+      end;
+      {$ENDIF}
+
+      {$IFNDEF ShouJuAddMID}
+      edt_MID.Hint:= '';
+      {$ENDIF}
       EditMoneyExit(nil);
 
       InitFormData('');
@@ -382,6 +405,7 @@ var nStr: string;
 begin
   if not IsDataValid then Exit;
 
+  EditBank.Text:= EditBank.Text  {$IFDEF HXTYS}+ FMemox {$ENDIF};
   if FRecordID = '' then
   begin
     nStr := MakeSQLByForm(Self, sTable_SysShouJu, '', True, GetData);

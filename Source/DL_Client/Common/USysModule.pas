@@ -22,25 +22,33 @@ uses
   UFrameInvoice, UFormInvoice, UFormInvoiceAdjust,UFrameInvoiceK, UFormInvoiceK,
   UFrameInvoiceDtl, UFrameInvoiceZZ, UFormInvoiceZZAll, UFormInvoiceZZCus, UFormTruckEmpty,
   UFormGetTruck, UFrameZhiKaDetail, UFormZhiKaFreeze,
-  UFormZhiKaPrice, UFrameQueryDiapatch, UFrameBillCard,
-  UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,    UFormLogin,
+  UFormZhiKaPrice, UFormZhiKaPricePre, UFrameQueryDiapatch, UFrameBillCard,
+  UFormCard, UFormTruckIn, UFormTruckOut, UFormLadingDai, UFormLadingSan,  UFormLogin,
   // Sale
-  UFormGetZhiKa, UFrameBill, UFormBill, UFormReadCard,  UFormBillWxScan,
-  UFrameQueryLadingTimeOutTruck, UFormSaleMValueInfo,                                               
-  UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,   
+  UFormGetZhiKa, UFrameBill, UFormBill, UFormEditBill, UFormGetEditZhiKa,
+  UFormReadCard, UFormBillWxScan, UFrameCusSalePlanByMoney, UFormCusSalePlanByMoney,
+  UFrameQueryLadingTimeOutTruck, UFormSaleMValueInfo,
+  UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
   UFrameBillHK, UFormBillHK, UFormCardSearch, UFormKPPayment,UFormBillPD,
-  UFormZTLine,
+  UFormZTLine, UFrameBillSalePlan, UFormSalePlan,
+  UFrameQuerySaleDetailSpecial,
   // For Pound
   UFramePoundManual, UFramePoundAuto, UFramePoundAutoItem,
   UFramePoundManualItem,
-  UFramePoundQuery, UFrameZTDispatch,
+  UFramePoundQuery, UFrameZTDispatch,                                                  
   // Purchase
   UFramePurchaseOrder, UFormPurchaseOrder, UFormPurchasing,
   UFrameQueryOrderDetail, UFrameOrderCard,  UFrameOrderDetail,
   UFormGetProvider, UFormGetMeterails, UFramePOrderBase, UFormPOrderBase,
   UFormGetPOrderBase, UFormOrderDtl,
   UFramePMaterails, UFormPMaterails, UFramePProvider, UFormPProvider,
+  //for Purchase Quality
+  UFramePurSampleBatch, UFormPurSampleBatch, UFormGetInspStandard, UFramePurSampleEnCode, UFormPurSampleEnCode,
+  UFramePurTestVerify, UFramePurTestPublish,
+  UFramePurSampleHYDataEx, UFramePurTestPlanSet, UFormPurTestPlanSet, UFormPurTestItemsSet,
+  UFramePurTestReport, UFramePurHYDataReport,
+  UFormPurSampleBatchEx,
   // Query
   UFrameQuerySaleDetail,
   UFrameQuerySaleTotal, UFrameTrucks, UFormTruck, UFrameTruckQuery,
@@ -60,6 +68,7 @@ uses
   UFormHYStock, UFormHYData, UFormHYRecord, UFormGetStockNo, UFrameXHSpot,UFormXHSpot,
   UFrameHYStock, UFrameHYData, UFrameHYRecord, UFormTransfer, UFrameTransfer,
   UFrameDriverWh,UFormDriverWh,UFormKDInfo,UFrameKDInfo, UFrameCusReceivableTotal,
+  UFrameBatcodeRecord,                                         
 
   {$IFDEF UseYCLHY}
   UFrameYCLHYRecord, UFormYCLHYRecord, UFrameYCLHYStock, UFormYCLHYStock,

@@ -1,7 +1,7 @@
 inherited fFormShouJu: TfFormShouJu
-  Left = 684
-  Top = 370
-  ClientHeight = 282
+  Left = 810
+  Top = 289
+  ClientHeight = 306
   ClientWidth = 512
   OnClose = FormClose
   OnCreate = FormCreate
@@ -9,16 +9,16 @@ inherited fFormShouJu: TfFormShouJu
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 512
-    Height = 282
+    Height = 306
     inherited BtnOK: TButton
       Left = 366
-      Top = 249
-      TabOrder = 11
+      Top = 273
+      TabOrder = 12
     end
     inherited BtnExit: TButton
       Left = 436
-      Top = 249
-      TabOrder = 12
+      Top = 273
+      TabOrder = 13
     end
     object EditDate: TcxDateEdit [2]
       Left = 81
@@ -116,13 +116,13 @@ inherited fFormShouJu: TfFormShouJu
     end
     object EditMemo: TcxMemo [11]
       Left = 81
-      Top = 181
+      Top = 206
       Hint = 'T.S_Memo'
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
       Style.Edges = [bBottom]
-      TabOrder = 10
+      TabOrder = 11
       Height = 46
       Width = 403
     end
@@ -138,6 +138,15 @@ inherited fFormShouJu: TfFormShouJu
       Properties.MaxLength = 35
       TabOrder = 4
       Width = 121
+    end
+    object edt_MID: TcxTextEdit [13]
+      Left = 23
+      Top = 181
+      Hint = 'T.S_MID'
+      ParentFont = False
+      Properties.MaxLength = 32
+      TabOrder = 10
+      Width = 180
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -222,6 +231,10 @@ inherited fFormShouJu: TfFormShouJu
                 Control = EditBig
                 ControlOptions.ShowBorder = False
               end
+            end
+            object dxlytmLayout1Item14: TdxLayoutItem
+              Control = edt_MID
+              ControlOptions.ShowBorder = False
             end
             object dxLayout1Item12: TdxLayoutItem
               Caption = #22791#27880#20449#24687':'

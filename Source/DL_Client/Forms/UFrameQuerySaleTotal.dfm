@@ -105,7 +105,7 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       ParentFont = False
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
-      TabOrder = 7
+      TabOrder = 8
       Width = 168
     end
     object cxtxtdt4: TcxTextEdit [4]
@@ -115,7 +115,7 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       ParentFont = False
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
-      TabOrder = 6
+      TabOrder = 7
       Width = 185
     end
     object Radio1: TcxRadioButton [5]
@@ -124,19 +124,19 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       Width = 70
       Height = 17
       Caption = #21516#23458#25143
-      Checked = True
       ParentColor = False
       TabOrder = 3
-      TabStop = True
+      OnClick = Rb_StockClick
     end
     object Radio2: TcxRadioButton [6]
-      Left = 655
+      Left = 730
       Top = 36
       Width = 115
       Height = 17
       Caption = #21516#23458#25143#21516#21697#31181
       ParentColor = False
-      TabOrder = 4
+      TabOrder = 5
+      OnClick = Rb_StockClick
     end
     object cxLabel1: TcxLabel [7]
       Left = 499
@@ -146,6 +146,18 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       Style.BorderStyle = ebsNone
       Style.Edges = [bBottom]
       Transparent = True
+    end
+    object Rb_Stock: TcxRadioButton [8]
+      Left = 655
+      Top = 36
+      Width = 70
+      Height = 17
+      Caption = #21516#21697#31181
+      Checked = True
+      ParentColor = False
+      TabOrder = 4
+      TabStop = True
+      OnClick = Rb_StockClick
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
@@ -165,6 +177,12 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
         end
         object dxLayout1Item2: TdxLayoutItem
           Control = Radio1
+          ControlOptions.AutoColor = True
+          ControlOptions.ShowBorder = False
+        end
+        object dxlytmLayout1Item9: TdxLayoutItem
+          ShowCaption = False
+          Control = Rb_Stock
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
         end

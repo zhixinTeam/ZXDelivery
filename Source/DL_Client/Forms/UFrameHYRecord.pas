@@ -84,13 +84,15 @@ function TfFrameHYRecord.InitFormDataSQL(const nWhere: string): string;
 begin
   EditDate.Text := Format('%s жа %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
-  Result := 'Select sr.*,P_Stock,P_Type,P_Name, '+
-            'CAST( (CAST(R_3DZhe1 AS DECIMAL(15,2))+CAST(R_3DZhe2 AS DECIMAL(15,2))+CAST(R_3DZhe3 AS DECIMAL(15,2)))/3 AS DECIMAL(15,2)) ZheAVG3, '+
+  Result := 'Select sr.*,P_Stock,P_Type,P_Name '+
+            {$IFDEF ShowHYAVG}
+           ',CAST( (CAST(R_3DZhe1 AS DECIMAL(15,2))+CAST(R_3DZhe2 AS DECIMAL(15,2))+CAST(R_3DZhe3 AS DECIMAL(15,2)))/3 AS DECIMAL(15,2)) ZheAVG3, '+
             'CAST( (CAST(R_3DYa1 AS DECIMAL(15,2))+CAST(R_3DYa2 AS DECIMAL(15,2))+CAST(R_3DYa3 AS DECIMAL(15,2))+  '+
-            'CAST(R_3DYa4 AS DECIMAL(15,2))+CAST(R_3DYa5 AS DECIMAL(15,2))+CAST(R_3DYa6 AS DECIMAL(15,2)))/6 AS DECIMAL(15,2)) YaAVG3, '  +
+                   'CAST(R_3DYa4 AS DECIMAL(15,2))+CAST(R_3DYa5 AS DECIMAL(15,2))+CAST(R_3DYa6 AS DECIMAL(15,2)))/6 AS DECIMAL(15,2)) YaAVG3, '  +
             'CAST( (CAST(ISNULL(R_28Zhe1,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Zhe2,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Zhe3,0) AS DECIMAL(15,2)))/3 AS DECIMAL(15,2)) ZheAVG28,' +
             'CAST( (CAST(ISNULL(R_28Ya1,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya2,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya3,0) AS DECIMAL(15,2))+ ' +
-            'CAST(ISNULL(R_28Ya4,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya5,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya6,0) AS DECIMAL(15,2)))/6 AS DECIMAL(15,2)) YaAVG28 '+
+                   'CAST(ISNULL(R_28Ya4,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya5,0) AS DECIMAL(15,2))+CAST(ISNULL(R_28Ya6,0) AS DECIMAL(15,2)))/6 AS DECIMAL(15,2)) YaAVG28 '+
+            {$ENDIF}
             ' From $SR sr' +
             ' Left Join $SP sp On sp.P_ID=sr.R_PID ';
 

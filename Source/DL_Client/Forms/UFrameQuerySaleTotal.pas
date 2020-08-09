@@ -38,11 +38,14 @@ type
     dxLayout1Item4: TdxLayoutItem;
     cxLabel1: TcxLabel;
     dxLayout1Item7: TdxLayoutItem;
+    dxlytmLayout1Item9: TdxLayoutItem;
+    Rb_Stock: TcxRadioButton;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure mniN1Click(Sender: TObject);
+    procedure Rb_StockClick(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -130,6 +133,11 @@ begin
               'From $Bill ';
     //xxxxx
   end else
+  if Rb_Stock.Checked then
+  begin
+    Result := 'select L_StockNo,L_StockName,CAST(Sum(L_Value) as decimal(38, 2)) as L_Value,' +
+              'CAST(Sum(L_Value * L_Price) as decimal(38, 2)) as L_Money From $Bill ';
+  end else
   begin
     Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,L_Type,l_custype,' +
               'L_StockNo,L_StockName,CAST(Sum(L_Value) as decimal(38, 2)) as L_Value,' +
@@ -143,6 +151,11 @@ begin
               'Sum(L_Value) as L_Value,Sum(L_Value * L_Price) as L_Money ' +
               'From $Bill ';
     //xxxxx
+  end else
+  if Rb_Stock.Checked then
+  begin
+    Result := 'select L_StockNo,L_StockName,Sum(L_Value) as L_Value,' +
+              'Sum(L_Value * L_Price) as L_Money From $Bill ';
   end else
   begin
     Result := 'select L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,L_Type,' +
@@ -167,6 +180,10 @@ begin
   if Radio1.Checked then
   begin
     Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,l_custype';
+  end else
+  if Rb_Stock.Checked then
+  begin
+    Result := Result + ' Group By L_StockNo,L_StockName';
   end else
   begin
     Result := Result + ' Group By L_SaleID,L_SaleMan,L_CusID,L_CusName,L_CusPY,' +
@@ -247,6 +264,12 @@ begin
   except
     //ignor any error
   end;
+end;
+
+procedure TfFrameSaleDetailTotal.Rb_StockClick(Sender: TObject);
+begin
+  inherited;
+  BtnRefresh.Click;
 end;
 
 initialization

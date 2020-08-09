@@ -117,12 +117,18 @@ end;
 
 //Desc: 删除
 procedure TfFrameProvider.BtnDelClick(Sender: TObject);
-var nStr: string;
+var nStr,nWX: string;
 begin
   if cxView1.DataController.GetSelectedCount > 0 then
   begin
     nStr := SQLQuery.FieldByName('P_Name').AsString;
+    nWX  := SQLQuery.FieldByName('P_CustSerialNo').AsString;
 
+    if nWX<>'' then
+    begin
+      ShowMsg('供应商[ '+nStr+' ]已绑定微信授权，请先取消后再删除供应商',sWarn);
+      Exit;
+    end;
     if not IsCanDel(SQLQuery.FieldByName('P_ID').AsString) then
     begin
       ShowMsg('供应商[ '+nStr+' ]已绑定品种，请删除品种绑定后再删除供应商',sWarn);

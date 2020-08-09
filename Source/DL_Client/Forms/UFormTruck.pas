@@ -56,8 +56,18 @@ type
     dxLayout1Group8: TdxLayoutGroup;
     dxLayout1Item16: TdxLayoutItem;
     EditMemo: TcxTextEdit;
+    dxlytmLayout1Item17: TdxLayoutItem;
+    edt_XSZ: TcxTextEdit;
+    dxlytmLayout1Item171: TdxLayoutItem;
+    edt_XCZ: TcxTextEdit;
+    dxlytmLayout1Item172: TdxLayoutItem;
+    edt_DLYSZ: TcxTextEdit;
+    dxlytmLayout1Item173: TdxLayoutItem;
+    edt_PrePValue: TcxTextEdit;
+    dxLayout1Group9: TdxLayoutGroup;
     procedure BtnOKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure edt_PrePValueExit(Sender: TObject);
   protected
     { Protected declarations }
     FTruckID: string;
@@ -168,6 +178,10 @@ begin
     EditStock.Text := FieldByName('T_Stock').AsString;
     EditPF.Text := FieldByName('T_PF').AsString;
     EditMemo.Text := FieldByName('T_Memo').AsString;
+
+    edt_XSZ.Text := FieldByName('T_XSZ').AsString;
+    edt_XCZ.Text := FieldByName('T_XCZ').AsString;
+    edt_DLYSZ.Text := FieldByName('T_DLYSZ').AsString;
   end;
 end;
 
@@ -232,11 +246,19 @@ begin
           SF('T_NoVerify', nU),
           SF('T_Valid', nV),
           SF('T_PrePUse', nP),
+
+          SF_IF([SF('T_PrePValue', edt_PrePValue.Text),
+                 SF('T_PrePValue', 'NULL', sfVal)], CheckUserP.Checked),
+
           SF('T_VIPTruck', nVip),
           SF('T_HasGPS', nGps),
           {$IFDEF UseTruckXTNum}
           SF('T_XTNum', FloatToStr(nXTNum)),
           {$ENDIF}
+          SF('T_XSZ', edt_XSZ.Text),
+          SF('T_XCZ', edt_XCZ.Text),
+          SF('T_DLYSZ', edt_DLYSZ.Text),
+
           SF('T_Type', EditType.Text),
           SF('T_PlateColor', EditColor.Text),
           SF('T_Stock', EditStock.Text),
@@ -274,6 +296,12 @@ begin
   {$ELSE}
   dxLayout1Item11.Visible := False;
   {$ENDIF}
+end;
+
+procedure TfFormTruck.edt_PrePValueExit(Sender: TObject);
+begin
+  IF Trim(edt_PrePValue.Text)='' then
+    edt_PrePValue.Text:= '0';
 end;
 
 initialization

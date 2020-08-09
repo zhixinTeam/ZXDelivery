@@ -27,7 +27,7 @@ inherited fFrameHYData: TfFrameHYData
     Width = 964
     Height = 135
     object EditNO: TcxButtonEdit [0]
-      Left = 259
+      Left = 289
       Top = 36
       ParentFont = False
       Properties.Buttons = <
@@ -41,7 +41,7 @@ inherited fFrameHYData: TfFrameHYData
       Width = 115
     end
     object EditName: TcxButtonEdit [1]
-      Left = 437
+      Left = 467
       Top = 36
       ParentFont = False
       Properties.Buttons = <
@@ -87,7 +87,7 @@ inherited fFrameHYData: TfFrameHYData
       Width = 121
     end
     object EditDate: TcxButtonEdit [6]
-      Left = 615
+      Left = 645
       Top = 36
       ParentFont = False
       Properties.Buttons = <
@@ -100,7 +100,7 @@ inherited fFrameHYData: TfFrameHYData
       Width = 182
     end
     object EditID: TcxButtonEdit [7]
-      Left = 81
+      Left = 111
       Top = 36
       ParentFont = False
       Properties.Buttons = <
@@ -116,7 +116,7 @@ inherited fFrameHYData: TfFrameHYData
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item8: TdxLayoutItem
-          Caption = #35760#24405#32534#21495':'
+          Caption = #35760#24405#21495'/'#36710#29260#21495':'
           Control = EditID
           ControlOptions.ShowBorder = False
         end
@@ -188,6 +188,13 @@ inherited fFrameHYData: TfFrameHYData
     AutoHotkeys = maManual
     Left = 4
     Top = 264
+    object X1: TMenuItem
+      Caption = #20462#25913#24320#21333#23458#25143
+      OnClick = X1Click
+    end
+    object N5: TMenuItem
+      Caption = '-'
+    end
     object N1: TMenuItem
       Tag = 10
       Caption = #25171#21360#21270#39564#21333

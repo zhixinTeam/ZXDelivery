@@ -337,7 +337,7 @@ begin
         EditMate.SetFocus;
       Exit;
     end;
-  end;
+  end; 
 
   with FListA do
   begin

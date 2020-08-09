@@ -9,7 +9,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  UDataModule, cxGraphics, StdCtrls, cxMaskEdit, cxDropDownEdit,
+  UDataModule, cxGraphics, StdCtrls, cxMaskEdit, cxDropDownEdit, ADODB,
   cxMCListBox, cxMemo, dxLayoutControl, cxContainer, cxEdit, cxTextEdit,
   cxControls, cxButtonEdit, cxCalendar, ExtCtrls, cxPC, cxLookAndFeels,
   cxLookAndFeelPainters, cxGroupBox, dxSkinsCore, dxSkinsDefaultPainters,
@@ -151,6 +151,14 @@ type
     dxlytmLayoutControl1Item5: TdxLayoutItem;
     EditCXDate: TcxDateEdit;
     dxLayoutControl1Group4: TdxLayoutGroup;
+    lbl1: TLabel;
+    edt_1: TcxTextEdit;
+    edt_11: TcxTextEdit;
+    lbl2: TLabel;
+    lbl3: TLabel;
+    edt_12: TcxTextEdit;
+    lbl_3YaAVG: TLabel;
+    lbl_28YaAVG: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
@@ -161,6 +169,10 @@ type
       Shift: TShiftState);
     procedure EditStockPropertiesEditValueChanged(Sender: TObject);
     procedure cxTextEdit17KeyPress(Sender: TObject; var Key: Char);
+    procedure EditIDExit(Sender: TObject);
+    procedure EditIDKeyPress(Sender: TObject; var Key: Char);
+    procedure cxTextEdit30Exit(Sender: TObject);
+    procedure cxTextEdit32Exit(Sender: TObject);
   private
     { Private declarations }
     FRecordID: string;
@@ -169,11 +181,13 @@ type
     //前缀编号
     FIDLength: integer;
     //前缀长度
+  private
     procedure InitFormData(const nID: string);
     //载入数据
     procedure GetData(Sender: TObject; var nData: string);
     function SetData(Sender: TObject; const nData: string): Boolean;
     //数据处理
+    procedure SetRecordStockNo;
   public
     { Public declarations }
   end;
@@ -369,8 +383,10 @@ begin
   end
   else
   begin
+    {$IFNDEF HYRecordNoAutoFill}
     cxTextEdit55.Text:= '脱硫石膏';
     cxTextEdit57.Text:= '粉煤灰,石灰石,矿渣微粉';
+    {$ENDIF}
     cxTextEdit25.Text:= '合格';
   end;
   {$IFDEF JZZJ}
@@ -389,6 +405,18 @@ begin
   Label42.Font.Color:= clRed; Label42.Font.Style:= [fsBold];
   Label44.Font.Color:= clRed; Label44.Font.Style:= [fsBold];
   {$ENDIF}
+
+  {$IFDEF HXZX}
+  Label40.Visible:= False; cxTextEdit54.Visible:= False;
+  Label20.Visible:= False; cxTextEdit21.Visible:= False;
+  Label39.Visible:= False; cxTextEdit53.Visible:= False;
+  Label38.Visible:= False; cxTextEdit52.Visible:= False;
+  Label1.Visible:= False;  cxTextEdit1.Visible:= False;
+  Label2.Visible:= False;  cxTextEdit2.Visible:= False;
+  Label3.Visible:= False;  cxTextEdit3.Visible:= False;
+  cxGroupBox2.Visible:= False;
+  SELF.Height:= 578;
+  {$ENDIF}
 end;
 
 //Desc: 设置类型
@@ -399,7 +427,7 @@ begin
   begin
     nStr := 'Select * From %s Where R_PID=''%s''';
     nStr := Format(nStr, [sTable_StockParamExt, GetCtrlData(EditStock)]);
-    LoadDataToCtrl(FDM.QueryTemp(nStr), wPanel);
+      LoadDataToCtrl(FDM.QueryTemp(nStr), wPanel);
   end;
 
   nStr := 'Select P_Stock From %s Where P_ID=''%s''';
@@ -430,8 +458,10 @@ begin
     Label26.Caption := '28天抗折强度:';
   end;
 
+  {$IFNDEF HYRecordNoAutoFill}
   cxTextEdit55.Text:= '脱硫石膏';
   cxTextEdit57.Text:= '粉煤灰,石灰石,矿渣微粉';
+  {$ENDIF}
   cxTextEdit25.Text:= '合格';
 end;
 
@@ -486,6 +516,96 @@ begin
   FDM.ExecuteSQL(nSQL);
   ModalResult := mrOK;
   ShowMsg('数据已保存', sHint);
+end;
+
+procedure TfFormHYRecord.SetRecordStockNo;
+var nStr, nA,nB:string;
+    nIdx:Integer;
+    nQuery : TADOQuery;
+    nIsSelected:Boolean;
+begin
+  try
+    nIsSelected:= False;
+
+    nQuery:= TADOQuery.Create(NIL);
+    nStr := 'Select top 1 * From S_Bill Where L_HYDan='''+trim(EditID.Text)+'''';
+    FDM.QueryData(nQuery,nStr);
+    with nQuery do
+    begin
+      if recordCount>0 then
+      begin
+        for nIdx:= 0 to EditStock.Properties.Items.Count-1 do
+        begin
+          nA:= FieldByName('L_StockName').AsString;
+          nB:= EditStock.Properties.Items.ValueFromIndex[nIdx];
+          if Pos(nA,nB)>0 then
+          begin
+            EditStock.ItemIndex:= nIdx;
+            nIsSelected:= True;
+            exit;
+          end;
+        end;
+      end;
+    end;
+
+    if not nIsSelected then
+    begin
+      nStr := 'Select top 1 * From S_Batcode Where B_Prefix='''+trim(EditID.Text)+'''';
+      FDM.QueryData(nQuery,nStr);
+      with nQuery do
+      begin
+        if recordCount>0 then
+        begin
+          for nIdx:= 0 to EditStock.Properties.Items.Count-1 do
+          begin
+            nA:= FieldByName('B_Stock').AsString;
+            nB:= EditStock.Properties.Items.ValueFromIndex[nIdx];
+            if Pos(nA,nB)>0 then
+                EditStock.ItemIndex:= nIdx;
+          end;
+        end;
+      end;
+    end;
+  finally
+    nQuery.Free;
+  end;
+end;
+
+procedure TfFormHYRecord.EditIDExit(Sender: TObject);
+begin
+  SetRecordStockNo;
+end;
+
+procedure TfFormHYRecord.EditIDKeyPress(Sender: TObject; var Key: Char);
+var nStr : string;
+begin
+  if Key = Char(VK_RETURN) then
+  begin
+    Key := #0;
+    SetRecordStockNo;
+
+    nStr := 'Select * From %s Where R_SerialNo='''+Trim(EditID.Text)+'''';
+    nStr := Format(nStr, [sTable_StockRecord]);
+    LoadDataToForm(FDM.QuerySQL(nStr), Self, '', SetData);
+  end;
+end;
+
+procedure TfFormHYRecord.cxTextEdit30Exit(Sender: TObject);
+var nAVG:Double;
+begin
+  nAVG:= StrToFloatDef(cxTextEdit30.Text,0)+ StrToFloatDef(cxTextEdit38.Text,0)+StrToFloatDef(cxTextEdit40.Text,0)+
+         StrToFloatDef(cxTextEdit41.Text,0)+ StrToFloatDef(cxTextEdit42.Text,0)+StrToFloatDef(cxTextEdit43.Text,0);
+  nAVG:= nAVG/6;
+  lbl_3YaAVG.Caption:= Format('%.2f',[nAVG]);
+end;
+
+procedure TfFormHYRecord.cxTextEdit32Exit(Sender: TObject);
+var nAVG:Double;
+begin
+  nAVG:= StrToFloatDef(cxTextEdit32.Text,0)+ StrToFloatDef(cxTextEdit35.Text,0)+StrToFloatDef(cxTextEdit36.Text,0)+
+         StrToFloatDef(cxTextEdit47.Text,0)+ StrToFloatDef(cxTextEdit48.Text,0)+StrToFloatDef(cxTextEdit49.Text,0);
+  nAVG:= nAVG/6;
+  lbl_28YaAVG.Caption:= Format('%.2f',[nAVG]);
 end;
 
 end.

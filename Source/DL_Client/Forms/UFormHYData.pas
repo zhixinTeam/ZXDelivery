@@ -35,6 +35,8 @@ type
     cxLabel2: TcxLabel;
     chk_IsBD: TCheckBox;
     dxLayout1Item10: TdxLayoutItem;
+    cxlbl1: TcxLabel;
+    dxlytmLayout1Item11: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditCustomKeyPress(Sender: TObject; var Key: Char);

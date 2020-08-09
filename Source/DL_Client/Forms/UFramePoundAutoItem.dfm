@@ -595,7 +595,7 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     TabOrder = 24
   end
   object Chk_PoundStatus: TcxCheckBox
-    Left = 511
+    Left = 508
     Top = 29
     Caption = #19978#30917#19981#26816#26597#22320#30917#29366#24577
     ParentFont = False
@@ -603,7 +603,7 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Width = 136
   end
   object Chk3: TcxCheckBox
-    Left = 756
+    Left = 753
     Top = 29
     Caption = #31105#27490#36710#29260#19981#31526#36710#36742#19978#30917
     ParentFont = False
@@ -611,7 +611,7 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Width = 151
   end
   object Chk_UseSnapTruck: TcxCheckBox
-    Left = 651
+    Left = 648
     Top = 29
     Caption = #21551#29992#36710#29260#35782#21035
     ParentFont = False
@@ -619,7 +619,7 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Width = 108
   end
   object Chk_StopUse: TcxCheckBox
-    Left = 386
+    Left = 383
     Top = 29
     Caption = #26242#20572#35813#30917#36807#30917#19994#21153
     ParentFont = False
@@ -638,8 +638,9 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Top = 256
   end
   object Timer_ReadCard: TTimer
+    Interval = 2000
     OnTimer = Timer_ReadCardTimer
-    Left = 508
+    Left = 507
     Top = 256
   end
   object TimerDelay: TTimer
@@ -654,5 +655,12 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     OnTimer = Timer_SaveFailTimer
     Left = 560
     Top = 256
+  end
+  object tmr_ShowDefault: TTimer
+    Enabled = False
+    Interval = 3000
+    OnTimer = tmr_ShowDefaultTimer
+    Left = 481
+    Top = 222
   end
 end

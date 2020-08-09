@@ -60,10 +60,12 @@ const
   cFI_FrameStockHuaYan  = $0045;                     //开化验单
   cFI_FrameStockHY_Each = $0046;                     //随车开单
   cFI_FrameBatch        = $0047;                     //批次管理
+  cFI_FrameBatchRecord  = $0048;                     //批次记录
 
   cFI_FrameYCLStock       = $8007;                   //原材料品种管理
   cFI_FrameYCLStockRecord = $8008;                   //原材料检验记录
 
+  cFI_FrameSaleDetailQuerySpecial= $0049;            //(假账套)发货明细
   cFI_FrameTruckQuery   = $0050;                     //车辆查询
   cFI_FrameCusAccountQuery = $0051;                  //客户账户
   cFI_FrameCusInOutMoney   = $0052;                  //出入金明细
@@ -93,7 +95,8 @@ const
   cFI_FrameKDInfo       = $2076;                     //矿点信息维护
 
   cFI_FramePMaterailControl= $0077;                  //原材料进厂控制
-  cFI_FormPMaterailControl= $1098;                   //原材料进厂控制
+  cFI_FormPMaterailControl = $1098;                   //原材料进厂控制
+
 
   cFI_FrameProvider     = $0102;                     //供应
   cFI_FrameProvideLog   = $0105;                     //供应日志
@@ -123,6 +126,8 @@ const
   cFI_FormMakeRFIDCard  = $1014;                     //办理电子标签
   cFI_FormMakeLSCard    = $1015;                     //厂内零售办卡
 
+  cFI_FormGetEditZhika  = $1199;                     //选择纸卡（调拨、修改）
+  cFI_FormEditBill      = $1200;                     //销售订单 (调拨、修改）
   cFI_FormBill          = $1016;                     //开提货单
   cFI_FormSanPreHK      = $1101;                     //散装预合卡
   cFI_FormDaiPD         = $2101;                     //袋装拼单卡
@@ -180,6 +185,7 @@ const
   cFI_FormPaymentZK     = $1068;                     //纸卡回款
   cFI_FormFreezeZK      = $1069;                     //冻结纸卡
   cFI_FormAdjustPrice   = $1070;                     //纸卡调价
+  cFI_FormAdjustPricePre= $1888;                     //纸卡预调价
 
   cFI_FormTrucks        = $1071;                     //车辆档案
   cFI_FormMulTrucks     = $1072;                     //车辆档案(批量处理)
@@ -231,6 +237,28 @@ const
 
   cFI_FormPoundKZ   = $6011;                         //磅房扣杂
 
+
+  cFI_FramePurSampleBatch = $0165;                    //原材料取样组批
+  cFI_FormPurSampleBatch  = $0166;                    //新增取样
+  cFI_FormGetInspStandard = $0167;                    //原材料取样组批
+  cFI_FramePurSampleHYData= $0168;                    //原材料化验结果
+  cFI_FramePurTestPlanSet = $0180;                    //原料质检方案
+  cFI_FormPurTestPlanSet  = $0181;                    //原料质检方案
+  cFI_FormPurTestItemsSet = $0182;                    //原料质检方案
+  cFI_FramePurSampleEnCode= $0183;                    //取样加密编码
+  cFI_FormPurSampleEnCode = $0184;                    //取样加密编码
+  cFI_FramePurTestVerify  = $0185;                    //检测结果审核
+  cFI_FramePurTestPublish = $0186;                    //检测结果发布
+  cFI_FramePurTestReport  = $0187;                    //质检分析报表
+  cFI_FramePurHYDataReport= $0188;                    //质检结果报表
+
+  cFI_FormPurSampleBatchEx= $0189;                    //中间品取样组批
+
+  cFI_FrameBillSalePlan = $3000;                     //销售品种限量计划
+  cFI_FormBillSalePlan  = $3001;                     //销售供应编辑
+
+  cFI_FrameCusSalePlanByMoney= $1130;                //销售客户金额限量
+  cFI_FormCusSalePlanByMoney = $1131;                //销售客户金额限量 编辑
   {*Command*}
   cCmd_RefreshData      = $0002;                     //刷新数据
   cCmd_ViewSysLog       = $0003;                     //系统日志
@@ -297,6 +325,8 @@ type
     FEmpTruckWc : Double;                            //空车出厂误差
     FPoundOpenBackGate: Boolean;                     //过磅失败抬后杆
     FDefaultBeltLine: string;                        //默认生产线
+    FDefaultZTLines : string;                        //默认显示栈台类型
+    FPoundLEDTxt: string;                            //磅房小屏过磅后默认显示内容
   end;
   //系统参数
 
@@ -410,6 +440,7 @@ begin
   AddMenuModuleItem('MAIN_D02', cFI_FrameMakeCard);
   AddMenuModuleItem('MAIN_D03', cFI_FormBill, mtForm);
   AddMenuModuleItem('MAIN_D04', cFI_FormBill, mtForm);
+
   AddMenuModuleItem('MAIN_D05', cFI_FrameZhiKa);
   AddMenuModuleItem('MAIN_D06', cFI_FrameBill);
   AddMenuModuleItem('MAIN_D08', cFI_FormTruckEmpty, mtForm);
@@ -420,9 +451,10 @@ begin
 
   AddMenuModuleItem('MAIN_D13', cFI_FormKPPayment, mtForm);
   AddMenuModuleItem('MAIN_D14', cFI_FormDaiPD, mtForm);
-
   AddMenuModuleItem('MAIN_DS04', cFI_FormBillWXScan, mtForm);
   //微信扫码开单
+  AddMenuModuleItem('MAIN_DX01', cFI_FrameCusSalePlanByMoney);    // 销售金额限量
+  
 
   AddMenuModuleItem('MAIN_E01', cFI_FramePoundManual);
   AddMenuModuleItem('MAIN_E02', cFI_FramePoundAuto);
@@ -460,6 +492,8 @@ begin
   AddMenuModuleItem('MAIN_L09', cFI_FrameSaleJS);
   AddMenuModuleItem('MAIN_L10', cFI_FrameOrderDetailQuery);
   AddMenuModuleItem('MAIN_Q01', cFI_FrameLadingTimeOutTruck);
+
+  AddMenuModuleItem('MAIN_LS06', cFI_FrameSaleDetailQuerySpecial);
   //财务报表
   AddMenuModuleItem('MAIN_L11', cFI_FrameNotice);
   AddMenuModuleItem('MAIN_L12', cFI_FrameDaySales);
@@ -480,7 +514,6 @@ begin
   AddMenuModuleItem('MAIN_L23', cFI_FrameCusReceivable);
   AddMenuModuleItem('MAIN_L24', cFI_FrameQrySaleByMonth);
   AddMenuModuleItem('MAIN_L25', cFI_FramePurchByMonth);
-
   AddMenuModuleItem('MAIN_L33', cFI_FrameCusReceivableTotal);
 
 
@@ -511,6 +544,21 @@ begin
 
   AddMenuModuleItem('MAIN_W01', cFI_FrameWXAccount);
   AddMenuModuleItem('MAIN_W02', cFI_FrameWXSendLog);
+
+  //
+  AddMenuModuleItem('MAIN_S01', cFI_FramePurSampleBatch);  // 原料汇取样组批
+  AddMenuModuleItem('MAIN_S02', cFI_FramePurTestPlanSet);  // 原料质检方案
+  AddMenuModuleItem('MAIN_S03', cFI_FramePurSampleEnCode); // 取样加密编码
+  AddMenuModuleItem('MAIN_S04', cFI_FramePurSampleHYData); // 质检结果录入
+  AddMenuModuleItem('MAIN_S05', cFI_FramePurTestVerify);   // 结果审核
+  AddMenuModuleItem('MAIN_S06', cFI_FramePurTestPublish);  // 结果发布
+  AddMenuModuleItem('MAIN_S07', cFI_FramePurTestReport);   // 质检报告
+  AddMenuModuleItem('MAIN_S08', cFI_FramePurHYDataReport); // 质检结果
+
+  //销售限量
+  AddMenuModuleItem('MAIN_DXL01', cFI_FormBillSalePlan, mtForm);
+  AddMenuModuleItem('MAIN_DXL02', cFI_FrameBillSalePlan);
+
 end;
 
 //Desc: 清理模块列表

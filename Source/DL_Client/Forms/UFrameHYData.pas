@@ -11,7 +11,7 @@ uses
   Dialogs, UFrameNormal, cxStyles, cxCustomData, cxGraphics, cxFilter,
   cxData, cxDataStorage, cxEdit, DB, cxDBData, ADODB, cxContainer, cxLabel,
   dxLayoutControl, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
-  cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
+  cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid, UFormInputbox,
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, UBitmapPanel,
   cxSplitter, Menus, cxLookAndFeels, cxLookAndFeelPainters, cxCheckBox,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
@@ -40,6 +40,8 @@ type
     dxLayout1Item8: TdxLayoutItem;
     N3: TMenuItem;
     N281: TMenuItem;
+    X1: TMenuItem;
+    N5: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnAddClick(Sender: TObject);
@@ -51,6 +53,7 @@ type
       AButtonIndex: Integer);
     procedure Check1Click(Sender: TObject);
     procedure N281Click(Sender: TObject);
+    procedure X1Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -189,7 +192,7 @@ begin
     EditID.Text := Trim(EditID.Text);
     if EditID.Text = '' then Exit;
 
-    FWhere := Format('H_ID=%s', [EditID.Text]);
+    FWhere := Format('H_ID=%s Or H_Truck=''%s''', [EditID.Text, EditID.Text]);
     InitFormData(FWhere);
   end else
 
@@ -248,6 +251,30 @@ begin
   begin
     nStr := SQLQuery.FieldByName('H_ID').AsString;
     PrintHuaYanReport(nStr, False,true);
+  end;
+end;
+
+procedure TfFrameHYData.X1Click(Sender: TObject);
+var nStr, nCName, nSQL : string;
+    nP : TFormCommandParam;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nCName:= SQLQuery.FieldByName('H_CusName').AsString;
+    if not ShowInputBox('请输入开单客户名称:', '修改', nCName, 100) then Exit;
+
+    if (nCName = '') or (nStr = nCName) then Exit;
+    //无效或一致
+
+    nStr := SQLQuery.FieldByName('H_ID').AsString;
+    begin
+      nSQL := 'UPDate %s Set H_CusName=''%s'' Where H_ID=%s';
+      nSQL := Format(nSQL, [sTable_StockHuaYan, nCName, nStr]);
+      FDM.ExecuteSQL(nSQL);
+
+      InitFormData(FWhere);
+      ShowMsg('修改成功', sHint);
+    end;
   end;
 end;
 

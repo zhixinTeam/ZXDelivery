@@ -115,7 +115,7 @@ function SaveXuNiCustomer(const nName,nSaleMan: string): string;
 function IsAutoPayCredit: Boolean;
 //回款时冲信用
 function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
- const nType,nPayment,nMemo: string; const nMoney: Double;const nID:string;
+ const nType,nPayment,nMemo: string; const nMoney: Double;const nID,nZID:string;
  const nCredit: Boolean = True): Boolean;
 //保存回款记录
 function SaveCustomerKPPayment(const nCusID,nCusName,nSaleMan: string;
@@ -273,6 +273,8 @@ function IsPreWeekOver(const nWeek: string): Integer;
 function SaveCompensation(const nSaleMan,nCusID,nCusName,nPayment,nMemo: string;
  const nMoney: Double): Boolean;
 //保存用户补偿金
+function AdjustBillStatus(const nID: string): Boolean;
+//多次过毛重、回退状态
 
 //------------------------------------------------------------------------------
 procedure PrintSaleContractReport(const nID: string; const nAsk: Boolean);
@@ -380,6 +382,8 @@ function ReadPoundReaderInfo(const nReader: string; var nDept: string): string;
 function VerifySnapTruck(const nReader: string; nBill: TLadingBillItem; var nMsg, nPos: string): Boolean;
 function SaveSnapStatus(const nBill: TLadingBillItem; nStatus: string): Boolean;
 procedure RemoteSnapDisPlay(const nPost, nText, nSucc: string);
+function GetPersonWeight( var nWeight: Double): Boolean;
+//过毛补加司机重量
 
 
 procedure CapturePictureEx(const nTunnel: PPTTunnelItem;
@@ -1288,7 +1292,7 @@ end;
 
 //Desc: 保存nCusID的一次回款记录
 function SaveCustomerPayment(const nCusID,nCusName,nSaleMan: string;
- const nType,nPayment,nMemo: string; const nMoney: Double;const nID:string;
+ const nType,nPayment,nMemo: string; const nMoney: Double;const nID,nZID:string;
  const nCredit: Boolean): Boolean;
 var nStr, nData, nSaleManName: string;
     nBool: Boolean;
@@ -1348,12 +1352,31 @@ begin
     nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
     FDM.ExecuteSQL(nStr);
 
+    {$IFNDEF  PayMentZhika}
     nStr := 'Insert Into %s(M_SaleMan,M_CusID,M_CusName,' +
             'M_Type,M_Payment,M_Money,M_Date,M_Man,M_Memo,M_RuZhang,M_ID) ' +
             'Values(''%s'',''%s'',''%s'',''%s'',''%s'',%.2f,%s,''%s'',''%s'',''%s'',''%s'')';
+    {$ELSE}
+    nStr := 'Insert Into %s(M_SaleMan,M_CusID,M_CusName,' +
+            'M_Type,M_Payment,M_Money,M_Date,M_Man,M_Memo,M_RuZhang,M_ID,M_ZID) ' +
+            'Values(''%s'',''%s'',''%s'',''%s'',''%s'',%.2f,%s,''%s'',''%s'',''%s'',''%s'',''%s'')';
+    {$ENDIF}
     nStr := Format(nStr, [sTable_InOutMoney, nSaleMan, nCusID, nCusName, nType,
-            nPayment, nVal, FDM.SQLServerNow, gSysParam.FUserID, nMemo, sFlag_Yes, nID]);
+            nPayment, nVal, FDM.SQLServerNow, gSysParam.FUserID, nMemo, sFlag_Yes, nID, nZID]);
     FDM.ExecuteSQL(nStr);
+
+    {$IFDEF  PayMentZhika}
+    IF nZID<>'' then
+    begin
+      nStr := 'UPDate %s Set Z_FixedMoney=IsNull(Z_FixedMoney, 0)+(%.2f) Where Z_ID=''%s''';
+      nStr := Format(nStr, [sTable_ZhiKa, nVal, nZID]);
+      FDM.ExecuteSQL(nStr);
+      //限提纸卡充值
+
+      nData := Format('%s 为 %s 纸卡 %s 充值 %s 元', [gSysParam.FUserName, nCusName, nZID, FloatToStr(nVal)]);
+      FDM.WriteSysLog(sFlag_BillItem, nID, nData, False);
+    end;
+    {$ENDIF}
 
     if (nLimit > 0) and (
        not SaveCustomerCredit(nCusID, '回款时冲减', -nLimit, Now)) then
@@ -2821,6 +2844,13 @@ begin
 
   nStr := 'Select * From %s Where R_ID=%s';
   nStr := Format(nStr, [sTable_SysShouJu, nSID]);
+
+  {$IFDEF ShouJuAddMID}
+    nStr := 'SELECT M_Payment,a.* FROM Sys_ShouJu a ' +
+            'Left Join Sys_CustomerInOutMoney b On S_MID=M_ID ' +
+            'Where a.R_ID=%s ';
+    nStr := Format(nStr, [nSID]);
+  {$ENDIF}
   
   if FDM.QueryTemp(nStr).RecordCount < 1 then
   begin
@@ -2847,7 +2877,7 @@ end;
 
 //Desc: 打印提货单
 function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
-var nStr: string;
+var nStr, nCusType: string;
     nParam: TReportParamItem;
 begin
   Result := False;
@@ -2858,10 +2888,26 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end;
 
+  nStr := 'Select * From S_Customer Left Join S_Bill On C_ID=L_CusID '+
+          'Where L_ID=''%s''  ';
+  nStr := Format(nStr, [nBill]);
+  //xxxxx
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      nCusType:= FieldByname('C_Type').AsString;
+      nCusType:= StringReplace(nCusType, ' ', '', [rfReplaceAll]);
+      nCusType:= StringReplace(nCusType, '=', '', [rfReplaceAll]);
+    end;
+  end;
+  nCusType:= Format(',''%s'' As CusType ', [nCusType]);
+
+
   nBill := AdjustListStrFormat(nBill, '''', True, ',', False);
   //添加引号
 
-  nStr := 'Select b.*,c.*,d.Z_Name From %s b,%s c,%s d Where '+
+  nStr := 'Select b.*,c.*,d.Z_Name'+ nCusType +' From %s b,%s c,%s d Where '+
           'b.L_Truck=c.T_Truck and b.L_ZhiKa=d.Z_ID and L_ID In(%s)';
   nStr := Format(nStr, [sTable_Bill,sTable_Truck,sTable_ZhiKa, nBill]);
   //xxxxx
@@ -2893,6 +2939,17 @@ begin
   Result := FDR.PrintSuccess;
 end;
 
+// 多次过毛回退状态，防止尚未称重完成，司机做出厂操作
+function AdjustBillStatus(const nID: string): Boolean;
+var nstr:string;
+begin
+  Result:= True;
+  nStr := 'UPDate S_Bill Set L_Status=(Case When L_Type=''D'' Then ''Z'' Else ''F'' End), L_NextStatus=''M''  '+
+          'Where (L_Status=''M'' And L_NextStatus=''O'') And L_ID=''%s'' ';
+  nStr := Format(nStr, [nID]);
+  
+  FDM.ExecuteSQL(nStr);
+end;
 
 //Date: 2012-4-1
 //Parm: 采购单号;提示;数据对象;打印机
@@ -3060,7 +3117,8 @@ begin
     Result := gPath + sReportDir + 'HuaYan42_DJ.fr3'
   else if Pos('gsysl', Result) > 0 then
     Result := gPath + sReportDir + 'HuaYan_gsl.fr3'
-  else if Pos('kzf', Result) > 0 then
+    
+  else if (Pos('kzf', Result) > 0)or(Pos('kzwf', Result) > 0) then
     Result := gPath + sReportDir + 'HuaYan_kzf.fr3'
   {$IFNDEF HYJC}
   else if Pos('qz', Result) > 0 then
@@ -3083,7 +3141,8 @@ end;
 
 //Desc: 打印标识为nHID的化验单
 function PrintHuaYanReport(const nHID: string; const nAsk: Boolean;n28D: Boolean): Boolean;
-var nStr,nSR: string;
+var nStr,nSR,nCusType,nBill: string;
+    nDS: TDataSet;
 begin
   if nAsk then
   begin
@@ -3092,10 +3151,31 @@ begin
     if not QueryDlg(nStr, sAsk) then Exit;
   end else Result := False;
 
+
+  nStr:= 'Select * From $HY Where H_ID=$ID';
+  nStr := MacroValue(nStr, [MI('$HY', sTable_StockHuaYan),
+                            MI('$ID', nHID)]);
+  //xxxxx
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    nBill:= FieldByName('H_Reporter').AsString;
+  end;
+
+  nStr := 'Select * From %s Left Join %s On L_CusID=C_ID Where L_ID=''%s''';
+  nStr := Format(nStr, [sTable_Bill, sTable_Customer, nBill]);
+  nDS := FDM.QueryTemp(nStr);
+  if Assigned(nDS) then
+  if nDS.RecordCount > 0 then
+  begin
+    nCusType:= StringReplace((nDS.FieldByName('C_Type').AsString), ' ', '', [rfReplaceAll]);
+    nCusType:= StringReplace(nCusType, '=', '', [rfReplaceAll]);
+  end;
+  nstr:= '';
+
   nSR := 'Select DATEPART(YEAR,R_Date) RTime,* From %s sr ' +
          ' Left Join %s sp on sp.P_ID=sr.R_PID';
   nSR := Format(nSR, [sTable_StockRecord, sTable_StockParam]);
-
 
   {$IFNDEF HYPrintNum}
     nStr := 'Select hy.*,sr.*,C_Name From $HY hy ' +
@@ -3103,7 +3183,8 @@ begin
     nStr := 'Select IsNull(H_PrintNum, 0)+1 PrintNum, hy.*,sr.*,C_Name From $HY hy ' +
   {$ENDIF}
           ' Left Join $Cus cus on cus.C_ID=hy.H_Custom' +
-          ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' + {$IFDEF SRecordNeedDistinguish} ' And RTime=DATEPART(YEAR,H_BillDate) '+ {$ENDIF}
+          ' Left Join ($SR) sr on sr.R_SerialNo=H_SerialNo ' +
+          {$IFDEF SRecordNeedDistinguish} ' And RTime=DATEPART(YEAR,H_BillDate) '+ {$ENDIF}
           ' Where H_ID in ($ID)';
   //xxxxx
 
@@ -3120,6 +3201,15 @@ begin
 
   nStr := FDM.SqlTemp.FieldByName('P_Stock').AsString;
   nStr := GetReportFileByStock(nStr);
+
+  {$IFDEF BehalfConsignor}
+  //振新代发货
+  if nCusType<>'' then
+  begin
+    nStr:= StringReplace(nStr, '.fr3', '_'+nCusType+'.fr3', [rfReplaceAll]);
+    WriteLog(nStr);
+  end;
+  {$ENDIF}
 
   IF n28D then nStr:= StringReplace(nStr, '.fr3', '_28.fr3', [rfReplaceAll]);
   if not FDR.LoadReportFile(nStr) then
@@ -4204,6 +4294,24 @@ begin
           ], sTable_ManualEvent, nStr, (not nUpdate));
   //xxxxx
   FDM.ExecuteSQL(nStr);
+end;
+
+//人重量
+function GetPersonWeight( var nWeight: Double): Boolean;
+var nStr:string;
+begin
+  Result := True;
+
+  nStr := 'Select * From %s Where D_Name=''PoundExtra''';
+  nStr := Format(nStr, [sTable_SysDict]);
+  //xxxxx
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      nWeight := FieldByName('D_Value').Asfloat;
+    end;
+  end;
 end;
 
 function SaveSnapStatus(const nBill: TLadingBillItem; nStatus: string): Boolean;

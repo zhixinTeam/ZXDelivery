@@ -14,7 +14,9 @@ uses
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin, cxCheckBox;
+  ComCtrls, ToolWin, cxCheckBox, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
 
 type
   TfFramePOrderBase = class(TfFrameNormal)
@@ -40,6 +42,8 @@ type
     N2: TMenuItem;
     N3: TMenuItem;
     Check1: TcxCheckBox;
+    N4: TMenuItem;
+    N5: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditIDPropertiesButtonClick(Sender: TObject;
@@ -50,6 +54,7 @@ type
     procedure BtnExitClick(Sender: TObject);
     procedure cxView1DblClick(Sender: TObject);
     procedure Check1Click(Sender: TObject);
+    procedure N5Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -255,6 +260,36 @@ procedure TfFramePOrderBase.Check1Click(Sender: TObject);
 begin
   inherited;
   InitFormData('');
+end;
+
+procedure TfFramePOrderBase.N5Click(Sender: TObject);
+var nStr,nValue,nBID: string;
+    nP: TFormCommandParam;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr  := SQLQuery.FieldByName('B_Value').AsString;
+    nValue:= nStr;
+    if not ShowInputBox('请输入订单量:', '修改', nValue, 12) then Exit;
+
+    if (nValue = '') or (nStr = nValue) then Exit;
+    //无效或一致
+
+    begin
+      nBID := SQLQuery.FieldByName('B_ID').AsString;
+      nStr := 'UPDate %s Set B_Value=''%s'' Where B_ID=''%s''';
+      nStr := Format(nStr, [sTable_OrderBase, nValue, nBID]);
+      FDM.ExecuteSQL(nStr);
+
+      nStr := '修改订单量[ %s -> %s ].';
+      nStr := Format(nStr, [SQLQuery.FieldByName('B_Value').AsString, nValue]);
+      FDM.WriteSysLog(sFlag_BillItem, SQLQuery.FieldByName('B_ID').AsString, nStr, False);
+
+      InitFormData(FWhere);
+      ShowMsg('修改成功', sHint);
+    end;
+  end;
+
 end;
 
 initialization

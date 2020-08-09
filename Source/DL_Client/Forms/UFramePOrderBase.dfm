@@ -213,5 +213,12 @@ inherited fFramePOrderBase: TfFramePOrderBase
       Caption = #20462#25913#36710#29260#21495
       Visible = False
     end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object N5: TMenuItem
+      Caption = #35843#25972#35746#21333#24635#37327
+      OnClick = N5Click
+    end
   end
 end

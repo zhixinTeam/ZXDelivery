@@ -3,7 +3,7 @@
   描述: 办理纸卡
 *******************************************************************************}
 unit UFrameShouJu;
-
+{$I Link.Inc}
 interface
 
 uses
@@ -14,7 +14,9 @@ uses
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
 
 type
   TfFrameShouJu = class(TfFrameNormal)
@@ -103,13 +105,18 @@ begin
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   Result := 'Select * From $SJ ';
 
+  {$IFDEF HXTYS}
+  Result := 'SELECT M_Payment,a.* FROM Sys_ShouJu a ' +
+            'Left Join Sys_CustomerInOutMoney b On S_MID=M_ID ';
+  {$ENDIF}
+
   if nWhere = '' then
        Result := Result + 'Where (S_Date>=''$S'' and S_Date <''$E'')'
   else Result := Result + 'Where (' + nWhere + ')';
   
   Result := MacroValue(Result, [MI('$SJ', sTable_SysShouJu),
             MI('$S', Date2Str(FStart)), MI('$E', Date2Str(FEnd + 1))]);
-  //xxxxx                                                                        )
+  //xxxxx            
 end;
 
 //Desc: 添加

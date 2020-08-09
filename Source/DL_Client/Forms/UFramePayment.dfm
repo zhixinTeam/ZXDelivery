@@ -146,5 +146,9 @@ inherited fFramePayment: TfFramePayment
       Caption = #20837#36134#23457#26680
       OnClick = N1Click
     end
+    object N2: TMenuItem
+      Caption = #25171#21360#25910#25454
+      OnClick = N2Click
+    end
   end
 end

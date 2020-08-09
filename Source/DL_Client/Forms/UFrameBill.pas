@@ -268,6 +268,9 @@ begin
     ShowMsg('请选择要删除的记录', sHint); Exit;
   end;
 
+  if not QueryDlg('确定要执行删除操作么？', sAsk) then
+    Exit;
+
   with nP do
   begin
     nStr := SQLQuery.FieldByName('L_ID').AsString;

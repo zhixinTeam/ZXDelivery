@@ -1,25 +1,25 @@
 inherited fFormBill: TfFormBill
-  Left = 904
-  Top = 230
+  Left = 772
+  Top = 165
   ClientHeight = 526
-  ClientWidth = 429
+  ClientWidth = 443
   Position = poDesktopCenter
   OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
-    Width = 429
+    Width = 443
     Height = 526
     AutoControlTabOrders = False
     inherited BtnOK: TButton
-      Left = 283
+      Left = 297
       Top = 493
       Caption = #24320#21333
       TabOrder = 5
     end
     inherited BtnExit: TButton
-      Left = 353
+      Left = 367
       Top = 493
       TabOrder = 9
     end
@@ -44,7 +44,7 @@ inherited fFormBill: TfFormBill
     end
     object ListBill: TcxListView [3]
       Left = 23
-      Top = 366
+      Top = 389
       Width = 372
       Height = 113
       Columns = <
@@ -69,15 +69,15 @@ inherited fFormBill: TfFormBill
       ViewStyle = vsReport
     end
     object EditValue: TcxTextEdit [4]
-      Left = 81
-      Top = 341
+      Left = 87
+      Top = 364
       ParentFont = False
       TabOrder = 3
       OnKeyPress = EditLadingKeyPress
       Width = 120
     end
     object EditTruck: TcxTextEdit [5]
-      Left = 264
+      Left = 270
       Top = 182
       ParentFont = False
       Properties.MaxLength = 15
@@ -86,8 +86,8 @@ inherited fFormBill: TfFormBill
       Width = 116
     end
     object EditStock: TcxComboBox [6]
-      Left = 81
-      Top = 316
+      Left = 87
+      Top = 339
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.DropDownRows = 15
@@ -98,8 +98,8 @@ inherited fFormBill: TfFormBill
       Width = 115
     end
     object BtnAdd: TButton [7]
-      Left = 367
-      Top = 316
+      Left = 381
+      Top = 339
       Width = 39
       Height = 17
       Caption = #28155#21152
@@ -107,8 +107,8 @@ inherited fFormBill: TfFormBill
       OnClick = BtnAddClick
     end
     object BtnDel: TButton [8]
-      Left = 367
-      Top = 341
+      Left = 381
+      Top = 364
       Width = 39
       Height = 18
       Caption = #21024#38500
@@ -116,7 +116,7 @@ inherited fFormBill: TfFormBill
       OnClick = BtnDelClick
     end
     object EditLading: TcxComboBox [9]
-      Left = 81
+      Left = 87
       Top = 182
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
@@ -130,7 +130,7 @@ inherited fFormBill: TfFormBill
       Width = 120
     end
     object EditFQ: TcxTextEdit [10]
-      Left = 264
+      Left = 270
       Top = 157
       ParentFont = False
       Properties.MaxLength = 100
@@ -139,7 +139,7 @@ inherited fFormBill: TfFormBill
       Width = 120
     end
     object EditType: TcxComboBox [11]
-      Left = 81
+      Left = 87
       Top = 157
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
@@ -172,14 +172,14 @@ inherited fFormBill: TfFormBill
       Width = 95
     end
     object EditSJName: TcxTextEdit [14]
-      Left = 81
+      Left = 87
       Top = 232
       ParentFont = False
       TabOrder = 17
       Width = 121
     end
     object cbbXHSpot: TcxComboBox [15]
-      Left = 81
+      Left = 87
       Top = 257
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
@@ -189,7 +189,7 @@ inherited fFormBill: TfFormBill
       Width = 120
     end
     object EditIdent: TcxTextEdit [16]
-      Left = 265
+      Left = 271
       Top = 232
       ParentFont = False
       TabOrder = 19
@@ -197,7 +197,7 @@ inherited fFormBill: TfFormBill
       Width = 139
     end
     object EditSJPinYin: TcxTextEdit [17]
-      Left = 81
+      Left = 87
       Top = 207
       ParentFont = False
       TabOrder = 20
@@ -205,7 +205,7 @@ inherited fFormBill: TfFormBill
       Width = 120
     end
     object editDate: TcxDateEdit [18]
-      Left = 264
+      Left = 270
       Top = 257
       ParentFont = False
       Properties.Kind = ckDateTime
@@ -213,7 +213,7 @@ inherited fFormBill: TfFormBill
       Width = 139
     end
     object cbb_BeltLine: TcxComboBox [19]
-      Left = 264
+      Left = 270
       Top = 207
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
@@ -221,6 +221,23 @@ inherited fFormBill: TfFormBill
       TabOrder = 22
       OnKeyPress = EditLadingKeyPress
       Width = 120
+    end
+    object edt_PValue: TcxTextEdit [20]
+      Left = 87
+      Top = 282
+      ParentFont = False
+      TabOrder = 23
+      Width = 121
+    end
+    object cbb_Line: TcxComboBox [21]
+      Left = 271
+      Top = 282
+      ParentFont = False
+      Properties.DropDownListStyle = lsEditFixedList
+      Properties.ItemHeight = 18
+      TabOrder = 24
+      OnKeyPress = EditLadingKeyPress
+      Width = 147
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -296,6 +313,8 @@ inherited fFormBill: TfFormBill
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item17: TdxLayoutItem
+            AutoAligns = [aaVertical]
+            AlignHorz = ahClient
             Caption = #36523#20221#35777#21495':'
             Control = EditIdent
             ControlOptions.ShowBorder = False
@@ -304,17 +323,43 @@ inherited fFormBill: TfFormBill
         object dxLayout1Group6: TdxLayoutGroup
           ShowCaption = False
           Hidden = True
-          LayoutDirection = ldHorizontal
           ShowBorder = False
-          object dxLayout1Item16: TdxLayoutItem
-            Caption = #21368#36135#22320#28857':'
-            Control = cbbXHSpot
-            ControlOptions.ShowBorder = False
+          object dxLayout1Group10: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            LayoutDirection = ldHorizontal
+            ShowBorder = False
+            object dxLayout1Item16: TdxLayoutItem
+              Caption = #21368#36135#22320#28857':'
+              Control = cbbXHSpot
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item19: TdxLayoutItem
+              AutoAligns = [aaVertical]
+              AlignHorz = ahClient
+              Caption = #34917#21333#26085#26399':'
+              Control = editDate
+              ControlOptions.ShowBorder = False
+            end
           end
-          object dxLayout1Item19: TdxLayoutItem
-            Caption = #34917#21333#26085#26399':'
-            Control = editDate
-            ControlOptions.ShowBorder = False
+          object dxLayout1Group11: TdxLayoutGroup
+            ShowCaption = False
+            Hidden = True
+            LayoutDirection = ldHorizontal
+            ShowBorder = False
+            object dxlytmLayout1Item20: TdxLayoutItem
+              AutoAligns = [aaVertical]
+              Caption = #36710#36742#30382#37325#65306
+              Control = edt_PValue
+              ControlOptions.ShowBorder = False
+            end
+            object dxlytmLayout1Item201: TdxLayoutItem
+              AutoAligns = [aaVertical]
+              AlignHorz = ahClient
+              Caption = #35013#36710#36890#36947':'
+              Control = cbb_Line
+              ControlOptions.ShowBorder = False
+            end
           end
         end
       end

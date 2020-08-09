@@ -189,6 +189,7 @@ inherited fFormMaterails: TfFormMaterails
       Left = 260
       Top = 161
       Hint = 'T.M_HYSYS'
+      ParentFont = False
       Properties.Items.Strings = (
         #29289#27969#37096
         #21270#39564#23460)
@@ -199,6 +200,7 @@ inherited fFormMaterails: TfFormMaterails
       Left = 81
       Top = 161
       Hint = 'T.M_YS2Times'
+      ParentFont = False
       Properties.Items.Strings = (
         #19968#27425#39564#25910
         #20004#27425#39564#25910)
