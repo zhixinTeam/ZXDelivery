@@ -166,6 +166,12 @@ type
     function GetOrderCreateStatus(nCID, nMID, nOID: string;nValue:Double;
              var nMax:Double;var ReData:string;var nCanCreate:Boolean): Boolean;
     function IsCanCreateWXOrder(var nData: string): Boolean;
+    ///*******************************************************************************
+    ///**************微信客户报表
+    function get_ClientReportInfo(var nData: string): Boolean;
+    //根据客户编号查询客户报表信息
+    function getQuerySaleDtl(var nData: string): Boolean;
+    //获取销售明细信息
   public
     constructor Create; override;
     destructor destroy; override;
@@ -566,6 +572,16 @@ begin
       begin
         Result := IsCanCreateWXOrder(nData);
       end;
+
+    cBC_WX_get_ClientReportInfo:
+      begin
+        Result := get_ClientReportInfo(nData);
+      end;
+
+    cBC_WX_get_QuerySaleDtl:
+      begin
+        Result := getQuerySaleDtl(nData);
+      end;
   else
     begin
       Result := False;
@@ -949,6 +965,7 @@ begin
       if nMoney<0 then nMoney:= 0;
       {$ENDIF}
     end;
+    if nMoney<0 then nMoney:= 0;
 
     nNode := Root.NodeNew('Items');
     while not Eof do
@@ -965,21 +982,29 @@ begin
         NodeNew('StockNo').ValueAsString := FieldByName('D_StockNo').AsString;
         NodeNew('StockName').ValueAsString := FieldByName('D_StockName').AsString;
         NodeNew('StockType').ValueAsString := FieldByName('D_Type').AsString;
+        
         if FieldByName('Z_Lading').AsString  = 'T' then
           NodeNew('ContractType').ValueAsString := '1'
         else
           NodeNew('ContractType').ValueAsString := '2';
-        NodeNew('BillName').ValueAsString        := FieldByName('Z_Name').AsString;
+        NodeNew('BillName').ValueAsString       := FieldByName('Z_Name').AsString;
         
         {$IFDEF UseCustomerFixMoney}
         //当前限提纸卡金额
         nFixZK:= False;
-        if FieldByName('Z_FixedMoney').AsString=sFlag_Yes then
+        if FieldByName('Z_OnlyMoney').AsString=sFlag_Yes then
         begin
           nFixZK:= True;
           nZKFixMoney := FieldByName('Z_FixedMoney').AsFloat;
           if nZKFixMoney<0 then nZKFixMoney:= 0;
-          NodeNew('BillName').ValueAsString:= '(限提:'+FloatToStr(nZKFixMoney)+'元)'+FieldByName('Z_Name').AsString;
+
+          {$IFDEF FixMoneyAddCredit}
+          if (Pos('现金', FieldByName('Z_Name').AsString)>0)or
+              (FieldByName('Z_Name').AsString='现金') then
+            nZKFixMoney:= nZKFixMoney + nMoney;  //nMoney 为去除 总限提额度后的资金（含账户剩余额度+授信额度）
+          {$ENDIF}
+
+          NodeNew('BillName').ValueAsString:= '(限额:'+FloatToStr(nZKFixMoney)+'元)'+FieldByName('Z_Name').AsString;
         end;
         {$ENDIF}
         
@@ -1829,7 +1854,8 @@ begin
       Exit;
     end;
 
-    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat - FieldByName('A_OutMoney').AsFloat - FieldByName('A_Compensation').AsFloat - FieldByName('A_FreezeMoney').AsFloat;
+    nVal := FieldByName('A_InitMoney').AsFloat + FieldByName('A_InMoney').AsFloat - FieldByName('A_OutMoney').AsFloat -
+            FieldByName('A_Compensation').AsFloat - FieldByName('A_FreezeMoney').AsFloat;
     //xxxxx
     WriteLog('用户账户金额:' + FloatToStr(nVal));
     nCredit := FieldByName('A_CreditLimit').AsFloat;
@@ -1840,6 +1866,38 @@ begin
 
     WriteLog('客户['+nCustomer+']合计可用:'+floattostr(nVal));
     Result := Float2PInt(nVal, cPrecision, False) / cPrecision;
+  end;
+end;
+
+//Date: 2019-11-23
+//Desc: 获取指定客户的所有限提纸卡金额
+function TBusWorkerBusinessWebchat.GetCustomerFixMoney(nCustomer: string): Double;
+var
+  nStr: string;
+  nUseCredit: Boolean;
+  nVal : Double;
+begin
+  try
+    Result := 0;
+
+    nStr := 'Select Sum(  Case When (IsNull(Z_FixedMoney, 0))<0 then 0 Else IsNull(Z_FixedMoney, 0) End   ) FixedMoney From %s '+
+            'Where Z_Customer=''%s'' And Z_OnlyMoney=''%s''';
+    nStr := Format(nStr, [sTable_ZhiKa, nCustomer, sFlag_Yes]);
+    WriteLog('查找客户限提总金额:' + nStr);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount < 1 then
+      begin
+        Exit;
+      end;
+
+      nVal := FieldByName('FixedMoney').AsFloat;
+      //xxxxx
+      if nVal<0 then nVal:= 0;
+      Result := Float2PInt(nVal, cPrecision, False) / cPrecision;
+    end;
+  finally
+    WriteLog('客户 '+nCustomer+' 限提总金额:' + FloatToStr(nVal));
   end;
 end;
 
@@ -4437,6 +4495,286 @@ begin
     end;
   end;
 end;
+
+function TBusWorkerBusinessWebchat.get_ClientReportInfo(
+  var nData: string): Boolean;
+var
+  nStr, nClientNo, nStockNo, nType : string;
+  nStart, nEnd, nSumStr : string;
+  nNode,  nheader  : TXmlNode;
+
+  function GetLeftStr(SubStr, Str: string): string;
+  begin
+    Result := Copy(Str, 1, Pos(SubStr, Str) - 1);
+  end;
+  function GetRightStr(SubStr, Str: string): string;
+  var
+     i: integer;
+  begin
+     i := pos(SubStr, Str);
+     if i > 0 then
+       Result := Copy(Str
+         , i + Length(SubStr)
+         , Length(Str) - i - Length(SubStr) + 1)
+     else
+       Result := '';
+  end;
+begin
+  Result := False;
+
+  with FPacker.XMLBuilder do
+  begin
+    try
+      ReadFromString(nData);
+      nData  := '加载请求参数失败';
+
+      nheader := Root.FindNode('Head');
+      //************************************************************
+      try
+        nClientNo := nheader.NodeByName('ClientNo').ValueAsString;
+        nType     := nheader.NodeByName('Data').ValueAsString;
+        nSumStr   := nheader.NodeByName('ExtParam').ValueAsString;
+
+        nStart    := GetLeftStr('and', nSumStr);
+        nEnd      := GetRightStr('and',nSumStr);
+
+        if (nClientNo = '') or (nType = '') then
+        begin
+          nData := '加载请求参数失败.';
+          with Root.NodeNew('EXMG') do
+          begin
+            NodeNew('MsgTxt').ValueAsString     := nData;
+            NodeNew('MsgResult').ValueAsString  := sFlag_No;
+            NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+          end;
+          nData := FPacker.XMLBuilder.WriteToString;
+          Exit;
+        end;
+      except
+        on Ex : Exception do
+        begin
+          nData  := nData + '查询客户报表信息失败!'+Ex.Message;
+          WriteLog(nData);
+        end;
+      end;
+    finally
+    end;
+  end;
+
+  BuildDefaultXML;
+  if nType = '1' then
+  begin
+    nStr := ' select L_StockNo, L_StockName, SUM(L_Value) as L_Value, COUNT(*) as nCount  from %s '+
+            ' where L_CusID = ''%s'' and L_OutFact >= ''%s'' and L_OutFact <= ''%s'' group by L_StockNo, L_StockName  ';
+    nStr := Format(nStr, [sTable_Bill, nClientNo,nStart,nEnd]);
+  end
+  else
+  begin
+    nStr := ' select a.O_StockNo as L_StockNo,a.O_StockName as L_StockName, SUM(D_Value) as L_Value, COUNT(*) as nCount  from %s a, %s b '+
+            ' where a.O_ID = b.D_OID and a.O_ProID = ''%s'' and b.D_OutFact >= ''%s'' and b.D_OutFact <= ''%s'' group by a.O_StockNo,a.O_StockName  ';
+    nStr := Format(nStr, [sTable_Order, sTable_OrderDtl, nClientNo,nStart,nEnd]);
+  end;
+  //*****
+  with gDBConnManager.WorkerQuery(FDBConn, nStr), FPacker.XMLBuilder do
+  begin
+    if RecordCount < 1 then
+    begin
+      nData := '您所选择的时间段内未查询到任何单据.';
+      
+      with Root.NodeNew('EXMG') do
+      begin
+        NodeNew('MsgTxt').ValueAsString     := nData;
+        NodeNew('MsgResult').ValueAsString  := sFlag_No;
+        NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+      end;
+      nData := FPacker.XMLBuilder.WriteToString;
+      Exit;
+    end;
+
+    First;
+    nNode := Root.NodeNew('Items');
+    while not Eof do
+    begin
+      with nNode.NodeNew('Item') do
+      begin
+        NodeNew('Value').ValueAsString      := FieldByName('L_Value').AsString;
+        NodeNew('StockNo').ValueAsString    := FieldByName('L_StockNo').AsString;
+        NodeNew('StockName').ValueAsString  := FieldByName('L_StockName').AsString;
+        NodeNew('Count').ValueAsString      := FieldByName('nCount').AsString;
+      end;
+      
+      Next;
+    end;
+
+    nNode := Root.NodeNew('EXMG');
+    with nNode do
+    begin
+      NodeNew('MsgTxt').ValueAsString     := '业务执行成功';
+      NodeNew('MsgResult').ValueAsString  := sFlag_Yes;
+      NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+    end;
+  end;
+  
+  nData  := FPacker.XMLBuilder.WriteToString;
+  Result := True;
+end;
+
+function TBusWorkerBusinessWebchat.getQuerySaleDtl(var nData: string): Boolean;
+var
+  nStr, nClientNo, nStockNo, nType, nSearch : string;
+  nStart, nEnd, nSumStr : string;
+  nNode,  nheader  : TXmlNode;
+
+  function GetLeftStr(SubStr, Str: string): string;
+  begin
+    Result := Copy(Str, 1, Pos(SubStr, Str) - 1);
+  end;
+  function GetRightStr(SubStr, Str: string): string;
+  var
+     i: integer;
+  begin
+     i := pos(SubStr, Str);
+     if i > 0 then
+       Result := Copy(Str
+         , i + Length(SubStr)
+         , Length(Str) - i - Length(SubStr) + 1)
+     else
+       Result := '';
+  end;
+begin
+  Result := False;
+
+  with FPacker.XMLBuilder do
+  begin
+    try
+      ReadFromString(nData);
+      nData  := '加载请求参数失败';
+
+      nheader := Root.FindNode('Head');
+      //************************************************************
+      try
+        nClientNo := nheader.NodeByName('Data').ValueAsString;
+        nType     := nheader.NodeByName('Type').ValueAsString;
+        nSumStr   := nheader.NodeByName('ExtParam').ValueAsString;
+        nSearch   := nheader.NodeByName('Search').ValueAsString;
+
+        nStart    := GetLeftStr(';', nSumStr);
+        nEnd      := GetRightStr(';',nSumStr);
+
+        if (nClientNo = '') or (nType = '') then
+        begin
+          nData := '加载请求参数失败.';
+          with Root.NodeNew('EXMG') do
+          begin
+            NodeNew('MsgTxt').ValueAsString     := nData;
+            NodeNew('MsgResult').ValueAsString  := sFlag_No;
+            NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+          end;
+          nData := FPacker.XMLBuilder.WriteToString;
+          Exit;
+        end;
+      except
+        on Ex : Exception do
+        begin
+          nData  := nData + '查询报表信息失败!'+Ex.Message;
+          WriteLog(nData);
+        end;
+      end;
+    finally
+    end;
+  end;
+
+  BuildDefaultXML;
+  if nType = '1' then
+  begin
+    if Trim(nSearch) = '' then
+    begin
+      nStr := ' Select L_ID, L_ZhiKa, L_CusName, L_Truck, L_Value, L_MValue, L_PValue,'+
+              ' L_Price, (L_Value * L_Price) as L_Money,L_OutFact,L_HYDan, L_StockNo,'+
+              ' L_StockName, COUNT(*) as nCount from %s a, %s b '+
+              ' where a.L_CusName = b.C_Name and b.C_ID = ''%s'' and L_OutFact >= ''%s'' and L_OutFact <= ''%s'' ' +
+              ' Group by L_ID, L_ZhiKa, L_CusName, L_Truck, L_Value, L_MValue, L_PValue,'+
+              ' L_Price, L_OutFact,L_HYDan, L_StockNo, L_StockName ' ;
+      nStr := Format(nStr, [sTable_Bill,sTable_Customer, nClientNo,nStart,nEnd]);
+    end
+    else
+    begin
+      nStr := ' Select L_ID, L_ZhiKa, L_CusName, L_Truck, L_Value, L_MValue, L_PValue,'+
+              ' L_Price, (L_Value * L_Price) as L_Money,L_OutFact,L_HYDan, L_StockNo,'+
+              ' L_StockName, COUNT(*) as nCount from %s a, %s b '+
+              ' where a.L_CusName = b.C_Name and b.C_ID = ''%s'' and ((L_Truck like ''%%%s%%'') or (L_StockName like ''%%%s%%'') ) '+
+              ' and L_OutFact >= ''%s'' and L_OutFact <= ''%s'' ' +
+              ' Group by L_ID, L_ZhiKa, L_CusName, L_Truck, L_Value, L_MValue, L_PValue,'+
+              ' L_Price, L_OutFact,L_HYDan, L_StockNo, L_StockName ' ;
+      nStr := Format(nStr, [sTable_Bill,sTable_Customer, nClientNo,nSearch,nSearch,nStart,nEnd])
+    end;
+  end
+  else
+  begin
+    nStr := ' Select b.D_ID as L_ID,a.O_BID as L_ZhiKa,O_ProName as L_CusName,D_Truck as L_Truck,'+
+            ' D_Value as L_Value, D_MValue as L_MValue,D_PValue as L_PValue, 0 as L_Price, 0 as L_Money,'+
+            ' D_OutFact as L_OutFact, '''' as L_HYDan, a.O_StockNo as L_StockNo,a.O_StockName as L_StockName, COUNT(*) as nCount  from %s a, %s b '+
+            ' where a.O_ID = b.D_OID and a.O_ProID = ''%s'' and b.D_OutFact >= ''%s'' and b.D_OutFact <= ''%s'' ' +
+            ' Group by D_ID, O_BID, O_ProName, D_Truck, D_Value, D_MValue, D_PValue,'+
+            ' D_OutFact, O_StockNo,O_StockName ' ;
+    nStr := Format(nStr, [sTable_Order, sTable_OrderDtl, nClientNo,nStart,nEnd]);
+  end;
+
+  with gDBConnManager.WorkerQuery(FDBConn, nStr), FPacker.XMLBuilder do
+  begin
+    if RecordCount < 1 then
+    begin
+      nData := '所选时间段内无单据.';
+      with Root.NodeNew('EXMG') do
+      begin
+        NodeNew('MsgTxt').ValueAsString     := nData;
+        NodeNew('MsgResult').ValueAsString  := sFlag_No;
+        NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+      end;
+      nData := FPacker.XMLBuilder.WriteToString;
+      Exit;
+    end;
+
+    First;
+    nNode := Root.NodeNew('Items');
+    while not Eof do
+    begin
+      with nNode.NodeNew('Item') do
+      begin
+        NodeNew('LID').ValueAsString        := FieldByName('L_ID').AsString;
+        NodeNew('Zhika').ValueAsString      := FieldByName('L_ZhiKa').AsString;
+        NodeNew('CusName').ValueAsString    := FieldByName('L_CusName').AsString;
+        NodeNew('Truck').ValueAsString      := FieldByName('L_Truck').AsString;
+        NodeNew('Value').ValueAsString      := FieldByName('L_Value').AsString;
+        NodeNew('MValue').ValueAsString     := FieldByName('L_MValue').AsString;
+        NodeNew('PValue').ValueAsString     := FieldByName('L_PValue').AsString;
+        NodeNew('Price').ValueAsString      := FieldByName('L_Price').AsString;
+        NodeNew('Money').ValueAsString      := FieldByName('L_Money').AsString;
+        NodeNew('OutFact').ValueAsString    := FieldByName('L_OutFact').AsString;
+        NodeNew('HYDan').ValueAsString      := FieldByName('L_HYDan').AsString;
+        NodeNew('StockNo').ValueAsString    := FieldByName('L_StockNo').AsString;
+        NodeNew('StockName').ValueAsString  := FieldByName('L_StockName').AsString;
+        NodeNew('Count').ValueAsString      := FieldByName('nCount').AsString;
+      end;
+
+      Next;
+    end;
+
+    nNode := Root.NodeNew('EXMG');
+    with nNode do
+    begin
+      NodeNew('MsgTxt').ValueAsString     := '业务执行成功';
+      NodeNew('MsgResult').ValueAsString  := sFlag_Yes;
+      NodeNew('MsgCommand').ValueAsString := IntToStr(FIn.FCommand);
+    end;
+
+  end;
+  
+  nData  := FPacker.XMLBuilder.WriteToString;
+  Result := True;
+end;
+
+
 
 initialization
   gBusinessWorkerManager.RegisteWorker(TBusWorkerBusinessWebchat, sPlug_ModuleBus);
