@@ -1,0 +1,53 @@
+
+
+if not exists (Select * from syscolumns where name='R_FMH' and id=object_id('S_StockRecord'))
+begin
+  Alter Table S_StockRecord Add R_FMH varChar(20) 
+end
+
+if not exists (Select * from syscolumns where name='R_RMLZ' and id=object_id('S_StockRecord'))
+begin
+  Alter Table S_StockRecord Add R_RMLZ varChar(20) 
+end
+
+if not exists (Select * from syscolumns where name='R_KF' and id=object_id('S_StockRecord'))
+begin
+  Alter Table S_StockRecord Add R_KF varChar(20) 
+end
+
+if not exists (Select * from syscolumns where name='R_ZMJ' and id=object_id('S_StockRecord'))
+begin
+  Alter Table S_StockRecord Add R_ZMJ varChar(20) 
+end
+
+
+
+if not exists (Select * from syscolumns where name='R_IRa' and id=object_id('S_StockRecord'))
+begin
+  Alter Table S_StockRecord Add R_IRa varChar(20) 
+end
+
+if not exists (Select * from syscolumns where name='R_IY' and id=object_id('S_StockRecord'))
+begin
+  Alter Table S_StockRecord Add R_IY varChar(20) 
+end
+
+if not exists (Select * from syscolumns where name='R_SRXVI' and id=object_id('S_StockRecord'))
+begin
+  Alter Table S_StockRecord Add R_SRXVI varChar(20) 
+end
+
+if not exists (Select * from syscolumns where name='R_IRa' and id=object_id('S_StockParam'))
+begin
+  Alter Table S_StockParam Add P_IRa varChar(20) 
+end
+
+if not exists (Select * from syscolumns where name='R_IY' and id=object_id('S_StockParam'))
+begin
+  Alter Table S_StockParam Add P_IY varChar(20) 
+end
+
+if not exists (Select * from syscolumns where name='R_SRXVI' and id=object_id('S_StockParam'))
+begin
+  Alter Table S_StockParam Add P_SRXVI varChar(20) 
+end

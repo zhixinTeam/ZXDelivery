@@ -1,0 +1,54 @@
+
+-- 化验单打印次数
+if not exists (Select * from syscolumns where name='H_PrintNum' and id=object_id('S_StockHuaYan'))
+begin
+  Alter Table S_StockHuaYan Add H_PrintNum int Not Null Default 0
+end
+
+-- 品种最近一次调价人 调价时间
+if not exists (Select * from syscolumns where name='D_TJDate' and id=object_id('S_ZhiKaDtl'))
+begin
+  Alter Table S_ZhiKaDtl Add D_TJDate Datetime Default Null
+end
+
+if not exists (Select * from syscolumns where name='D_Man' and id=object_id('S_ZhiKaDtl'))
+begin
+  Alter Table S_ZhiKaDtl Add D_Man varChar(20) Default Null
+end
+
+-- 多厂区多生产线
+
+Insert Into Sys_Dict (D_Name, D_Desc, D_Value,D_Memo)
+ Select 'BeltLineItem','生产厂区或生产线','L001','东厂2线'
+Insert Into Sys_Dict (D_Name, D_Desc, D_Value,D_Memo)
+ Select 'BeltLineItem','生产厂区或生产线','L002','西厂1线'
+ 
+if not exists (Select * from syscolumns where name='L_BeltLine' and id=object_id('s_Bill'))
+begin
+  Alter Table s_Bill Add L_BeltLine varChar(50) Default Null
+end
+if not exists (Select * from syscolumns where name='L_BeltLine' and id=object_id('s_BillBak'))
+begin
+  Alter Table s_BillBak Add L_BeltLine varChar(50) Default Null
+end
+
+if not exists (Select * from syscolumns where name='B_BeltLine' and id=object_id('S_Batcode'))
+begin
+  Alter Table S_Batcode Add B_BeltLine varChar(50) Default Null
+end
+
+if not exists (Select * from syscolumns where name='Z_BeltLine' and id=object_id('S_ZTLines'))
+begin
+  Alter Table S_ZTLines Add Z_BeltLine varChar(50) Default Null
+end
+
+if not exists (Select * from syscolumns where name='T_BeltLine' and id=object_id('S_ZTTrucks'))
+begin
+  Alter Table S_ZTTrucks Add T_BeltLine varChar(50) Default Null
+end
+
+-- 批次只显示个人数据
+if not exists (Select * from syscolumns where name='B_Man' and id=object_id('S_Batcode'))
+begin
+  Alter Table S_Batcode Add B_Man Varchar(20) 
+end
