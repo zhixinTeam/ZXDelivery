@@ -353,6 +353,8 @@ const
   sTable_DriverWh     = 'S_DriverWh';                //司机信息维护
   sTable_YYWebBill    = 'S_YYWebBill';                //网上预约订单
 
+  sTable_CusSalePlanByMoney = 'S_CusSalePlanByMoney';      //销售客户限量（金额）
+
   sTable_StockMatch   = 'S_StockMatch';              //品种映射
   sTable_StockParam   = 'S_StockParam';              //品种参数
   sTable_YCLParam     = 'P_StockParam';              //原材料品种参数
@@ -361,6 +363,7 @@ const
   sTable_StockRecord  = 'S_StockRecord';             //检验记录
   sTable_StockHuaYan  = 'S_StockHuaYan';             //开化验单
   sTable_StockBatcode = 'S_Batcode';                 //批次号
+  sTable_BatRecord    = 'S_BatcodeRecord';           //批次记录
 
   sTable_YCLRecord    = 'P_StockRecord';             //原材料检验记录
 
@@ -380,6 +383,12 @@ const
   sTable_OrderDtl     = 'P_OrderDtl';                //采购订单明细
   sTable_OrderDtlBak  = 'P_OrderDtlBak';             //采购订单明细
   sTable_CardOther    = 'S_CardOther';               //临时称重
+  
+  sTable_PurSampleBatch  = 'P_PurSampleBatch';          //采购取样组批记录
+  sTable_PurTestPlan     = 'P_PurTestPlan';             //质检方案
+  sTable_PurTestPlanItems= 'P_PurTestPlanItems';        //质检方案检测项
+  sTable_PurHYDateItems  = 'P_PurHYDateItems';          //质检结果
+
 
   sTable_SaleMValueInfo = 'S_MValueSet';             //散装毛重上限表
 
@@ -425,6 +434,10 @@ const
   sTable_PMaterailControl = 'Sys_PMaterailControl';  //原材料进厂控制表
   sTable_SnapTruck    = 'Sys_SnapTruck';             //车辆抓拍记录
   sTable_TruckCross   = 'Sys_TruckCross';            //车辆通行记录  
+
+
+  sTable_SalePlanStock    = 'X_SalePlanStock';      //销售计划品种限量
+  sTable_SalePlanCustomer = 'X_SalePlanCustomer';   //销售计划品种客户限量
 
 
   {*新建表*}
@@ -689,7 +702,8 @@ const
        'M_Money Decimal(15,5), M_ZID varChar(15), M_Date DateTime,' +
        'M_Man varChar(32), M_Memo varChar(200), M_ID varChar(20), M_RuZhang Char(1),'+
        'M_Price $Float,M_StockName varChar(40),M_PriceStock varchar(500),M_PayType int,'+
-       'M_AcceptNum varchar(100), M_PayingUnit varchar(100),M_PayingMan varchar(100))';
+       'M_AcceptNum varchar(100), M_PayingUnit varchar(100),M_PayingMan varchar(100),'+
+       'M_ZID varchar(50) )';
   {-----------------------------------------------------------------------------
    出入金明细:CustomerInOutMoney
    *.M_ID:记录编号
@@ -704,6 +718,7 @@ const
    *.M_Man:操作人
    *.M_Memo:描述
    *.M_ID:回款编号
+   *.M_ZID   充值纸卡
 
    *.水泥销售入金中
      金额 = 单价 x 数量 + 其它
@@ -848,11 +863,12 @@ const
 
   sSQL_NewZhiKaDtl = 'Create Table $Table(R_ID $Inc, D_ZID varChar(15),' +
        'D_Type Char(1), D_StockNo varChar(20), D_StockName varChar(80),' +
-       'D_Price $Float, D_Value $Float, ' +
-       'D_FLPrice $Float Default 0, D_YunFei $Float Default 0,' +
+       'D_Price $Float, D_Value $Float, D_FLPrice $Float Default 0, D_YunFei $Float Default 0,' +
        'D_PPrice $Float, D_TPrice Char(1) Default ''Y'', '+
        'D_Man varchar(20), D_TJDate DateTime,Z_XHSpot varchar(30),Z_Freight $Float Default 0, '+
-       'Z_Area varchar(30)) ';
+       'Z_Area varchar(30), D_NextPrice Decimal(15, 2) Default 0 Not Null, '+
+       'D_NextYunFei Decimal(15, 2) Default 0 Not Null, D_NewPriceExecuteTime Datetime, '+
+       'D_NewPriceExeced char(1) Default ''N'' Not Null, D_TJMan varchar(20) ) ';
   {-----------------------------------------------------------------------------
    纸卡明细:ZhiKaDtl
    *.R_ID:记录编号
@@ -867,6 +883,11 @@ const
    *.D_TPrice:允许调价
    *.D_Man   :调价人
    *.D_TJDate:调价时间
+   *.D_NextYunFei            预调价单价
+   *.D_NextYunFei            预调价运费
+   *.D_NewPriceExecuteTime   自动调价执行时间
+   *.D_NewPriceExeced        自动调价是否已执行
+   *.D_TJMan                 调价人
   -----------------------------------------------------------------------------}
 
   sSQL_NewPriceRule = 'Create Table $Table(R_ID $Inc, R_StockNo varChar(20), ' +
@@ -959,6 +980,19 @@ const
    *.L_BeltLine : 订单发货生产线或生产厂区
   -----------------------------------------------------------------------------}
 
+  sSQL_CusSalePlanByMoney = 'Create Table $Table(R_ID $Inc, X_CID varChar(50),' +
+                   'X_CName varChar(100), X_Money $Float,' +
+                   'X_STime DateTime, X_ETime DateTime)';
+  {-----------------------------------------------------------------------------
+   交货单: 销售限量（金额）
+   *.R_ID   : 编号
+   *.X_CID  : 客户号
+   *.X_CName: 名称
+   *.X_Money: 日限额
+   *.X_STime: 开始时间
+   *.X_ETime: 结束时间
+  -----------------------------------------------------------------------------}
+
   sSQL_NewBillHK = 'Create Table $Table(R_ID $Inc, H_Bill varChar(20),' +
        'H_ZhiKa varChar(15), H_HKBill varChar(20),' +
        'H_Man varChar(32), H_Date DateTime)';
@@ -1007,10 +1041,12 @@ const
        'O_ProID varChar(32), O_ProName varChar(80), O_ProPY varChar(80),' +
        'O_SaleID varChar(32), O_SaleMan varChar(80), O_SalePY varChar(80),' +
        'O_Type Char(1), O_StockNo varChar(32), O_StockName varChar(80),' +
-       'O_Truck varChar(15), O_OStatus Char(1),' +
-       'O_Man varChar(32), O_Date DateTime,' +
-       'O_KFValue varChar(16), O_KFLS varChar(32),' +
-       'O_DelMan varChar(32), O_DelDate DateTime, O_Memo varChar(500),O_KD varchar(100))';
+       'O_Truck varChar(15), O_OStatus Char(1),O_Man varChar(32), O_Date DateTime,' +
+       'O_KFValue varChar(16), O_KFLS varChar(32),O_DelMan varChar(32), '+
+       'O_DelDate DateTime, O_Memo varChar(500),O_KD varchar(100),'+
+       'O_Ship varchar(32), O_OppositeValue decimal(15, 5), O_YSTDno varchar(32), '+
+       'O_BRecID bigint, O_IfNeiDao char(1), O_Model varchar(15), O_YEAR bigint, '+
+       'O_PrintBD char(1), O_expiretime datetime, O_AutoDoP Char(1))';
   {-----------------------------------------------------------------------------
    采购订单表: Order
    *.R_ID: 编号
@@ -1033,6 +1069,7 @@ const
    *.O_DelMan: 采购单删除人员
    *.O_DelDate: 采购单删除时间
    *.O_Memo: 动作备注
+   *.O_AutoDoP : 验收后自动根据预置皮重做结算（太阳石）
   -----------------------------------------------------------------------------}
 
   sSQL_NewOrderDtl = 'Create Table $Table(R_ID $Inc, D_ID varChar(20),' +
@@ -1051,7 +1088,8 @@ const
        'D_DelMan varChar(32), D_DelDate DateTime, D_YSResult Char(1), ' +
        'D_OutFact DateTime, D_OutMan varChar(32), D_Memo varChar(500),'+
        'D_WlbYTime DateTime, D_WlbYMan varchar(32),D_WlbYS char(1) Default ''N'','+
-       'D_SerialNo varChar(50),D_MValueView $Float,D_KZValueEx  $Float)';
+       'D_SerialNo varChar(50),D_MValueView $Float,D_KZValueEx  $Float,'+
+       'D_BatID varchar(30) )';
   {-----------------------------------------------------------------------------
    采购订单明细表: OrderDetail
    *.R_ID: 编号
@@ -1079,6 +1117,7 @@ const
    *.D_OutFact,D_OutMan: 出厂放行
    *.D_WlbYTime,D_WlbYMan,D_WlbYS:物流部验收时间，人，结果
    *.D_SerialNo:质检编号
+   *.D_BatID   :组批编号
   -----------------------------------------------------------------------------}
 
   sSQL_NewMValueInfo = ' Create Table $Table(R_ID $Inc, S_MValueMax $Float)';
@@ -1120,7 +1159,8 @@ const
        'T_Stock varChar(32), T_PF varChar(32), T_SnapTruck Char(1) Default ''Y'',' +
        'T_NoVerify Char(1), T_Valid Char(1), T_VIPTruck Char(1), '+
        'T_Limited $Float, T_LimitedMin $Float, T_HasGPS Char(1), T_GPSDate DateTime,'+
-       'T_XTNum decimal(15, 5) Default 0,T_IDCard varchar(50))';
+       'T_XTNum decimal(15, 5) Default 0,T_IDCard varchar(50), T_XSZ VarChar(50),'+
+       'T_XCZ VarChar(50),T_DLYSZ VarChar(50) )';
   {-----------------------------------------------------------------------------
    车辆信息:Truck
    *.R_ID: 记录号
@@ -1152,6 +1192,9 @@ const
    *.T_Memo:备注
    *.T_Stock:品种
    *.T_PF:排放标准
+   *.T_XCZ 行车证
+   *.T_XSZ 行驶证
+   *.T_DLYSZ 道路运输证
    有效平均皮重算法:
    T_PValue = (T_PValue * T_PTime + 新皮重) / (T_PTime + 1)
   -----------------------------------------------------------------------------}
@@ -1509,7 +1552,8 @@ const
   sSQL_NewMaterails = 'Create Table $Table(R_ID $Inc, M_ID varChar(32),' +
        'M_Name varChar(80),M_PY varChar(80),M_Unit varChar(20),M_Price $Float,' +
        'M_PrePValue Char(1), M_PrePTime Integer, M_Memo varChar(50), ' +
-       'M_YS2Times char(1), M_HYSYS char(1),M_HasLs char(1),M_IsSale char(1),M_AutoKZ char(1) default ''N'')';
+       'M_YS2Times char(1), M_HYSYS char(1),M_HasLs char(1),M_IsSale char(1),'+
+       'M_AutoKZ char(1) default ''N'')';
   {-----------------------------------------------------------------------------
    物料表: Materails
    *.M_ID: 编号
@@ -1614,6 +1658,7 @@ const
        'R_28Ya4 varChar(20), R_28Ya5 varChar(20), R_28Ya6 varChar(20),' +
        'R_FMH varChar(20), R_ZMJ varChar(20), R_RMLZ varChar(20), R_KF varChar(20),' +
        'R_FMHXSLB varChar(32),R_FMHMD varChar(32),R_FMHZLFS varChar(32),R_FMHHXZS varChar(32),' +
+       'R_7HuoXing varChar(20), R_28HuoXing varChar(20), R_LiuDong varChar(20),' +
        'R_JZSYSZB varChar(32),R_JZSBGMD varChar(32),R_JZSSSDJMD varChar(32),R_JZSKXL varChar(32),' +
        'R_JZSFKS475 varChar(32),R_JZSFKS236 varChar(32),R_JZSFKS118 varChar(32),' +
        'R_JZSFKS060 varChar(32),R_JZSFKS030 varChar(32),R_JZSFKS015 varChar(32),R_JZSXDMS varChar(32),' +
@@ -1671,6 +1716,9 @@ const
    *.R_FMHMD:密度
    *.R_FMHZLFS:质量分数
    *.R_FMHHXZS:活性指数
+   *.R_7HuoXing   7 天活性
+   *.R_28HuoXing  28 天活性
+   *.R_LiuDong    流动度
    *.R_JZSMBZ:MB值
    *.R_JZSSFHL:石粉含量
    *.R_JZSNKHL:泥块含量
@@ -1783,6 +1831,24 @@ const
    *.B_Type: 批次分类
    *.B_Man : 录入人
   -----------------------------------------------------------------------------}
+
+  sSQL_NewBatRecord = 'Create Table $Table(R_ID $Inc, R_Batcode varChar(32),' +
+       'R_Stock varChar(32), R_Name varChar(80),' +
+       'R_Value $Float, R_Used $Float,' +
+       'R_FirstDate DateTime, R_LastDate DateTime, R_KuWei varChar(50) )';
+  {-----------------------------------------------------------------------------
+   批次记录表: BatcodeRecord
+   *.R_ID: 编号
+   *.R_Batcode: 批次号
+   *.R_Stock: 物料号
+   *.R_Name: 物料名
+   *.R_Value: 检测量
+   *.R_Used: 使用量
+   *.R_FirstDate: 启用时间
+   *.R_LastDate : 封存时间
+   *.R_KuWei    : 库位
+  -----------------------------------------------------------------------------}
+  
 
   sSQL_NewK3SalePlan = 'Create Table $Table(R_ID $Inc, S_InterID Integer,' +
        'S_EntryID Integer, S_Truck varChar(15), S_Date DateTime)';
@@ -2015,6 +2081,174 @@ const
    *.C_Memo: 备注
   -----------------------------------------------------------------------------}
 
+  //*********************************************************************************************************************
+  //**********************************************************************************    销售客户日限量     **************
+
+  sSQL_SalePlanStock = 'Create Table $Table(R_ID $Inc, S_StockNo varchar(80) NULL, ' +
+       'S_StockName varchar(80) NULL, S_Value decimal(15, 2) not NULL DEFAULT ((0)), '+
+       'S_ProhibitCreateBill Char(1) Not Null Default ''N'' )';
+  {-----------------------------------------------------------------------------
+   品种销售计划: SalePlanStock
+   *.R_ID:记录编号
+   *.S_StockNo: 品种编号
+   *.S_StockName:品种名称
+   *.S_Value: 品种总供应量
+  -----------------------------------------------------------------------------}
+
+  sSQL_SalePlanCustomer = 'Create Table $Table(R_ID $Inc, C_StockNo varchar(80) NULL, ' +
+       'C_StockName varchar(80) NULL, C_SManNo varchar(80) NULL, C_SManName varchar(80) NULL, '+
+       'C_CusNo varchar(80) NULL, C_CusName varchar(80) NULL, '+
+       'C_MaxValue decimal(15, 2) not Null DEFAULT ((0)), C_Date Datetime Null )';
+  {-----------------------------------------------------------------------------
+   品种、客户销售计划: SalePlanCustomer
+   *.R_ID:记录编号
+   *.C_StockNo: 品种编号
+   *.C_StockName:品种名称
+   *.C_CusNo、C_CusName
+   *.C_MaxValue: 总供应量
+  -----------------------------------------------------------------------------}
+
+
+  //*********************************************************************************************************************
+  //**********************************************************************************    原料质量管理     **************
+  //*********************************************************************************************************************
+  sSQL_PurSampleBatch = 'Create Table $Table(R_ID $Inc, S_BatID varChar(30), ' +
+       'S_StdID varChar(30), ' +
+       'S_ProID   varchar(30) NULL, ' +
+       'S_ProName varchar(100) NULL, ' +
+       'S_MID     varchar(30) NULL, ' +
+       'S_MName   varchar(100) NULL, ' +
+       'S_Value   Decimal(15,3) NULL, ' +
+       'S_Trucks  varchar(50) NULL, ' +
+       'S_Man     varchar(20) NULL, ' +
+       'S_Date    DateTime NULL, ' +
+       'S_Encode  varchar(20) NULL, ' +
+       'S_EncodeMan varchar(20) NULL, ' +
+       'S_EncodeDate DateTime NULL, ' +
+       'S_Test    char(1) NULL, ' +
+       'S_TestMan varchar(20) NULL, ' +
+       'S_TestDate DateTime NULL, ' +
+       'S_verify    char(1) NULL, ' +
+       'S_verifyMan varchar(20) NULL, ' +
+       'S_verifyDate DateTime NULL, ' +
+       'S_Publish    char(1) NULL, ' +
+       'S_PublishMan varchar(20) NULL, ' +
+       'S_PublishDate DateTime NULL ) ';
+  {-----------------------------------------------------------------------------
+   原料取样组批: P_PurSampleBatch
+   *.R_ID          : 记录编号
+   *.S_BatID       ：组批编号
+   *.S_StdID       : 检验标准编号
+   *.S_ProID       ：供应商ID
+   *.S_ProName     ：供应商名称
+   *.S_MID         ：物料ID
+   *.S_MName       ：物料名称
+   *.S_Value       ：总净重
+   *.S_Trucks      ：车辆
+   *.S_Man         ：取样人
+   *.S_Date        : 取样日期
+   *.S_Encode      ：加密内容
+   *.S_EncodeMan   ：加密人
+   *.S_EncodeDate  ：加密日期
+   *.S_verify      ：审核
+   *.S_verifyMan   ：审核人
+   *.S_verifyDate  ：审核日期
+  -----------------------------------------------------------------------------}
+
+  sSQL_PurTestPlan = 'Create Table $Table(R_ID $Inc, ' +
+       'P_Name varchar(100) NULL, ' +
+       'P_Man     varchar(20) NULL, ' +
+       'P_Date    DateTime NULL  ) ';
+  {-----------------------------------------------------------------------------
+   检验标准: PurTestPlan
+   *.R_ID    : 记录编号
+   *.P_Name  ：名称
+   *.P_Man   ：录入人
+   *.P_Date  : 录入日期
+  -----------------------------------------------------------------------------}
+
+  sSQL_PurTestPlanItems = 'Create Table $Table(R_ID $Inc, I_PID varChar(20), ' +
+       'I_ItemsName varchar(100) NULL, I_Where varChar(100), I_Formula varChar(800),'+
+       'I_Man varchar(20) NULL, I_Date DateTime NULL ) ';
+  {-----------------------------------------------------------------------------
+   检验标准检测项: P_PurInspStandard
+   *.R_ID       : 记录编号
+   *.I_PID      ：编号
+   *.I_ItemsName  ：检测项名称
+   *.I_Where    ：条件
+   I_Formula    ：公式
+   *.I_Man      ：录入人
+   *.I_Date     : 录入日期
+  -----------------------------------------------------------------------------}
+
+  sSQL_PurHYDateItems = 'Create Table $Table(R_ID $Inc, H_BatID varChar(30), ' +
+       'H_ItemID int, H_Value varChar(100), '+
+       'H_Result varChar(100)  ) ';
+  {-----------------------------------------------------------------------------
+   质检实测检测项数据: P_PurHYDateItems
+   *.R_ID       : 记录编号
+   *.H_BatID    ：组批编号
+   *.H_ItemID   ：检测项id
+   *.H_Value    ：实测值
+   *.H_Result   ：检测结果
+  -----------------------------------------------------------------------------}
+
+
+
+  sSQL_PurSamplingOrder = 'CREATE TABLE $Table(R_ID $Inc, ' +
+      'P_ID           Varchar(32) NULL, ' +
+      'P_Card         Varchar(32) NULL, ' +
+      'P_Supplier     Varchar(100) NULL,' +
+      'P_Truck        Varchar(32) NULL, ' +
+      'P_Time         Datetime,  ' +
+      'P_Length       int Not Null Default 0, ' +
+      'P_Width        int Not Null Default 0, ' +
+      'P_SideBeams    int Not Null Default 0, ' +
+      'P_Beam1    int Not Null Default 0, ' +
+      'P_Beam2    int Not Null Default 0, ' +
+      'P_Beam3    int Not Null Default 0, ' +
+      'P_Beam4    int Not Null Default 0, ' +
+      'P_Beam5    int Not Null Default 0, ' +
+      'P_Beam6    int Not Null Default 0, ' +
+      'P_PValue   Decimal(15,2) Not Null Default 0, ' +
+      'P_MValue   Decimal(15,2) Not Null Default 0 )';
+  {-----------------------------------------------------------------------------
+   采购取样申请表: Q_PurOrder
+   *.R_ID         : 编号
+   *.P_ID         : 订单单号
+   *.P_Card       : 卡号
+   *.P_Supplier   : 供应商
+
+   *.P_Truck       : 车号
+   *.P_Length      : 长
+   *.P_Width       : 宽
+   *.P_SideBeams   : 边梁总数
+   *.P_Beam1       : 边梁1
+   *.P_Beam2       : 边梁2
+   *.P_Beam3       : 边梁3
+   *.P_Beam4       : 边梁4
+   *.P_Beam5       : 边梁5
+   *.P_Beam6       : 边梁6
+   *.P_PValue      : 皮重
+   *.P_MValue      : 进厂第一次称重毛重
+   *.P_Time        : 日期
+  -----------------------------------------------------------------------------}
+  sSQL_SamplingResults = 'CREATE TABLE $Table(R_ID $Inc, ' +
+      'Q_ID           Varchar(32) NULL, ' +
+      'Q_Card         Varchar(32) NULL, ' +
+      'Q_Truck        Varchar(32) NULL, ' +
+      'Q_Time         Datetime )';
+  {-----------------------------------------------------------------------------
+   采购取样结果: Q_SamplingResults
+   *.R_ID         : 编号
+   *.Q_ID         : 订单单号
+   *.Q_Card       : 卡号
+   *.Q_Truck       : 图2
+   *.Q_Time       : 日期
+  -----------------------------------------------------------------------------}
+
+
+
 
 function CardStatusToStr(const nStatus: string): string;
 //磁卡状态
@@ -2130,6 +2364,9 @@ begin
   AddSysTableItem(sTable_BillBak, sSQL_NewBill);
   AddSysTableItem(sTable_BillHK, sSQL_NewBillHK);
 
+  AddSysTableItem(sTable_CusSalePlanByMoney, sSQL_CusSalePlanByMoney);
+
+
   AddSysTableItem(sTable_Truck, sSQL_NewTruck);
   AddSysTableItem(sTable_YCLquality, sSQL_NewYCLQuality_data);
   AddSysTableItem(sTable_ZTLines, sSQL_NewZTLines);
@@ -2149,6 +2386,7 @@ begin
   AddSysTableItem(sTable_YCLRecord, sSQL_NewYCLStockRecord);
   AddSysTableItem(sTable_StockHuaYan, sSQL_NewStockHuaYan);
   AddSysTableItem(sTable_StockBatcode, sSQL_NewStockBatcode);
+  AddSysTableItem(sTable_BatRecord, sSQL_NewBatRecord);
 
   AddSysTableItem(sTable_Order, sSQL_NewOrder);
   AddSysTableItem(sTable_OrderBak, sSQL_NewOrder);
@@ -2156,6 +2394,13 @@ begin
   AddSysTableItem(sTable_OrderDtlBak, sSQL_NewOrderDtl);
   AddSysTableItem(sTable_OrderBase, sSQL_NewOrderBase);
   AddSysTableItem(sTable_OrderBaseBak, sSQL_NewOrderBase);
+
+  ///原料质量管理
+  AddSysTableItem(sTable_PurSampleBatch,sSQL_PurSampleBatch);
+  AddSysTableItem(sTable_PurTestPlan,sSQL_PurTestPlan);
+  AddSysTableItem(sTable_PurTestPlanItems,sSQL_PurTestPlanItems);
+  AddSysTableItem(sTable_PurHYDateItems,sSQL_PurHYDateItems);
+
 
   AddSysTableItem(sTable_K3_SalePlan, sSQL_NewK3SalePlan);
   AddSysTableItem(sTable_WebOrderMatch,sSQL_NewWebOrderMatch);
@@ -2188,6 +2433,10 @@ begin
 
   AddSysTableItem(sTable_SnapTruck,sSQL_SnapTruck);
   AddSysTableItem(sTable_TruckCross,sSQL_NewTruckCross);
+
+  AddSysTableItem(sTable_SalePlanStock, sSQL_SalePlanStock);
+  AddSysTableItem(sTable_SalePlanCustomer, sSQL_SalePlanCustomer);
+
 end;
 
 //Desc: 清理系统表

@@ -53,44 +53,8 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE XPDS}
+{$DEFINE HXTYS}
 //特定系统
-
-//山西声威
-{$IFDEF SXSW}
-  {$DEFINE COMMON}
-  {$DEFINE HYRFID201}
-  //华益读头
-  {$DEFINE MITTruckProber}
-  //车检由中间件控制
-  {$DEFINE MultiReplay}
-  //计数器应答模式
-  {$DEFINE PrintHYEach}
-  //随车开化验单
-  {$DEFINE PrintHeGeZheng}
-  {.$DEFINE PrintHuaYanDan}
-  //随车开单时打合格证、化验单
-  {$DEFINE BatchInHYOfBill}
-  //批次保存在化验单字段
-  {$DEFINE SanPreHK}
-  //散装开单时预合卡
-  {.$DEFINE AutoPoundInManual}
-  //自动称重人工干预异常
-  {$DEFINE DaiStepWuCha}
-  //包装阶梯误差
-  {.$DEFINE NoShowPriceChange}
-  //不显示价格调整提示
-  {.$DEFINE NoCheckOnPayment}
-  //退款时不校验资金余额
-  {$DEFINE MicroMsg}
-  //使用微信
-  {$DEFINE UseCustomertMoney}
-  //订单量使用客户余额计算
-  {$DEFINE PrintHY}
-  //出厂打印化验单
-  {$DEFINE UseUTFDecode}
-  //使用UTF解包函数
-{$ENDIF}
 
 //新乡春江
 {$IFDEF XXCJ}
@@ -643,6 +607,9 @@
   {$DEFINE ChangeBillWhenPriceAdjust}
   //补单可以修改补单日期
   {$DEFINE BuDanChangeDate} 
+  //补单可以修改补单日期
+  {$DEFINE DaiOnceLade} 
+  //袋装装车道只允许装一次
 {$ENDIF}
 
 //溆浦大盛
@@ -772,8 +739,8 @@
   //使用运费
   {$DEFINE UseWXServiceEx}
   //使用二期微信中间件
-  //补单可以修改补单日期
   {$DEFINE BuDanChangeDate} 
+  //补单可以修改补单日期
 {$ENDIF}
 
 //焦作中晶
@@ -781,7 +748,7 @@
   {$DEFINE COMMON}
   {$DEFINE HYRFID201}
   //华益读头
-  {.$DEFINE TTCEM100}
+  {$DEFINE TTCEM100}
   //自动收卡票箱
   {$DEFINE MITTruckProber}
   //车检由中间件控制
@@ -865,9 +832,9 @@
   //销售不同生产线或厂区批次编号不同
   {$DEFINE ShowSelfData}
   //化验室数据只显示个人数据
-  {.$DEFINE UseOPCMode}
+  {$DEFINE UseOPCMode}
   //计数器OPC通信
-  {$DEFINE ZJModBusTCPJSQ}
+  {.$DEFINE ZJModBusTCPJSQ}
   //ModBusTCP计数器
   {$DEFINE JSQUseMITService}
   //计数器与MIT交互
@@ -875,8 +842,290 @@
   //档案信息唯一
   {$DEFINE XTaskThread}
   //定时任务线程
+  {$DEFINE SanOutTimeFHTruck}
+  //定时扫码放灰超时车辆
   {$DEFINE AllowUnsettlement}
   //发票允许之前周期未结算
   {$DEFINE NotZZCombine}
   //发票不做之前周期结算合并
+  {$DEFINE SRecordNeedDistinguish}
+  //化验批次编号需要每年区分
+  {$DEFINE TruckAutoIn}
+  //磅房自动进厂
+  {$DEFINE ShowHYAVG}
+  //化验室检验记录显示抗折、抗压平均值
+{$ENDIF}
+
+//辉县太阳石
+{$IFDEF HXTYS}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {.$DEFINE PrintHeGeZheng}
+  {$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE UseCustomerFixMoney}
+  //微信订单量限提纸卡做区分
+
+  {$DEFINE PrintHY}
+  //出厂打印化验单
+  {$DEFINE SaveHyDanEvent}
+  //生成推送化验单事件
+  {$DEFINE WxShowCusMoney}
+  //微信端显示客户金额
+  {$DEFINE CastMoney}
+  //对吨位及金额小数位后2位四舍五入
+  {.$DEFINE NoCheckOrderValue}
+  //自助机原材料开卡不检查订单剩余量
+  {$DEFINE ProberShow}
+  //车检发送小屏
+  {.$DEFINE FixLoad}
+  //定制放灰
+  {$DEFINE OrderNoMulCard}
+  //采购禁止一车多单
+  {$DEFINE CapturePictureEx}
+  //磅房抓拍模式扩展
+  {$DEFINE BusinessOnly}
+  //车辆同一时间只能进行1种业务
+  {$DEFINE ForceMemo}
+  //强制输入备注
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE AlwaysUseDate}
+  //报表查询始终使用日期条件
+  {$DEFINE AllowMultiM}
+  //允许多次过重车
+  {.$DEFINE IdentCard}
+  //身份证信息
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
+  {$DEFINE UseFreight}
+  //使用运费
+ {$DEFINE UseWXServiceEx}
+  //使用二期微信中间件
+ {.$DEFINE PoundMAfterAutoOutFact}
+  //销售单过毛重后自动出厂
+ {$DEFINE UseBXFontLED}
+  //出厂票箱小屏
+  {.$DEFINE RemoteSnap}
+  //车牌识别
+  {.$DEFINE PoundOpenBackGate}
+  //过磅异常倒车下磅
+  {$DEFINE HYPrintNum}
+  //化验单打印次数	
+  {.$DEFINE UseJSLogin}
+  //计数器登录模块	
+  {$DEFINE JSQUseMITService}
+  //计数器与MIT交互
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE ScanTimingTask}
+  //定时调价
+  {$DEFINE SRecordNeedDistinguish}
+  //化验批次编号需要每年区分
+  {$DEFINE TruckAutoIn}
+  //磅房自动进厂
+  {$DEFINE BasisWeight}
+  //启用定量装车
+  {.$DEFINE BasisWeightWithPM}
+  //库底计量: 定量装车时过皮毛中
+  {$DEFINE SaveBillStatusFH}
+  //更新车辆为放灰状态
+  {$DEFINE MValueAddPersonWeight}
+  //车辆过毛重时补增毛重
+  {$DEFINE AutoEmptyOutChk}
+  //自动称重空车出
+  {$DEFINE BuDanChangeDate} 
+  //补单可指定日期
+  {$DEFINE BehalfConsignor} 
+  //代发货打印不同厂票据
+  {$DEFINE DaiPrintBillRt} 
+  //袋装取卡打印入厂小票
+  {.$DEFINE StockSerialNo} 
+  //原料根据物料号生成订单编号
+  {$DEFINE PayMentZhika} 
+  //缴款充值纸卡
+  {$DEFINE BatCodeAddYMD} 
+  //喷码添加年月日
+  {$DEFINE ShouJuAddMID} 
+  //缴款关联收据
+  {$DEFINE FixMoneyAddCredit} 
+  //现金限提纸卡可用授信额度
+  {$DEFINE BuDanPValue} 
+  //补单检查皮重
+  {$DEFINE PurYSAfterAutoPoundP} 
+  //验收后对设置预置皮重订单，自动做重量结算
+  {.$DEFINE SalePlanCheck} 
+  //销售限量计划控制
+  {$DEFINE APPUseBluetoothPrint} 
+  //手持程序支持蓝牙打印（xPrinter）
+  {$DEFINE YSAddMemo} 
+  //验收加备注
+  {$DEFINE PurHYNoUseEncode} 
+  //原料质检组批后不用加密
+  {$DEFINE AICMPrint28HYDan} 
+  //自助机打印28天化验单
+{$ENDIF}
+
+//辉县振新
+{$IFDEF HXZX}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {.$DEFINE PrintHeGeZheng}
+  {$DEFINE PrintHuaYanDan}
+  //随车开单时打合格证、化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {.$DEFINE AutoPoundInManual}
+  //自动称重人工干预异常
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {.$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE UseCustomerFixMoney}
+  //微信订单量限提纸卡做区分
+
+  {$DEFINE PrintHY}
+  //出厂打印化验单
+  {$DEFINE SaveHyDanEvent}
+  //生成推送化验单事件
+  {$DEFINE WxShowCusMoney}
+  //微信端显示客户金额
+  {$DEFINE CastMoney}
+  //对吨位及金额小数位后2位四舍五入
+  {.$DEFINE NoCheckOrderValue}
+  //自助机原材料开卡不检查订单剩余量
+  {$DEFINE ProberShow}
+  //车检发送小屏
+  {$DEFINE FixLoad}
+  //定制放灰 转子秤
+  {$DEFINE OrderNoMulCard}
+  //采购禁止一车多单
+  {$DEFINE CapturePictureEx}
+  //磅房抓拍模式扩展
+  {$DEFINE BusinessOnly}
+  //车辆同一时间只能进行1种业务
+  {$DEFINE ForceMemo}
+  //强制输入备注
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE AlwaysUseDate}
+  //报表查询始终使用日期条件
+  {$DEFINE AllowMultiM}
+  //允许多次过重车
+  {.$DEFINE IdentCard}
+  //身份证信息
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
+  {$DEFINE UseFreight}
+  //使用运费
+ {$DEFINE UseWXServiceEx}
+  //使用二期微信中间件
+ {.$DEFINE PoundMAfterAutoOutFact}
+  //销售单过毛重后自动出厂
+ {$DEFINE UseBXFontLED}
+  //出厂票箱小屏
+  {.$DEFINE RemoteSnap}
+  //车牌识别
+  {.$DEFINE PoundOpenBackGate}
+  //过磅异常倒车下磅
+  {$DEFINE HYPrintNum}
+  //化验单打印次数	
+  {.$DEFINE UseJSLogin}
+  //计数器登录模块	
+  {.$DEFINE MoreBeltLine}
+  //销售不同生产线或厂区批次编号不同
+  {.$DEFINE ShowSelfData}
+  //化验室数据只显示个人数据
+  {.$DEFINE UseOPCMode}
+  //计数器OPC通信
+  {.$DEFINE ZJModBusTCPJSQ}
+  //ModBusTCP计数器
+  {$DEFINE JSQUseMITService}
+  //计数器与MIT交互
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE ScanTimingTask}
+  //定时调价
+  {$DEFINE SRecordNeedDistinguish}
+  //化验批次编号需要每年区分
+  {$DEFINE TruckAutoIn}
+  //磅房自动进厂
+  {$DEFINE BasisWeight}
+  //启用定量装车
+  {.$DEFINE BasisWeightWithPM}
+  //库底计量: 定量装车时过皮毛中
+  {$DEFINE SaveBillStatusFH}
+  //更新车辆为放灰状态
+  {$DEFINE MValueAddPersonWeight}
+  //车辆过毛重时补增毛重
+  {$DEFINE AutoEmptyOutChk}
+  //自动称重空车出
+  {$DEFINE BuDanChangeDate} 
+  //补单可指定日期
+  {$DEFINE BehalfConsignor} 
+  //代发货打印不同厂票据
+  {$DEFINE DaiPrintBillRt} 
+  //袋装取卡打印入厂小票
+  {$DEFINE HYRecordNoAutoFill} 
+  //化验数据不自动填充
+  {$DEFINE PayMentZhika} 
+  //缴款充值纸卡
+  {$DEFINE BatCodeAddYMD} 
+  //喷码添加年月日
+  {$DEFINE ShouJuAddMID} 
+  //缴款关联收据
+  {$DEFINE SalePlanCheck} 
+  //销售限量计划控制
+  {$DEFINE YSAddMemo} 
+  //验收加备注
+  {$DEFINE AICMPrint28HYDan} 
+  //自助机打印28天化验单
+  {$DEFINE HasDaiWCNoOpenGate} 
+  //袋装误差不抬杆
+  {$DEFINE JoinShouJuInfo} 
+  //收款关联收据信息
+  {$DEFINE SalePlanCheckByMoney} 
+  //收款关联收据信息
 {$ENDIF}

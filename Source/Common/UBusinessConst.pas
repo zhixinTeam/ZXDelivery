@@ -50,6 +50,9 @@ const
   cBC_SaveBillLSCard          = $0026;   //绑定厂内零售磁卡
   cBC_LoadSalePlan            = $0027;   //读取销售计划
 
+  
+  cBC_GetKJReson              = $0100;   //扣减原因
+
   cBC_SaveOrder               = $0040;
   cBC_DeleteOrder             = $0041;
   cBC_SaveOrderCard           = $0042;
@@ -65,9 +68,9 @@ const
   cBC_MakeSanPreHK            = $0032;   //执行散装预合卡
   cBC_BX6K1ShowText           = $0033;   //袋装刷卡网口小屏显示
   cBC_IsTruckInQueue          = $0034;   //车辆是否在队列
-  
-
   cBC_GetStockBatcodeMoreBeltLine= $0035;   //获取同品种不同生产线、不同厂区批次编号
+  cBC_GetLadePlace            = $0036;   //手持装车点 （堆场）
+
   cBC_GetPoundReaderInfo      = $0050;   //获取磅站读卡器岗位、部门
   cBC_RemoteSnapDisPlay       = $0051;   //车牌识别显示屏
   cBC_GetStockBatcodeByCusType= $0052;   //获取批次编号
@@ -167,6 +170,10 @@ const
   cBC_WX_SaveCustomerWxOrders = $0529;   //微信：新增客户预开单
   cBC_WX_QueryByCar           = $0534;   //微信：查询车辆状态
   cBC_WX_IsCanCreateWXOrder   = $0531;   //微信：下单校验
+  
+  cBC_WX_get_ClientReportInfo = $0535;   //微信：查询客户报表信息
+  cBC_WX_get_QuerySaleDtl     = $0538;   //微信：获取销售报表
+
 type
   PWorkerQueryFieldData = ^TWorkerQueryFieldData;
   TWorkerQueryFieldData = record
@@ -209,6 +216,10 @@ type
     FStatus     : string;          //当前状态
     FNextStatus : string;          //下一状态
 
+    FLadeLine   : string;
+    FLadeLineName : string;        //装车点
+    FAutoDoP    : string;          //验收后根据预置皮重做自动结算
+
     FPData      : TPoundStationData; //称皮
     FMData      : TPoundStationData; //称毛
     FFactory    : string;          //工厂编号
@@ -224,6 +235,7 @@ type
     FHYDan      : string;          //化验单号
     FMemo       : string;          //动作备注
     FLadeTime   : string;          //提货时间
+    FMemo2      : string;          //动作备注
 
     FPrePData   : string;          //预置皮重
     FIsNei      : string;          //厂内倒料
@@ -329,6 +341,10 @@ begin
         FStatus     := Values['Status'];
         FNextStatus := Values['NextStatus'];
 
+        FLadeLine   := Values['LadeLine'];
+        FLadeLineName := Values['LadeLineName'];
+        FAutoDoP    := Values['AutoDoP'];
+        
         FFactory    := Values['Factory'];
         FPModel     := Values['PModel'];
         FPType      := Values['PType'];
@@ -379,6 +395,7 @@ begin
         FPrintHY := Values['PrintHY'] = sFlag_Yes;
         FHYDan   := Values['HYDan'];
         FMemo    := Values['Memo'];
+        FMemo2   := Values['Memo2'];
         FSerialNo:=Values['SerialNo'];
         FLadeTime:= Values['LadeTime'];
         FCusType := Values['CusType'];
@@ -435,6 +452,10 @@ begin
         Values['Status']     := FStatus;
         Values['NextStatus'] := FNextStatus;
 
+        Values['LadeLine']     := FLadeLine;
+        Values['LadeLineName'] := FLadeLineName;
+        Values['AutoDoP']      := FAutoDoP ;
+
         Values['Factory']    := FFactory;
         Values['PModel']     := FPModel;
         Values['PType']      := FPType;
@@ -464,6 +485,7 @@ begin
         Values['KZValue']    := FloatToStr(FKZValue);
         Values['YSValid']    := FYSValid;
         Values['Memo']       := FMemo;
+        Values['Memo2']      := FMemo2;
         Values['HKRecord']   := FHKRecord;
         Values['SerialNo']   := FSerialNo;
 
