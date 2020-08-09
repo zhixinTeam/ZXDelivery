@@ -1,5 +1,6 @@
 unit UWorkThread;
 
+// 非实时性比较高的扫描任务
 interface
 
 uses
@@ -21,6 +22,9 @@ type
     //创建释放
   end;
 
+var
+  XWorker:TWorkThread;
+  
 implementation
 
 uses  USysLoger, ULibFun, USysDB;
@@ -84,11 +88,13 @@ begin
 //          LastDelPicTime:= Now;
 //        end;
 
+        {$IFDEF  SanOutTimeFHTruck}
         if xMinutesBetween(Now, LastTimeA) > 30 then
         begin
           SearchOutTimeSanFHTruck;
           LastTimeA:= Now;
         end;
+        {$ENDIF}
 
       except
         on Ex:Exception do
@@ -140,7 +146,7 @@ begin
   end;
 end;
 
-/// 查询放灰超时车辆
+/// 扫描放灰超时车辆
 procedure TWorkThread.SearchOutTimeSanFHTruck;
 var nStr, nSQL, nEID, nTime:string;
     FErrNum:Integer;
@@ -184,6 +190,7 @@ begin
       gDBConnManager.ReleaseConnection(FDBConn);
   end;
 end;
+
 
 
 end.

@@ -88,6 +88,7 @@ type
     function GetCustomerValidMoney(var nData: string): Boolean;
     //获取客户可用金
     function GetCusMoney(var nCusId: string;var nMoney:Double): Boolean;
+    function GetCustomerFixMoney(nCustomer: string): Double;   // 总限提额度
     function GetZhiKaValidMoney(var nData: string): Boolean;
     //获取纸卡可用金
     function GetZhiKaValidMoneyEx(var nData: string): Boolean;
@@ -802,14 +803,68 @@ begin
 end;
 {$ENDIF}
 
+//Date: 2019-11-23
+//Desc: 获取指定客户的所有限提纸卡金额
+function TWorkerBusinessCommander.GetCustomerFixMoney(nCustomer: string): Double;
+var
+  nStr: string;
+  nUseCredit: Boolean;
+  nVal : Double;
+begin
+  try
+    Result := 0;
+
+    nStr := 'Select Sum( Case When IsNull(Z_FixedMoney, 0)<0 then 0 Else IsNull(Z_FixedMoney, 0) End  ) FixedMoney From %s '+
+            'Where Z_Customer=''%s'' And Z_OnlyMoney=''%s''';
+    nStr := Format(nStr, [sTable_ZhiKa, nCustomer, sFlag_Yes]);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount < 1 then Exit;
+
+      nVal := FieldByName('FixedMoney').AsFloat;
+      //xxxxx
+      if nVal<0 then nVal:= 0;
+      Result := Float2PInt(nVal, cPrecision, False) / cPrecision;
+    end;
+  finally
+    WriteLog('客户 '+nCustomer+' 限提总金额:' + FloatToStr(nVal));
+  end;
+end;
+
 {$IFDEF COMMON}
 //Date: 2014-09-05
 //Desc: 获取指定纸卡的可用金额
 function TWorkerBusinessCommander.GetZhiKaValidMoney(var nData: string): Boolean;
-var nStr, nCusId: string;
+var nStr, nCusId, nZName: string;
     nVal,nMoney,nCredit, nSalesCredit: Double;
+    nTotalFixMoney : Double;
 begin
-  nStr := 'Select ca.*,Z_OnlyMoney,Z_FixedMoney From $ZK,$CA ca ' +
+  {$IFDEF UseCustomerFixMoney}
+  //限提纸卡总金额
+
+  nTotalFixMoney:= 0;
+  nStr := 'Select * From $ZK,$CA ca Where A_CID=Z_Customer And Z_ID=''$ZID'' ';
+  nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa), MI('$CA', sTable_CusAccount),
+                            MI('$ZID', FIn.FData)  ]);
+  //xxxxx
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount < 1 then
+    begin
+      nData := '编号为[ %s ]的纸卡不存在,或客户账户无效.';
+      nData := Format(nData, [FIn.FData]);
+
+      Result := False;
+      Exit;
+    end;
+
+    nCusId := FieldByName('A_CId').AsString;
+  end;
+
+  nTotalFixMoney := GetCustomerFixMoney(nCusId);
+  {$ENDIF}
+
+  nStr := 'Select ca.*,Z_OnlyMoney,Z_FixedMoney,Z_Name From $ZK,$CA ca ' +
           'Where Z_ID=''$ZID'' and A_CID=Z_Customer';
   nStr := MacroValue(nStr, [MI('$ZK', sTable_ZhiKa), MI('$ZID', FIn.FData),
           MI('$CA', sTable_CusAccount)]);
@@ -826,6 +881,7 @@ begin
       Exit;
     end;
 
+    nZName  := FieldByName('Z_Name').AsString;
     FOut.FExtParam := FieldByName('Z_OnlyMoney').AsString;
     nMoney := FieldByName('Z_FixedMoney').AsFloat;
 
@@ -837,7 +893,8 @@ begin
 
     nCredit := FieldByName('A_CreditLimit').AsFloat;
     nCredit := Float2PInt(nCredit, cPrecision, False) / cPrecision;
-    nCusId := fieldbyname('A_CId').AsString;
+    nCusId  := FieldByName('A_CId').AsString;
+
 
     nStr := 'Select MAX(C_End) From %s ' +
             'Where C_CusID=''%s'' and C_Money>=0 and C_Verify=''%s''';
@@ -885,6 +942,20 @@ begin
       if nMoney > nVal then
         nMoney := nVal;
       //enough money
+
+      {$IFDEF FixMoneyAddCredit}
+        if (Pos('现金', nZName) > 0) or
+            (nZName = '现金') then
+        begin
+          nVal:= nVal - nTotalFixMoney;
+          if nVal<0 then nVal:=0;
+
+          if nMoney<0 then nMoney:= 0;
+
+          nMoney := nVal + nMoney;  //nVal 为去除 总限提额度后的资金（含账户剩余额度+授信额度）
+        end;
+      {$ENDIF}
+
     end else nMoney := nVal;
 
     FOut.FData := FloatToStr(nMoney);
@@ -989,7 +1060,7 @@ begin
   with gDBConnManager.WorkerQuery(FDBConn, nStr) do
   if Fields[0].AsInteger < 1 then
   begin
-    nStr := 'Insert Into %s(T_Truck, T_PY) Values(''%s'', ''%s'')';
+    nStr := 'Insert Into %s(T_Truck, T_PY, T_Valid) Values(''%s'', ''%s'', ''Y'')';
     nStr := Format(nStr, [sTable_Truck, FIn.FData, GetPinYinOfStr(FIn.FData)]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
   end;
@@ -1336,7 +1407,7 @@ end;
 //Parm: 物料编号[FIn.FData];预扣减量[FIn.ExtParam];
 //Desc: 按规则生成指定品种的批次编号
 function TWorkerBusinessCommander.GetStockBatcode(var nData: string): Boolean;
-var nStr,nP: string;
+var nStr,nP,nOld,nID,nName: string;
     nNew: Boolean;
     nInt,nInc: Integer;
     nVal,nPer: Double;
@@ -1351,6 +1422,11 @@ var nStr,nP: string;
       begin
         nP := FieldByName('B_Prefix').AsString;
         nStr := FieldByName('B_UseYear').AsString;
+        nOld := FieldByName('B_Batcode').AsString;
+
+        nID := FieldByName('B_Stock').AsString;
+        nName := FieldByName('B_Name').AsString;
+        nVal := FieldByName('B_Value').AsFloat;
 
         if nStr = sFlag_Yes then
         begin
@@ -1376,12 +1452,47 @@ var nStr,nP: string;
         FOut.FBase.FErrDesc := nStr;
       end;
 
-      nStr := MakeSQLByStr([SF('B_Batcode', Result),
+      FDBConn.FConn.BeginTrans;
+      try
+        nStr := MakeSQLByStr([SF('B_Batcode', Result),
                 SF('B_FirstDate', sField_SQLServer_Now, sfVal),
                 SF('B_HasUse', 0, sfVal),
                 SF('B_LastDate', sField_SQLServer_Now, sfVal)
                 ], sTable_StockBatcode, SF('B_Stock', FIn.FData), False);
-      gDBConnManager.WorkerExec(FDBConn, nStr);
+        gDBConnManager.WorkerExec(FDBConn, nStr);
+
+        FOut.FExtParam := DateTime2Str(Now);
+        //批次号启用时间
+
+        {$IFDEF UseBatCodeLog}    // 批次记录
+        nStr := MakeSQLByStr([
+                SF('R_LastDate', sField_SQLServer_Now, sfVal)
+                ], sTable_BatRecord, SF('R_Batcode', nOld), False);
+        gDBConnManager.WorkerExec(FDBConn, nStr); //封存旧编号
+
+        nStr := MakeSQLByStr([SF('R_Batcode', Result),
+                SF('R_Stock', nID),
+                SF('R_Name', nName),
+                SF('R_Value', nVal, sfVal),
+                SF('R_Used', 0, sfVal),
+                SF('R_FirstDate', sField_SQLServer_Now, sfVal)
+                ], sTable_BatRecord, '', True);
+        gDBConnManager.WorkerExec(FDBConn, nStr); //添加新编号
+        {$ENDIF}
+        
+        FDBConn.FConn.CommitTrans;
+      except
+        on nErr: Exception do
+        begin
+          FDBConn.FConn.RollbackTrans;
+          //rollback
+          
+          nData := '创建物料[ %s ]批次号失败,描述: %s';
+          nData := Format(nData, [FIn.FData, nErr.Message]);
+          raise Exception.Create(nData);
+        end;
+      end;
+      
     end;
 begin
   Result := True;
@@ -1397,6 +1508,16 @@ begin
     if nStr <> sFlag_Yes then Exit;
   end  else Exit;
   //默认不使用批次号
+
+  nStr := 'Select * From %s Where D_Name=''%s'' And D_Value=''%s'' ';
+  nStr := Format(nStr, [sTable_SysDict, sFlag_NoBatchAuto, FIn.FData ]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  if RecordCount > 0 then
+  begin
+    Exit;
+  end;
+  //**********  无需批次品种    Dict 设置某个品种不需批次 D_Value=Stock编号
+  //品种是否不使用批次号
 
   Result := False; //Init
   nStr := 'Select *,%s as ServerNow From %s Where B_Stock=''%s''';

@@ -36,7 +36,7 @@ uses
   {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
   UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100, UMgrBXFontCard,
-  UMgrRemoteSnap,
+  UMgrRemoteSnap, UMgrBasisWeight, UScanTimingTask, UWorkThread,
   UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo, UMgrBasisWeight;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
@@ -126,13 +126,19 @@ begin
     end;
 
     {$IFDEF FixLoad}
-    nStr := '定置装车';
+    nStr := '转子秤';
     gSendCardNo.LoadConfig(nCfg + 'PLCController.xml');
     {$ENDIF}
 
     {$IFDEF UseLBCModbus}
     nStr := '定量装车';
     gModBusClient.LoadConfig(nCfg + 'ModBusController.xml');
+    {$ENDIF}
+
+    {$IFDEF BasisWeight}
+    nStr := '库底定量装车业务';
+    gBasisWeightManager := TBasisWeightManager.Create;
+    gBasisWeightManager.LoadConfig(nCfg + 'Tunnels.xml');
     {$ENDIF}
 
     {$IFDEF RemoteSnap}
@@ -193,6 +199,14 @@ begin
 
   {$IFDEF UseLBCModbus}
   gModBusClient := TReaderHelperEx.Create;
+  {$ENDIF}
+
+  {$IFDEF ScanTimingTask}//  定时扫描调价任务
+  gScanTimingTask := TScanTimingTask.Create(False);
+  {$ENDIF}
+  {$IFDEF XTaskThread}
+  XWorker := TWorkThread.Create;
+  // 定时任务
   {$ENDIF}
 end;
 
@@ -257,6 +271,12 @@ begin
     gM100ReaderManager.OnCardProc := WhenTTCE_M100_ReadCard;
     gM100ReaderManager.StartReader;
   end; //三合一读卡器
+  {$ENDIF}
+
+  {$IFDEF BasisWeight}
+  //gBasisWeightManager.TunnelManager.OnUserParseWeight := WhenParsePoundWeight;
+  gBasisWeightManager.OnStatusChange := WhenBasisWeightStatusChange;
+  gBasisWeightManager.StartService;
   {$ENDIF}
 
   {$IFDEF UseBXFontLED}
@@ -355,6 +375,11 @@ begin
   gBXFontCardManager.StopService;
   {$ENDIF}
 
+  {$IFDEF BasisWeight}
+  gBasisWeightManager.StopService;
+  gBasisWeightManager.OnStatusChange := nil;
+  {$ENDIF}
+
   {$IFDEF FixLoad}
   if Assigned(gSendCardNo) then
   gSendCardNo.StopPrinter;
@@ -370,9 +395,21 @@ begin
   if Assigned(gModbusJSManager) then
   gModbusJSManager.StopReader;
   {$ENDIF}
+
   {$IFDEF BasisWeight}
   gBasisWeightManager.StopService;
   gBasisWeightManager.OnStatusChange := nil;
+  {$ENDIF}
+
+  {$IFDEF ScanTimingTask}//  定时扫描调价任务
+  gScanTimingTask.Terminate;
+  gScanTimingTask.Free;
+  {$ENDIF}
+  
+  {$IFDEF XTaskThread}
+  XWorker.Terminate;
+  XWorker.Free;
+  // 定时任务
   {$ENDIF}
 end;
 

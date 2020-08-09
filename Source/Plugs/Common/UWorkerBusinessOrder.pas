@@ -34,6 +34,8 @@ type
     //修改车牌号
     function GetGYOrderValue(var nData: string): Boolean;
     //获取供应可收货量
+    function GetKJReson(var nData: string): Boolean;
+    //扣减原因
 
     function GetPostOrderItems(var nData: string): Boolean;
     //获取岗位采购单
@@ -131,6 +133,9 @@ begin
    cBC_GetPostOrders        : Result := GetPostOrderItems(nData);
    cBC_SavePostOrders       : Result := SavePostOrderItems(nData);
    cBC_GetGYOrderValue      : Result := GetGYOrderValue(nData);
+
+   cBC_GetKJReson           : Result := GetKJReson(nData);
+
    {$IFDEF  DoubleCheck}
    cBC_SaveWlbYS            : Result := SaveWlbYS(nData);
    cBC_GetWlbYsStatus       : Result := GetWlbYsStatus(nData);
@@ -278,6 +283,31 @@ begin
   end;
 end;
 
+//Date: 2020/6/08
+//Parm: 
+//Desc: 获取扣减原因
+function TWorkerBusinessOrders.GetKJReson(var nData: string): Boolean;
+var nSQL, nReson : string;
+begin
+  Result := True;
+  //init
+
+  nSQL := 'Select * From $dict Where D_Name=''$Name''';
+  nSQL := MacroValue(nSQL, [MI('$dict', sTable_SysDict),
+                            MI('$Name', 'KJResonItem') ]);
+
+  with gDBConnManager.WorkerQuery(FDBConn, nSQL) do
+  begin
+    while not Eof do
+    begin
+      nReson:= nReson + ',' + FieldByName('D_Value').AsString;
+
+      Next;
+    end;
+  end;
+  FOut.FData := PackerEncodeStr(nReson);
+end;
+
 //------------------------------------------------------------------------------
 //Date: 2015/9/20
 //Parm: 
@@ -335,7 +365,7 @@ end;
 //Date: 2015-8-5
 //Desc: 保存采购单
 function TWorkerBusinessOrders.SaveOrder(var nData: string): Boolean;
-var nStr: string;
+var nStr, nOId: string;
     nIdx: Integer;
     nVal: Double;
     nOut: TWorkerBusinessCommand;
@@ -371,13 +401,16 @@ begin
     FOut.FData := '';
     //bill list
 
-    FListC.Values['Group'] :=sFlag_BusGroup;
+    FListC.Values['Group']  := sFlag_BusGroup;
     FListC.Values['Object'] := sFlag_Order;
+
     //to get serial no
 
     if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
           FListC.Text, sFlag_Yes, @nOut) then
       raise Exception.Create(nOut.FData);
+
+    nOId:= nOut.FData;
     //xxxxx
 
     FOut.FData := FOut.FData + nOut.FData + ',';
@@ -413,6 +446,10 @@ begin
             SF('O_KD', FListA.Values['KD']),
             {$ENDIF}
 
+            {$IFDEF UseKuangDian}
+            SF('O_AutoDoP', FListA.Values['AutoPoundP']),
+            {$ENDIF}
+
             SF('O_Truck', FListA.Values['Truck']),
             SF('O_Man', FIn.FBase.FFrom.FUser),
             SF('O_Date', sField_SQLServer_Now, sfVal)
@@ -424,6 +461,61 @@ begin
       nStr := 'Update %s Set B_FreezeValue=B_FreezeValue+%.2f ' +
               'Where B_ID = ''%s'' and B_Value>0';
       nStr := Format(nStr, [sTable_OrderBase, nVal,FListA.Values['SQID']]);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+    end;
+
+    if FListA.Values['BuDan'] = sFlag_Yes then //补单
+    begin
+      FListC.Clear;
+      FListC.Values['Group'] := sFlag_BusGroup;
+      FListC.Values['Object'] := sFlag_OrderDtl;
+
+      if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+          FListC.Text, sFlag_Yes, @nOut) then
+        raise Exception.Create(nOut.FData);
+      //xxxxx
+
+      nStr := MakeSQLByStr([
+              SF('D_ID', nOut.FData),
+              SF('D_OID', nOId),
+              SF('D_Truck', FListA.Values['Truck']),
+              SF('D_ProID', FListA.Values['ProviderID']),
+              SF('D_ProName', FListA.Values['ProviderName']),
+              SF('D_ProPY', GetPinYinOfStr(FListA.Values['ProviderName'])),
+
+              SF('D_Type', sFlag_San),
+              SF('D_StockNo', FListA.Values['StockNO']),
+              SF('D_StockName', FListA.Values['StockName']),
+
+              SF('D_Status', sFlag_TruckOut),
+              SF('D_NextStatus', ''),
+              SF('D_InMan', ''),
+              SF('D_InTime', sField_SQLServer_Now, sfVal),
+              SF('D_PMan', FListA.Values['PMan']),
+              SF('D_MMan', FListA.Values['MMan']),
+              SF('D_YMan', ''),
+              SF('D_PValue', FListA.Values['PValue']),
+              SF('D_MValue', FListA.Values['MValue']),
+              SF('D_BDMemo', FListA.Values['BDMemo']),
+              SF('D_KZValue', '0')
+              ], sTable_OrderDtl, '', True);
+
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_Value=D_MValue-D_PValue-D_KZValue, D_InTime= DATEADD(MI, 2, D_InTime), D_YSResult=''Y'' '+
+             'Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_MDate= DATEADD(MI, 3, D_InTime) Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_YTime= DATEADD(MI, 2, D_MDate)  Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_PDate= DATEADD(MI, 3, D_YTime)  Where D_ID='''+nOut.FData+'''';
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate P_OrderDtl Set D_OutFact= DATEADD(MI, 3, D_PDate) Where D_ID='''+nOut.FData+'''';
       gDBConnManager.WorkerExec(FDBConn, nStr);
     end;
 
@@ -673,6 +765,7 @@ begin
 
   nStr := 'Select O_ID,O_Card,O_ProID,O_ProName,O_Type,O_StockNo,' +
           'O_StockName,O_Truck,O_Value ' +
+          {$IFDEF PurYSAfterAutoPoundP} ',O_AutoDoP ' +{$ENDIF}
           'From $OO oo ';
   //xxxxx
 
@@ -709,6 +802,10 @@ begin
 
       Values['O_Card']       := FieldByName('O_Card').AsString;
       Values['O_Value']      := FloatToStr(FieldByName('O_Value').AsFloat);
+
+      {$IFDEF PurYSAfterAutoPoundP}
+      Values['AutoDoP']      := FieldByName('O_AutoDoP').AsString;
+      {$ENDIF}
     end;
   end;
 
@@ -761,6 +858,7 @@ begin
         FStockNo    := Values['O_StockNo'];
         FStockName  := Values['O_StockName'];
         FValue      := StrToFloat(Values['O_Value']);
+        FAutoDoP    := Values['AutoDoP'];
 
         FCard       := Values['O_Card'];
         FStatus     := sFlag_TruckNone;
@@ -790,6 +888,7 @@ begin
         FStockNo    := Values['O_StockNo'];
         FStockName  := Values['O_StockName'];
         FValue      := StrToFloat(Values['O_Value']);
+        FAutoDoP    := Values['AutoDoP'];
 
         FCard       := Values['O_Card'];
         FStatus     := FieldByName('D_Status').AsString;
@@ -845,7 +944,7 @@ end;
 //Parm: 交货单[FIn.FData];岗位[FIn.FExtParam]
 //Desc: 保存指定岗位提交的交货单列表
 function TWorkerBusinessOrders.SavePostOrderItems(var nData: string): Boolean;
-var nVal, nValWC: Double;
+var nVal, nValWC, nPrePValue,nMValue: Double;
     nIdx: Integer;
     nStr,nSQL: string;
     nPound: TLadingBillItems;
@@ -1024,6 +1123,9 @@ begin
               SF('D_KZValue', FKZValue, sfVal),
               SF('D_YSResult', FYSValid),
               SF('D_Unload',   FHKRecord),
+              {$IFDEF YSAddMemo}
+              SF('D_YLineName', FMemo2),
+              {$ENDIF}
               {$IFDEF SendUnLoadPlace}
               SF('D_UPlace', FUPlace),
               SF('D_SPlace', FSPlace),
@@ -1064,6 +1166,74 @@ begin
         FListA.Add(nSQL);
         WriteLog('切换申请单更新采购磅单SQL:' + nSQL);
       end;
+
+      {$IFDEF PurYSAfterAutoPoundP}
+      //对设置自动结算订单做重量结算（太阳石）
+        nStr := 'Select * From %s Where O_ID=''%s'' ';
+        nStr := Format(nStr, [sTable_Order, FZhiKa]);
+        with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+        if RecordCount > 0 then
+        begin
+          First;
+          FAutoDoP:= FieldByName('O_AutoDoP').AsString;
+        end;
+                                  
+      IF FAutoDoP = sFlag_Yes then
+      begin
+        WriteLog(Format('采购单：%s %s 已设置自动结算皮重',[FZhiKa, FID]));
+
+        nStr := 'Select isNull(T_PrePValue, 0) PrePValue From %s Where T_Truck=''%s''';
+        nStr := Format(nStr, [sTable_Truck, FTruck]);
+        with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+        if RecordCount > 0 then
+        begin
+          First;
+          nPrePValue:= FieldByName('PrePValue').AsFloat;
+        end;
+        WriteLog(Format('采购单：%s %s 预置皮重: %g ',[FID, FTruck, nPrePValue]));
+
+        if nPrePValue>0 then
+        begin
+          if FMData.FValue>FPData.FValue then
+            nMValue:= FMData.FValue
+          else nMValue:=FPData.FValue;
+
+          nVal:= nMValue-nPrePValue-FKZValue;
+          if FYSValid='N' then nVal:= 0;
+          //如果拒收，净重为 0
+          
+          nSQL := MakeSQLByStr([
+                  SF('D_Status', sFlag_TruckBFM),
+                  SF('D_NextStatus', sFlag_TruckOut),
+                  SF('D_PValue', nPrePValue, sfVal),
+                  SF('D_PDate', sField_SQLServer_Now, sfVal),
+                  SF('D_PMan', '系统预置'),
+                  SF('D_MValue', nMValue, sfVal),
+                  SF('D_MDate', DateTime2Str(FPData.FDate)),
+                  SF('D_MMan', FPData.FOperator),
+                  SF('D_Value', nVal, sfVal)
+                  ], sTable_OrderDtl, SF('D_ID', FID), False);
+          FListA.Add(nSQL);
+
+          nSQL := 'UPDate Sys_PoundLog Set P_PDate=D_PDate, P_PValue=D_PValue, P_PMan=D_PMan, ' +
+                                          'P_MDate=D_MDate, P_MValue=D_MValue, P_MMan=D_MMan,P_KZValue=D_KZValue ' +
+                  'From P_OrderDtl Where P_Order=D_ID And P_Order='''+FID+'''';
+          FListA.Add(nSQL);
+          //更新称重记录
+
+          nSQL := 'UPDate $OrderBase Set B_SentValue=B_SentValue+$Val, B_FreezeValue=B_FreezeValue-$KDVal ' +
+                  'Where B_ID = (select O_BID From $Order Where O_ID=''$ID'')';
+          nSQL := MacroValue(nSQL, [MI('$OrderBase', sTable_OrderBase),
+                                    MI('$Order', sTable_Order),MI('$ID', FZhiKa),
+                                    MI('$Val', FloatToStr(nVal)),
+                                    MI('$KDVal', FloatToStr(FValue))  ]);
+          FListA.Add(nSQL);
+          //调整已收货量、冻结量；
+
+          WriteLog(Format('采购单：%s %s 系统自动做重量结算',[FID, FTruck]));
+        end;
+      end;
+      {$ENDIF}
     end;
   end else
 
@@ -1076,6 +1246,10 @@ begin
       //where
 
       nVal := FMData.FValue - FPData.FValue -FKZValue;
+
+      if FYSValid='N' then nVal:= 0;
+      //如果拒收，净重为 0
+      
       if FNextStatus = sFlag_TruckBFP then
       begin
         nSQL := MakeSQLByStr([

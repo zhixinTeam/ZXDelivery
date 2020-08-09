@@ -1371,7 +1371,7 @@ begin
           (FLineGroup <> FTruckPool[i].FLineGroup) then Continue;
       end;
       //7.车辆指定通道类型不匹配
-      WriteLog('车辆进队成功:'+FTruckPool[i].FTruck+','+FTruckPool[i].FStockNo+' '+FTruckPool[i].FStockName+
+      WriteLog('车辆进队成功:'+FTruckPool[i].FTruck+','+FTruckPool[i].FStockNo+' '+FTruckPool[i]FStockName+
                ',当前装车线:'+FLineID);
       {$ENDIF}
 
@@ -1441,7 +1441,6 @@ begin
   {$ENDIF}
 
 
-
   if (not nTruck.FInFact) or FParam.FDelayQueue then
   begin
     nStr := 'Update %s Set T_InQueue=%s Where T_Truck=''%s''';
@@ -1449,9 +1448,7 @@ begin
     gDBConnManager.WorkerExec(FDBConn, nStr);
   end;
 
-  {$IFDEF DEBUG}
   WriteLog(Format('车辆[ %s ]进[ %s ]队.', [nTruck.FTruck, nLine.FName]));
-  {$ENDIF}
 end;
 
 //Date: 2012-4-15
@@ -1568,9 +1565,7 @@ begin
           //进队视为进厂
         end else
         begin
-          {$IFDEF DEBUG}
           WriteLog(Format('车辆[ %s ]出队.', [nTruck.FTruck]));
-          {$ENDIF}
 
           TruckOutofQueue(nTruck.FTruck);
           //未进厂车辆超时

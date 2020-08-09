@@ -259,7 +259,7 @@ begin
         FClient.Connect;
       end;
     except
-      WriteLog('连接远程打印服务失败.');
+      WriteLog(Format('连接远程打印服务 %s %d 失败.', [FClient.Host,FClient.Port]));
       FClient.Disconnect;
       Continue;
     end;

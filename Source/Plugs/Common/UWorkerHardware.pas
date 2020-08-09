@@ -485,6 +485,8 @@ begin
         nData := Format('交货单[ %s ]已无效.', [FIn.FData]); Exit;
       end;
 
+      nCode := Trim(Fields[1].AsString);
+
       {$IFDEF UseERP_K3}
       nCode := StringReplace(Fields[0].AsString, 'TH', '', [rfIgnoreCase]);
       nCode := Fields[1].AsString + '-' +
@@ -524,6 +526,11 @@ begin
       System.Delete(nCode, 1, Length('TH170707'));
       nCode := FormatDateTime('YYMMDD',Now) + Fields[1].AsString + nCode;
       //恒宇建材: 年月日 + 水泥批次号 + 流水号
+      {$ENDIF}
+
+      {$IFDEF BatCodeAddYMD}
+      nCode := Fields[1].AsString + FormatDateTime('YYMMDD',Now);
+      //振新:  水泥批次号  + 年月日
       {$ENDIF}
     end;
   end;

@@ -57,7 +57,6 @@ type
     { Private declarations }
     FTrayIcon: TTrayIcon;
     {*状态栏图标*}
-    XWorker:TWorkThread;
   protected
     procedure SetHintText(const nLabel: TcxLabel);
     {*提示信息*}
@@ -208,11 +207,7 @@ begin
   {$IFDEF HYJC}
   sysInFactTimeOut.Visible := True;
   {$ENDIF}
-
-  {$IFDEF XTaskThread}
-  XWorker:= TWorkThread.Create;
-  // 定时任务
-  {$ENDIF}end;
+end;
 
 procedure TfFormMain.FormClose(Sender: TObject; var Action: TCloseAction);
 var nStr: string;
@@ -222,11 +217,6 @@ begin
     ROModule.ActiveServer([stTcp, stHttp], False, nStr);
     //stop server
 
-    {$IFDEF XTaskThread}
-    XWorker.Terminate;
-    XWorker.Free;
-    // 定时任务
-    {$ENDIF} 
     FormSaveConfig;
     //save config
 
