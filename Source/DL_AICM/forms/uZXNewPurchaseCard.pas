@@ -12,7 +12,8 @@ uses
   cxContainer, cxEdit, cxLabel, Menus, StdCtrls, cxButtons, cxGroupBox,
   cxRadioGroup, cxTextEdit, cxCheckBox, ExtCtrls, dxLayoutcxEditAdapters,
   dxLayoutControl, cxDropDownEdit, cxMaskEdit, cxButtonEdit,
-  USysConst, cxListBox, ComCtrls,Contnrs,UFormCtrl;
+  USysConst, cxListBox, ComCtrls,Contnrs,UFormCtrl, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormNewPurchaseCard = class(TForm)
@@ -286,7 +287,7 @@ begin
       for i := 0 to nWebOrderCount-1 do
       begin
         nListC.Text := PackerDecodeStr(nListB[i]);
-      
+
         FWebOrderItems[i].FOrder_id     := nListA.Values['orderId'];
         FWebOrderItems[i].Ftracknumber  := nListA.Values['licensePlate'];
         FWebOrderItems[i].FfactoryName  := nListA.Values['factoryName'];
@@ -393,7 +394,7 @@ begin
     end;
   {$ENDIF}
   FBegin := now;
-  nRepeat := IsRepeatCard(nWebOrderID);
+  nRepeat:= IsRepeatCard(nWebOrderID);
 
   if nRepeat then
   begin

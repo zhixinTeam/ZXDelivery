@@ -84,6 +84,7 @@ object fFormMain: TfFormMain
       Properties.Alignment.Horz = taLeftJustify
       Properties.Alignment.Vert = taVCenter
       Transparent = True
+      OnDblClick = LabelTruckDblClick
       Height = 95
       Width = 800
       AnchorY = 48
@@ -142,6 +143,7 @@ object fFormMain: TfFormMain
     Style.IsFontAssigned = True
     Properties.Alignment.Vert = taVCenter
     Transparent = True
+    OnClick = LabelBillClick
     Height = 95
     Width = 829
     AnchorY = 143

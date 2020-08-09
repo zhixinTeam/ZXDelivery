@@ -161,6 +161,8 @@ function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
 //化验单,合格证
 function PrintBillLoadReport(nBill: string; const nAsk: Boolean): Boolean;
 //打印物资发货单
+function PrintBillRt(nBill: string; const nAsk: Boolean): Boolean;
+//入厂小票
 function PrintBillFYDReport(const nBill: string;  const nAsk: Boolean): Boolean;
 //打印现场发运单
 
@@ -1301,6 +1303,54 @@ begin
   Result := FDR.PrintSuccess;
 end;
 
+function PrintBillRt(nBill: string; const nAsk: Boolean): Boolean;
+var nStr,nCusType: string;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印提货小票?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+
+  nStr := 'Select * From S_Customer Left Join S_Bill On C_ID=L_CusID '+
+          'Where L_ID=''%s''  ';
+  nStr := Format(nStr, [nBill]);
+  //xxxxx
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      nCusType:= FieldByname('C_Type').AsString;
+    end;
+  end;
+  nCusType:= Format(',''%s'' As CusType ', [nCusType]);
+
+  nStr := 'Select * '+nCusType+' From %s Where L_ID = ''%s'' ';
+  nStr := Format(nStr, [sTable_Bill, nBill]);
+  //xxxxx
+
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '编号为[ %s  的记录已无效!!';
+    nStr := Format(nStr, [nBill]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + sReportDir + 'LadingBillRt.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.Report1.PrintOptions.Printer := gSysParam.FCardPrinter;
+  FDR.PrintReport;
+  Result := FDR.PrintSuccess;
+end;
 
 //Date: 2016-8-10
 //Parm: 交货单号;提示
@@ -1657,7 +1707,7 @@ var nStr: string;
 begin
   Result := False;
 
-  nStr :='select D_ID from %s where D_Status <> ''%s'' and D_Truck =''%s'' and D_OutFact=''''';
+  nStr :='select * from %s where D_Status <> ''%s'' And D_Truck =''%s'' ';
   //nStr :='select D_ID from %s where D_Status <> ''%s'' and D_Truck =''%s'' ';
   nStr := Format(nStr, [sTable_OrderDtl, sFlag_TruckOut, nTruck]);
   with FDM.QueryTemp(nStr) do
@@ -1667,18 +1717,18 @@ begin
     Exit;
   end;
 
-//  nStr := ' Select o.O_ID From %s o Where o.O_Truck=''%s'' ' +
-//          ' And not exists(Select R_ID from P_OrderDtl od where o.O_ID=od.D_OID and od.D_Status = ''O'' )';
-//  nStr := Format(nStr, [sTable_Order, nTruck]);
-//
-//  with FDM.QueryTemp(nStr) do
-//  begin
-//    if RecordCount > 0 then
-//    begin
-//      Result := True;
-//      Exit;
-//    end;
-//  end;
+  nStr := ' Select o.O_ID From %s o Where O_CType<>''G'' And o.O_Truck=''%s'' ' +
+          ' And not exists(Select R_ID from P_OrderDtl od where o.O_ID=od.D_OID and od.D_Status = ''O'' )';
+  nStr := Format(nStr, [sTable_Order, nTruck]);
+
+  with FDM.QueryTemp(nStr) do
+  begin
+    if RecordCount > 0 then
+    begin
+      Result := True;
+      Exit;
+    end;
+  end;
 end;
 
 function IsEnoughNum(const nTruck: string;const nNum: Double): Boolean;

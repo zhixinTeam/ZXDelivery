@@ -555,6 +555,10 @@ begin
 
   if Sender = EditTruck then
   begin
+    EditTruck.Text:= Trim(EditTruck.Text);
+    EditTruck.Text:= StringReplace(EditTruck.Text, #13, '', [rfReplaceAll]);
+    EditTruck.Text:= StringReplace(EditTruck.Text, #10, '', [rfReplaceAll]);
+
     Result := Length(EditTruck.Text) > 2;
     if not Result then
     begin
@@ -628,7 +632,7 @@ var
   nNewCardNo:string;
   nidx:Integer;
   i:Integer;
-  nRet: Boolean;
+  nRet, nIsDai: Boolean;
   nOrderItem:stMallOrderItem;
   nCard:string;
 begin
@@ -636,6 +640,11 @@ begin
   nOrderItem  := FWebOrderItems[FWebOrderIndex];
   nWebOrderID := editWebOrderNo.Text;
 
+  if nWebOrderID='' then
+  begin
+    ShowMsg('无效的订单号、请重新扫码',sHint);
+    Close;
+  end;
   if Trim(EditValue.Text) = '' then
   begin
     ShowMsg('获取物料价格异常！请联系管理员',sHint);
@@ -725,10 +734,13 @@ begin
   nTmp := TStringList.Create;
   try
     LoadSysDictItem(sFlag_PrintBill, nStocks);
-    if Pos('散',EditSName.Text) > 0 then
-      nTmp.Values['Type'] := 'S'
+    if Pos('袋',EditSName.Text) > 0 then
+      nTmp.Values['Type'] := 'D'
     else
-      nTmp.Values['Type'] := 'D';
+      nTmp.Values['Type'] := 'S';
+
+    nIsDai:= nTmp.Values['Type']='D';
+
     nTmp.Values['StockNO'] := EditStock.Text;
     nTmp.Values['StockName'] := EditSName.Text;
     nTmp.Values['Price'] := EditPrice.Text;
@@ -781,13 +793,13 @@ begin
   end;
 
   nRet := SaveBillCard(nBillID, nCard);
-
   if not nRet then
   begin
     nMsg := '办理磁卡失败,请重试.';
     ShowMsg(nMsg, sHint);
     Exit;
   end;
+  writelog(Format('TfFormNewCard.SaveBillProxy 已关联磁卡：%s %s ', [nCard, nBillID]));
 
   nRet := gDispenserManager.SendCardOut(gSysParam.FTTCEK720ID, nHint);
   //发卡
@@ -812,6 +824,12 @@ begin
   Result := True;
   if nPrint then
     PrintBillReport(nBillID, True);
+
+  {$IFDEF DaiPrintBillRt}
+  if nIsDai then
+    PrintBillRt(nBillID, False);
+  // 袋装开单小票
+  {$ENDIF}
  //print report
 end;
 
@@ -1100,6 +1118,8 @@ begin
     if btnQuery.CanFocus then
       btnQuery.SetFocus;
     btnQuery.Click;
+
+    WriteLog('扫码查询订单 ' + Trim(editWebOrderNo.Text));
   end;
 end;
 

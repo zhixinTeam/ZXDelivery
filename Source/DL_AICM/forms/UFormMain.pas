@@ -43,6 +43,7 @@ type
     procedure imgPrintClick(Sender: TObject);
     procedure imgCardClick(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure LabelBillClick(Sender: TObject);
   private
     { Private declarations }
     FBuffer: string;
@@ -85,7 +86,7 @@ implementation
 uses
   IniFiles, ULibFun, CPortTypes, USysLoger, USysDB, USmallFunc, UDataModule,
   UFormConn, uZXNewCard,USysConst,UClientWorker,UMITPacker,USysModule,USysBusiness,
-  UDataReport,UFormInputbox,UFormBarcodePrint,uZXNewPurchaseCard,
+  UDataReport,UFormInputbox,UFormBarcodePrint,uZXNewPurchaseCard, USysFun,
   UFormBase,DateUtils;
 
 type
@@ -644,7 +645,7 @@ begin
     Exit;
   end;
 
-  {try
+  try
     FTimeCounter := 10;
     TimerReadCard.Enabled := True;
 
@@ -674,7 +675,7 @@ begin
       ShowMsg('查询失败', sHint);
       WriteLog(E.Message);
     end;
-  end;}
+  end;
 end;
 
 //Desc: 打印标识为nHID的化验单
@@ -740,9 +741,12 @@ begin
   nStr := FDM.SqlTemp.FieldByName('P_Stock').AsString;
   nStr := GetReportFileByStock(nStr);
 
+  {$IFDEF AICMPrint28HYDan}
+  nStr:= StringReplace(nStr, '.fr3', '_28.fr3', [rfReplaceAll]);
+  {$ENDIF}
   if not FDR.LoadReportFile(nStr) then
   begin
-    nStr := '无法正确加载报表文件';
+    nStr := '无法正确加载报表文件：'+nStr;
     ShowMsg(nStr, sHint); Exit;
   end;
 
@@ -814,6 +818,11 @@ begin
     nBat := '0' + nBat;
   nBatCode := nBatCode + nBat;
   Result := nBatCode;
+end;
+
+procedure TfFormMain.LabelBillClick(Sender: TObject);
+begin
+  QueryPorderinfo('001056048087');  
 end;
 
 end.
