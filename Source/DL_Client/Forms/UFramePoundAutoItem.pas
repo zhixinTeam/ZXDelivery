@@ -1206,6 +1206,16 @@ begin
     //车辆称重完毕后，未下磅
   end;
 
+  if (FPoundTunnel.FPort.FMaxValue > 0) and (nValue > FPoundTunnel.FPort.FMaxValue) then //空磅
+  begin
+    FIsWeighting :=False;
+    Timer_SaveFail.Enabled := True;
+
+    nStr := '超出最大称重,过磅失败.';
+    PlayVoice(nStr);
+    WriteSysLog('当前重量' + FloatToStr(nValue) + '地磅设定最大重量' + FloatToStr(FPoundTunnel.FPort.FMaxValue) + '禁止过磅');
+    Exit;
+  end;
   AddSample(nValue);
   if not IsValidSamaple then Exit;
   //样本验证不通过
