@@ -63,12 +63,18 @@ type
     Chk3: TcxCheckBox;
     Chk_UseSnapTruck: TcxCheckBox;
     Chk_StopUse: TcxCheckBox;
+    tmr_ShowDefault: TTimer;
+    btn1: TButton;
+    btn2: TButton;
     procedure Timer1Timer(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
     procedure Timer_ReadCardTimer(Sender: TObject);
     procedure TimerDelayTimer(Sender: TObject);
     procedure Timer_SaveFailTimer(Sender: TObject);
     procedure EditBillKeyPress(Sender: TObject; var Key: Char);
+    procedure tmr_ShowDefaultTimer(Sender: TObject);
+    procedure btn1Click(Sender: TObject);
+    procedure btn2Click(Sender: TObject);
   private
     { Private declarations }
     FCardUsed: string;
@@ -94,7 +100,7 @@ type
     //数据采样
     FVirPoundID: string;
     //虚拟地磅编号
-    FBarrierGate: Boolean;
+    FBarrierGate, FDelayNoOPenDoor: Boolean;
     //是否采用道闸
     FSaveResult: Boolean;
     //保存结果
@@ -252,6 +258,7 @@ begin
     gProberManager.TunnelOC(FPoundTunnel.FID,False);
     {$ENDIF}
   {$ENDIF}
+  tmr_ShowDefault.Enabled:= True;
 end;
 
 //Desc: 设置通道
@@ -278,11 +285,10 @@ begin
     FIsAutoTruckIn:= Values['IsAutoTruckIn']  = sFlag_Yes;
     FVirPoundID  := Values['VirPoundID'];
     FBarrierGate := Values['BarrierGate'] = sFlag_Yes;
+    FDelayNoOPenDoor := Values['DelayNoOPenDoor'] = sFlag_Yes;
     FEmptyPoundIdleLong := StrToInt64Def(Values['EmptyIdleLong'], 60);
     FEmptyPoundIdleShort:= StrToInt64Def(Values['EmptyIdleShort'], 5);
   end;
-  
-  
 end;
 
 //Desc: 重置界面数据
@@ -424,7 +430,7 @@ begin
   if FCardUsed=sFlag_DuanDao then
      nRet := GetDuanDaoItems(nCard, sFlag_TruckBFP, nBills) else
   if FCardUsed=sFlag_Sale then
-     nRet := GetLadingBills(nCard, sFlag_TruckBFP, nBills)   
+     nRet := GetLadingBills(nCard, sFlag_TruckBFP, nBills)
   else nRet := False;
 
   if (not nRet) or (Length(nBills) < 1)
@@ -595,6 +601,22 @@ begin
 //      end;
 //    end;
 //  end;
+  {$ENDIF}
+
+  {$IFDEF BillAutoPoundPUPDatePrice}
+  if FCardUsed=sFlag_Sale then
+  begin
+    if nBills[0].FNextStatus = sFlag_TruckBFP then
+    if not ChkBillPrice(nBills[0]) then
+    begin
+      nStr:= nBills[0].FTruck+' 提货单价已发生变化,资金不足,请重新开单';
+      PlayVoice(nStr);
+      SetUIData(True);
+      nStr:= nBills[0].FID +' '+ nBills[0].FTruck+' 提货单价已发生变化,资金不足,请重新开单';
+      WriteLog(nStr);
+      Exit;
+    end;
+  end;
   {$ENDIF}
 
   EditBill.Properties.Items.Clear;
@@ -1279,10 +1301,6 @@ begin
   end;
 
   FIsSaving := True;
-//  if FCardUsed = sFlag_Provide then
-//       nRet := SavePoundData
-//  else nRet := SavePoundSale;
-
   if FCardUsed = sFlag_Sale then
        nRet := SavePoundSale
   else nRet := SavePoundData;
@@ -1353,6 +1371,7 @@ begin
     Timer_SaveFail.Enabled := True;
   end;
 
+  if FDelayNoOPenDoor then Exit;
   if FBarrierGate and FSaveResult then
   begin
     nOPenDoor:= sFlag_No; //默认打开副道闸
@@ -1393,7 +1412,7 @@ begin
     {$ENDIF} //开红绿灯
 
     Timer2.Enabled := True;  FIsWeighting := False;
-    SetUIData(True);
+    SetUIData(True);                                
   except
     on E: Exception do
     begin
@@ -1634,6 +1653,30 @@ begin
     LEDDisplay(nStr);
     Result := False;
   end;
+end;
+
+procedure TfFrameAutoPoundItem.tmr_ShowDefaultTimer(Sender: TObject);
+var nStr:string;
+begin
+  tmr_ShowDefault.Enabled:= False;
+  nStr:= gSysParam.FPoundLEDTxt;
+  {$IFDEF MITTruckProber}
+    ProberShowTxt(FPoundTunnel.FID, nStr);
+  {$ELSE}
+    gProberManager.ShowTxt(FPoundTunnel.FID, nStr);
+  {$ENDIF}
+end;
+
+procedure TfFrameAutoPoundItem.btn1Click(Sender: TObject);
+begin
+  OpenDoorByReader(FLastReader, 'N');
+  //打开副道闸
+end;
+
+procedure TfFrameAutoPoundItem.btn2Click(Sender: TObject);
+begin
+  OpenDoorByReader(FLastReader, 'Y');
+  //打开主道闸
 end;
 
 end.

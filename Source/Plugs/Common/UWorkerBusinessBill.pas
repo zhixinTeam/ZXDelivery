@@ -78,6 +78,7 @@ type
     //获取岗位交货单
     function SavePostBillItems(var nData: string): Boolean;
     //保存岗位交货单
+    function ZhiKaPriceChk(var nData: string): Boolean;
   public
     constructor Create; override;
     destructor destroy; override;
@@ -189,7 +190,11 @@ begin
    cBC_GetPostBills        : Result := GetPostBillItems(nData);
    cBC_SavePostBills       : Result := SavePostBillItems(nData);
    cBC_MakeSanPreHK        : Result := MakeSanPreHK(nData);
-   else
+
+   cBC_GetLadePlace        : Result := GetLadePlace(nData);
+   cBC_ZhiKaPriceChk       : Result := ZhiKaPriceChk(nData);
+
+  else
     begin
       Result := False;
       nData := '无效的业务代码(Invalid Command).';
@@ -355,6 +360,19 @@ begin
       end;
     end;
     {$ENDIF}
+
+    nStr := 'Select * From %s Where L_OutFact is Null And L_Truck=''%s'' ';
+    nStr := Format(nStr, [sTable_Bill, nTruck]);
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        First;
+        nStr := '车辆[ %s ]在未完成[ %s ]销售单之前禁止开单.';
+        nData := Format(nStr, [nTruck, FieldByName('L_ID').AsString]);
+        Exit;
+      end;
+    end;
     //----------------------------------------------------------------------------
     SetLength(FStockItems, 0);
     SetLength(FMatchItems, 0);
@@ -524,13 +542,13 @@ begin
         Values['Freight'] := FieldByName('Z_Freight').AsString;
       {$ENDIF}  //运费
 
-      Values['Lading'] := FieldByName('Z_Lading').AsString;
+      Values['Lading']  := FieldByName('Z_Lading').AsString;
       Values['Project'] := FieldByName('Z_Project').AsString;
-      Values['Area'] := FieldByName('Z_Area').AsString;
-      Values['CusID'] := FieldByName('Z_Customer').AsString;
+      Values['Area']    := FieldByName('Z_Area').AsString;
+      Values['CusID']   := FieldByName('Z_Customer').AsString;
       Values['CusName'] := FieldByName('C_Name').AsString;
-      Values['CusPY'] := FieldByName('C_PY').AsString;
-      Values['SaleID'] := FieldByName('Z_SaleMan').AsString;
+      Values['CusPY']   := FieldByName('C_PY').AsString;
+      Values['SaleID']  := FieldByName('Z_SaleMan').AsString;
       Values['SaleMan'] := FieldByName('S_Name').AsString;
       Values['ZKMoney'] := FieldByName('Z_OnlyMoney').AsString;
     end;
@@ -596,6 +614,22 @@ begin
     Exit;
   end;
 
+  if GetStockType(FListC.Values['StockNO'])='D' then
+  begin
+    if (StrToInt(FloatToStr( StrToFloat( FListC.Values['Value'] ) * 100)) Mod 5)<>0 then
+    begin
+      nData:= Format('%s 开单为袋装、需输入有效量（需为 0.05 的倍数）.', [ FListA.Values['Truck'] ]);
+      Exit;
+    end;
+  end;
+
+  {$IFDEF SalePlanCheckByMoney}
+  if not SalePlanCheckByMoney(nData) then Exit;
+  {$ENDIF}
+
+  {$IFDEF SalePlanCheck}
+  if not VerifyBeforSaveEx(nData) then Exit;
+  {$ENDIF}
   //----------------------------------------------------------------------------
   FDBConn.FConn.BeginTrans;
   try
@@ -2960,6 +2994,117 @@ begin
   end;
 end;
 
+//上磅称皮重时，重新检查纸卡价格
+function TWorkerBusinessBills.ZhiKaPriceChk(var nData: string): Boolean;
+var nStr, nFixZhiKa,nCID : string;
+    nIdx : Integer;
+    nOut : TWorkerBusinessCommand;
+    nOldMoney,nNewMoney, nVal, nZhiKaMoney:Double;
+    nListB : TStrings;
+begin
+  Result:= False;
+  nFixZhiKa:= 'N';  nListB:= TStringList.Create;
+  FListA.Text := PackerDecodeStr(FIn.FData);
+  try
+    nStr := 'Select L_ID,L_CusID,L_StockNo,L_StockName,L_Price,L_Value,Z_FixedMoney,Z_OnlyMoney,D_Price, '+
+                   'L_Value*L_Price OLDMoney, L_Value*D_Price NewMoney  From %s  '+
+            'Left Join %s On L_ZhiKa=Z_ID  '+
+            'Left Join %s On Z_ID=D_ZID  '+
+            'Where L_ID=''%s'' And D_StockNo=''%s'' ';
+    nStr := Format(nStr, [sTable_Bill, sTable_ZhiKa, sTable_ZhiKaDtl, FListA.Values['LID'], FListA.Values['MID']]);
+    //xxxxx
+    with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+    begin
+      if RecordCount > 0 then
+      begin
+        nFixZhiKa:= FieldByName('Z_OnlyMoney').AsString;
+        nCID     := FieldByName('L_CusID').AsString;
+        //
+        if FieldByName('L_Price').Asfloat=FieldByName('D_Price').Asfloat then
+        begin
+          WriteLog(FListA.Values['LID']+' 开单价与当前价一致、校验通过');
+          Result:= True;
+          Exit;
+        end;
+
+        //*********************************
+        nOldMoney:= FieldByName('OLDMoney').Asfloat;
+        nNewMoney:= FieldByName('NewMoney').Asfloat;
+        nVal := nOldMoney-nNewMoney;
+        if nVal>=0 then
+        begin
+          Result:= True;
+        end
+        else
+        begin
+          if not TWorkerBusinessCommander.CallMe(cBC_GetZhiKaMoney,
+                    FListA.Values['ZhiKa'], '', @nOut) then
+          begin
+            nData := nOut.FData;
+            WriteLog('获取纸卡金额失败：'+nData);
+            Exit;
+          end;
+
+          nZhiKaMoney := StrToFloat(nOut.FData);
+          if FloatRelation(Abs(nVal), nZhiKaMoney, rtGreater) then
+          begin
+            nData := '纸卡[ %s ]上没有足够的金额,详情如下:' + #13#10#13#10 +
+                     '需补款金额: %.2f' + #13#10 +
+                     '或删除订单后，请减小提货量后再开单.';
+            nData := Format(nData, [FListA.Values['ZhiKa'], Abs(nVal)]);
+            Exit;
+          end;
+
+          Result:= True;
+        end;
+
+        if Result then
+        begin
+          //**********************************************************************
+          //**********************************************************************
+          nStr:= 'UPDate S_Bill Set L_Price=%g Where L_ID=''%s''';
+          nStr:= Format(nStr, [FieldByName('D_Price').Asfloat, FListA.Values['LID']]);
+          nListB.Add(nStr);
+          // 更新订单单价
+
+          if nFixZhiKa='Y' then
+          begin
+            nStr:= 'UPDate S_ZhiKa Set Z_FixedMoney=Z_FixedMoney+(%g) Where Z_ID=''%s''';
+            nStr:= Format(nStr, [nVal, FListA.Values['ZhiKa']]);
+            nListB.Add(nStr);
+            // 更新纸卡余额
+          end;
+
+          nStr:= 'UPDate Sys_CustomerAccount Set A_FreezeMoney=A_FreezeMoney-(%g) Where A_CID=''%s''';
+          nStr:= Format(nStr, [nVal, nCID]);
+          nListB.Add(nStr);
+          // 更新冻结款
+        end;
+
+        //----------------------------------------------------------------------------
+        FDBConn.FConn.BeginTrans;
+        try
+          for nIdx:=0 to nListB.Count - 1 do
+            gDBConnManager.WorkerExec(FDBConn, nListB[nIdx]);
+          //xxxxx
+
+          FDBConn.FConn.CommitTrans;
+          Result := True;
+        except
+          FDBConn.FConn.RollbackTrans;
+          raise;
+        end;
+      end
+      else nData:= FListA.Values['LID'] + ' 价格校验失败、请重新开单';
+    end;
+  finally
+    FreeAndNil(nListB);
+  end;
+end;
+
+
 initialization
   gBusinessWorkerManager.RegisteWorker(TWorkerBusinessBills, sPlug_ModuleBus);
+
+  
 end.

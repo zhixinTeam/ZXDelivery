@@ -76,6 +76,7 @@ type
     procedure EditMIDPropertiesChange(Sender: TObject);
     procedure Timer2Timer(Sender: TObject);
     procedure BtnReadCardClick(Sender: TObject);
+    procedure EditMValuePropertiesChange(Sender: TObject);
   private
     { Private declarations }
     FCardUsed: string;
@@ -351,10 +352,21 @@ begin
     SetUIData(True);
     Exit;
   end;
+
+  {$IFDEF BillAutoPoundPUPDatePrice}
+  if FCardUsed=sFlag_Sale then
+  begin
+    if not ChkBillPrice(nBills[0]) then
+    begin
+      PlayVoice(nBills[0].FTruck+' 提货单价已发生变化,资金不足,请重新开单');
+      SetUIData(True);
+      Exit;
+    end;
+  end;
+  {$ENDIF}
   
   nHint := '';
   nInt := 0;
-
   for nIdx:=Low(nBills) to High(nBills) do
   with nBills[nIdx] do
   begin
@@ -1028,6 +1040,18 @@ begin
     Result := False;
   end;
   {$ENDIF}
+end;
+
+procedure TfFrameManualPoundItem.EditMValuePropertiesChange(
+  Sender: TObject);
+var nBill: TLadingBillItem;
+begin
+  nBill.FID     := 'TH20091400001';
+  nBill.FStockNo:= '06002';
+  nBill.FZhiKa  := 'ZK200614111';
+
+  ChkBillPrice(nBill);
+
 end;
 
 end.

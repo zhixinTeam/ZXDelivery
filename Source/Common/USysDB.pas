@@ -883,7 +883,7 @@ const
    *.D_TPrice:允许调价
    *.D_Man   :调价人
    *.D_TJDate:调价时间
-   *.D_NextYunFei            预调价单价
+   *.D_NextPrice            预调价单价
    *.D_NextYunFei            预调价运费
    *.D_NewPriceExecuteTime   自动调价执行时间
    *.D_NewPriceExeced        自动调价是否已执行

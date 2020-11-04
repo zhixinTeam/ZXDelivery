@@ -7,7 +7,7 @@ uses
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   UAndroidFormBase, FMX.Edit, FMX.Controls.Presentation, FMX.Layouts, uTasks,
   UMITPacker,UClientWorker,UBusinessConst,USysBusiness,UMainFrom, FMX.ListBox,
-  Androidapi.JNI.Toast;
+  Androidapi.JNI.Toast, IdBaseComponent, IdComponent, IdTCPConnection, IdTCPClient, IdHTTP;
 
 type
   TFrmShowOrderInfo = class(TfrmFormBase)
@@ -29,6 +29,7 @@ type
     Btn_Refuse: TSpeedButton;
     edtMMo2: TEdit;
     lbl2: TLabel;
+    tmr1: TTimer;
     procedure tmrGetOrderTimer(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormKeyUp(Sender: TObject; var Key: Word; var KeyChar: Char;
@@ -37,8 +38,12 @@ type
     procedure BtnOKClick(Sender: TObject);
     procedure FormActivate(Sender: TObject);
     procedure Btn_RefuseClick(Sender: TObject);
+    procedure tmr1Timer(Sender: TObject);
   private
     { Private declarations }
+    FSendOrderInfo:string;
+    TCPClient : TIdTCPClient;
+  private
     procedure LoadKJResons;
     procedure PrintPurOrder(nOrders: TLadingBillItem);
     procedure MakePurOrderOutFact;
@@ -195,8 +200,14 @@ begin
     if SavePurchaseOrders('X', gOrders) then
     begin
       ShowMessage('验收成功');
+      {$IFDEF YNHT_GL}
+      FSendOrderInfo:= Format('%s,%s,%s', [FID, FTruck, FCusName]);
+      tmr1.Enabled:= True;
+      {$ENDIF}
 
+      {$IFDEF HXTYS}
       if nAutoOutFact then MakePurOrderOutFact;
+      {$ENDIF}
       MainForm.Show;
     end
     else ShowMessage('验收失败、请重试');
@@ -210,8 +221,8 @@ begin
   with gOrders[0] do
   begin
     nAutoOutFact:= FAutoDoP='Y';
-    FMemo    := cbb_Reson.items[cbb_Reson.ItemIndex];           //扣杂备注
-    FMemo2   := Trim(edtMMo2.Text);
+    FMemo   := cbb_Reson.items[cbb_Reson.ItemIndex];           //扣杂备注
+    FMemo2  := Trim(edtMMo2.Text);
     FYSValid:= 'N';     //拒收
 
     if (FMemo='') then
@@ -235,7 +246,11 @@ VAR nResons:string;
     nList: TStringList;
     nIdx:Integer;
 begin
+  {$IFDEF LoadKJReson}
   GetKJReson(nResons);
+  {$ELSE}
+  nResons:= ' , ,' + '杂质过多,水分过多';
+  {$ENDIF}
 
   nList := TStringList.Create;
   nList.CommaText:= nResons;
@@ -245,7 +260,7 @@ begin
   begin
     cbb_Reson.Items.Add( nList[nIdx] );
   end;
-  cbb_Reson.ItemIndex:= 0;
+  cbb_Reson.ItemIndex:= -1;
 end;
 
 procedure TFrmShowOrderInfo.FormActivate(Sender: TObject);
@@ -297,6 +312,42 @@ begin
   Btn_Refuse.Enabled := False;
   tmrGetOrder.Enabled := True;
   SetLength(gOrders, 0);
+end;
+
+procedure TFrmShowOrderInfo.tmr1Timer(Sender: TObject);
+var SStream: TStringStream;
+begin
+  if FSendOrderInfo='' then Exit;
+
+  if Not Assigned(TCPClient) then
+    TCPClient:= TIdTCPClient.Create(nil);
+
+  TCPClient.Host:= '192.168.11.247';
+  TCPClient.Port:= 52386;
+  try
+    try
+      if not TCPClient.Connected then
+        TCPClient.Connect;
+
+      FSendOrderInfo:= Trim(FSendOrderInfo);
+      FSendOrderInfo:= Char($3D) + FSendOrderInfo + Char($3B);
+
+      SStream := TStringStream.Create(FSendOrderInfo, TEncoding.ANSI);    //  TEncoding.UTF8  TEncoding.Default  ASCII
+      //LogHex(nData);
+
+      TCPClient.Socket.Write( SStream, SStream.Size );
+      Toast('已将相关信息上传分析仪服务端');
+    except
+      on Ex: Exception do
+      begin
+        Toast('上传数据到分析仪错误!:'+Ex.Message);
+      end;
+    end;
+  finally
+    TCPClient.Disconnect;
+    FSendOrderInfo:= '';
+    Sleep(200);
+  end;
 end;
 
 procedure TFrmShowOrderInfo.tmrGetOrderTimer(Sender: TObject);

@@ -85,6 +85,7 @@ type
     procedure ListDetailClick(Sender: TObject);
     procedure BtnOKClick(Sender: TObject);
     procedure EditValueFocusChanged(Sender: TObject);
+    procedure EditPriceExit(Sender: TObject);
   private
     { Private declarations }
     FDataItem: TList;
@@ -126,6 +127,10 @@ begin
     Caption := '开发票';
     FParam := nParam;
     FDataItem := nData;
+    
+      {$IFDEF FPAllowEditPrice}
+      EditPrice.Properties.ReadOnly:= False;
+      {$ENDIF}
 
     InitFormData(nData);
     Result := ShowModal = mrOk;
@@ -144,6 +149,10 @@ begin
       FormStyle := fsStayOnTop;
       BtnOK.Visible := False;
       FDataItem := TList.Create;
+
+      {$IFDEF FPAllowEditPrice}
+      EditPrice.Properties.ReadOnly:= False;
+      {$ENDIF}
     end;
   end;
 
@@ -480,6 +489,13 @@ begin
     FDM.ADOConn.RollbackTrans;
     ShowMsg('保存数据失败', sError);
   end;
+end;
+
+procedure TfFormInvoiceK.EditPriceExit(Sender: TObject);
+begin
+//  {$IFDEF FPAllowEditPrice}
+//    PInvoiceDataItem(FDataItem[0])^.FPrice:= StrToFloat(Trim(EditPrice.Text));
+//  {$ENDIF}
 end;
 
 end.

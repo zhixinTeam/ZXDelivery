@@ -10,11 +10,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}
-  UMultiModBus_JS, 
+  {$IFDEF ZJModBusTCPJSQ} UMultiJS_Reply_ZJ, {$ELSE}
+  {$IFDEF MultiReplay}UMultiJS_Reply, {$ELSE}UMultiJS, {$ENDIF}  {$ENDIF}
+  UMultiModBus_JS, UMgrdOPCTunnels, UFormLogin,
   USysConst, UFrameJS, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, Menus, ImgList, dxorgchr, cxSplitter, ComCtrls,
-  ToolWin, ExtCtrls, UMemDataPool;
+  ToolWin, ExtCtrls, UMemDataPool, dxSkinsCore, dxSkinsDefaultPainters,
+  dOPCIntf, dOPCComn, dOPCDA, dOPC;
 
 type
   TfFormMain = class(TForm)
@@ -38,7 +40,8 @@ type
     ToolButton1: TToolButton;
     BtnPsw: TToolButton;
     ToolButton6: TToolButton;
-    BtnSetPsw: TToolButton;
+    BtnSetPsw: TToolButton; 
+    gOPCServer: TdOPCServer;
     procedure wPanelResize(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -90,42 +93,81 @@ type
     //计数变动
     procedure OnSyncChangeEx(const nTunnel: PJSTunnel);
     //计数变动
+    //-----------------------------------------------------------------------
+    procedure LoadPoundItemsOPC;
+    procedure LoadJSPanels;
   public
     { Public declarations }
   end;
 
 var
   fFormMain: TfFormMain;
+  fFormLogin: TfFormLogin;
+  
+
 
 implementation
 
 {$R *.dfm}
 uses
   IniFiles, ULibFun, UMgrChannel, UFormLog, UFormWait, UFormCard,
-  USysLoger, USysMAC, USysDB, UMgrCodePrinter, UFormInputbox, UBase64;
+  USysLoger, USysMAC, USysDB, UMgrCodePrinter, UFormInputbox, UBase64,
+  UFrame, UFrameJSEx;
 
 procedure TfFormMain.FormCreate(Sender: TObject);
 var nInt: Integer;
     nIni: TIniFile;
 begin
   gPath := ExtractFilePath(Application.ExeName);
-  InitGlobalVariant(gPath, gPath + sConfigFile, gPath + sFormConfig);
+  InitGlobalVariant(gPath, gPath + sConfigFile, gPath + sFormConfig {$IFDEF UseJSLogin}, gPath + sDBConfig{$ENDIF});
+
+  {$IFDEF UseJSLogin}
+  Timer1.Enabled := False;
+  fFormLogin:= TfFormLogin.Create(nil);
+  fFormLogin.ShowModal;
+
+  if not fFormLogin.FIsLogin then
+    Application.Terminate;
+
+  //fFormLogin.Close;
+  
+  Timer1.Enabled := True;
+  fFormMain.Caption:= '袋装装车计数器    ' + gSysParam.FUserName + '  已登录';
+  {$ENDIF}
 
   gMemDataManager := TMemDataManager.Create;
-  {$IFNDEF UseModbusJS}
-  gMultiJSManager := TMultiJSManager.Create;
-  //初始化计数器
+  {$IFDEF ZJModBusTCPJSQ}
+  //焦作中晶ModTcp计数器
+  gZJMultiJSManager := TMultiJSManager.Create;
+  BtnCard.Visible:= false;
   {$ELSE}
-  if not Assigned(gModbusJSManager) then
-    gModbusJSManager := TModbusJSManager.Create;
+    {$IFNDEF UseOPC Mode}
+        {$IFNDEF UseModbusJS}
+        gMultiJSManager := TMultiJSManager.Create;
+        //初始化计数器
+        {$ELSE}
+        if not Assigned(gModbusJSManager) then
+          gModbusJSManager := TModbusJSManager.Create;
 
-  gMultiJSManager := TMultiJSManager.Create;
+        gMultiJSManager := TMultiJSManager.Create;
+        {$ENDIF}
+    {$ELSE}
+        // OPCServer 方式与计数器通信
+        if not Assigned(gOPCTunnelManager) then
+        begin
+          gOPCTunnelManager := TOPCTunnelManager.Create;
+          gOPCTunnelManager.LoadConfig('Tunnels.xml');
+        end;
+    {$ENDIF}
   {$ENDIF}
 
   nIni := TIniFile.Create(gPath + sConfigFile);
   try
     gChannelManager := TChannelManager.Create;
     gSysParam.FHardMonURL := nIni.ReadString('Config', 'HardURL', 'xx');
+    {$IFDEF JSQUseMITService}
+    gSysParam.FMITServiceURL := nIni.ReadString('Config', 'MITServiceURL', 'xx');
+    {$ENDIF}
     gSysParam.FIsEncode := nIni.ReadString('Config', 'Encode', '1') = '1';
     nIni.Free;
 
@@ -141,6 +183,7 @@ begin
     //ToolBar1.Visible := True;
     BtnRefresh.Visible := True;
     BtnCard.Visible := True;
+    {$IFDEF ZJModBusTCPJSQ}BtnCard.Visible:= false; {$ENDIF}
     {$ELSE}
     dxChart1.Visible := False;
     {$ENDIF}
@@ -168,6 +211,8 @@ begin
   end;
   {$ENDIF}
 
+  {$IFNDEF ZJModBusTCPJSQ}
+  {$IFNDEF UseOPCMode}
   ShowWaitForm(Self, '停止计数');
   try
     {$IFNDEF UseModbusJS}
@@ -189,6 +234,9 @@ begin
   finally
     CloseWaitForm;
   end;
+  {$ENDIF}
+  {$ELSE}gZJMultiJSManager.StopJS;
+  {$ENDIF}
 
   nIni := TIniFile.Create(gPath + sFormConfig);
   try
@@ -198,6 +246,8 @@ begin
     nIni.Free;
   end;
 
+  {$IFNDEF ZJModBusTCPJSQ}
+  {$IFNDEF UseOPCMode}
   nIni := TIniFile.Create(gPath + sPConfigFile);
   try
     for nIdx := 0 to wPanel.ControlCount -1   do
@@ -217,6 +267,8 @@ begin
     nIni.Free;
   end;
   //记录每道的喷码信息
+  {$ENDIF}
+  {$ENDIF}
 end;
 
 //Desc: 延时初始化
@@ -226,20 +278,25 @@ begin
   InitFormData;
   //初始化
 
-  {$IFDEF USE_MIT}
-    {$IFNDEF UseModbusJS}
-    gMITReader := TMITReader.Create(OnSyncChange);
-    {$ELSE}
-    gMITReaderEx := TMITReaderEx.Create(OnSyncChangeEx);
-    gMITReader   := TMITReader.Create(OnSyncChange);
+  {$IFNDEF ZJModBusTCPJSQ}
+    {$IFDEF UseOPCMode}
+    Exit;
     {$ENDIF}
-  {$ELSE}
-  with gMultiJSManager do
-  begin
-    ChangeSync := OnSyncChange;
-    //QueryEnable := True;
-    StartJS;
-  end;
+    {$IFDEF USE_MIT}
+      {$IFNDEF UseModbusJS}
+      gMITReader := TMITReader.Create(OnSyncChange);
+      {$ELSE}
+      gMITReaderEx := TMITReaderEx.Create(OnSyncChangeEx);
+      gMITReader   := TMITReader.Create(OnSyncChange);
+      {$ENDIF}
+    {$ELSE}
+      with gMultiJSManager do
+      begin
+        ChangeSync := OnSyncChange;
+        //QueryEnable := True;
+        StartJS;
+      end;
+    {$ENDIF}
   {$ENDIF}
 end;
 
@@ -247,23 +304,40 @@ end;
 procedure TfFormMain.InitFormData;
 begin
   gSysLoger := TSysLoger.Create(gPath + 'Logs\');
-  {$IFNDEF UseModbusJS}
-  gMultiJSManager.LoadFile(gPath + 'JSQ.xml');
-  {$ELSE}
-  if FileExists(gPath + 'ModBusTCPJS.xml') then
-    gModbusJSManager.LoadConfig(gPath + 'ModBusTCPJS.xml');
-  {$ENDIF}
 
-  if FileExists(gPath + 'CodePrinter.xml') then
-    gCodePrinterManager.LoadConfig(gPath + 'CodePrinter.xml');
-
-  {$IFNDEF UseModbusJS}
-  LoadTunnelPanels;
-  {$ELSE}
-  LoadTunnelPanelsEx;
-  {$ENDIF}
+  {$IFDEF ZJModBusTCPJSQ}
+  gZJMultiJSManager.LoadFile(gPath + 'JSQ_ModeBusTCP.xml');
+  gZJMultiJSManager.StartJS;
+  LoadJSPanels;
   ResetPanelPosition;
+  {$ELSE}
+  {$IFNDEF UseOPCMode}  // OPC通讯
+    {$IFNDEF UseModbusJS}
+    gMultiJSManager.LoadFile(gPath + 'JSQ.xml');
+    {$ELSE}
+    if FileExists(gPath + 'ModBusTCPJS.xml') then
+      gModbusJSManager.LoadConfig(gPath + 'ModBusTCPJS.xml');
+    {$ENDIF}
 
+    if FileExists(gPath + 'CodePrinter.xml') then
+      gCodePrinterManager.LoadConfig(gPath + 'CodePrinter.xml');
+
+    {$IFNDEF UseModbusJS}
+    LoadTunnelPanels;
+    {$ELSE}
+    LoadTunnelPanelsEx;
+    {$ENDIF}
+    ResetPanelPosition;
+  {$ELSE}
+    try
+      LoadPoundItemsOPC;
+      ResetPanelPosition;
+      gOPCServer.Active := True;
+    except
+    end;
+  {$ENDIF}
+  {$ENDIF}
+  //******
   with gSysParam do
   begin
     FLocalMAC   := MakeActionID_MAC;
@@ -280,6 +354,7 @@ var i,nIdx: Integer;
     nTunnel: PMultiJSTunnel;
     nIni: TIniFile;
 begin
+  {$IFNDEF ZJModBusTCPJSQ}
   for nIdx:=0 to gMultiJSManager.Hosts.Count - 1 do
   begin
     nHost := gMultiJSManager.Hosts[nIdx];
@@ -306,22 +381,37 @@ begin
       end;
     end;
   end;
+  {$ENDIF}
 end;
+
 
 //Desc: 重置计数面板位置
 procedure TfFormMain.ResetPanelPosition;
-var nIdx: Integer;
-    nL,nT,nNum: Integer;
-    nCtrl: TfFrameCounter;
+var nIdx  : Integer;
+    nL,nT,nNum : Integer;
+    {$IFDEF ZJModBusTCPJSQ}
+      nCtrl : TFrameJSEx;
+    {$ELSE}
+      {$IFDEF UseOPCMode} nCtrl : TFrameOPCJS;
+      {$ELSE} nCtrl : TfFrameCounter;
+      {$ENDIF}
+    {$ENDIF}
 begin
   nT := 0;
   nL := 0;
   nNum := 0;
 
   for nIdx:=0 to wPanel.ControlCount - 1 do
-  if wPanel.Controls[nIdx] is TfFrameCounter then
   begin
-    nCtrl := wPanel.Controls[nIdx] as TfFrameCounter;
+    {$IFDEF ZJModBusTCPJSQ}
+      if wPanel.Controls[nIdx] is TFrameJSEx then
+          nCtrl := wPanel.Controls[nIdx] as TFrameJSEx;
+    {$ELSE}
+      if wPanel.Controls[nIdx] is {$IFNDEF UseOPCMode}TfFrameCounter{$ELSE} TFrameOPCJS{$ENDIF} then
+          nCtrl := wPanel.Controls[nIdx] as {$IFNDEF UseOPCMode}TfFrameCounter{$ELSE} TFrameOPCJS{$ENDIF};
+    {$ENDIF}
+
+    if nCtrl=nil then Continue;
 
     if ((nL + nCtrl.Width) > wPanel.ClientWidth) and (nNum > 0) then
     begin
@@ -765,6 +855,7 @@ begin
     nIni.Free;
   end;
 
+  {$IFNDEF ZJModBusTCPJSQ}
   {$IFNDEF UseModbusJS}
   for nIdx:=0 to gMultiJSManager.Hosts.Count - 1 do
   begin
@@ -787,6 +878,7 @@ begin
     nPannel.BtnClear.Enabled := True;
     nPannel.BtnPause.Enabled := True;
   end;
+  {$ENDIF}
   {$ENDIF}
 
   BtnSetPsw.Enabled := True;
@@ -844,5 +936,98 @@ begin
     nPanel.LabelHint.Caption := IntToStr(nTunnel.FHasDone);
   end;
 end;
+//----------------------------------------------------OPC
+
+procedure TfFormMain.LoadPoundItemsOPC;
+var nIdx: Integer;
+    nT: PPTOPCItem;
+begin
+  with gOPCTunnelManager do
+  begin
+    for nIdx:= 0 to Tunnels.Count-1 do
+    begin
+      gOPCServer.OPCGroups.Add('Group' + IntToStr(nIdx));
+    end;
+    
+    for nIdx:= 0 to Tunnels.Count-1 do
+    begin
+      if nIdx > 5 then
+      begin
+        ShowMsg('超出最大通道', '警告');
+        Exit;
+      end;
+      nT := Tunnels[nIdx];
+      //tunnel
+
+      if nT.FEnable <> 'Y' then
+      begin
+        Continue;
+      end;
+
+      with TFrameOPCJS.Create(Self) do
+      begin
+        Name := 'fFrameOPCCtrl' + IntToStr(nIdx);
+        Parent := wPanel;
+
+        FrameId := nIdx;
+
+        GroupBox1.Caption    := nT.FName;
+        lblTunnelName.Caption:= nT.FName;
+        OPCTunnel := nT;
+
+        if gOPCServer.ServerName = '' then
+          gOPCServer.ServerName := nT.FServer;
+
+        if gOPCServer.ComputerName = '' then
+          gOPCServer.ComputerName := nT.FComputer;
+
+        with gOPCServer.OPCGroups[nIdx].OPCItems do
+        begin
+          AddItem(nT.FValueSet);
+        end;
+        FSysLoger:= gSysLoger;
+        btnSendDai.Enabled:= False;
+      end;
+    end;
+  end;
+end;
+
+
+//Desc: 载入计数面板
+procedure TfFormMain.LoadJSPanels;
+var nIdx, nIdxA: Integer;
+    nHost: PMultiJSHost;
+    nTunnel: PMultiJSTunnel;
+    nIni: TIniFile;
+begin
+  {$IFDEF ZJModBusTCPJSQ}
+  for nIdx:=0 to gZJMultiJSManager.Hosts.Count - 1 do
+  begin
+    nHost := gZJMultiJSManager.Hosts[nIdx];
+    for nIdxA:= 0 to nHost.FTunnel.Count - 1 do
+    begin
+      nTunnel := nHost.FTunnel[nIdxA];
+      //tunnel
+
+      with TFrameJSEx.Create(Self) do
+      begin
+        Name := 'fFrameZJJSCtrl' + IntToStr(nIdxA);
+        Parent := wPanel;
+
+        FrameId := nIdx;
+        lbl_DaiNum.Caption   := '';
+        GroupBox1.Caption    := nTunnel.FName;
+        lblTunnelName.Caption:= nTunnel.FName;
+        FTunnel.FID   := nTunnel.FID;
+        FTunnel.FName := nTunnel.FName;
+
+        FSysLoger:= gSysLoger;
+        btnSendDai.Enabled:= False;
+      end;
+    end;
+  end;
+  {$ENDIF}
+end;
+
 
 end.

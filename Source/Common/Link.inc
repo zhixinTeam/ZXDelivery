@@ -53,7 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
-{$DEFINE HXTYS}
+{$DEFINE JZZJ}
 //特定系统
 
 //新乡春江
@@ -241,6 +241,8 @@
 {$IFDEF YNHT_GL}
   {$DEFINE YNHT}
   //标准业务
+  {$DEFINE UseMHICCard}
+  //制卡时写明华IC卡(骨料用) 
   {$DEFINE UseMHICCard}
   //制卡时写明华IC卡(骨料用) 
 {$ENDIF}
@@ -854,6 +856,8 @@
   //磅房自动进厂
   {$DEFINE ShowHYAVG}
   //化验室检验记录显示抗折、抗压平均值
+  {$DEFINE FPAllowEditPrice}
+  //开发票允许调整单价
 {$ENDIF}
 
 //辉县太阳石
@@ -973,6 +977,8 @@
   //喷码添加年月日
   {$DEFINE ShouJuAddMID} 
   //缴款关联收据
+  {$DEFINE JoinShouJuInfo} 
+  //收款关联收据信息
   {$DEFINE FixMoneyAddCredit} 
   //现金限提纸卡可用授信额度
   {$DEFINE BuDanPValue} 
@@ -989,6 +995,8 @@
   //原料质检组批后不用加密
   {$DEFINE AICMPrint28HYDan} 
   //自助机打印28天化验单
+  {$DEFINE BillAutoPoundPUPDatePrice} 
+  //销售过皮重，检查更新订单价格
 {$ENDIF}
 
 //辉县振新

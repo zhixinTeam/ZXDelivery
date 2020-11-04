@@ -14,7 +14,8 @@ uses
   UMultiModBus_JS, 
   UMgrCodePrinter, ULibFun, USysConst, UFormWait, UFormInputbox,
   cxLookAndFeels, cxLookAndFeelPainters, cxContainer, cxEdit, StdCtrls,
-  ExtCtrls, cxLabel, cxGraphics, cxControls;
+  ExtCtrls, cxLabel, cxGraphics, cxControls, dxSkinsCore,
+  dxSkinsDefaultPainters;
 
 type
   TfFrameCounter = class(TFrame)

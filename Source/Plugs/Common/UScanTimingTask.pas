@@ -13,6 +13,8 @@ type
   private
     FDBConn, FDBConnOPer: PDBWorker;
     //数据对象
+    FListA,FListB,FListC: TStrings;
+    //list
   protected
     procedure GetConn;
     procedure ReleaseConn;
@@ -38,10 +40,17 @@ constructor TScanTimingTask.Create(nSuspended:Boolean);
 begin
   inherited Create(nSuspended);
   FreeOnTerminate := True;
+  //********
+  FListA := TStringList.Create;
+  FListB := TStringList.Create;
+  FListC := TStringList.Create;
 end;
 
 destructor TScanTimingTask.Destroy;
 begin
+  FreeAndNil(FListA);
+  FreeAndNil(FListB);
+  FreeAndNil(FListC);
   inherited;
 end;
 
@@ -68,8 +77,9 @@ procedure TScanTimingTask.Execute;
 var nErr : Integer;
     nStr, nLog, nID, nMan, nZK, nMName, nPrice,
     nYunFei, nNewPrice, nNewYunFei: string;
-    nInit: Int64;
-    nTemWK: PDBWorker;
+    nInit  : Int64;
+    nIdx   : Integer;
+    nTemWK : PDBWorker;
 begin
   try
     WriteLog('定时任务扫描线程已启动');
@@ -99,12 +109,10 @@ begin
           nInit := GetTickCount;
 
           First;
-
+          FListA.Clear;
           while not Eof do
           begin
-            FDBConn.FConn.BeginTrans;
 
-            try
               nID      := FieldByName('R_ID').AsString;
               nZK      := FieldByName('D_ZID').AsString;
               nMName   := FieldByName('D_StockName').AsString;
@@ -115,13 +123,13 @@ begin
               nMan     := FieldByName('D_TJMan').AsString;
               //******************************************************************
 
-              nStr:= 'UPDate %s Set D_PPrice=D_Price Where R_ID=%s';
+              nStr:= 'UPDate %s Set D_PPrice=D_Price Where D_TPrice<>''N'' And R_ID=%s';
               nStr:= Format(nStr, [sTable_ZhiKaDtl, nID]);
-              gDBConnManager.WorkerExec(FDBConnOPer, nStr);
+              FListA.Add(nStr);
 
-              nStr:= 'UPDate %s Set D_Price=D_NextPrice, D_YunFei=D_NextYunFei,D_NewPriceExeced=''Y''  Where R_ID=%s';
+              nStr:= 'UPDate %s Set D_Price=D_NextPrice, D_YunFei=D_NextYunFei,D_NewPriceExeced=''Y''  Where D_TPrice<>''N'' And R_ID=%s';
               nStr:= Format(nStr, [sTable_ZhiKaDtl, nID]);
-              gDBConnManager.WorkerExec(FDBConnOPer, nStr);
+              FListA.Add(nStr);
               //******************************************************************
 
               nLog := '定时调价 %s 品种[ %s ]、销售单价调整[ %s -> %s ] 运费单价调整[ %s -> %s ]';
@@ -131,19 +139,26 @@ begin
                       'Values($D,''$M'',''$G'',''$I'',''$K'',''$E'')';
               nStr := MacroValue(nStr, [MI('$T', sTable_SysLog), MI('$D', 'GetDate()'),MI('$G', sFlag_ZhiKaItem),
                                         MI('$M', nMan),MI('$I', nZK),MI('$E', nLog), MI('$K', '')]);
-              gDBConnManager.WorkerExec(FDBConnOPer, nStr);
-
-              FDBConn.FConn.CommitTrans;
-            except
-              if FDBConn.FConn.InTransaction then
-                FDBConn.FConn.RollbackTrans;
-            end ;
-            WriteLog('第 '+IntToStr(RecNo)+' 条数据处理完成！纸卡:'+nZK);
+              FListA.Add(nStr);
 
             Next;
           end;
         end;
-        WriteLog('处理完成耗时: ' + IntToStr(GetTickCount - nInit) + 'ms');
+
+        FDBConn.FConn.BeginTrans;
+        try
+          for nIdx:=0 to FListA.Count - 1 do
+          begin
+            gDBConnManager.WorkerExec(FDBConnOPer, FListA[nIdx]);
+            WriteLog('第 '+IntToStr(nIdx)+' 条数据处理完成！纸卡:'+nZK);
+          end;
+
+          FDBConn.FConn.CommitTrans;
+          WriteLog('处理完成耗时: ' + IntToStr(GetTickCount - nInit) + 'ms');
+        except
+          if FDBConn.FConn.InTransaction then
+            FDBConn.FConn.RollbackTrans;
+        end ;
       finally
         Sleep(1000);
       end;

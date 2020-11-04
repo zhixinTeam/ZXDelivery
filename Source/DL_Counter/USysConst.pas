@@ -26,6 +26,7 @@ type
     FLocalMAC   : string;                            //本机MAC
     FLocalName  : string;                            //本机名称
     FHardMonURL : string;                            //硬件守护
+    FMITServiceURL : string;                         //业务中间件服务
     FWechatURL  : string;                            //微信业务
 
     FIsEncode   : Boolean;                           //是否需要密码启动
@@ -112,6 +113,11 @@ function StopJS(const nTunnel: string): Boolean;
 function PrintBillCode(const nTunnel,nBill: string; var nHint: string): Boolean;
 //向喷码机发送喷码请求
 
+
+function TruckInQueue(const nTruck, nMType, nTunnel: string): Boolean;
+function ShowTruckLading(const nTruck, nMName, nTunnel: string): Boolean;
+function GetLadingBills(const nCard,nPost: string; var nBills: TLadingBillItems): Boolean;
+function SaveLadingBills(const nPost: string; const nData: TLadingBillItems): Boolean;
 //------------------------------------------------------------------------------
 resourceString
   sHint               = '提示';                      //对话框标题
@@ -123,12 +129,16 @@ resourceString
   sTime               = '时间:【%s】';               //任务栏时间
   sUser               = '用户:【%s】';               //任务栏用户
 
+  sLogDir             = 'Logs\';                     //日志目录
+  sLogExt             = '.log';                      //日志扩展名
+  
   sConfigFile         = 'Config.Ini';                //主配置文件
   sConfigSec          = 'Config';                    //主配置小节
   sVerifyCode         = ';Verify:';                  //校验码标记
   sFormConfig         = 'FormInfo.ini';              //窗体配置
   sPConfigFile        = 'PConfig.Ini';               //面板加载控制
-
+  sDBConfig           = 'DBConn.ini';                //数据连接
+  
   sInvalidConfig      = '配置文件无效或已经损坏';    //配置文件无效
   sCloseQuery         = '确定要退出程序吗?';         //主窗口退出
 
@@ -437,6 +447,117 @@ begin
   finally
     gBusinessWorkerManager.RelaseWorker(nWorker);
   end;
+end;
+
+//Date: 2012-4-30
+//Parm: 交货单;袋数
+//Desc: 显示订单车辆装车信息
+function ShowTruckLading(const nTruck, nMName, nTunnel: string): Boolean;
+var nList: TStrings;
+    nIn: TWorkerBusinessCommand;
+    nOut: TWorkerBusinessCommand;
+    nWorker: TBusinessWorkerBase;
+begin
+  nList := nil;
+  nWorker := nil;
+  try
+    nList := TStringList.Create;
+    nList.Values['Truck'] := nTruck;
+    nList.Values['MName'] := nMName;
+    nList.Values['Tunnel']:= nTunnel;
+
+    nIn.FCommand := cBC_BX6K1ShowText;
+    nIn.FBase.FParam := sParam_NoHintOnError;
+    nIn.FData := PackerEncodeStr(nList.Text);
+
+    nWorker := gBusinessWorkerManager.LockWorker(sCLI_HardwareCommand);
+    Result := nWorker.WorkActive(@nIn, @nOut);
+  finally
+    nList.Free;
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
+//Date: 2012-4-30
+//Parm: 交货单;袋数
+//Desc: 显示订单车辆装车信息
+function TruckInQueue(const nTruck, nMType, nTunnel: string): Boolean;
+var nList: TStrings;
+    nIn: TWorkerBusinessCommand;
+    nOut: TWorkerBusinessCommand;
+    nWorker: TBusinessWorkerBase;
+begin
+  nList := nil;
+  nWorker := nil;
+  try
+    nList := TStringList.Create;
+    nList.Values['Truck']  := nTruck;
+    nList.Values['Tunnel'] := nTunnel;
+    nList.Values['MType']  := nMType;
+
+    nIn.FCommand := cBC_IsTruckInQueue;
+    nIn.FBase.FParam := sParam_NoHintOnError;
+    nIn.FData := PackerEncodeStr(nList.Text);
+
+    nWorker := gBusinessWorkerManager.LockWorker(sCLI_HardwareCommand);
+    Result := nWorker.WorkActive(@nIn, @nOut);
+  finally
+    nList.Free;
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
+//Date: 2019-11-07
+//Parm: 通道号;交货单;提示
+//Desc: 拉取 nCard 订单信息
+function CallBusinessSaleBill(const nCmd: Integer; const nData,nExt: string;
+  const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
+var nIn: TWorkerBusinessCommand;
+    nWorker: TBusinessWorkerBase;
+begin
+  nWorker := nil;
+  try
+    nIn.FCommand := nCmd;
+    nIn.FData := nData;
+    nIn.FExtParam := nExt;
+
+    if nWarn then
+         nIn.FBase.FParam := ''
+    else nIn.FBase.FParam := sParam_NoHintOnError;
+
+    nWorker := gBusinessWorkerManager.LockWorker(sCLI_BusinessSaleBill);
+    //get worker
+    Result := nWorker.WorkActive(@nIn, nOut);
+
+    //xxxxx
+  finally
+    gBusinessWorkerManager.RelaseWorker(nWorker);
+  end;
+end;
+
+//Date: 2019-11-07
+//Parm: 磁卡号;岗位;交货单列表
+//Desc: 获取nPost岗位上磁卡为nCard的交货单列表
+function GetLadingBills(const nCard,nPost: string; var nBills: TLadingBillItems): Boolean;
+var nOut: TWorkerBusinessCommand;
+begin
+  SetLength(nBills, 0);
+  Result := CallBusinessSaleBill(cBC_GetPostBills, nCard, nPost, @nOut);
+  if Result then
+    AnalyseBillItems(nOut.FData, nBills);
+  //xxxxx
+end;
+
+//Date: 2014-09-18
+//Parm: 岗位;交货单列表;磅站通道
+//Desc: 保存nPost岗位上的交货单数据
+function SaveLadingBills(const nPost: string; const nData: TLadingBillItems): Boolean;
+var nStr: string;
+    nOut: TWorkerBusinessCommand;
+begin
+  nStr := CombineBillItmes(nData);
+  Result := CallBusinessSaleBill(cBC_SavePostBills, nStr, nPost, @nOut);
+  if (not Result) or (nOut.FData = '') then Exit;
 end;
 
 { TMITReaderEx }

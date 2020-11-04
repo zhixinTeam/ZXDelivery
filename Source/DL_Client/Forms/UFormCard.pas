@@ -11,7 +11,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   CPort, CPortTypes, UFormNormal, UFormBase, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxLabel, cxTextEdit,
-  dxLayoutControl, StdCtrls, cxGraphics, ExtCtrls;
+  dxLayoutControl, StdCtrls, cxGraphics, ExtCtrls, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormCard = class(TfFormNormal)
@@ -124,69 +125,72 @@ procedure TfFormCard.ActionComPort(const nStop: Boolean);
 var nInt: Integer;
     nIni: TIniFile;
 begin
-  {$IFDEF UseMHICCard}
-  if not Assigned(gMHReaderManager) then
-  begin
-    gMHReaderManager := TMHReaderManager.Create;
-    gMHReaderManager.LoadConfig(gPath + 'Readers_35LT.XML');
-  end;
-
-  if not nStop then
-  begin
-    EditCard.Text := 'Çë½«IC¿¨·ÅÖÁ¶Á¿¨Æ÷';
-  end;
-
-  Timer1.Enabled := not nStop;
-  Exit;
-  {$ENDIF}
-
-  if nStop then
-  begin
-    ComPort1.Close;
-    Exit;
-  end;
-
-  with ComPort1 do
-  begin
-    with Timeouts do
+  try
+    {$IFDEF UseMHICCard}
+    if not Assigned(gMHReaderManager) then
     begin
-      ReadTotalConstant := 100;
-      ReadTotalMultiplier := 10;
+      gMHReaderManager := TMHReaderManager.Create;
+      gMHReaderManager.LoadConfig(gPath + 'Readers_35LT.XML');
     end;
 
-    nIni := TIniFile.Create(gPath + 'Reader.Ini');
-    with gReaderItem do
-    try
-      nInt := nIni.ReadInteger('Param', 'Type', 1);
-      FType := TReaderType(nInt - 1);
-
-      FPort := nIni.ReadString('Param', 'Port', '');
-      FBaud := nIni.ReadString('Param', 'Rate', '4800');
-      FDataBit := nIni.ReadInteger('Param', 'DataBit', 8);
-      FStopBit := nIni.ReadInteger('Param', 'StopBit', 0);
-      FCheckMode := nIni.ReadInteger('Param', 'CheckMode', 0);
-
-      Port := FPort;
-      BaudRate := StrToBaudRate(FBaud);
-
-      case FDataBit of
-       5: DataBits := dbFive;
-       6: DataBits := dbSix;
-       7: DataBits :=  dbSeven else DataBits := dbEight;
-      end;
-
-      case FStopBit of
-       2: StopBits := sbTwoStopBits;
-       15: StopBits := sbOne5StopBits
-       else StopBits := sbOneStopBit;
-      end;
-    finally
-      nIni.Free;
+    if not nStop then
+    begin
+      EditCard.Text := 'Çë½«IC¿¨·ÅÖÁ¶Á¿¨Æ÷';
     end;
 
-    if ComPort1.Port <> '' then
-      ComPort1.Open;
-    //xxxxx
+    Timer1.Enabled := not nStop;
+    Exit;
+    {$ENDIF}
+
+    if nStop then
+    begin
+      ComPort1.Close;
+      Exit;
+    end;
+
+    with ComPort1 do
+    begin
+      with Timeouts do
+      begin
+        ReadTotalConstant := 100;
+        ReadTotalMultiplier := 10;
+      end;
+
+      nIni := TIniFile.Create(gPath + 'Reader.Ini');
+      with gReaderItem do
+      try
+        nInt := nIni.ReadInteger('Param', 'Type', 1);
+        FType := TReaderType(nInt - 1);
+
+        FPort := nIni.ReadString('Param', 'Port', '');
+        FBaud := nIni.ReadString('Param', 'Rate', '4800');
+        FDataBit := nIni.ReadInteger('Param', 'DataBit', 8);
+        FStopBit := nIni.ReadInteger('Param', 'StopBit', 0);
+        FCheckMode := nIni.ReadInteger('Param', 'CheckMode', 0);
+
+        Port := FPort;
+        BaudRate := StrToBaudRate(FBaud);
+
+        case FDataBit of
+         5: DataBits := dbFive;
+         6: DataBits := dbSix;
+         7: DataBits :=  dbSeven else DataBits := dbEight;
+        end;
+
+        case FStopBit of
+         2: StopBits := sbTwoStopBits;
+         15: StopBits := sbOne5StopBits
+         else StopBits := sbOneStopBit;
+        end;
+      finally
+        nIni.Free;
+      end;
+
+      if ComPort1.Port <> '' then
+        ComPort1.Open;
+      //xxxxx
+    end;
+  except
   end;
 end;
 
@@ -313,6 +317,16 @@ begin
   end; 
   {$ENDIF}
 
+  {$IFDEF JZZJ}
+  if not IsCardValid(Trim(EditCard.Text)) then
+  begin
+    ShowMsg('´Å¿¨ÎÞÐ§¡¢Çë¼ì²é´Å¿¨ºÅ', sHint);
+    Exit;
+  end;
+  if FParam.FParamC = sFlag_SALE then
+    ChkZTTrucksInfo(EditBill.Text);
+  {$ENDIF}
+  
   if FParam.FParamC = sFlag_Provide then
        nRet := SaveOrderCard(EditBill.Text, EditCard.Text)
   else nRet := SaveBillCard(EditBill.Text, EditCard.Text);

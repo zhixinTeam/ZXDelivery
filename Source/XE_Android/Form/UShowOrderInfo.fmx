@@ -188,4 +188,10 @@ inherited FrmShowOrderInfo: TFrmShowOrderInfo
       end
     end
   end
+  object tmr1: TTimer
+    Enabled = False
+    OnTimer = tmr1Timer
+    Left = 280
+    Top = 64
+  end
 end

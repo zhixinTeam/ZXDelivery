@@ -1490,11 +1490,56 @@ begin
         ReBodyJo := SO(ReJo.S['body']);
         if ReBodyJo = nil then Exit;
 
+        //****************************************************
+        //****************************************************
+          if ReBodyJo.S['status']='7' then
+          begin
+            nData:= '订单已过期';
+          end
+          else if ReBodyJo.S['status']='6' then
+          begin
+            nData:= '订单已取消';
+            Exit;
+          end
+          else if (ReBodyJo.S['status']='5') or (ReBodyJo.S['status']='4') or
+                    (ReBodyJo.S['status']='3') or (ReBodyJo.S['status']='2') then
+          begin
+            nData:= '订单已开卡、请勿重复扫码';
+            Exit;
+          end
+          else if ReBodyJo.S['status']='0' then
+          begin
+            nData:= '订单状态未知、不能开卡';
+            Exit;
+          end;
+        //****************************************************
+        //****************************************************
         ArrsJa := ReBodyJo['details'].AsArray;
         for nIdx := 0 to ArrsJa.Length - 1 do
         begin
           OneJo := SO(ArrsJa[nIdx].AsString);
 
+          if OneJo.S['status']='7' then
+          begin
+            nData:= '订单已过期';
+          end
+          else if OneJo.S['status']='6' then
+          begin
+            nData:= '订单已取消';
+            Exit;
+          end
+          else if (OneJo.S['status']='5') or (OneJo.S['status']='4') or
+                    (OneJo.S['status']='3') or (OneJo.S['status']='2') then
+          begin
+            nData:= '订单已开卡、请勿重复扫码';
+            Exit;
+          end
+          else if OneJo.S['status']='0' then
+          begin
+            nData:= '订单状态未知、不能开卡';
+            Exit;
+          end;
+          
           with FListE do
           begin
             Values['clientName']      := OneJo.S['clientName'];
@@ -2195,7 +2240,7 @@ function TBusWorkerBusinessWebchat.GetInOutValue(nBegin, nEnd, nType: string): s
 var
   nStr, nTable: string;
   nDBWorker: PDBWorker;
-  nDValue, nSValue, nTotalValue: Double;
+  nDValue, nSValue, nTotalValue, nKZValue: Double;
 begin
   Result := '';
   nDValue := 0;
@@ -4720,6 +4765,7 @@ begin
     nStr := Format(nStr, [sTable_Order, sTable_OrderDtl, nClientNo,nStart,nEnd]);
   end;
 
+  WriteLog('查询客户报表明细：'+nStr);
   with gDBConnManager.WorkerQuery(FDBConn, nStr), FPacker.XMLBuilder do
   begin
     if RecordCount < 1 then

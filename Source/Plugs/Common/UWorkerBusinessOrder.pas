@@ -462,7 +462,7 @@ begin
             SF('O_KD', FListA.Values['KD']),
             {$ENDIF}
 
-            {$IFDEF UseKuangDian}
+            {$IFDEF PurYSAfterAutoPoundP}
             SF('O_AutoDoP', FListA.Values['AutoPoundP']),
             {$ENDIF}
 

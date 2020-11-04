@@ -16,12 +16,16 @@ inherited fFormZTLine: TfFormZTLine
     inherited BtnOK: TButton
       Left = 443
       Top = 226
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
       ParentFont = False
       TabOrder = 12
     end
     inherited BtnExit: TButton
       Left = 513
       Top = 226
+      Font.Height = -13
+      Font.Name = #24494#36719#38597#40657
       ParentFont = False
       TabOrder = 13
     end

@@ -1,6 +1,6 @@
 object fFormMain: TfFormMain
-  Left = 322
-  Top = 96
+  Left = 515
+  Top = 232
   Width = 581
   Height = 449
   Caption = #35745#25968#22120
@@ -19,8 +19,8 @@ object fFormMain: TfFormMain
   object wPanel: TScrollBox
     Left = 0
     Top = 37
-    Width = 573
-    Height = 174
+    Width = 565
+    Height = 166
     HorzScrollBar.Smooth = True
     HorzScrollBar.Tracking = True
     VertScrollBar.Smooth = True
@@ -31,15 +31,15 @@ object fFormMain: TfFormMain
   end
   object SBar: TStatusBar
     Left = 0
-    Top = 399
-    Width = 573
+    Top = 391
+    Width = 565
     Height = 19
     Panels = <>
   end
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 573
+    Width = 565
     Height = 37
     AutoSize = True
     ButtonHeight = 35
@@ -129,8 +129,8 @@ object fFormMain: TfFormMain
   end
   object cxSplitter1: TcxSplitter
     Left = 0
-    Top = 211
-    Width = 573
+    Top = 203
+    Width = 565
     Height = 8
     HotZoneClassName = 'TcxXPTaskBarStyle'
     AlignSplitter = salBottom
@@ -138,8 +138,8 @@ object fFormMain: TfFormMain
   end
   object dxChart1: TdxOrgChart
     Left = 0
-    Top = 219
-    Width = 573
+    Top = 211
+    Width = 565
     Height = 180
     DefaultNodeWidth = 60
     DefaultNodeHeight = 32
@@ -715,8 +715,28 @@ object fFormMain: TfFormMain
     end
   end
   object Timer1: TTimer
+    Enabled = False
     OnTimer = Timer1Timer
     Left = 8
-    Top = 74
+    Top = 75
+  end
+  object gOPCServer: TdOPCServer
+    Active = False
+    ClientName = 'dOPC DA Client'
+    KeepAlive = 0
+    Version = '4.00'
+    Protocol = coCOM
+    Params.Strings = (
+      'xml-user='
+      'xml-pass='
+      'xml-proxy=')
+    OPCGroups = <>
+    OPCGroupDefault.IsActive = True
+    OPCGroupDefault.UpdateRate = 1000
+    OPCGroupDefault.LocaleId = 0
+    OPCGroupDefault.TimeBias = 0
+    ConnectDelay = 300
+    Left = 89
+    Top = 47
   end
 end

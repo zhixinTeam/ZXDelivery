@@ -14,7 +14,8 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, cxLookAndFeels,
   cxLookAndFeelPainters, UBitmapPanel, cxSplitter, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter, Menus,
+  cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameInvoice = class(TfFrameNormal)

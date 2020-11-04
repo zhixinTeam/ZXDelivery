@@ -387,6 +387,9 @@ procedure RemoteSnapDisPlay(const nPost, nText, nSucc: string);
 function GetPersonWeight( var nWeight: Double): Boolean;
 //过毛补加司机重量
 
+function ChkBillPrice(nBill: TLadingBillItem): Boolean;
+/// 销售过皮重，检查更新订单价格
+
 
 procedure CapturePictureEx(const nTunnel: PPTTunnelItem;
                          const nLogin: Integer; nList: TStrings);
@@ -406,6 +409,9 @@ function GetWlbYsStatus(const nStockNo,nOrderId: string): Boolean;
 
 function PrintShouJu(const nSID: string; const nAsk: Boolean): Boolean;
 //打印收据
+function ChkZTTrucksInfo(const nLid: string): Boolean;
+function IsCardValid(const nCard: string): Boolean;
+
 
 implementation
 
@@ -1350,7 +1356,7 @@ begin
   nBool := FDM.ADOConn.InTransaction;
   if not nBool then FDM.ADOConn.BeginTrans;
   try
-    nStr := 'Update %s Set A_InMoney=A_InMoney+%.2f Where A_CID=''%s''';
+    nStr := 'Update %s Set A_InMoney=A_InMoney+(%.2f) Where A_CID=''%s''';
     nStr := Format(nStr, [sTable_CusAccount, nVal, nCusID]);
     FDM.ExecuteSQL(nStr);
 
@@ -4332,6 +4338,22 @@ begin
   FDM.ExecuteSQL(nStr);
 end;
 
+function ChkBillPrice(nBill: TLadingBillItem): Boolean;
+var nOut: TWorkerBusinessCommand;
+    nList: TStrings;
+begin
+  nList := TStringList.Create;
+  try
+    nList.Values['LID']:= nBill.FID;
+    nList.Values['MID']:= nBill.FStockNo;
+    nList.Values['ZhiKa']:= nBill.FZhiKa;
+
+    Result:= CallBusinessSaleBill(cBC_ZhiKaPriceChk, PackerEncodeStr(nList.Text), '', @nOut);
+  finally
+    nList.Free;
+  end;
+end;
+
 //人重量
 function GetPersonWeight( var nWeight: Double): Boolean;
 var nStr:string;
@@ -4536,7 +4558,6 @@ begin
 
     Result := True;
   except
-
   end;
 end;
 
@@ -4797,5 +4818,40 @@ begin
   FDR.ShowReport;
   Result := FDR.PrintSuccess;
 end;
+
+//Desc: 补办磁卡时补充zttrucks 信息
+function ChkZTTrucksInfo(const nLid: string): Boolean;
+var nStr: string;
+    nBool: Boolean;
+begin
+  nBool := FDM.ADOConn.InTransaction;
+  if not nBool then FDM.ADOConn.BeginTrans;
+  try
+    nStr := 'Insert Into %s(T_Truck,T_StockNo,T_Stock,T_Type,T_InTime,T_InFact,T_VIP,T_Valid,T_Bill,T_Value,T_PeerWeight,T_HKBills,T_BeltLine)'+
+                   ' Select L_Truck,L_StockNo,L_StockName,L_Type,L_InTime,L_InTime,L_IsVIP,''Y'',L_ID,L_Value,50,L_ID+''.'',L_BeltLine ' +
+                   ' From %s '+
+                   ' Where L_ID=''%s'' And Not exists (Select * From S_ZTTrucks Where T_Bill=''%s'' ) ';
+    nStr := Format(nStr, [sTable_ZTTrucks, sTable_Bill, nLid, nLid ]);
+    FDM.ExecuteSQL(nStr);
+
+    if not nBool then
+      FDM.ADOConn.CommitTrans;
+    Result := True;
+  except
+    Result := False;
+    if not nBool then FDM.ADOConn.RollbackTrans;
+  end;
+end;
+
+//Desc: 检测 磁卡卡号 是否有效
+function IsCardValid(const nCard: string): Boolean;
+var nStr: string;
+begin
+  nStr := 'Select * From $SCard Where C_Card=''$Card'' ';
+  nStr := MacroValue(nStr, [MI('$SCard', sTable_Card), MI('$Card', nCard)]);
+  Result := FDM.QueryTemp(nStr).RecordCount > 0;
+end;
+
+
 
 end.

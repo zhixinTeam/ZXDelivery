@@ -59,7 +59,7 @@ type
     //前缀编号
     FIDLength: integer;
     //前缀长度
-    FMID, FMemox : string;
+    FMID, FMemox, FZhiKaName : string;
   private
     procedure InitFormData(const nID: string);
     //载入数据
@@ -103,19 +103,21 @@ begin
       FRecordID := '';
       Caption := '收据 - 添加';
 
-      EditName.Text := nP.FParamA;
-      EditReason.Text := nP.FParamB;
+      EditName.Text  := nP.FParamA;
+      EditMemo.Text  := nP.FParamB;
       EditMoney.Text := nP.FParamC;
       FMemox         := nP.FParamD;
       edt_MID.Text   := nP.FParamE;
-      edt_MID.Visible:= False;
+      edt_MID.Visible:= False;          
 
       {$IFDEF JoinShouJuInfo}
       nList:= TStringList.Create;
       nList.Text:= nP.FParamD;
       try
-        FMemox  := nList.Values['ZhiKa'];
-        EditMemo.Text:= nList.Values['Memo'];
+        //EditBank.Text:= nList.Values['Type'];
+        FMemox       := nList.Values['Memo'];
+        FZhiKaName   := nList.Values['ZhiKa'];
+        EditMemo.Text:= '';
       finally
         nList.Free;
       end;
@@ -405,7 +407,7 @@ var nStr: string;
 begin
   if not IsDataValid then Exit;
 
-  EditBank.Text:= EditBank.Text  {$IFDEF HXTYS}+ FMemox {$ENDIF};
+  EditBank.Text:= {$IFDEF HXTYS} FZhiKaName +'  '+ FMemox +'  '+ EditBank.Text  {$ELSE} EditBank.Text {$ENDIF};
   if FRecordID = '' then
   begin
     nStr := MakeSQLByForm(Self, sTable_SysShouJu, '', True, GetData);

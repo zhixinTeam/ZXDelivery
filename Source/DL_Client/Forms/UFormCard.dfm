@@ -12,9 +12,10 @@ inherited fFormCard: TfFormCard
     Width = 314
     Height = 183
     inherited BtnOK: TButton
-      Left = 167
+      Left = 168
       Top = 150
       Caption = #30830#23450
+      Default = True
       TabOrder = 4
     end
     inherited BtnExit: TButton
@@ -23,8 +24,8 @@ inherited fFormCard: TfFormCard
       TabOrder = 5
     end
     object EditBill: TcxTextEdit [2]
-      Left = 84
-      Top = 29
+      Left = 81
+      Top = 36
       ParentFont = False
       Properties.ReadOnly = True
       Style.BorderColor = clWindowFrame
@@ -34,8 +35,8 @@ inherited fFormCard: TfFormCard
       Width = 121
     end
     object EditTruck: TcxTextEdit [3]
-      Left = 84
-      Top = 56
+      Left = 81
+      Top = 61
       ParentFont = False
       Properties.ReadOnly = True
       Style.BorderColor = clWindowFrame
@@ -45,8 +46,8 @@ inherited fFormCard: TfFormCard
       Width = 121
     end
     object cxLabel1: TcxLabel [4]
-      Left = 24
-      Top = 83
+      Left = 23
+      Top = 86
       AutoSize = False
       ParentFont = False
       Properties.LineOptions.Alignment = cxllaBottom
@@ -56,8 +57,8 @@ inherited fFormCard: TfFormCard
       Width = 287
     end
     object EditCard: TcxTextEdit [5]
-      Left = 84
-      Top = 109
+      Left = 81
+      Top = 111
       ParentFont = False
       Properties.MaxLength = 15
       Style.BorderColor = clWindowFrame

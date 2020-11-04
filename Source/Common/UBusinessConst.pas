@@ -70,6 +70,8 @@ const
   cBC_IsTruckInQueue          = $0034;   //车辆是否在队列
   cBC_GetStockBatcodeMoreBeltLine= $0035;   //获取同品种不同生产线、不同厂区批次编号
   cBC_GetLadePlace            = $0036;   //手持装车点 （堆场）
+  cBC_ZhiKaPriceChk           = $0037;   //纸卡最新价格检查，更新
+
 
   cBC_GetPoundReaderInfo      = $0050;   //获取磅站读卡器岗位、部门
   cBC_RemoteSnapDisPlay       = $0051;   //车牌识别显示屏

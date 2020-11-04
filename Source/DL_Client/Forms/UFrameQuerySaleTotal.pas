@@ -16,7 +16,8 @@ uses
   cxLabel, UBitmapPanel, cxSplitter, cxGridLevel, cxClasses,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridDBTableView, cxGrid, ComCtrls, ToolWin, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter,
+  cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameSaleDetailTotal = class(TfFrameNormal)

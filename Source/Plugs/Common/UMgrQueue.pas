@@ -1371,7 +1371,7 @@ begin
           (FLineGroup <> FTruckPool[i].FLineGroup) then Continue;
       end;
       //7.车辆指定通道类型不匹配
-      WriteLog('车辆进队成功:'+FTruckPool[i].FTruck+','+FTruckPool[i].FStockNo+' '+FTruckPool[i]FStockName+
+      WriteLog('车辆进队成功:'+FTruckPool[i].FTruck+','+FTruckPool[i].FStockNo+' '+FTruckPool[i].FStockName+
                ',当前装车线:'+FLineID);
       {$ENDIF}
 

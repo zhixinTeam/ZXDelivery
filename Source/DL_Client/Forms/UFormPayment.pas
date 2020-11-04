@@ -11,7 +11,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxButtonEdit, cxMCListBox,
   cxLabel, cxMemo, cxTextEdit, cxMaskEdit, cxDropDownEdit, dxLayoutControl,
-  StdCtrls;
+  StdCtrls, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormPayment = class(TfFormNormal)
@@ -348,6 +348,7 @@ begin
       Exit;
     end;
 
+    EditDesc.Text:= StringReplace(EditDesc.Text, ' ', '', [rfReplaceAll]);
     nZID  := GetCtrlData(cbb_ZhiKa);
     nZName:= GetRightStr('.', cbb_ZhiKa.Text);
     IF (nZID='')or(cbb_ZhiKa.ItemIndex<0) then
@@ -394,6 +395,7 @@ begin
       nP.FCommand := cCmd_AddData;
       nP.FParamA := gInfo.FCusName;
       nP.FParamB := {$IFNDEF HXZX} '销售回款或预付款'{$ELSE}EditType.Text{$ENDIF};
+      nP.FParamB := {$IFNDEF HXTYS} '销售回款或预付款'{$ELSE}EditType.Text +'  '+ TRIM(EditDesc.Text){$ENDIF};
       nP.FParamC := EditMoney.Text;
       nP.FParamD := nData ;
       nP.FParamE := nStr;

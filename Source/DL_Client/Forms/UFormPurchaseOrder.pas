@@ -11,7 +11,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxButtonEdit,
-  cxTextEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxLabel;
+  cxTextEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxLabel,
+  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
 
 type
   TfFormPurchaseOrder = class(TfFormNormal)
@@ -332,11 +333,10 @@ begin
     else
     begin
       Values['Value']   := '0.00';
-      {$IFDEF PurYSAfterAutoPoundP}
+
       if chk_AutoP.Checked then
            Values['AutoPoundP']:= 'Y'
       else Values['AutoPoundP']:= 'N';
-      {$ENDIF}
     end;
 
     Values['KFValue']       := Trim(EditKFValue.Text);

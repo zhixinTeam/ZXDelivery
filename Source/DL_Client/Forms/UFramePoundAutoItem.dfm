@@ -1,5 +1,5 @@
 inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
-  Width = 1019
+  Width = 1161
   Height = 309
   Font.Height = -15
   object GroupBox1: TGroupBox
@@ -188,8 +188,8 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Properties.Alignment.Vert = taVCenter
     Properties.LabelStyle = cxlsRaised
     Height = 27
-    Width = 1019
-    AnchorX = 510
+    Width = 1161
+    AnchorX = 581
     AnchorY = 14
   end
   object EditTruck: TcxComboBox
@@ -626,6 +626,24 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     TabOrder = 28
     Width = 122
   end
+  object btn1: TButton
+    Left = 1001
+    Top = 50
+    Width = 75
+    Height = 26
+    Caption = #25260#21069#26438
+    TabOrder = 29
+    OnClick = btn1Click
+  end
+  object btn2: TButton
+    Left = 1001
+    Top = 81
+    Width = 75
+    Height = 26
+    Caption = #25260#21518#26438
+    TabOrder = 30
+    OnClick = btn2Click
+  end
   object Timer1: TTimer
     OnTimer = Timer1Timer
     Left = 420
@@ -641,7 +659,7 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
     Interval = 2000
     OnTimer = Timer_ReadCardTimer
     Left = 507
-    Top = 256
+    Top = 255
   end
   object TimerDelay: TTimer
     Enabled = False

@@ -384,10 +384,23 @@ end;
 
 procedure TfFormBillWx.BtnOKClick(Sender: TObject);
 var nList : TStrings;
-    nBills: string;
+    nBills, nStr : string;
     nRe   : Boolean;
 begin
   try
+    if FWebOrderID='' then
+    begin
+      ShowMsg('无效的提货码',sHint);
+      Exit;
+    end;
+
+    if IsRepeatCard(FWebOrderID) then
+    begin
+      nStr := '订单 '+ FWebOrderID +' 已成功制单，请勿重复操作';
+      ShowMsg(nStr,sHint);
+      Exit;
+    end;
+
     nList:= TStringList.Create;
     nList.Clear;
 
@@ -433,10 +446,10 @@ begin
     end;
 
     if gInfo.FIDList = '' then Exit;
+    SaveWebOrderMatch(gInfo.FIDList, FWebOrderID, sFlag_Sale);
     if SetBillCard(gInfo.FIDList, edt_Truck.Text, True) then
     begin
       //办理磁卡
-      SaveWebOrderMatch(gInfo.FIDList, FWebOrderID, sFlag_Sale);
       nRe:= True;
     end;
   finally

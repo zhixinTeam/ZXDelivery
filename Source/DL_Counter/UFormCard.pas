@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFormCard;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -22,6 +23,7 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure ComPort1RxChar(Sender: TObject; Count: Integer);
     procedure BtnOKClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     FBuffer: string;
@@ -171,9 +173,18 @@ begin
 end;
 
 procedure TfFormCard.BtnOKClick(Sender: TObject);
+var nRe:Boolean;
 begin
-  if SendCard then ModalResult := mrOk;
+  nRe:= False;
+  {$IFDEF ZJModBusTCPJSQ} nRe:= True; {$ENDIF}
+  {$IFDEF UseOPCMode} nRe:= True; {$ENDIF}
+  if nRe then ModalResult := mrOk
+  else
+  begin
+    if SendCard then ModalResult := mrOk;
+  end;
 end;
+
 
 function TfFormCard.SendCard: Boolean;
 begin
@@ -195,7 +206,7 @@ begin
   except
     on E:Exception do
     begin
-      WriteLog(E.Message);       
+      WriteLog(E.Message);
     end;
   end;
 
@@ -205,6 +216,12 @@ begin
     CloseWaitForm;
     ShowMsg('∑¢ÀÕ¥≈ø®∫≈ ß∞‹', sHint);
   end;
+end;
+
+
+procedure TfFormCard.FormShow(Sender: TObject);
+begin
+  ActionComPort(False);
 end;
 
 end.

@@ -8,7 +8,9 @@ uses
   UFrameJS in 'UFrameJS.pas' {fFrameCounter: TFrame},
   UFormLog in 'UFormLog.pas' {fFormLog},
   USysConst in 'USysConst.pas',
-  UFormCard in 'UFormCard.pas' {fFormCard};
+  UFormCard in 'UFormCard.pas' {fFormCard},
+  UDataModule in 'UDataModule.pas' {FDM: TDataModule},
+  UFrameJSEx in 'UFrameJSEx.pas' {FrameJSEx: TFrame};
 
 {$R *.res}
 
@@ -26,7 +28,9 @@ begin
   end; //已有一个实例
 
   Application.Initialize;
+  Application.CreateForm(TFDM, FDM);
   Application.CreateForm(TfFormMain, fFormMain);
+  Application.CreateForm(TFDM, FDM);
   Application.Run;
 
   ReleaseMutex(gMutexHwnd);
