@@ -296,6 +296,8 @@ function PrintPoundReport(const nPound: string; nAsk: Boolean;
 function PrintHuaYanReport(const nHID: string; const nAsk: Boolean;n28D: Boolean=False): Boolean;
 function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
 //化验单,合格证
+function PrintHeGeReportEx(const nLID: string; const nAsk: Boolean): Boolean;
+//合格证
 function PrintBillFYDReport(const nBill: string;  const nAsk: Boolean): Boolean;
 function PrintBillLoadReport(nBill: string; const nAsk: Boolean): Boolean;
 //打印发运单，过路费
@@ -3260,6 +3262,40 @@ begin
   begin
     nStr := '编号为[ %s ] 的化验单记录已无效!!';
     nStr := Format(nStr, [nHID]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + sReportDir + 'HeGeZheng.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
+  FDR.ShowReport;
+  Result := FDR.PrintSuccess;
+end;
+
+function PrintHeGeReportEx(const nLID: string; const nAsk: Boolean): Boolean;
+var nStr,nSR: string;
+begin
+  if nAsk then
+  begin
+    Result := True;
+    nStr := '是否要打印合格证?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end else Result := False;
+
+  nSR := 'Select sp.*,L_HYDan, isnull(b.L_OutFact,b.L_Date) as L_OutFact From %s b ' +
+         '  Left Join %s sp On sp.P_Stock=b.L_StockName ' +
+         'Where b.L_ID =''%s'' ';
+  nStr := Format(nSR, [sTable_Bill, sTable_StockParam, nLID]);
+  
+  if FDM.QueryTemp(nStr).RecordCount < 1 then
+  begin
+    nStr := '编号为[ %s ] 的交货记录已无效!!';
+    nStr := Format(nStr, [nLID]);
     ShowMsg(nStr, sHint); Exit;
   end;
 

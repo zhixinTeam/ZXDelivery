@@ -31,7 +31,7 @@ uses
   UFrameBillFactIn, UFormBillFactIn, UFormBillSalePlan,
   UFormTodo, UFormTodoSend, UFrameTodo, UFrameBatcodeJ, UFormBatcodeJ,
   UFrameBillHK, UFormBillHK, UFormCardSearch, UFormKPPayment,UFormBillPD,
-  UFormZTLine, UFrameBillSalePlan, UFormSalePlan,
+  UFormZTLine, UFrameBillSalePlan, //UFormSalePlan,
   UFrameQuerySaleDetailSpecial,
   // For Pound
   UFramePoundManual, UFramePoundAuto, UFramePoundAutoItem,

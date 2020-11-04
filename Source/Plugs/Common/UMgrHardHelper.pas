@@ -46,6 +46,7 @@ type
     FOptions : TStrings;          //附加参数
     FPost    : string;     //所在岗位
     FDept    : string;     //所属门岗
+    FLastCard: string;     //上次接收到的卡号
   end;
 
   THardwareHelper = class;
@@ -408,6 +409,7 @@ begin
     begin
       FCard := '';
       FCardExt := '';
+      FLastCard:= '';
 
       FLast := 0;
       FOKTime := 0;
@@ -636,8 +638,21 @@ begin
         //短时间重复刷卡无效
       end;
 
+      {$IFDEF YNHT}
+      if FLastCard = nCard then
+      begin
+        FCard := nCard;
+        WriteLog(Format('重复接收到卡号: %s,%s', [nReader, nCard]));
+      end
+      else
+      begin
+        FLastCard := nCard;
+        WriteLog(Format('第一次接收到卡号: %s,%s', [nReader, nCard]));
+      end;
+      {$ELSE}
       FCard := nCard;
       WriteLog(Format('接收到卡号: %s,%s', [nReader, nCard]));
+      {$ENDIF}
       Break;
     end;
   end;

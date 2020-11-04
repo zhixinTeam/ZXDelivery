@@ -80,6 +80,8 @@ type
     dxLayoutControl1Group9: TdxLayoutGroup;
     EditZJM: TcxTextEdit;
     dxLayoutControl1Item25: TdxLayoutItem;
+    EditCusID: TcxTextEdit;
+    dxLayoutControl1Item24: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnAddClick(Sender: TObject);
@@ -435,20 +437,53 @@ begin
 
   nList := TStringList.Create;
   nList.Text := SF('C_PY', GetPinYinOfStr(EditName.Text));
+  {$IFDEF AutoNoCusID}
+    if FCustomerID = '' then
+    begin
+      nID := Trim(EditCusID.Text);
+      if nID = '' then
+      begin
+        ShowMsg('请填写客户编号', sHint);
+        Exit;
+      end;
+      
+      nStr := 'Select Count(*) From %s Where C_ID=''%s''';
+      nStr := Format(nStr, [sTable_Customer, nID]);
+      //xxxxx
 
-  if FCustomerID = '' then
-  begin
-    nID := GetSerialNo(sFlag_BusGroup, sFlag_Customer, False);
-    if nID = '' then Exit;
-    
-    nList.Add(SF('C_ID', nID));
-    nSQL := MakeSQLByForm(Self, sTable_Customer, '', True, GetData, nList);
-  end else
-  begin
-    nID := FCustomerID;
-    nStr := 'C_ID=''' + FCustomerID + '''';
-    nSQL := MakeSQLByForm(Self, sTable_Customer, nStr, False, GetData, nList);
-  end;
+      with FDM.QueryTemp(nStr) do
+      if Fields[0].AsInteger > 0 then
+      begin
+        nStr := '客户编号[ %s ]已存在!!' + #13#10#13#10 +
+                '客户重名会导致回款、办卡等操作错误、禁止此操作';
+        nStr := Format(nStr, [nID]);
+        ShowMsg(nStr, sHint);
+        Exit;
+      end;
+
+//      nList.Add(SF('C_ID', nID));
+      nSQL := MakeSQLByForm(Self, sTable_Customer, '', True, GetData, nList);
+    end else
+    begin
+      nID := FCustomerID;
+      nStr := 'C_ID=''' + FCustomerID + '''';
+      nSQL := MakeSQLByForm(Self, sTable_Customer, nStr, False, GetData, nList);
+    end;
+  {$ELSE}
+    if FCustomerID = '' then
+    begin
+      nID := GetSerialNo(sFlag_BusGroup, sFlag_Customer, False);
+      if nID = '' then Exit;
+
+      nList.Add(SF('C_ID', nID));
+      nSQL := MakeSQLByForm(Self, sTable_Customer, '', True, GetData, nList);
+    end else
+    begin
+      nID := FCustomerID;
+      nStr := 'C_ID=''' + FCustomerID + '''';
+      nSQL := MakeSQLByForm(Self, sTable_Customer, nStr, False, GetData, nList);
+    end;
+  {$ENDIF}
 
   nList.Free;
   FDM.ADOConn.BeginTrans;
@@ -470,6 +505,34 @@ begin
       nSQL := Format(nSQL, [sTable_ExtInfo, sFlag_CustomerItem, nID]);
       FDM.ExecuteSQL(nSQL);
     end;
+    {$IFDEF AutoNoCusID}
+    if FCustomerID <> '' then
+    begin
+      nSQL := 'Update %s set C_Param = ''%s'' Where C_ID = ''%s'' ';
+      nSQL := Format(nSQL, [sTable_Customer, FCustomerID, Trim(EditCusID.Text)]);
+      FDM.ExecuteSQL(nSQL);
+
+      nSQL := 'Update %s set C_Customer = ''%s'' Where C_Customer = ''%s'' ';
+      nSQL := Format(nSQL, [sTable_SaleContract, Trim(EditCusID.Text), FCustomerID]);
+      FDM.ExecuteSQL(nSQL);
+
+      nSQL := 'Update %s set Z_Customer = ''%s'' Where Z_Customer = ''%s'' ';
+      nSQL := Format(nSQL, [sTable_ZhiKa, Trim(EditCusID.Text), FCustomerID]);
+      FDM.ExecuteSQL(nSQL);
+
+      nSQL := 'Update %s set A_CID = ''%s'' Where A_CID = ''%s'' ';
+      nSQL := Format(nSQL, [sTable_CusAccount, Trim(EditCusID.Text), FCustomerID]);
+      FDM.ExecuteSQL(nSQL);
+
+      nSQL := 'Update %s set M_CusID = ''%s'' Where M_CusID = ''%s'' ';
+      nSQL := Format(nSQL, [sTable_InOutMoney, Trim(EditCusID.Text), FCustomerID]);
+      FDM.ExecuteSQL(nSQL);
+
+      nSQL := 'Update %s set L_CusID = ''%s'' Where L_CusID = ''%s'' ';
+      nSQL := Format(nSQL, [sTable_Bill, Trim(EditCusID.Text), FCustomerID]);
+      FDM.ExecuteSQL(nSQL);
+    end;
+    {$ENDIF}
 
     nCount := InfoList1.Items.Count - 1;
     for i:=0 to nCount do

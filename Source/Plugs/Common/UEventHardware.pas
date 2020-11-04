@@ -36,8 +36,8 @@ uses
   {$IFDEF UseModbusJS}UMultiModBus_JS, {$ENDIF}
   {$IFDEF UseLBCModbus}UMgrLBCModusTcp, {$ENDIF}
   UMgrERelay, UMgrRemoteVoice, UMgrCodePrinter, UMgrTTCEM100, UMgrBXFontCard,
-  UMgrRemoteSnap, UScanTimingTask, UWorkThread,
-  UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo, UMgrBasisWeight;
+  UMgrRemoteSnap,UMgrBasisWeight,UMgrERelayPLC,
+  UMgrRFID102, UMgrVoiceNet, UBlueReader, UMgrSendCardNo;
 
 class function THardwareWorker.ModuleInfo: TPlugModuleInfo;
 begin
@@ -126,19 +126,13 @@ begin
     end;
 
     {$IFDEF FixLoad}
-    nStr := '转子秤';
+    nStr := '定置装车';
     gSendCardNo.LoadConfig(nCfg + 'PLCController.xml');
     {$ENDIF}
 
     {$IFDEF UseLBCModbus}
     nStr := '定量装车';
     gModBusClient.LoadConfig(nCfg + 'ModBusController.xml');
-    {$ENDIF}
-
-    {$IFDEF BasisWeight}
-    nStr := '库底定量装车业务';
-    gBasisWeightManager := TBasisWeightManager.Create;
-    gBasisWeightManager.LoadConfig(nCfg + 'Tunnels.xml');
     {$ENDIF}
 
     {$IFDEF RemoteSnap}
@@ -158,10 +152,23 @@ begin
       gBXFontCardManager.LoadConfig(nCfg + 'BXFontLED.xml');
     end;
     {$ENDIF}
+
+    {$IFDEF UseERelayPLC}
+    nStr := '车检由PLC控制';
+    if FileExists(nCfg + 'ERelayPLC.xml') then
+    begin
+      gERelayManagerPLC := TERelayManager.Create;
+      gERelayManagerPLC.LoadConfig(nCfg + 'ERelayPLC.xml');
+    end;
+    {$ENDIF}
+        
     {$IFDEF BasisWeight}
     nStr := '定量装车业务';
-    gBasisWeightManager := TBasisWeightManager.Create;
-    gBasisWeightManager.LoadConfig(nCfg + 'Tunnels.xml');
+    if FileExists(nCfg + 'Tunnels.xml') then
+    begin
+      gBasisWeightManager := TBasisWeightManager.Create;
+      gBasisWeightManager.LoadConfig(nCfg + 'Tunnels.xml');
+    end;
     {$ENDIF}
   except
     on E:Exception do
@@ -273,12 +280,6 @@ begin
   end; //三合一读卡器
   {$ENDIF}
 
-  {$IFDEF BasisWeight}
-  //gBasisWeightManager.TunnelManager.OnUserParseWeight := WhenParsePoundWeight;
-  gBasisWeightManager.OnStatusChange := WhenBasisWeightStatusChange;
-  gBasisWeightManager.StartService;
-  {$ENDIF}
-
   {$IFDEF UseBXFontLED}
   gBXFontCardManager.StartService;
   {$ENDIF}
@@ -292,14 +293,13 @@ begin
   {$IFDEF RemoteSnap}
   gHKSnapHelper.StartSnap;
   //remote snap
-  {$ENDIF}
   {$IFDEF UseLBCModbus}
   if Assigned(gModBusClient) then
   begin
     gModBusClient.OnStatusChange := WhenLBCWeightStatusChange;
     gModBusClient.StartPrinter;
   end;
-  {$ENDIF}
+  {$ENDIF}  {$ENDIF}
 
   {$IFDEF UseBXFontLED}
   //网口小屏
@@ -307,9 +307,14 @@ begin
   {$ENDIF}
 
   {$IFDEF BasisWeight}
-  //gBasisWeightManager.TunnelManager.OnUserParseWeight := WhenParsePoundWeight;
   gBasisWeightManager.OnStatusChange := WhenBasisWeightStatusChange;
   gBasisWeightManager.StartService;
+  {$ENDIF}
+
+  {$IFDEF UseERelayPLC}
+  if Assigned(gERelayManagerPLC) then
+    gERelayManagerPLC.StartService;
+  //车检由PLC控制
   {$ENDIF}
 end;
 
@@ -375,11 +380,6 @@ begin
   gBXFontCardManager.StopService;
   {$ENDIF}
 
-  {$IFDEF BasisWeight}
-  gBasisWeightManager.StopService;
-  gBasisWeightManager.OnStatusChange := nil;
-  {$ENDIF}
-
   {$IFDEF FixLoad}
   if Assigned(gSendCardNo) then
   gSendCardNo.StopPrinter;
@@ -405,11 +405,11 @@ begin
   gScanTimingTask.Terminate;
   gScanTimingTask.Free;
   {$ENDIF}
-  
-  {$IFDEF XTaskThread}
-  XWorker.Terminate;
-  XWorker.Free;
-  // 定时任务
+
+  {$IFDEF UseERelayPLC}
+  if Assigned(gERelayManagerPLC) then
+    gERelayManagerPLC.StopService;
+  //车检由PLC控制
   {$ENDIF}
 end;
 

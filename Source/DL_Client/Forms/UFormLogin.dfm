@@ -62,7 +62,7 @@ object fFormLogin: TfFormLogin
     end
     object Label1: TLabel
       Left = 32
-      Top = 24
+      Top = 23
       Width = 30
       Height = 12
       Caption = #29992#25143':'

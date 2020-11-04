@@ -571,10 +571,11 @@ var nStr,nLine,nTruck: string;
     nPLine: PLineItem;
     nPTruck: PTruckItem;
     nInt,nPeer,nDai,nTotal: Integer;
+    nIsEnough: Boolean;
 begin
   nTask := gTaskMonitor.AddTask('BusinessCommander.SaveDaiNum', cTaskTimeoutLong);
   //to mon
-
+  nIsEnough := False;
   Result := True;
   FListA.Text := PackerDecodeStr(FIn.FData);
 
@@ -602,6 +603,15 @@ begin
       nDai := Trunc(nVal / nPeer * 1000);
       //应装袋数
 
+      if nDai <= nTotal then
+      begin
+        nIsEnough := True;
+      end
+      else
+      begin
+        nIsEnough := False;
+      end;
+
       if nDai >= nTotal then
       begin
         nInt := 0;
@@ -615,6 +625,21 @@ begin
     nStr := 'Update %s Set T_Normal=%d,T_BuCha=%d,T_Total=%d Where T_Bill=''%s''';
     nStr := Format(nStr, [sTable_ZTTrucks, nDai, nInt, nTotal, Values['Bill']]);
     gDBConnManager.WorkerExec(FDBConn, nStr);
+    //装够自动出队
+    {$IFDEF UseDaiZDCD}
+    if nIsEnough then
+    begin
+      nStr := 'Update %s Set T_Valid=''%s'' Where T_Bill=''%s''';
+      nStr := Format(nStr, [sTable_ZTTrucks, sFlag_No, Values['Bill']]);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+    end
+    else
+    begin
+      nStr := 'Update %s Set T_Valid=''%s'' Where T_Bill=''%s''';
+      nStr := Format(nStr, [sTable_ZTTrucks, sFlag_Yes, Values['Bill']]);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+    end;
+    {$ENDIF}
   end;
 
   gTaskMonitor.DelTask(nTask);
@@ -795,7 +820,10 @@ begin
   else nReader := nIn;
 
   if Trim(nReader) <> '' then
+  begin
     gHYReaderManager.OpenDoor(Trim(nReader));
+    WriteLog('读卡器：'+Trim(nReader)+'进行抬杆操作');    
+  end;
 end;
 
 //Date: 2018-08-14

@@ -16,7 +16,7 @@ uses
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, Menus,
   UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters,
   cxCheckBox, dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
-  dxSkinsdxLCPainter;
+  dxSkinsdxLCPainter, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameBill = class(TfFrameNormal)
@@ -54,6 +54,7 @@ type
     N11: TMenuItem;
     N12: TMenuItem;
     N13: TMenuItem;
+    N14: TMenuItem;
     procedure EditIDPropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure BtnDelClick(Sender: TObject);
@@ -72,6 +73,7 @@ type
     procedure cxView1DblClick(Sender: TObject);
     procedure N12Click(Sender: TObject);
     procedure N13Click(Sender: TObject);
+    procedure N14Click(Sender: TObject);
   protected
     FStart,FEnd: TDate;
     //时间区间
@@ -678,6 +680,16 @@ begin
 
     InitFormData(FWhere);
     ShowMsg('同步所属区域成功', sHint);
+  end;
+end;
+
+procedure TfFrameBill.N14Click(Sender: TObject);
+var nStr: string;
+begin
+  if cxView1.DataController.GetSelectedCount > 0 then
+  begin
+    nStr := SQLQuery.FieldByName('L_ID').AsString;
+    PrintHeGeReportEx(nStr, False);
   end;
 end;
 

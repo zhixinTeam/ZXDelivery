@@ -310,6 +310,20 @@ begin
   nLimVal := StrToFloatDef(EditLimValue.Text, 0);
   nWarnVal:= StrToFloatDef(EditWarnValue.Text, 0);
 
+  if Length(Trim(FProvider.FID)) < 1 then
+  begin
+    ShowMsg('供应商编号不能为空', sWarn);
+    EditProvider.SetFocus;
+    Exit;
+  end;
+
+  if Length(Trim(FMeterail.FID)) < 1 then
+  begin
+    ShowMsg('原材料编号不能为空', sWarn);
+    EditProvider.SetFocus;
+    Exit;
+  end;
+  
   nStr := Trim(EditProvider.Text);
   if Length(nStr)<1 then
   begin

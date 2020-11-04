@@ -28,8 +28,8 @@ type
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure FormKeyPress(Sender: TObject; var Key: Char);
-    procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCreate(Sender: TObject);
   private
     { Private declarations }
     procedure UserList(const nWrite: Boolean);
@@ -90,14 +90,6 @@ begin
   try
     if nWrite then
     begin
-      nStr := nIni.ReadString(Name, 'SaveUser', '');
-      if nStr <> 'Y' then
-      begin
-        if nStr = '' then
-          nIni.WriteString(Name, 'SaveUser', 'N');
-        Exit;
-      end;
-
       if Edit_User.ItemIndex >= 0 then Exit;
       nStr := 'User_' + IntToStr(Edit_User.Items.Count);
       nIni.WriteString(Name, nStr, Edit_User.Text);

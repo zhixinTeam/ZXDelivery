@@ -13,12 +13,12 @@ inherited fFormTruck: TfFormTruck
     inherited BtnOK: TButton
       Left = 284
       Top = 404
-      TabOrder = 20
+      TabOrder = 19
     end
     inherited BtnExit: TButton
       Left = 354
       Top = 404
-      TabOrder = 21
+      TabOrder = 20
     end
     object EditTruck: TcxTextEdit [2]
       Left = 105
@@ -72,7 +72,7 @@ inherited fFormTruck: TfFormTruck
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
-      TabOrder = 15
+      TabOrder = 14
       Transparent = True
       Width = 384
     end
@@ -87,7 +87,7 @@ inherited fFormTruck: TfFormTruck
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
-      TabOrder = 18
+      TabOrder = 17
       Transparent = True
       Width = 165
     end
@@ -102,7 +102,7 @@ inherited fFormTruck: TfFormTruck
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
-      TabOrder = 16
+      TabOrder = 15
       Transparent = True
       Width = 165
     end
@@ -117,7 +117,7 @@ inherited fFormTruck: TfFormTruck
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
-      TabOrder = 17
+      TabOrder = 16
       Transparent = True
       Width = 100
     end
@@ -132,12 +132,12 @@ inherited fFormTruck: TfFormTruck
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
-      TabOrder = 19
+      TabOrder = 18
       Transparent = True
       Width = 100
     end
     object EditXTNum: TcxTextEdit [10]
-      Left = 280
+      Left = 105
       Top = 236
       ParentFont = False
       Style.Font.Charset = GB2312_CHARSET
@@ -146,7 +146,7 @@ inherited fFormTruck: TfFormTruck
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
-      TabOrder = 12
+      TabOrder = 11
       Text = '0'
       Width = 302
     end
@@ -160,7 +160,7 @@ inherited fFormTruck: TfFormTruck
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
-      TabOrder = 13
+      TabOrder = 12
       Text = '0'
       Width = 88
     end
@@ -174,7 +174,7 @@ inherited fFormTruck: TfFormTruck
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
       Style.IsFontAssigned = True
-      TabOrder = 14
+      TabOrder = 13
       Text = '0'
       Width = 127
     end
@@ -230,7 +230,7 @@ inherited fFormTruck: TfFormTruck
       TabOrder = 9
       Width = 139
     end
-    object EditMemo: TcxTextEdit [17]
+    object EditPrePValue: TcxTextEdit [17]
       Left = 105
       Top = 211
       ParentFont = False
@@ -281,21 +281,6 @@ inherited fFormTruck: TfFormTruck
       Style.IsFontAssigned = True
       TabOrder = 4
       Width = 100
-    end
-    object edt_PrePValue: TcxTextEdit [21]
-      Left = 105
-      Top = 236
-      ParentFont = False
-      Style.Font.Charset = GB2312_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -12
-      Style.Font.Name = #23435#20307
-      Style.Font.Style = []
-      Style.IsFontAssigned = True
-      TabOrder = 11
-      Text = '0'
-      OnExit = edt_PrePValueExit
-      Width = 88
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
@@ -384,27 +369,16 @@ inherited fFormTruck: TfFormTruck
             end
           end
           object dxLayout1Item16: TdxLayoutItem
-            Caption = #22791'    '#27880':'
-            Control = EditMemo
+            Caption = #39044#32622#30382#37325':'
+            Control = EditPrePValue
             ControlOptions.ShowBorder = False
           end
-          object dxLayout1Group9: TdxLayoutGroup
-            ShowCaption = False
-            Hidden = True
-            LayoutDirection = ldHorizontal
-            ShowBorder = False
-            object dxlytmLayout1Item173: TdxLayoutItem
-              Caption = #39044#32622#30382#37325':'
-              Control = edt_PrePValue
-              ControlOptions.ShowBorder = False
-            end
-            object dxLayout1Item11: TdxLayoutItem
-              AutoAligns = [aaVertical]
-              AlignHorz = ahClient
-              Caption = #26368#22823#24320#21333#37327':'
-              Control = EditXTNum
-              ControlOptions.ShowBorder = False
-            end
+          object dxLayout1Item11: TdxLayoutItem
+            AutoAligns = [aaVertical]
+            AlignHorz = ahClient
+            Caption = #26368#22823#24320#21333#37327':'
+            Control = EditXTNum
+            ControlOptions.ShowBorder = False
           end
           object dxLayout1Group3: TdxLayoutGroup
             ShowCaption = False

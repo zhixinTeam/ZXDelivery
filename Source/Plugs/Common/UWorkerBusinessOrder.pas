@@ -394,6 +394,22 @@ begin
     end;
   end;
   {$ENDIF}
+  {$IFDEF OrderOnlyOneCard}    
+  nStr := 'select O_ID from %s where O_Truck=''%s'' and O_Card<>'''' ';
+  nStr := Format(nStr,[sTable_Order, FListA.Values['Truck']]);
+  with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+  begin
+    if RecordCount>0 then
+    begin
+      Result := False;
+      FOut.FBase.FResult := False;
+      nStr := '车辆[ %s ]在未完成[ %s ]采购单之前禁止开单.';
+      nData := Format(nStr, [FListA.Values['Truck'], FieldByName('O_ID').AsString]);
+      Fout.FBase.FErrDesc := nData;
+      Exit;
+    end;
+  end;
+  {$ENDIF}
 
   //----------------------------------------------------------------------------
   FDBConn.FConn.BeginTrans;
@@ -946,7 +962,8 @@ end;
 function TWorkerBusinessOrders.SavePostOrderItems(var nData: string): Boolean;
 var nVal, nValWC, nPrePValue,nMValue: Double;
     nIdx: Integer;
-    nStr,nSQL: string;
+    nStr,nSQL,nDID: string;
+    nPreValue: Double;
     nPound: TLadingBillItems;
     nOut: TWorkerBusinessCommand;
     nOutEx: TWorkerBusinessCommand;
@@ -982,28 +999,108 @@ begin
       //xxxxx
       {$ENDIF}
       
-      nSQL := MakeSQLByStr([
-            SF('D_ID', nOut.FData),
-            SF('D_Card', FCard),
-            SF('D_OID', FZhiKa),
-            SF('D_Truck', FTruck),
-            SF('D_ProID', FCusID),
-            SF('D_ProName', FCusName),
-            SF('D_ProPY', GetPinYinOfStr(FCusName)),
+      nPreValue := 0;
+      nStr := 'Select T_PrePValue From %s Where T_Truck = ''%s'' and isnull(T_PrePUse,''N'') = ''Y''  ';
+      nStr := Format(nStr, [sTable_Truck, FTruck]);
 
-            SF('D_Type', FType),
-            SF('D_StockNo', FStockNo),
-            SF('D_StockName', FStockName),
-            {$IFDEF UseYCLHY}
-            SF('D_SerialNo', nOutEx.FData),
-            {$ENDIF}
-            SF('D_Status', sFlag_TruckIn),
-            SF('D_NextStatus', sFlag_TruckBFP),
-            SF('D_InMan', FIn.FBase.FFrom.FUser),
-            SF('D_InTime', sField_SQLServer_Now, sfVal)
-            ], sTable_OrderDtl, '', True);
-      FListA.Add(nSQL);
-    end;  
+      with gDBConnManager.WorkerQuery(FDBConn, nStr) do
+      if RecordCount > 0 then
+      begin
+        nPreValue := Fields[0].AsFloat;
+      end;
+
+      if nPreValue = 0 then
+      begin
+        nSQL := MakeSQLByStr([
+              SF('D_ID', nOut.FData),
+              SF('D_Card', FCard),
+              SF('D_OID', FZhiKa),
+              SF('D_Truck', FTruck),
+              SF('D_ProID', FCusID),
+              SF('D_ProName', FCusName),
+              SF('D_ProPY', GetPinYinOfStr(FCusName)),
+
+              SF('D_Type', FType),
+              SF('D_StockNo', FStockNo),
+              SF('D_StockName', FStockName),
+              {$IFDEF UseYCLHY}
+              SF('D_SerialNo', nOutEx.FData),
+              {$ENDIF}
+              SF('D_Status', sFlag_TruckIn),
+              SF('D_NextStatus', sFlag_TruckBFP),
+              SF('D_InMan', FIn.FBase.FFrom.FUser),
+              SF('D_InTime', sField_SQLServer_Now, sfVal)
+              ], sTable_OrderDtl, '', True);
+        FListA.Add(nSQL);
+      end
+      else
+      begin
+        nDID := nOut.FData;
+        nSQL := MakeSQLByStr([
+              SF('D_ID', nOut.FData),
+              SF('D_Card', FCard),
+              SF('D_OID', FZhiKa),
+              SF('D_Truck', FTruck),
+              SF('D_ProID', FCusID),
+              SF('D_ProName', FCusName),
+              SF('D_ProPY', GetPinYinOfStr(FCusName)),
+
+              SF('D_Type', FType),
+              SF('D_StockNo', FStockNo),
+              SF('D_StockName', FStockName),
+              {$IFDEF UseYCLHY}
+              SF('D_SerialNo', nOutEx.FData),
+              {$ENDIF}
+              SF('D_Status', sFlag_TruckBFP),
+              SF('D_NextStatus', sFlag_TruckBFM),
+              SF('D_PValue', nPreValue, sfVal),
+              SF('D_PDate', sField_SQLServer_Now, sfVal),
+              SF('D_InMan', FIn.FBase.FFrom.FUser),
+              SF('D_InTime', sField_SQLServer_Now, sfVal)
+              ], sTable_OrderDtl, '', True);
+        FListA.Add(nSQL);
+        
+        FListC.Clear;
+        FListC.Values['Group']  := sFlag_BusGroup;
+        FListC.Values['Object'] := sFlag_PoundID;
+
+        if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+                FListC.Text, sFlag_Yes, @nOut) then
+          raise Exception.Create(nOut.FData);
+        //xxxxx
+
+        FOut.FData := nOut.FData;
+        //返回榜单号,用于拍照绑定
+        with nPound[0] do
+        begin
+          FStatus     := sFlag_TruckBFP;
+          FNextStatus := sFlag_TruckBFM;
+
+          nSQL := MakeSQLByStr([
+                SF('P_ID', nOut.FData),
+                SF('P_Type', sFlag_Provide),
+                SF('P_Order', nDID),
+                SF('P_Truck', FTruck),
+                SF('P_CusID', FCusID),
+                SF('P_CusName', FCusName),
+                SF('P_MID', FStockNo),
+                SF('P_MName', FStockName),
+                SF('P_MType', FType),
+                SF('P_LimValue', 0),
+                SF('P_PValue', nPreValue, sfVal),
+                SF('P_PDate', sField_SQLServer_Now, sfVal),
+                SF('P_FactID', FFactory),
+                SF('P_PStation', FPData.FStation),
+                SF('P_Direction', '进厂'),
+                SF('P_PModel', FPModel),
+                SF('P_Status', sFlag_TruckBFP),
+                SF('P_Valid', sFlag_Yes),
+                SF('P_PrintNum', 1, sfVal)
+                ], sTable_PoundLog, '', True);
+          FListA.Add(nSQL);
+        end;
+      end;
+    end;
   end else
 
   //----------------------------------------------------------------------------

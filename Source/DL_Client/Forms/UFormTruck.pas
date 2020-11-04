@@ -55,19 +55,15 @@ type
     dxLayout1Group7: TdxLayoutGroup;
     dxLayout1Group8: TdxLayoutGroup;
     dxLayout1Item16: TdxLayoutItem;
-    EditMemo: TcxTextEdit;
+    EditPrePValue: TcxTextEdit;
     dxlytmLayout1Item17: TdxLayoutItem;
     edt_XSZ: TcxTextEdit;
     dxlytmLayout1Item171: TdxLayoutItem;
     edt_XCZ: TcxTextEdit;
     dxlytmLayout1Item172: TdxLayoutItem;
     edt_DLYSZ: TcxTextEdit;
-    dxlytmLayout1Item173: TdxLayoutItem;
-    edt_PrePValue: TcxTextEdit;
-    dxLayout1Group9: TdxLayoutGroup;
     procedure BtnOKClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure edt_PrePValueExit(Sender: TObject);
   protected
     { Protected declarations }
     FTruckID: string;
@@ -177,7 +173,7 @@ begin
     EditColor.Text := FieldByName('T_PlateColor').AsString;
     EditStock.Text := FieldByName('T_Stock').AsString;
     EditPF.Text := FieldByName('T_PF').AsString;
-    EditMemo.Text := FieldByName('T_Memo').AsString;
+    EditPrePValue.Text := FieldByName('T_PrePValue').AsString;
 
     edt_XSZ.Text := FieldByName('T_XSZ').AsString;
     edt_XCZ.Text := FieldByName('T_XCZ').AsString;
@@ -188,7 +184,7 @@ end;
 //Desc: 保存
 procedure TfFormTruck.BtnOKClick(Sender: TObject);
 var nStr,nTruck,nU,nV,nP,nVip,nGps,nEvent: string;
-  nXTNum: Double;
+  nXTNum,nPreNum: Double;
 begin
   nTruck := UpperCase(Trim(EditTruck.Text));
   if nTruck = '' then
@@ -228,6 +224,17 @@ begin
        nP := sFlag_Yes
   else nP := sFlag_No;
 
+  nPreNum := 0;
+  if nP = sFlag_Yes then
+  begin
+    nPreNum := StrToFloatDef(EditPrePValue.Text,0);
+    if nPreNum <= 0  then
+    begin
+      ShowMsg('预置皮重值需要大于零', sHint);
+      Exit;
+    end;
+  end;
+
   if CheckVip.Checked then
        nVip:=sFlag_TypeVIP
   else nVip:=sFlag_TypeCommon;
@@ -247,7 +254,7 @@ begin
           SF('T_Valid', nV),
           SF('T_PrePUse', nP),
 
-          SF_IF([SF('T_PrePValue', edt_PrePValue.Text),
+          SF_IF([SF('T_PrePValue', FloatToStr(nPreNum)),
                  SF('T_PrePValue', 'NULL', sfVal)], CheckUserP.Checked),
 
           SF('T_VIPTruck', nVip),
@@ -263,7 +270,6 @@ begin
           SF('T_PlateColor', EditColor.Text),
           SF('T_Stock', EditStock.Text),
           SF('T_PF', EditPF.Text),
-          SF('T_Memo', EditMemo.Text),
           {$IFDEF LimitedLoadMValueChk}  //毛重限载控制
           SF('T_Limited', StrToFloatDef(edt_LimitedValue.Text,50)),
           SF('T_LimitedMin', StrToFloatDef(edt_LimitedValueMin.Text,20)),
@@ -296,12 +302,6 @@ begin
   {$ELSE}
   dxLayout1Item11.Visible := False;
   {$ENDIF}
-end;
-
-procedure TfFormTruck.edt_PrePValueExit(Sender: TObject);
-begin
-  IF Trim(edt_PrePValue.Text)='' then
-    edt_PrePValue.Text:= '0';
 end;
 
 initialization

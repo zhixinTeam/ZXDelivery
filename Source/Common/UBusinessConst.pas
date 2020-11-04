@@ -244,6 +244,7 @@ type
     FSPlace     : string;          //发货地点
     FNewOrder   : string;          //新申请单
     FSerialNo   : string;          //记录编号
+    FMHeight    : string;          //车身料高
   end;
 
   TLadingBillItems = array of TLadingBillItem;
@@ -397,6 +398,7 @@ begin
         FMemo    := Values['Memo'];
         FMemo2   := Values['Memo2'];
         FSerialNo:=Values['SerialNo'];
+        FMHeight := Values['MHeight'];
         FLadeTime:= Values['LadeTime'];
         FCusType := Values['CusType'];
         FUPlace  := Values['UPlace'];
@@ -488,6 +490,7 @@ begin
         Values['Memo2']      := FMemo2;
         Values['HKRecord']   := FHKRecord;
         Values['SerialNo']   := FSerialNo;
+        Values['MHeight']    := FMHeight;
 
         if FPrintHY then
              Values['PrintHY'] := sFlag_Yes

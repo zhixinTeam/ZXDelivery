@@ -205,6 +205,7 @@ function GetZhikaValidMoney(nZhiKa: string; var nFixMoney: Boolean): Double;
 //纸卡可用金
 function IsEnoughNum(const nTruck: string;const nNum: Double): Boolean;
 //车辆提单量是否充足
+function GetStockType(const nStockNo:string):string;
 
 function CallBusinessCommand(const nCmd: Integer; const nData,nExt: string;
   const nOut: PWorkerBusinessCommand; const nWarn: Boolean = True): Boolean;
@@ -1747,6 +1748,21 @@ begin
       if FieldByName('T_XTNum').AsFloat < nNum then
         Result := False;
     end;
+  end;
+end;
+
+function GetStockType(const nStockNo:string):string;
+var
+  nStr: string;
+begin
+  Result := 'S';
+
+  nStr := ' Select D_Memo from %s where D_Name = ''%s'' and D_ParamB = ''%s'' ';
+  nStr := Format(nStr, [sTable_SysDict, 'StockItem', nStockNo]);
+  with FDM.QueryTemp(nStr) do
+  if RecordCount > 0 then
+  begin
+    Result := FieldByName('D_Memo').AsString;
   end;
 end;
 

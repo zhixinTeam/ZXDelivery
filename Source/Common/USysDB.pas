@@ -1657,6 +1657,7 @@ const
        'R_28Ya1 varChar(20), R_28Ya2 varChar(20), R_28Ya3 varChar(20),' +
        'R_28Ya4 varChar(20), R_28Ya5 varChar(20), R_28Ya6 varChar(20),' +
        'R_FMH varChar(20), R_ZMJ varChar(20), R_RMLZ varChar(20), R_KF varChar(20),' +
+       'R_JZSMBZ varChar(50), R_JZSSFHL varChar(50),R_JZSNKHL varChar(50), R_JZSJGXZB varChar(50),R_GaO varChar(50),'+
        'R_FMHXSLB varChar(32),R_FMHMD varChar(32),R_FMHZLFS varChar(32),R_FMHHXZS varChar(32),' +
        'R_7HuoXing varChar(20), R_28HuoXing varChar(20), R_LiuDong varChar(20),' +
        'R_JZSYSZB varChar(32),R_JZSBGMD varChar(32),R_JZSSSDJMD varChar(32),R_JZSKXL varChar(32),' +

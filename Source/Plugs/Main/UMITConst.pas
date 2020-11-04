@@ -66,6 +66,7 @@ type
     FAutoMin    : Boolean;                           //自动最小化
 
     FOutFactPrint:string;                            //出厂小票打印机
+    FMValueLimit: Double;                            //毛重上限
   end;
   //系统参数
 
@@ -152,6 +153,8 @@ begin
 
         FOutFactPrint := ReadString('ExOPtions', 'OutFactPrinter', '');
         //自动出厂打印机
+        FMValueLimit := ReadFloat(FProgID, 'MValueLimit', 50);
+        //毛重重量
 
         FLocalMAC   := MakeActionID_MAC;
         GetLocalIPConfig(FLocalName, FLocalIP);

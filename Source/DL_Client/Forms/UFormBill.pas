@@ -82,6 +82,8 @@ type
   protected
     { Protected declarations }
     FBuDanFlag: string;
+    FPlanNum  : Double;
+    FIsPlan   : Boolean;
     //补单标记
     procedure LoadFormData;
     procedure LoadStockList;
@@ -367,6 +369,7 @@ var nStr,nTmp: string;
     nIdx: integer;
 begin
   BtnOK.Enabled := False;
+  FIsPlan       := False;
   nDB := LoadZhiKaInfo(gInfo.FZhiKa, ListInfo, nStr);
 
   if Assigned(nDB) then
@@ -456,8 +459,11 @@ begin
     nIdx := EditStock.Properties.Items.IndexOf(gInfo.FPlan.FStockName);
     EditStock.ItemIndex := nIdx;
 
-    EditValue.Properties.ReadOnly := True;
+   // EditValue.Properties.ReadOnly := True;
+    FIsPlan        := True;
+    FPlanNum       := gInfo.FPlan.FValue;
     EditValue.Text := FloatToStr(gInfo.FPlan.FValue);
+
     ActiveControl := BtnAdd;
   end else
 
@@ -729,6 +735,14 @@ begin
 
       FStockSeal := Trim(EditFQ.Text);
       FValue := StrToFloat(EditValue.Text);
+      if FIsPlan then
+      begin
+        if FValue > FPlanNum then
+        begin
+          ShowMsg('开单量大于计划量', sHint);
+          Exit;
+        end;
+      end;
       FValue := Float2Float(FValue, cPrecision, False);
       FSelecte := True;
 
@@ -929,6 +943,8 @@ begin
   if (FBuDanFlag <> sFlag_Yes) and (gInfo.FCard = '') then
     SetBillCard(gInfo.FIDList, EditTruck.Text, True);
   //办理磁卡
+
+  PrintHeGeReportEx(gInfo.FIDList, True);
 
   if nPrint then
     PrintBillFYDReport(gInfo.FIDList, True);

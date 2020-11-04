@@ -632,9 +632,9 @@ var
   nNewCardNo:string;
   nidx:Integer;
   i:Integer;
-  nRet, nIsDai: Boolean;
+  nRet: Boolean;
   nOrderItem:stMallOrderItem;
-  nCard:string;
+  nCard,nType:string;
 begin
   Result := False;
   nOrderItem  := FWebOrderItems[FWebOrderIndex];
@@ -658,7 +658,7 @@ begin
     Writelog(nHint);
     Exit;
   end;
-
+  nType := GetStockType(EditStock.Text);
   {$IFDEF UseTruckXTNum}
     if not IsEnoughNum(EditTruck.Text, StrToFloatDef(EditValue.Text,0)) then
     begin
@@ -734,17 +734,11 @@ begin
   nTmp := TStringList.Create;
   try
     LoadSysDictItem(sFlag_PrintBill, nStocks);
-    if Pos('袋',EditSName.Text) > 0 then
-      nTmp.Values['Type'] := 'D'
-    else
-      nTmp.Values['Type'] := 'S';
-
-    nIsDai:= nTmp.Values['Type']='D';
-
-    nTmp.Values['StockNO'] := EditStock.Text;
+    nTmp.Values['Type']      := nType;
+    nTmp.Values['StockNO']   := EditStock.Text;
     nTmp.Values['StockName'] := EditSName.Text;
-    nTmp.Values['Price'] := EditPrice.Text;
-    nTmp.Values['Value'] := EditValue.Text;
+    nTmp.Values['Price']     := EditPrice.Text;
+    nTmp.Values['Value']     := EditValue.Text;
 
     if PrintHY.Checked  then
          nTmp.Values['PrintHY'] := sFlag_Yes
@@ -793,13 +787,13 @@ begin
   end;
 
   nRet := SaveBillCard(nBillID, nCard);
+
   if not nRet then
   begin
     nMsg := '办理磁卡失败,请重试.';
     ShowMsg(nMsg, sHint);
     Exit;
   end;
-  writelog(Format('TfFormNewCard.SaveBillProxy 已关联磁卡：%s %s ', [nCard, nBillID]));
 
   nRet := gDispenserManager.SendCardOut(gSysParam.FTTCEK720ID, nHint);
   //发卡
@@ -1118,8 +1112,6 @@ begin
     if btnQuery.CanFocus then
       btnQuery.SetFocus;
     btnQuery.Click;
-
-    WriteLog('扫码查询订单 ' + Trim(editWebOrderNo.Text));
   end;
 end;
 
