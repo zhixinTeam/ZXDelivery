@@ -7,11 +7,12 @@ uses
   Dialogs, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
-  cxEdit, DB, cxDBData, dxSkinsdxLCPainter, cxContainer, cxTextEdit,
+  cxEdit, DB, cxDBData, cxContainer, cxTextEdit,
   dxLayoutControl, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin, cxCheckBox, ExtCtrls;
+  ComCtrls, ToolWin, cxCheckBox, ExtCtrls, dxLayoutcxEditAdapters, Menus,
+  cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameQueryLadingTimeOutTruck = class(TfFrameNormal)

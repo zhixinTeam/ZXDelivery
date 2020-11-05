@@ -677,7 +677,6 @@ inherited fFrameAutoPoundItem: TfFrameAutoPoundItem
   object tmr_ShowDefault: TTimer
     Enabled = False
     Interval = 3000
-    OnTimer = tmr_ShowDefaultTimer
     Left = 481
     Top = 222
   end

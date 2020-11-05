@@ -11,7 +11,7 @@ uses
   UFormBase, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxTextEdit, cxMemo,
   dxLayoutControl, StdCtrls, cxLabel, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters;
 
 type
   TfFormInvoiceAdjust = class(TfFormNormal)

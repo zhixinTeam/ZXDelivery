@@ -34,6 +34,9 @@ inherited fFrameHYRecord: TfFrameHYRecord
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       OnKeyPress = OnCtrlKeyPress
       Width = 105
@@ -43,6 +46,8 @@ inherited fFrameHYRecord: TfFrameHYRecord
       Top = 93
       Hint = 'T.P_Stock'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 5
       Width = 105
     end
@@ -56,6 +61,9 @@ inherited fFrameHYRecord: TfFrameHYRecord
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 105
@@ -65,6 +73,8 @@ inherited fFrameHYRecord: TfFrameHYRecord
       Top = 93
       Hint = 'T.R_SerialNo'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 105
     end
@@ -73,6 +83,8 @@ inherited fFrameHYRecord: TfFrameHYRecord
       Top = 93
       Hint = 'T.P_Name'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 6
       Width = 105
     end
@@ -87,6 +99,9 @@ inherited fFrameHYRecord: TfFrameHYRecord
         end>
       Properties.ReadOnly = True
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 3
       Width = 175
     end
@@ -98,47 +113,50 @@ inherited fFrameHYRecord: TfFrameHYRecord
         'D'#12289#34955#35013
         'S'#12289#25955#35013)
       Properties.OnChange = cbb_TypePropertiesChange
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 2
       Width = 121
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #27700#27877#32534#21495':'
+          CaptionOptions.Text = #27700#27877#32534#21495':'
           Control = EditID
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #27700#27877#21517#31216':'
+          CaptionOptions.Text = #27700#27877#21517#31216':'
           Control = EditStock
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item41: TdxLayoutItem
-          Caption = #31867#22411':'
+          CaptionOptions.Text = #31867#22411':'
           Control = cbb_Type
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #26816#39564#26085#26399':'
+          CaptionOptions.Text = #26816#39564#26085#26399':'
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item7: TdxLayoutItem
-          Caption = #27700#27877#32534#21495':'
+          CaptionOptions.Text = #27700#27877#32534#21495':'
           Control = cxTextEdit4
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item5: TdxLayoutItem
-          Caption = #27700#27877#21517#31216':'
+          CaptionOptions.Text = #27700#27877#21517#31216':'
           Control = cxTextEdit2
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = #31561#32423#21517#31216':'
+          CaptionOptions.Text = #31561#32423#21517#31216':'
           Control = cxTextEdit3
           ControlOptions.ShowBorder = False
         end

@@ -10,7 +10,7 @@ inherited fFormInvoiceAdjust: TfFormInvoiceAdjust
   inherited dxLayout1: TdxLayoutControl
     Width = 329
     Height = 175
-    AutoControlAlignment = False
+    OptionsItem.AutoControlAreaAlignment = False
     inherited BtnOK: TButton
       Left = 183
       Top = 142
@@ -24,14 +24,16 @@ inherited fFormInvoiceAdjust: TfFormInvoiceAdjust
     end
     object EditPrice: TcxTextEdit [2]
       Left = 93
-      Top = 103
+      Top = 85
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 121
     end
     object cxLabel2: TcxLabel [3]
       Left = 23
-      Top = 82
+      Top = 64
       Caption = 'xxxx'
       ParentFont = False
       Properties.LineOptions.Alignment = cxllaTop
@@ -39,47 +41,48 @@ inherited fFormInvoiceAdjust: TfFormInvoiceAdjust
     end
     object EditValue: TcxTextEdit [4]
       Left = 81
-      Top = 57
+      Top = 39
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 1
       Width = 121
     end
     object cxLabel1: TcxLabel [5]
       Left = 23
-      Top = 36
+      Top = 18
       Caption = 'xxxx'
       ParentFont = False
       Transparent = True
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        Caption = ''
+        CaptionOptions.Text = ''
         object dxLayout1Item6: TdxLayoutItem
-          Caption = 'cxLabel2'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxLabel2'
+          CaptionOptions.Visible = False
           Control = cxLabel1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item5: TdxLayoutItem
-          Caption = '  '#30003#35831#37327':'
+          CaptionOptions.Text = '  '#30003#35831#37327':'
           Control = EditValue
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
-          Caption = 'cxLabel1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxLabel1'
+          CaptionOptions.Visible = False
           Control = cxLabel2
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = '  '#24320#31080#21333#20215':'
+          CaptionOptions.Text = '  '#24320#31080#21333#20215':'
           Control = EditPrice
           ControlOptions.ShowBorder = False
         end
       end
       inherited dxLayout1Group1: TdxLayoutGroup
         inherited dxLayout1Item1: TdxLayoutItem
-          AutoAligns = []
           AlignVert = avBottom
         end
       end

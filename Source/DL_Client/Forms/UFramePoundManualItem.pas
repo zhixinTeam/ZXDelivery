@@ -88,6 +88,7 @@ type
     FBillItems: TLadingBillItems;
     FUIData,FInnerData: TLadingBillItem;
     //称重数据
+    FUseELableCard: Boolean;
     FListA: TStrings;
     //数据列表
     procedure InitUIData;
@@ -340,13 +341,19 @@ begin
     EditBill.SelectAll;
     ShowMsg('请输入磁卡号', sHint); Exit;
   end;
+//  if FUseELableCard then
+//    FCardUsed := sFlag_DuanDao
+//  else
+    FCardUsed := GetCardUsed(nCard);
 
-  FCardUsed := GetCardUsed(nCard);
   if ((FCardUsed=sFlag_Provide)
       and (not GetPurchaseOrders(nCard, sFlag_TruckBFP, nBills)))
     or
-    ((FCardUsed <> sFlag_Provide)
+    ((FCardUsed = sFlag_Sale)
       and (not GetLadingBills(nCard, sFlag_TruckBFP, nBills)))
+    or
+    ((FCardUsed = sFlag_DuanDao)
+      and (not GetDuanDaoItems(nCard, sFlag_TruckBFP, nBills)))
   then
   begin
     SetUIData(True);
@@ -498,6 +505,10 @@ procedure TfFrameManualPoundItem.SetTunnel(const nTunnel: PPTTunnelItem);
 begin
   FPoundTunnel := nTunnel;
   SetUIData(True);
+
+  if Assigned(FPoundTunnel.FOptions) then
+  with FPoundTunnel.FOptions do
+    FUseELableCard := Values['UseELableCard'] = sFlag_Yes;
 end;
 
 //Desc: 控制红绿灯
@@ -775,7 +786,7 @@ begin
     end;
   end;
 
-  if (Length(FBillItems)>0) and (FCardUsed = sFlag_Provide) then
+  //if (Length(FBillItems)>0) and (FCardUsed = sFlag_Provide) then
     nNextStatus := FBillItems[0].FNextStatus;
 
   SetLength(FBillItems, 1);
@@ -794,7 +805,7 @@ begin
 
   if FCardUsed = sFlag_Provide then
        Result := SavePurchaseOrders(nNextStatus, FBillItems,FPoundTunnel)
-  else Result := SaveTruckPoundItem(FPoundTunnel, FBillItems);
+  else Result := SaveDuanDaoItems(nNextStatus, FBillItems, FPoundTunnel);//SaveTruckPoundItem(FPoundTunnel, FBillItems);
   //保存称重
 end;
 

@@ -18,6 +18,8 @@ uses
   ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
   cxGridPopupMenu;
+  dxSkinscxPCPainter, dxLayoutcxEditAdapters, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
 
 type
   TfFrameSaleDetailQuery = class(TfFrameNormal)

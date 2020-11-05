@@ -3,7 +3,7 @@
   描述: 客户出入金明细查询
 *******************************************************************************}
 unit UFrameCusInOutMoney;
-
+{$I Link.Inc}
 interface
 
 uses
@@ -13,7 +13,9 @@ uses
   cxButtonEdit, cxTextEdit, ADODB, cxContainer, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin, cxLookAndFeels, cxLookAndFeelPainters;
+  ComCtrls, ToolWin, cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore,
+  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxLayoutcxEditAdapters,
+  Menus, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameCusInOutMoney = class(TfFrameNormal)
@@ -77,7 +79,8 @@ end;
 
 function TfFrameCusInOutMoney.InitFormDataSQL(const nWhere: string): string;
 begin
-  FEnableBackDB := True;
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 

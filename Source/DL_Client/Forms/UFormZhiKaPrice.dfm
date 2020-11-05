@@ -26,6 +26,8 @@ inherited fFormZKPrice: TfFormZKPrice
       Top = 36
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 0
       Width = 121
     end
@@ -34,6 +36,8 @@ inherited fFormZKPrice: TfFormZKPrice
       Top = 61
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 1
       Width = 121
     end
@@ -42,6 +46,8 @@ inherited fFormZKPrice: TfFormZKPrice
       Top = 86
       ParentFont = False
       Properties.ReadOnly = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 121
     end
@@ -51,6 +57,8 @@ inherited fFormZKPrice: TfFormZKPrice
       Caption = #26032#21333#20215#29983#25928#21518#35299#20923#32440#21345'.'
       ParentFont = False
       State = cbsChecked
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Transparent = True
       Width = 121
@@ -60,6 +68,8 @@ inherited fFormZKPrice: TfFormZKPrice
       Top = 137
       Caption = #22312#21407#21333#20215#22522#30784#19978#24212#29992#26032#21333#20215'.'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Transparent = True
       Width = 121
@@ -70,6 +80,8 @@ inherited fFormZKPrice: TfFormZKPrice
       Caption = #22312#24050#21457#36135'('#20986#21378#25110#26032#24320#21333')'#25552#36135#21333#19978#24212#29992#26032#21333#20215'.'
       ParentFont = False
       Properties.OnEditValueChanged = Check3PropertiesEditValueChanged
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 6
       Transparent = True
       Width = 341
@@ -87,18 +99,24 @@ inherited fFormZKPrice: TfFormZKPrice
     object EditStart: TcxDateEdit [9]
       Left = 81
       Top = 199
-      Enabled = False
       ParentFont = False
       Properties.Kind = ckDateTime
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 7
       Width = 121
     end
     object EditEnd: TcxDateEdit [10]
       Left = 81
       Top = 224
-      Enabled = False
       ParentFont = False
       Properties.Kind = ckDateTime
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 8
       Width = 121
     end
@@ -111,60 +129,59 @@ inherited fFormZKPrice: TfFormZKPrice
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        Caption = #36873#39033
+        CaptionOptions.Text = #36873#39033
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #27700#27877#21697#31181':'
+          CaptionOptions.Text = #27700#27877#21697#31181':'
           Control = EditStock
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
-          Caption = #38144#21806#20215#26684':'
+          CaptionOptions.Text = #38144#21806#20215#26684':'
           Control = EditPrice
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item5: TdxLayoutItem
-          Caption = #26032' '#21333' '#20215':'
+          CaptionOptions.Text = #26032' '#21333' '#20215':'
           Control = EditNew
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          Caption = 'cxCheckBox1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxCheckBox1'
+          CaptionOptions.Visible = False
           Control = Check1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item7: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = 'cxCheckBox1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxCheckBox1'
+          CaptionOptions.Visible = False
           Control = Check2
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item9: TdxLayoutItem
-          Caption = 'cxLabel1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxLabel1'
+          CaptionOptions.Visible = False
           Control = cxLabel1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item8: TdxLayoutItem
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = Check3
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item10: TdxLayoutItem
-          Caption = #24320#22987#26102#38388':'
+          CaptionOptions.Text = #24320#22987#26102#38388':'
           Control = EditStart
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item11: TdxLayoutItem
-          Caption = #32467#26463#26102#38388':'
+          CaptionOptions.Text = #32467#26463#26102#38388':'
           Control = EditEnd
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item12: TdxLayoutItem
-          Caption = 'cxLabel2'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxLabel2'
+          CaptionOptions.Visible = False
           Control = cxLabel2
           ControlOptions.ShowBorder = False
         end

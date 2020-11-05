@@ -12,7 +12,7 @@ uses
   UDataModule, UFormBase, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, dxLayoutControl, cxCheckBox,
   cxLabel, StdCtrls, cxMaskEdit, cxDropDownEdit, cxMCListBox, cxMemo,
-  cxTextEdit, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  cxTextEdit, dxSkinsCore, dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormCustomer = class(TBaseForm)
@@ -143,7 +143,8 @@ begin
     begin
       FCustomerID := nP.FParamA;
       Caption := '¿Í»§ - ÐÞ¸Ä';
-
+      EditType.Enabled := False;
+      EditName.Enabled := False;
       InitFormData(FCustomerID);
       nP.FCommand := cCmd_ModalResult;
       nP.FParamA := ShowModal;

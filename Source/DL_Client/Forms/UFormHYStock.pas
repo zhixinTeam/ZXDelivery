@@ -12,7 +12,7 @@ uses
   cxMCListBox, cxMemo, dxLayoutControl, cxContainer, cxEdit, cxTextEdit,
   cxControls, cxButtonEdit, cxCalendar, ExtCtrls, cxPC, cxLookAndFeels,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, dxSkinscxPCPainter;
+  dxSkinscxPCPainter, dxLayoutcxEditAdapters;
 
 type
   TfFormHYStock = class(TForm)

@@ -12,7 +12,7 @@ uses
   UFormBase, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxCheckBox, cxTextEdit,
   dxLayoutControl, StdCtrls, cxMaskEdit, cxDropDownEdit, cxLabel,
-  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsCore, dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormBatcode = class(TfFormNormal)

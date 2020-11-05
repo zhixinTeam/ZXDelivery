@@ -249,73 +249,78 @@ object fFormNewPurchaseCard: TfFormNewPurchaseCard
         Width = 265
       end
       object dxLayoutGroup1: TdxLayoutGroup
-        ShowCaption = False
+        AlignHorz = ahLeft
+        AlignVert = avTop
+        CaptionOptions.Visible = False
+        ButtonOptions.Buttons = <>
         Hidden = True
         ShowBorder = False
         object dxGroup1: TdxLayoutGroup
-          AutoAligns = [aaVertical]
+          AlignHorz = ahLeft
+          ButtonOptions.Buttons = <>
           object dxGroupLayout1Group2: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayout1Item5: TdxLayoutItem
-              Caption = #21512#21516#21333#21495':'
+              CaptionOptions.Text = #21512#21516#21333#21495':'
               Control = EditID
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item9: TdxLayoutItem
-              Caption = #20379' '#24212' '#21830':'
+              CaptionOptions.Text = #20379' '#24212' '#21830':'
               Control = EditProv
               ControlOptions.ShowBorder = False
             end
           end
           object dxLayout1Group2: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxlytmLayout1Item3: TdxLayoutItem
-              Caption = #21407' '#26448' '#26009':'
+              CaptionOptions.Text = #21407' '#26448' '#26009':'
               Control = EditProduct
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item1: TdxLayoutItem
-              Caption = #30719#21457#27969#27700':'
+              CaptionOptions.Text = #30719#21457#27969#27700':'
               Control = EditLs
               ControlOptions.ShowBorder = False
             end
           end
         end
         object dxGroup2: TdxLayoutGroup
-          AutoAligns = [aaVertical]
+          AlignHorz = ahLeft
+          ButtonOptions.Buttons = <>
           LayoutDirection = ldHorizontal
           object dxlytmLayout1Item12: TdxLayoutItem
-            Caption = #21150#29702#36710#36742':'
+            CaptionOptions.Text = #21150#29702#36710#36742':'
             Control = EditTruck
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item8: TdxLayoutItem
-            Caption = #21150#29702#21544#25968':'
+            CaptionOptions.Text = #21150#29702#21544#25968':'
             Control = EditValue
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayoutGroup3: TdxLayoutGroup
-          AutoAligns = [aaVertical]
           AlignHorz = ahRight
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayoutItem1: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahRight
             Control = BtnOK
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item2: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahRight
             Control = BtnExit
             ControlOptions.ShowBorder = False

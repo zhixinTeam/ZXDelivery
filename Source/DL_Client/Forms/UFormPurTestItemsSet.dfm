@@ -28,11 +28,14 @@ inherited fFormPurTestItemsSet: TfFormPurTestItemsSet
       Top = 57
       ParentFont = False
       Properties.Buttons = <>
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -13
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
       Style.IsFontAssigned = True
       TabOrder = 1
       Width = 261
@@ -55,6 +58,8 @@ inherited fFormPurTestItemsSet: TfFormPurTestItemsSet
       Left = 87
       Top = 89
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Height = 51
       Width = 317
@@ -63,6 +68,8 @@ inherited fFormPurTestItemsSet: TfFormPurTestItemsSet
       Left = 87
       Top = 145
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Height = 51
       Width = 317
@@ -70,23 +77,23 @@ inherited fFormPurTestItemsSet: TfFormPurTestItemsSet
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxlytmLayout1Item4: TdxLayoutItem
-          Caption = 'cxLabel1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxLabel1'
+          CaptionOptions.Visible = False
           Control = cxlbl1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #26816#27979#39033#21517#65306
+          CaptionOptions.Text = #26816#27979#39033#21517#65306
           Control = Edt_1
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item42: TdxLayoutItem
-          Caption = #21028#23450#26465#20214#65306
+          CaptionOptions.Text = #21028#23450#26465#20214#65306
           Control = Mmo_1
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item41: TdxLayoutItem
-          Caption = #20844'    '#24335#65306
+          CaptionOptions.Text = #20844'    '#24335#65306
           Control = Mmo_GS
           ControlOptions.ShowBorder = False
         end

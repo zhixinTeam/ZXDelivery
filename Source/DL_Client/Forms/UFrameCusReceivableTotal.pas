@@ -7,11 +7,12 @@ uses
   Dialogs, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels, DateUtils,
   cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
-  cxEdit, DB, cxDBData, dxSkinsdxLCPainter, cxContainer, dxLayoutControl,
+  cxEdit, DB, cxDBData, cxContainer, dxLayoutControl,
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin, cxDropDownEdit, cxCalendar;
+  ComCtrls, ToolWin, cxDropDownEdit, cxCalendar, dxLayoutcxEditAdapters,
+  Menus, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameCusReceivableTotal = class(TfFrameNormal)

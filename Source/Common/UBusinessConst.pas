@@ -406,6 +406,7 @@ begin
         FUPlace  := Values['UPlace'];
         FSPlace  := Values['SPlace'];
         FNewOrder:= Values['NewOrder'];
+        FIsNei   := Values['IsNei'];
       end;
 
       Inc(nInt);
@@ -502,6 +503,7 @@ begin
         Values['UPlace'] := FUPlace;
         Values['SPlace'] := FSPlace;
         Values['NewOrder']   := FNewOrder;
+        Values['IsNei']   := FIsNei;
       end;
 
       nListA.Add(PackerEncodeStr(nListB.Text));

@@ -25,6 +25,8 @@ inherited fFormTruck: TfFormTruck
       Top = 36
       ParentFont = False
       Properties.MaxLength = 15
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -39,6 +41,8 @@ inherited fFormTruck: TfFormTruck
       Top = 36
       ParentFont = False
       Properties.MaxLength = 100
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -52,6 +56,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 61
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -66,6 +72,8 @@ inherited fFormTruck: TfFormTruck
       Top = 319
       Caption = #36710#36742#20801#35768#24320#21333'.'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -81,6 +89,8 @@ inherited fFormTruck: TfFormTruck
       Top = 371
       Caption = #39564#35777#36710#36742#24050#21040#20572#36710#22330'.'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -96,6 +106,8 @@ inherited fFormTruck: TfFormTruck
       Top = 345
       Caption = #36710#36742#20351#29992#39044#32622#30382#37325'.'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -111,6 +123,8 @@ inherited fFormTruck: TfFormTruck
       Top = 345
       Caption = 'VIP'#36710#36742
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -126,6 +140,8 @@ inherited fFormTruck: TfFormTruck
       Top = 371
       Caption = #24050#23433#35013'GPS'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -140,6 +156,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 236
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -154,6 +172,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 261
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -168,6 +188,8 @@ inherited fFormTruck: TfFormTruck
       Left = 280
       Top = 261
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -182,6 +204,8 @@ inherited fFormTruck: TfFormTruck
       Left = 268
       Top = 161
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -195,6 +219,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 161
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -208,6 +234,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 186
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -221,6 +249,8 @@ inherited fFormTruck: TfFormTruck
       Left = 268
       Top = 186
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -234,6 +264,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 211
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -247,6 +279,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 86
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -260,6 +294,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 136
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -273,6 +309,8 @@ inherited fFormTruck: TfFormTruck
       Left = 105
       Top = 111
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -282,97 +320,131 @@ inherited fFormTruck: TfFormTruck
       TabOrder = 4
       Width = 100
     end
+    object edt_PrePValue: TcxTextEdit [21]
+      Left = 105
+      Top = 236
+      ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.Font.Charset = GB2312_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -12
+      Style.Font.Name = #23435#20307
+      Style.Font.Style = []
+      Style.IsFontAssigned = True
+      TabOrder = 11
+      Text = '0'
+      OnExit = edt_PrePValueExit
+      Width = 88
+    end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Group6: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Item9: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #36710#29260#21495#30721':'
+            CaptionOptions.Text = #36710#29260#21495#30721':'
             Control = EditTruck
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item5: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #36710#20027#22995#21517':'
+            CaptionOptions.Text = #36710#20027#22995#21517':'
             Control = EditOwner
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Item3: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = #32852#31995#26041#24335':'
+          CaptionOptions.Text = #32852#31995#26041#24335':'
           Control = EditPhone
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item17: TdxLayoutItem
-          Caption = #39550#39542#35777#21495':'
+          CaptionOptions.Text = #39550#39542#35777#21495':'
           Control = edt_XSZ
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item172: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = #36947#36335#36816#36755#35777':'
+          CaptionOptions.Text = #36947#36335#36816#36755#35777':'
           Control = edt_DLYSZ
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item171: TdxLayoutItem
-          Caption = #34892#36710#35777#21495':'
+          CaptionOptions.Text = #34892#36710#35777#21495':'
           Control = edt_XCZ
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Group5: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           ShowBorder = False
           object dxLayout1Group7: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayout1Item13: TdxLayoutItem
-              Caption = #36710#36742#31867#22411':'
+              CaptionOptions.Text = #36710#36742#31867#22411':'
               Control = EditType
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item12: TdxLayoutItem
-              AutoAligns = [aaVertical]
               AlignHorz = ahClient
-              Caption = #36710#29260#39068#33394':'
+              CaptionOptions.Text = #36710#29260#39068#33394':'
               Control = EditColor
               ControlOptions.ShowBorder = False
             end
           end
           object dxLayout1Group8: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayout1Item14: TdxLayoutItem
-              Caption = #21697'    '#31181':'
+              CaptionOptions.Text = #21697'    '#31181':'
               Control = EditStock
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item15: TdxLayoutItem
-              AutoAligns = [aaVertical]
               AlignHorz = ahClient
-              Caption = #25490#25918#26631#20934':'
+              CaptionOptions.Text = #25490#25918#26631#20934':'
               Control = EditPF
               ControlOptions.ShowBorder = False
             end
           end
           object dxLayout1Item16: TdxLayoutItem
+            CaptionOptions.Text = #22791'    '#27880':'
+            Control = EditMemo
             Caption = #39044#32622#30382#37325':'
             Control = EditPrePValue
             ControlOptions.ShowBorder = False
           end
+          object dxLayout1Group9: TdxLayoutGroup
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
+            Hidden = True
+            LayoutDirection = ldHorizontal
+            ShowBorder = False
+            object dxlytmLayout1Item173: TdxLayoutItem
+              CaptionOptions.Text = #39044#32622#30382#37325':'
+              Control = edt_PrePValue
+              ControlOptions.ShowBorder = False
+            end
+            object dxLayout1Item11: TdxLayoutItem
+              AlignHorz = ahClient
+              CaptionOptions.Text = #26368#22823#24320#21333#37327':'
+              Control = EditXTNum
+              ControlOptions.ShowBorder = False
+            end
           object dxLayout1Item11: TdxLayoutItem
             AutoAligns = [aaVertical]
             AlignHorz = ahClient
@@ -381,19 +453,19 @@ inherited fFormTruck: TfFormTruck
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Group3: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxlytm_MValueMax: TdxLayoutItem
-              Caption = #27611#37325#38480#36733#19978#38480':'
+              CaptionOptions.Text = #27611#37325#38480#36733#19978#38480':'
               Control = edt_LimitedValue
               ControlOptions.ShowBorder = False
             end
             object dxlytm_MValeMin: TdxLayoutItem
-              AutoAligns = [aaVertical]
               AlignHorz = ahClient
-              Caption = #27611#37325#38480#36733#19979#38480':'
+              CaptionOptions.Text = #27611#37325#38480#36733#19979#38480':'
               Control = edt_LimitedValueMin
               ControlOptions.ShowBorder = False
             end
@@ -401,44 +473,47 @@ inherited fFormTruck: TfFormTruck
         end
       end
       object dxGroup2: TdxLayoutGroup [1]
-        Caption = #36710#36742#21442#25968
+        CaptionOptions.Text = #36710#36742#21442#25968
+        ButtonOptions.Buttons = <>
         object dxLayout1Item4: TdxLayoutItem
-          Caption = 'cxCheckBox1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxCheckBox1'
+          CaptionOptions.Visible = False
           Control = CheckValid
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Group2: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Item6: TdxLayoutItem
-            ShowCaption = False
+            CaptionOptions.Visible = False
             Control = CheckUserP
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item8: TdxLayoutItem
-            Caption = 'cxCheckBox1'
-            ShowCaption = False
+            CaptionOptions.Text = 'cxCheckBox1'
+            CaptionOptions.Visible = False
             Control = CheckVip
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Group4: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Item7: TdxLayoutItem
-            Caption = 'cxCheckBox2'
-            ShowCaption = False
+            CaptionOptions.Text = 'cxCheckBox2'
+            CaptionOptions.Visible = False
             Control = CheckVerify
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item10: TdxLayoutItem
-            Caption = 'cxCheckBox1'
-            ShowCaption = False
+            CaptionOptions.Text = 'cxCheckBox1'
+            CaptionOptions.Visible = False
             Control = CheckGPS
             ControlOptions.ShowBorder = False
           end

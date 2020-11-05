@@ -16,7 +16,7 @@ uses
   ADODB, cxLabel, UBitmapPanel, cxSplitter, cxGridLevel, cxClasses,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridDBTableView, cxGrid, ComCtrls, ToolWin, Menus, dxSkinscxPCPainter,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameTrucks = class(TfFrameNormal)

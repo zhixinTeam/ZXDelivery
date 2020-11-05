@@ -102,7 +102,7 @@ begin
         with gDBConnManager.WorkerQuery(FDBConn, nStr) do
         begin
           if RecordCount < 1 then
-            Continue;
+            exit;
           //无新消息
 
           WriteLog('查询到 '+ IntToStr(RecordCount) + ' 条纸卡品种需更新价格,开始批量调价...');

@@ -11,16 +11,16 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 429
-    Height = 417
+    Height = 418
     inherited BtnOK: TButton
       Left = 283
-      Top = 384
+      Top = 385
       Caption = #30830#23450
       TabOrder = 6
     end
     inherited BtnExit: TButton
       Left = 353
-      Top = 384
+      Top = 385
       TabOrder = 7
     end
     object ListInfo: TcxMCListBox [2]
@@ -58,11 +58,14 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
       Style.IsFontAssigned = True
       TabOrder = 1
       OnKeyPress = OnCtrlKeyPress
@@ -77,11 +80,15 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Properties.ImmediateDropDown = False
       Properties.ItemHeight = 18
       Properties.OnChange = EditSalesManPropertiesChange
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 2
       Width = 138
@@ -95,11 +102,15 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Properties.IncrementalSearch = False
       Properties.ItemHeight = 18
       Properties.OnEditValueChanged = EditNamePropertiesEditValueChanged
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 3
       OnKeyPress = EditNameKeyPress
@@ -148,11 +159,15 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
       Properties.IncrementalSearch = False
       Properties.ItemHeight = 20
       Properties.OnEditValueChanged = EditZKPropertiesEditValueChanged
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 4
       OnKeyPress = EditNameKeyPress
@@ -160,53 +175,50 @@ inherited fFormGetZhiKa: TfFormGetZhiKa
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        Caption = '1.'#36873#25321#23458#25143
+        CaptionOptions.Text = '1.'#36873#25321#23458#25143
         object dxLayout1Item7: TdxLayoutItem
-          AutoAligns = [aaHorizontal]
+          AlignVert = avTop
           Control = ListInfo
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Group4: TdxLayoutGroup
-          AutoAligns = [aaHorizontal]
           AlignVert = avBottom
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Item8: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            Caption = #23458#25143#32534#21495':'
+            AlignHorz = ahLeft
+            CaptionOptions.Text = #23458#25143#32534#21495':'
             Control = EditID
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item9: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #19994#21153#20154#21592':'
+            CaptionOptions.Text = #19994#21153#20154#21592':'
             Control = EditSalesMan
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Item10: TdxLayoutItem
-          AutoAligns = []
           AlignHorz = ahClient
           AlignVert = avBottom
-          Caption = #23458#25143#21517#31216':'
+          CaptionOptions.Text = #23458#25143#21517#31216':'
           Control = EditName
           ControlOptions.ShowBorder = False
         end
       end
       object dxGroup2: TdxLayoutGroup [1]
-        AutoAligns = [aaHorizontal]
         AlignVert = avClient
-        Caption = '2.'#36873#25321#32440#21345
+        CaptionOptions.Text = '2.'#36873#25321#32440#21345
+        ButtonOptions.Buttons = <>
         object dxLayout1Item4: TdxLayoutItem
-          Caption = #32440#21345#21015#34920':'
+          CaptionOptions.Text = #32440#21345#21015#34920':'
           Control = EditZK
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          AutoAligns = [aaHorizontal]
           AlignVert = avClient
           Control = ListDetail
           ControlOptions.ShowBorder = False

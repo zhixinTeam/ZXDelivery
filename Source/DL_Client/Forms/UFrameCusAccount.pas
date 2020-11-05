@@ -16,8 +16,8 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters, USysPopedom,
-  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
-  cxGridPopupMenu;
+  dxSkinscxPCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu, dxLayoutcxEditAdapters;
 
 type
   TfFrameCusAccount = class(TfFrameNormal)
@@ -72,7 +72,8 @@ end;
 
 function TfFrameCusAccount.InitFormDataSQL(const nWhere: string): string;
 begin
-  FEnableBackDB := True;
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
 
   Result := 'Select ca.*,cus.*,S_Name as C_SaleName,' +
             '(A_InitMoney + A_InMoney-A_OutMoney-A_Compensation-A_FreezeMoney) As A_YuE ' +

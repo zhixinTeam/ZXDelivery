@@ -7,11 +7,12 @@ uses
   Dialogs, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
-  cxEdit, DB, cxDBData, dxSkinsdxLCPainter, cxContainer, ADODB, cxLabel,
+  cxEdit, DB, cxDBData, cxContainer, ADODB, cxLabel,
   UBitmapPanel, cxSplitter, dxLayoutControl, cxGridLevel, cxClasses,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridDBTableView, cxGrid, ComCtrls, ToolWin, cxTextEdit, cxMaskEdit,
-  cxButtonEdit, Menus, cxGridCustomPopupMenu, cxGridPopupMenu;
+  cxButtonEdit, Menus, cxGridCustomPopupMenu, cxGridPopupMenu,
+  dxLayoutcxEditAdapters;
 
 type
   TfFramePurTestPublish = class(TfFrameNormal)

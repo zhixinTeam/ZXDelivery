@@ -3,7 +3,7 @@
   描述: 纸卡办理明细查询
 *******************************************************************************}
 unit UFrameZhiKaDetail;
-
+{$I Link.Inc}
 interface
 
 uses
@@ -16,6 +16,8 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
+  dxSkinscxPCPainter, dxLayoutcxEditAdapters, cxGridCustomPopupMenu,
   cxGridPopupMenu;
 
 type
@@ -131,7 +133,9 @@ begin
 end;
 
 function TfFrameZhiKaDetail.InitFormDataSQL(const nWhere: string): string;
-begin  
+begin
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
 
   Result := 'Select sm.*,zk.*,zd.*,ht.*,zd.R_ID as D_RID,' +

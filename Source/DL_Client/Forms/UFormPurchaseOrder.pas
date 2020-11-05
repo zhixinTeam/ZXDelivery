@@ -13,6 +13,8 @@ uses
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxButtonEdit,
   cxTextEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxLabel,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  cxTextEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxLabel,
+  dxSkinsCore, dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormPurchaseOrder = class(TfFormNormal)
@@ -48,6 +50,8 @@ type
     dxLayout1Item10: TdxLayoutItem;
     chk_AutoP: TCheckBox;
     dxlytmLayout1Item11: TdxLayoutItem;
+    editPValue: TcxTextEdit;
+    dxLayout1Item11: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure BtnOKClick(Sender: TObject);
@@ -60,7 +64,7 @@ type
     //卡片数据
     FNewBillID: string;
     //新提单号
-    FBuDanFlag: string;
+    FBuDanFlag: Boolean;
     //补单标记
     procedure InitFormData;
     //初始化界面
@@ -87,9 +91,11 @@ class function TfFormPurchaseOrder.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
 var nStr: string;
     nP: PFormCommandParam;
+    nBuDan :Boolean;
 begin
   Result := nil;
-  if GetSysValidDate < 1 then Exit;
+  //if GetSysValidDate < 1 then Exit;
+  nBuDan := nPopedom = 'MAIN_MF05';
 
   if not Assigned(nParam) then
   begin
@@ -109,6 +115,10 @@ begin
   try
     Caption := '开采购单';
     ActiveControl := EditTruck;
+
+    if not nBuDan then
+      dxLayout1Item11.Visible := False;
+    FBuDanFlag := nBuDan;
 
     FCardData.Text := PackerDecodeStr(nStr);
     InitFormData;
@@ -339,6 +349,12 @@ begin
       else Values['AutoPoundP']:= 'N';
     end;
 
+    if FBuDanFlag then
+    begin
+      Values['PValue']       := Trim(editPValue.Text);
+      Values['BuDan']        := sFlag_Yes;
+    end;
+
     Values['KFValue']       := Trim(EditKFValue.Text);
     Values['KFLS']          := Trim(EditKFLS.Text);
 
@@ -351,8 +367,8 @@ begin
   if nCardType = 'L' then
     PrintRCOrderReport(nOrder, True);
   //临时卡提示打印入厂
-
-  SetOrderCard(nOrder, FListA.Values['Truck'], True);
+  if not FBuDanFlag then
+    SetOrderCard(nOrder, FListA.Values['Truck'], True);
   //办理磁卡
 
   ModalResult := mrOK;

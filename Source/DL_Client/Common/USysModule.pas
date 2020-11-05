@@ -47,7 +47,7 @@ uses
   UFramePurSampleBatch, UFormPurSampleBatch, UFormGetInspStandard, UFramePurSampleEnCode, UFormPurSampleEnCode,
   UFramePurTestVerify, UFramePurTestPublish,
   UFramePurSampleHYDataEx, UFramePurTestPlanSet, UFormPurTestPlanSet, UFormPurTestItemsSet,
-  UFramePurTestReport, UFramePurHYDataReport,
+  UFramePurTestReport, UFramePurHYDataReport, UFrameQueryTransferDetail,
   UFormPurSampleBatchEx,
   // Query
   UFrameQuerySaleDetail,
@@ -78,7 +78,7 @@ uses
   UFrameMonthPrice, UCollectMoney, UAccReport, UFrameSaleAndMoney,
   UFrameDaySalesHj, UFrameDayReport,UFrameDayReport_HY, UFrameQuerySaleTotal2HY,
   UFrameCusTotalMoney, UFrameCusReceivable, UFrameQrySaleByMonth,
-  UFramePurchByMonth;
+  UFramePurchByMonth, UFrameCusReceivable_ForJG;
 
 procedure InitSystemObject;
 procedure RunSystemObject;

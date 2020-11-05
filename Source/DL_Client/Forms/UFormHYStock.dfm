@@ -26,8 +26,7 @@ object fFormHYStock: TfFormHYStock
     Align = alClient
     TabOrder = 0
     TabStop = False
-    AutoContentSizes = [acsWidth, acsHeight]
-    LookAndFeel = FDM.dxLayoutWeb1
+    LayoutLookAndFeel = FDM.dxLayoutWeb1
     object BtnOK: TButton
       Left = 324
       Top = 482
@@ -59,6 +58,9 @@ object fFormHYStock: TfFormHYStock
         end>
       Properties.MaxLength = 15
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       Width = 121
     end
@@ -74,6 +76,10 @@ object fFormHYStock: TfFormHYStock
       Properties.ItemHeight = 18
       Properties.MaxLength = 15
       Properties.OnEditValueChanged = EditStockPropertiesEditValueChanged
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 1
       Width = 185
     end
@@ -84,6 +90,8 @@ object fFormHYStock: TfFormHYStock
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 5
       Height = 35
       Width = 331
@@ -101,6 +109,10 @@ object fFormHYStock: TfFormHYStock
         'D=D'#12289#34955#35013
         'S=S'#12289#25955#35013)
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 2
       Width = 125
     end
@@ -110,6 +122,8 @@ object fFormHYStock: TfFormHYStock
       Hint = 'T.P_Name'
       ParentFont = False
       Properties.MaxLength = 50
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 185
     end
@@ -1116,92 +1130,95 @@ object fFormHYStock: TfFormHYStock
       Hint = 'T.P_QLevel'
       ParentFont = False
       Properties.MaxLength = 20
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 125
     end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
-      ShowCaption = False
+      AlignHorz = ahParentManaged
+      AlignVert = avParentManaged
+      CaptionOptions.Visible = False
+      ButtonOptions.Buttons = <>
       Hidden = True
       ShowBorder = False
       object dxLayoutControl1Group1: TdxLayoutGroup
-        Caption = #22522#26412#20449#24687
+        CaptionOptions.Text = #22522#26412#20449#24687
+        ButtonOptions.Buttons = <>
         object dxLayoutControl1Item1: TdxLayoutItem
-          Caption = #21697#31181#32534#21495':'
+          CaptionOptions.Text = #21697#31181#32534#21495':'
           Control = EditID
           ControlOptions.ShowBorder = False
         end
         object dxLayoutControl1Group6: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayoutControl1Item12: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            Caption = #27700#27877#21517#31216':'
+            AlignHorz = ahLeft
+            CaptionOptions.Text = #27700#27877#21517#31216':'
             Control = EditStock
             ControlOptions.ShowBorder = False
           end
           object dxLayoutControl1Item2: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #27700#27877#31867#22411':'
+            CaptionOptions.Text = #27700#27877#31867#22411':'
             Control = EditType
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayoutControl1Group2: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayoutControl1Item3: TdxLayoutItem
-            Caption = #21697#31181#31561#32423':'
+            CaptionOptions.Text = #21697#31181#31561#32423':'
             Control = EditName
             ControlOptions.ShowBorder = False
           end
           object dxLayoutControl1Item4: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #24378#24230#31561#32423':'
+            CaptionOptions.Text = #24378#24230#31561#32423':'
             Control = EditQLevel
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayoutControl1Item8: TdxLayoutItem
-          Caption = #22791#27880#20449#24687':'
+          CaptionOptions.Text = #22791#27880#20449#24687':'
           Control = EditMemo
           ControlOptions.ShowBorder = False
         end
       end
       object dxLayoutControl1Item25: TdxLayoutItem
-        AutoAligns = [aaHorizontal]
         AlignVert = avClient
-        Caption = 'cxPageControl1'
-        ShowCaption = False
+        CaptionOptions.Text = 'cxPageControl1'
+        CaptionOptions.Visible = False
         Control = wPage
         ControlOptions.AutoColor = True
         ControlOptions.ShowBorder = False
       end
       object dxLayoutControl1Group5: TdxLayoutGroup
-        AutoAligns = [aaHorizontal]
         AlignVert = avBottom
-        ShowCaption = False
+        CaptionOptions.Visible = False
+        ButtonOptions.Buttons = <>
         Hidden = True
         LayoutDirection = ldHorizontal
         ShowBorder = False
         object dxLayoutControl1Item10: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahRight
-          Caption = 'Button3'
-          ShowCaption = False
+          CaptionOptions.Text = 'Button3'
+          CaptionOptions.Visible = False
           Control = BtnOK
           ControlOptions.ShowBorder = False
         end
         object dxLayoutControl1Item11: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahRight
-          Caption = 'Button4'
-          ShowCaption = False
+          CaptionOptions.Text = 'Button4'
+          CaptionOptions.Visible = False
           Control = BtnExit
           ControlOptions.ShowBorder = False
         end

@@ -7,12 +7,13 @@ uses
   Dialogs, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
-  cxEdit, DB, cxDBData, dxSkinsdxLCPainter, cxContainer,
+  cxEdit, DB, cxDBData, cxContainer,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, ADODB,
   cxLabel, UBitmapPanel, cxSplitter, dxLayoutControl, cxGridLevel,
   cxClasses, cxGridCustomView, cxGrid, ComCtrls, ToolWin, Provider,
   DBClient, StdCtrls, cxTextEdit, cxMaskEdit, cxButtonEdit, cxCheckBox,
-  ExtCtrls, Menus, cxGridCustomPopupMenu, cxGridPopupMenu;
+  ExtCtrls, Menus, cxGridCustomPopupMenu, cxGridPopupMenu,
+  dxLayoutcxEditAdapters;
 
 type
   TfFramePurSampleBatch = class(TfFrameNormal)

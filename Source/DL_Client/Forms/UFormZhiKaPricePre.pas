@@ -12,8 +12,8 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxCheckBox, cxTextEdit,
   dxLayoutControl, StdCtrls, cxMaskEdit, cxDropDownEdit, cxCalendar,
-  cxLabel, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter,
-  ExtCtrls;
+  cxLabel, dxSkinsCore, dxSkinsDefaultPainters,
+  ExtCtrls, dxLayoutcxEditAdapters, dxLayoutControlAdapters;
 
 type
   TfFormZKPricePre = class(TfFormNormal)

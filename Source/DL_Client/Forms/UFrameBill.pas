@@ -17,6 +17,7 @@ uses
   UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters,
   cxCheckBox, dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
   dxSkinsdxLCPainter, cxGridCustomPopupMenu, cxGridPopupMenu;
+  dxLayoutcxEditAdapters, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameBill = class(TfFrameNormal)

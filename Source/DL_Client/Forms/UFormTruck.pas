@@ -12,7 +12,7 @@ uses
   UFormBase, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxDropDownEdit,
   cxTextEdit, dxLayoutControl, StdCtrls, cxCheckBox, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormTruck = class(TfFormNormal)
@@ -178,6 +178,7 @@ begin
     edt_XSZ.Text := FieldByName('T_XSZ').AsString;
     edt_XCZ.Text := FieldByName('T_XCZ').AsString;
     edt_DLYSZ.Text := FieldByName('T_DLYSZ').AsString;
+    edt_PrePValue.Text := FieldByName('T_PrePValue').AsString;
   end;
 end;
 

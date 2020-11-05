@@ -104,24 +104,26 @@ inherited fFormGetEditZhiKa: TfFormGetEditZhiKa
         end>
       Properties.OnButtonClick = EditCusPropertiesButtonClick
       ShowHint = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = EditCusKeyPress
       Width = 228
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        Caption = #35746#21333#21015#34920
+        CaptionOptions.Text = #35746#21333#21015#34920
         object dxLayout1Item4: TdxLayoutItem
-          AutoAligns = [aaVertical]
-          Caption = #23458#25143#21517#31216':'
+          AlignHorz = ahLeft
+          CaptionOptions.Text = #23458#25143#21517#31216':'
           Control = EditCus
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          AutoAligns = [aaHorizontal]
           AlignVert = avClient
-          Caption = 'cxGrid1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxGrid1'
+          CaptionOptions.Visible = False
           Control = GridOrders
           ControlOptions.ShowBorder = False
         end

@@ -14,7 +14,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxCheckBox, cxTextEdit,
   cxMCListBox, dxLayoutControl, StdCtrls, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormZhiKaFixMoney = class(TfFormNormal)

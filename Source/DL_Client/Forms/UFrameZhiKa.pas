@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameZhiKa;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -15,8 +16,8 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
-  cxGridPopupMenu;
+  dxSkinscxPCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu, dxLayoutcxEditAdapters;
 
 type
   TfFrameZhiKa = class(TfFrameNormal)
@@ -102,6 +103,8 @@ end;
 //Desc: 数据查询SQL
 function TfFrameZhiKa.InitFormDataSQL(const nWhere: string): string;
 begin
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   
   Result := 'Select zk.*,sm.S_Name,sm.S_PY,cus.C_Name,cus.C_PY From $ZK zk ' +

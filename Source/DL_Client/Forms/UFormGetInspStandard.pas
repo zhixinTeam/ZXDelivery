@@ -6,11 +6,11 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, dxLayoutControl, StdCtrls, cxContainer, cxEdit,
+  dxLayoutControl, StdCtrls, cxContainer, cxEdit,
   cxStyles, dxSkinscxPCPainter, cxCustomData, cxFilter, cxData,
   cxDataStorage, DB, cxDBData, cxGridLevel, cxGridCustomTableView,
   cxGridTableView, cxGridDBTableView, cxClasses, cxGridCustomView, cxGrid,
-  cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB;
+  cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, dxLayoutcxEditAdapters;
 
 type
   TfFormGetInspStandard = class(TfFormNormal)

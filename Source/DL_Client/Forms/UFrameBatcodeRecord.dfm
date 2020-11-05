@@ -28,6 +28,8 @@ inherited fFrameBatcodeRecord: TfFrameBatcodeRecord
       Top = 93
       Hint = 'T.R_Batcode'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 125
     end
@@ -41,6 +43,9 @@ inherited fFrameBatcodeRecord: TfFrameBatcodeRecord
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditNamePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 125
@@ -50,6 +55,8 @@ inherited fFrameBatcodeRecord: TfFrameBatcodeRecord
       Top = 93
       Hint = 'T.R_Name'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 165
     end
@@ -58,6 +65,8 @@ inherited fFrameBatcodeRecord: TfFrameBatcodeRecord
       Top = 93
       Hint = 'T.R_FirstDate'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 182
     end
@@ -71,37 +80,39 @@ inherited fFrameBatcodeRecord: TfFrameBatcodeRecord
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       Width = 182
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #25209#27425#32534#21495':'
+          CaptionOptions.Text = #25209#27425#32534#21495':'
           Control = EditCode
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item5: TdxLayoutItem
-          Caption = #26085#26399#31579#36873':'
+          CaptionOptions.Text = #26085#26399#31579#36873':'
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #25209#27425#32534#21495':'
+          CaptionOptions.Text = #25209#27425#32534#21495':'
           Control = cxTextEdit1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #21551#29992#26102#38388':'
+          CaptionOptions.Text = #21551#29992#26102#38388':'
           Control = cxTextEdit3
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = #29289#26009#21517#31216':'
+          CaptionOptions.Text = #29289#26009#21517#31216':'
           Control = cxTextEdit2
           ControlOptions.ShowBorder = False
         end

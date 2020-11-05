@@ -507,31 +507,30 @@ begin
               SF('D_NextStatus', ''),
               SF('D_InMan', ''),
               SF('D_InTime', sField_SQLServer_Now, sfVal),
-              SF('D_PMan', FListA.Values['PMan']),
-              SF('D_MMan', FListA.Values['MMan']),
+              SF('D_PMan', FIn.FBase.FFrom.FUser),
+              SF('D_MMan', FIn.FBase.FFrom.FUser),
               SF('D_YMan', ''),
               SF('D_PValue', FListA.Values['PValue']),
-              SF('D_MValue', FListA.Values['MValue']),
-              SF('D_BDMemo', FListA.Values['BDMemo']),
+              SF('D_Value', nVal,sfVal),
               SF('D_KZValue', '0')
               ], sTable_OrderDtl, '', True);
 
       gDBConnManager.WorkerExec(FDBConn, nStr);
 
-      nStr:= 'UPDate P_OrderDtl Set D_Value=D_MValue-D_PValue-D_KZValue, D_InTime= DATEADD(MI, 2, D_InTime), D_YSResult=''Y'' '+
+      nStr:= 'UPDate P_OrderDtl Set D_MValue=D_Value+D_PValue, D_InTime= DATEADD(MI, 2, D_InTime), D_YSResult=''Y'' '+
              'Where D_ID='''+nOut.FData+'''';
       gDBConnManager.WorkerExec(FDBConn, nStr);
 
-      nStr:= 'UPDate P_OrderDtl Set D_MDate= DATEADD(MI, 3, D_InTime) Where D_ID='''+nOut.FData+'''';
+      nStr:= 'UPDate P_OrderDtl Set D_MDate= DATEADD(MI, 0, D_InTime) Where D_ID='''+nOut.FData+'''';
       gDBConnManager.WorkerExec(FDBConn, nStr);
 
-      nStr:= 'UPDate P_OrderDtl Set D_YTime= DATEADD(MI, 2, D_MDate)  Where D_ID='''+nOut.FData+'''';
+      nStr:= 'UPDate P_OrderDtl Set D_YTime= DATEADD(MI, 0, D_MDate)  Where D_ID='''+nOut.FData+'''';
       gDBConnManager.WorkerExec(FDBConn, nStr);
 
-      nStr:= 'UPDate P_OrderDtl Set D_PDate= DATEADD(MI, 3, D_YTime)  Where D_ID='''+nOut.FData+'''';
+      nStr:= 'UPDate P_OrderDtl Set D_PDate= DATEADD(MI, 0, D_YTime)  Where D_ID='''+nOut.FData+'''';
       gDBConnManager.WorkerExec(FDBConn, nStr);
 
-      nStr:= 'UPDate P_OrderDtl Set D_OutFact= DATEADD(MI, 3, D_PDate) Where D_ID='''+nOut.FData+'''';
+      nStr:= 'UPDate P_OrderDtl Set D_OutFact= DATEADD(MI, 0, D_PDate) Where D_ID='''+nOut.FData+'''';
       gDBConnManager.WorkerExec(FDBConn, nStr);
     end;
 

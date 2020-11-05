@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, dxLayoutControl, StdCtrls;
+  dxLayoutControl, StdCtrls;
 
 type
   TfFormPurMatelTestItemSet = class(TfFormNormal)

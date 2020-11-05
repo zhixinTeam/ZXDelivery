@@ -12,7 +12,7 @@ uses
   cxLookAndFeelPainters, cxContainer, cxEdit, dxLayoutControl, cxLabel,
   cxCheckBox, cxTextEdit, cxDropDownEdit, cxMCListBox, cxMaskEdit,
   cxButtonEdit, StdCtrls, cxMemo, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters;
 
 type
   TfFormSaleContract = class(TBaseForm)

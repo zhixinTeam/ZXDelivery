@@ -30,6 +30,10 @@ inherited fFormInvoiceGetWeek: TfFormInvoiceGetWeek
       Properties.ImmediateDropDown = False
       Properties.ItemHeight = 18
       Properties.OnEditValueChanged = EditYearPropertiesEditValueChanged
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 0
       Width = 100
     end
@@ -41,19 +45,23 @@ inherited fFormInvoiceGetWeek: TfFormInvoiceGetWeek
       Properties.DropDownRows = 15
       Properties.ImmediateDropDown = False
       Properties.ItemHeight = 18
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 1
       Width = 142
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        Caption = #35831#36873#25321':'
+        CaptionOptions.Text = #35831#36873#25321':'
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #25152#22312#24180#20221':'
+          CaptionOptions.Text = #25152#22312#24180#20221':'
           Control = EditYear
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
-          Caption = #21608#26399#21015#34920':'
+          CaptionOptions.Text = #21608#26399#21015#34920':'
           Control = EditWeek
           ControlOptions.ShowBorder = False
         end

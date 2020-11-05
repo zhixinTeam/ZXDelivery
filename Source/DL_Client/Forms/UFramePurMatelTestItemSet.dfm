@@ -69,18 +69,21 @@ inherited fFramePurMatelTestItemSet: TfFramePurMatelTestItemSet
           Default = True
           Kind = bkEllipsis
         end>
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       Width = 176
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #29289#26009#21517#31216#65306
+          CaptionOptions.Text = #29289#26009#21517#31216#65306
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = lbl1
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False

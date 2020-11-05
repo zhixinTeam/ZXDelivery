@@ -110,6 +110,9 @@ type
     FLogin: Integer;
     //摄像机登陆
     FIsChkPoundStatus : Boolean;
+    FUseELableCard: Boolean;
+    FAlivisionCheckTruck: Integer;
+    //图像识别验证车牌次数
     procedure SetUIData(const nReset: Boolean; const nOnlyData: Boolean = False);
     //界面数据
     procedure SetImageStatus(const nImage: TImage; const nOff: Boolean);
@@ -139,6 +142,8 @@ type
     //验证毛重
     function CheckTruckMValue: Boolean;
     //验证车辆毛重
+    procedure SaveAlivisionData;
+    //图像识别数据
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -156,7 +161,7 @@ implementation
 uses
   ULibFun, UFormBase, {$IFDEF HR1847}UKRTruckProber,{$ELSE}UMgrTruckProbe,{$ENDIF}
   UMgrRemoteVoice, UMgrVoiceNet, UDataModule, USysBusiness, UMgrLEDDisp,
-  USysLoger, USysConst, USysDB,Dialogs;
+  USysLoger, USysConst, USysDB,Dialogs, UMgrAliVision, UFormCtrl;
 
 const
   cFlag_ON    = 10;
@@ -288,6 +293,7 @@ begin
     FDelayNoOPenDoor := Values['DelayNoOPenDoor'] = sFlag_Yes;
     FEmptyPoundIdleLong := StrToInt64Def(Values['EmptyIdleLong'], 60);
     FEmptyPoundIdleShort:= StrToInt64Def(Values['EmptyIdleShort'], 5);
+    FUseELableCard := Values['UseELableCard'] = sFlag_Yes;
   end;
 end;
 
@@ -424,7 +430,11 @@ begin
   nStr := Format('读取到卡号[ %s ],开始执行业务.', [nCard]);
   WriteLog(nStr);
 
-  FCardUsed := GetCardUsed(nCard);
+//  if FUseELableCard then
+//    FCardUsed := sFlag_DuanDao
+//  else
+    FCardUsed := GetCardUsed(nCard);
+
   if FCardUsed = sFlag_Provide then
      nRet := GetPurchaseOrders(nCard, sFlag_TruckBFP, nBills) else
   if FCardUsed=sFlag_DuanDao then
@@ -760,6 +770,9 @@ begin
     {$ENDIF}
     if nCard = '' then Exit;
 
+    if Pos('HE200',nCard)>0 then
+      nCard := Copy(nCard,2,Length(nCard)-1);
+
     if nCard <> FLastCard then
          nDoneTmp := 0
     else nDoneTmp := FLastCardDone;
@@ -798,6 +811,12 @@ begin
     FCardTmp := nCard;
     EditBill.Text := nCard;
     LoadBillItems(EditBill.Text);
+
+    {$IFDEF AlivisionInClient}
+    FAlivisionCheckTruck := 0;
+    gVisionManager.SetPoundData(FPoundTunnel.FID, nil, True);
+    //重置单据号
+    {$ENDIF}
   except
     on E: Exception do
     begin
@@ -1181,6 +1200,9 @@ procedure TfFrameAutoPoundItem.OnPoundData(const nValue: Double);
 var nRet: Boolean;
     nInt: Int64;
     nStr, nOPenDoor: string;
+    {$IFDEF AlivisionInClient}
+    nPound: TPoundItem;
+    {$ENDIF}
 begin
   FLastBT := GetTickCount;
   EditValue.Text := Format('%.2f', [nValue]);
@@ -1245,6 +1267,23 @@ begin
   if Length(FBillItems) < 1 then Exit;
   //无称重数据
 
+  {$IFDEF AlivisionInClient}
+  if (FAlivisionCheckTruck < 1) and
+      gVisionManager.GetPoundData(FPoundTunnel.FID, nPound) then
+  begin
+    Inc(FAlivisionCheckTruck);
+    if nPound.FTruck = '' then //图像识别未上报车牌号
+    begin
+      nStr := '看不清车牌,向前移动车辆并关闭前大灯.';
+      PlayVoice(nStr);
+      
+      WriteSysLog(nStr);
+      InitSamples;
+      Exit;
+    end;
+  end;
+  {$ENDIF}
+
   //if FCardUsed = sFlag_Provide then
   //临时过磅也对调重量
   if FCardUsed <> sFlag_Sale then
@@ -1304,6 +1343,12 @@ begin
   if FCardUsed = sFlag_Sale then
        nRet := SavePoundSale
   else nRet := SavePoundData;
+
+  {$IFDEF AlivisionInClient}
+  if nRet then
+    SaveAlivisionData();
+    //xxxxx
+  {$ENDIF}
 
   if nRet then
   begin
@@ -1677,6 +1722,38 @@ procedure TfFrameAutoPoundItem.btn2Click(Sender: TObject);
 begin
   OpenDoorByReader(FLastReader, 'Y');
   //打开主道闸
+end;
+
+procedure TfFrameAutoPoundItem.SaveAlivisionData;
+var nStr: string;
+    nPound: TPoundItem;
+begin
+  if not gVisionManager.GetPoundData(FPoundTunnel.FID, nPound) then
+  begin
+    nStr := '未配置标识为[ %s ]的图像识别节点.';
+    WriteLog(Format(nStr, [FPoundTunnel.FID]));
+    Exit;
+  end;
+
+  nPound.FValStr := Format('%s|%s', [FUIData.FID, FUIData.FTruck]);
+  gVisionManager.SetPoundData(FPoundTunnel.FID, @nPound);
+  //保存单据号
+
+  nStr := MakeSQLByStr([SF('V_ID', FUIData.FID),
+          SF('V_Pound', FPoundTunnel.FID),
+          SF('V_Truck', FUIData.FTruck),
+          SF('V_Camera', nPound.FTruck),
+          SF('V_Date', sField_SQLServer_Now, sfVal),
+
+          SF_IF([SF('V_Match', ''),
+                 SF('V_Match', TruckFuzzyMatch(FUIData.FTruck, nPound.FTruck))],
+                 nPound.FTruck = FUIData.FTruck),
+          //模糊矫正不匹配车牌
+
+          SF_IF([SF('V_Status', sFlag_Yes),
+                 SF('V_Status', sFlag_No)], nPound.FStateNow = tsNormal)
+          ], sTable_Alivision, '', True);
+  FDM.ExecuteSQL(nStr);
 end;
 
 end.

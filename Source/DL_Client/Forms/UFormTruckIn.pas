@@ -10,7 +10,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, ComCtrls, cxContainer, cxEdit, cxTextEdit,
-  cxListView, cxMCListBox, dxLayoutControl, StdCtrls;
+  cxListView, cxMCListBox, dxLayoutControl, StdCtrls, dxSkinsCore,
+  dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormTruckIn = class(TfFormNormal)
@@ -76,6 +77,8 @@ begin
     gCardUsed := GetCardUsed(nStr);
     if gCardUsed = sFlag_Provide then
          nRet := GetPurchaseOrders(nStr, sFlag_TruckIn, gBills)
+    else if gCardUsed = sFlag_DuanDao then
+         nRet := GetDuanDaoItems(nStr, sFlag_TruckIn, gBills)
     else nRet := GetLadingBills(nStr, sFlag_TruckIn, gBills);
 
     if nRet and (Length(gBills)>0) then Break;
@@ -217,6 +220,8 @@ var nRet: Boolean;
 begin
   if (gCardUsed = sFlag_Provide) then
        nRet := SavePurchaseOrders(sFlag_TruckIn, gBills)
+  else if (gCardUsed = sFlag_DuanDao) then
+       nRet := SaveDuanDaoItems(sFlag_TruckIn, gBills)
   else nRet := SaveLadingBills(sFlag_TruckIn, gBills);
 
   if nRet then

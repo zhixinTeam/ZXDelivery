@@ -14,7 +14,7 @@ uses
   cxDropDownEdit, cxListView, cxTextEdit, cxMCListBox, dxLayoutControl,
   UMgrSDTReader,
   StdCtrls, cxButtonEdit, cxCheckBox, cxCalendar, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormBill = class(TfFormNormal)
@@ -69,6 +69,8 @@ type
     dxlytmLayout1Item201: TdxLayoutItem;
     cbb_Line: TcxComboBox;
     dxLayout1Group11: TdxLayoutGroup;
+    editBZ: TcxTextEdit;
+    dxLayout1Item20: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditStockPropertiesChange(Sender: TObject);
@@ -151,7 +153,7 @@ var nBool,nBuDan: Boolean;
     nP: PFormCommandParam;
 begin
   Result := nil;
-  if GetSysValidDate < 1 then Exit;
+  //if GetSysValidDate < 1 then Exit;
 
   if not Assigned(nParam) then
   begin
@@ -922,6 +924,7 @@ begin
       Values['BuDanDate'] := editDate.Text;
       Values['BDPValue']:= Trim(edt_PValue.Text);
       Values['Card']   := gInfo.FCard;
+      Values['bz']   := editBZ.Text;
     end;
 
     BtnOK.Enabled := False;

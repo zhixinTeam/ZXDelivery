@@ -15,8 +15,8 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, Menus, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
-  cxGridPopupMenu;
+  dxSkinscxPCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu, dxLayoutcxEditAdapters;
 
 type
   TfFramePayment = class(TfFrameNormal)
@@ -41,7 +41,6 @@ type
     procedure BtnEditClick(Sender: TObject);
     procedure cxView1DblClick(Sender: TObject);
     procedure N1Click(Sender: TObject);
-    procedure PMenu1Popup(Sender: TObject);
     procedure N2Click(Sender: TObject);
   private
     { Private declarations }
@@ -77,6 +76,12 @@ procedure TfFramePayment.OnCreateFrame;
 begin
   inherited;
   InitDateRange(Name, FStart, FEnd);
+  {$IFNDEF HYJC}
+  N2.Visible := False;
+  {$ELSE}
+  N1.Visible := False;
+  N2.Visible := True;
+  {$ENDIF}
 end;
 
 procedure TfFramePayment.OnDestroyFrame;
@@ -88,7 +93,8 @@ end;
 function TfFramePayment.InitFormDataSQL(const nWhere: string): string;
 var nStr:string;
 begin
-  FEnableBackDB := True;
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   {$IFDEF PayMentZhika} nStr:= ',zk.* '; {$ENDIF}
 
@@ -333,16 +339,6 @@ end;
 //  FDR.ShowReport;
 //  Result := FDR.PrintSuccess;
 //end;
-
-procedure TfFramePayment.PMenu1Popup(Sender: TObject);
-begin
-  {$IFNDEF HYJC}
-  N2.Visible := False;
-  {$ELSE}
-  N1.Visible := False;
-  N2.Visible := True;
-  {$ENDIF}
-end;
 
 procedure TfFramePayment.N2Click(Sender: TObject);
 var

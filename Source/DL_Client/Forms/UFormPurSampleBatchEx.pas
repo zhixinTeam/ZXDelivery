@@ -7,8 +7,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, dxLayoutControl, StdCtrls, cxContainer, cxEdit,
-  cxLabel, cxTextEdit, cxMaskEdit, cxButtonEdit, cxGroupBox;
+  dxLayoutControl, StdCtrls, cxContainer, cxEdit,
+  cxLabel, cxTextEdit, cxMaskEdit, cxButtonEdit, cxGroupBox,
+  dxLayoutcxEditAdapters;
 
 type
   TMeterailsParam = record

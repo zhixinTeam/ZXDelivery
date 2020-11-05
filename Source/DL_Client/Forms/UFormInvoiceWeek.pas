@@ -12,7 +12,7 @@ uses
   cxButtonEdit, cxLabel, cxTextEdit, cxContainer, cxEdit, cxMaskEdit,
   cxDropDownEdit, cxCalendar, cxGraphics, cxLookAndFeels,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters;
 
 type
   TfFormInvoiceWeek = class(TfFormNormal)

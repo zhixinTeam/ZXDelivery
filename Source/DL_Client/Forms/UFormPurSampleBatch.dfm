@@ -57,6 +57,8 @@ inherited fFormPurSampleBatch: TfFormPurSampleBatch
       Caption = #21462#26679#29289#26009#20449#24687
       ParentColor = False
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Color = clWindow
       TabOrder = 0
       Height = 153
@@ -128,7 +130,8 @@ inherited fFormPurSampleBatch: TfFormPurSampleBatch
       ParentColor = False
       ParentCtl3D = False
       ParentFont = False
-      Style.BorderStyle = ebsNone
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Color = clWindow
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
@@ -150,11 +153,14 @@ inherited fFormPurSampleBatch: TfFormPurSampleBatch
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = Edt_InspectionStandardPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
       Style.IsFontAssigned = True
       TabOrder = 2
       Width = 317
@@ -162,31 +168,31 @@ inherited fFormPurSampleBatch: TfFormPurSampleBatch
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxlytmLayout1Item35: TdxLayoutItem
-          Caption = 'cxGroupBox1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxGroupBox1'
+          CaptionOptions.Visible = False
           Control = cxgrpbx1
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item34: TdxLayoutItem
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = cxgrpbx2
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #36873#25321#26816#39564#26631#20934#65306
+          CaptionOptions.Text = #36873#25321#26816#39564#26631#20934#65306
           Control = Edt_SID
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item33: TdxLayoutItem
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = cxlbl3
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item31: TdxLayoutItem
-          Caption = #29289#26009#20449#24687#65306
-          ShowCaption = False
+          CaptionOptions.Text = #29289#26009#20449#24687#65306
+          CaptionOptions.Visible = False
           Control = cxlbl_BZ
           ControlOptions.ShowBorder = False
         end

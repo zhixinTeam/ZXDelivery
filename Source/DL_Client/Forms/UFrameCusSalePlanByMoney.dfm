@@ -64,19 +64,19 @@ inherited fFrameCusSalePlanByMoney: TfFrameCusSalePlanByMoney
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item8: TdxLayoutItem
-          Caption = #23458#25143#21517#31216':'
+          CaptionOptions.Text = #23458#25143#21517#31216':'
           Control = EditCustomer
           ControlOptions.ShowBorder = False
         end
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item5: TdxLayoutItem
-          Caption = #23458#25143#32534#21495':'
+          CaptionOptions.Text = #23458#25143#32534#21495':'
           Control = cxTextEdit3
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item7: TdxLayoutItem
-          Caption = #23458#25143#21517#31216':'
+          CaptionOptions.Text = #23458#25143#21517#31216':'
           Control = cxTextEdit4
           ControlOptions.ShowBorder = False
         end

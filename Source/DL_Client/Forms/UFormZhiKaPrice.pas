@@ -12,7 +12,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxCheckBox, cxTextEdit,
   dxLayoutControl, StdCtrls, cxMaskEdit, cxDropDownEdit, cxCalendar,
-  cxLabel, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  cxLabel, dxSkinsCore, dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormZKPrice = class(TfFormNormal)

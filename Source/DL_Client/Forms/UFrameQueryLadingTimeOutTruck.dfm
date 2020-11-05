@@ -44,6 +44,8 @@ inherited fFrameQueryLadingTimeOutTruck: TfFrameQueryLadingTimeOutTruck
       Properties.Alignment.Horz = taCenter
       Properties.Alignment.Vert = taVCenter
       Properties.MaxLength = 100
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Text = '60'
       OnExit = edt_TimeExit
@@ -56,6 +58,8 @@ inherited fFrameQueryLadingTimeOutTruck: TfFrameQueryLadingTimeOutTruck
       ParentColor = False
       ParentFont = False
       Properties.OnChange = Chk1PropertiesChange
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Color = clWhite
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
@@ -85,23 +89,23 @@ inherited fFrameQueryLadingTimeOutTruck: TfFrameQueryLadingTimeOutTruck
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #36710#29260#21495#65306
+          CaptionOptions.Text = #36710#29260#21495#65306
           Control = EditTruck
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #26102#38388#65306
+          CaptionOptions.Text = #26102#38388#65306
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #36229#26102#26102#38388#65288#20998#38047#65289#65306
+          CaptionOptions.Text = #36229#26102#26102#38388#65288#20998#38047#65289#65306
           Control = edt_Time
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item3: TdxLayoutItem
-          Caption = 'cxCheckBox1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxCheckBox1'
+          CaptionOptions.Visible = False
           Control = Chk1
           ControlOptions.ShowBorder = False
         end

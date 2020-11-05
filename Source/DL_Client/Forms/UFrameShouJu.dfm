@@ -35,6 +35,9 @@ inherited fFrameShouJu: TfFrameShouJu
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 100
@@ -49,6 +52,9 @@ inherited fFrameShouJu: TfFrameShouJu
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       OnKeyPress = OnCtrlKeyPress
       Width = 100
@@ -57,6 +63,8 @@ inherited fFrameShouJu: TfFrameShouJu
       Left = 232
       Top = 93
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 100
     end
@@ -64,6 +72,8 @@ inherited fFrameShouJu: TfFrameShouJu
       Left = 395
       Top = 93
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 5
       Width = 110
     end
@@ -71,6 +81,8 @@ inherited fFrameShouJu: TfFrameShouJu
       Left = 69
       Top = 93
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 100
     end
@@ -84,42 +96,44 @@ inherited fFrameShouJu: TfFrameShouJu
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 2
       Width = 185
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #25910#25454#21495':'
+          CaptionOptions.Text = #25910#25454#21495':'
           Control = EditID
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #20973#21333#21495#30721':'
+          CaptionOptions.Text = #20973#21333#21495#30721':'
           Control = EditCode
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          Caption = #26085#26399#31579#36873':'
+          CaptionOptions.Text = #26085#26399#31579#36873':'
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item7: TdxLayoutItem
-          Caption = #25910#25454#21495':'
+          CaptionOptions.Text = #25910#25454#21495':'
           Control = EditSID
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #20973#21333#21495#30721':'
+          CaptionOptions.Text = #20973#21333#21495#30721':'
           Control = EditSCode
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = #25910#25454#20449#24687':'
+          CaptionOptions.Text = #25910#25454#20449#24687':'
           Control = EditSMemo
           ControlOptions.ShowBorder = False
         end

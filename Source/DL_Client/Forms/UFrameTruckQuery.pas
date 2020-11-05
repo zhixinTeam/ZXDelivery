@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameTruckQuery;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -15,7 +16,7 @@ uses
   ComCtrls, ToolWin, cxMaskEdit, cxButtonEdit, cxTextEdit, Menus,
   UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameTruckQuery = class(TfFrameNormal)
@@ -85,6 +86,8 @@ end;
 //------------------------------------------------------------------------------
 function TfFrameTruckQuery.InitFormDataSQL(const nWhere: string): string;
 begin
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   //xxxxx
   Result := 'Select * from $Bill b ';

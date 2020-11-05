@@ -13,7 +13,7 @@ uses
   cxLookAndFeelPainters, cxContainer, cxEdit, cxDropDownEdit, cxMemo,
   cxButtonEdit, cxLabel, cxTextEdit, cxMaskEdit, cxCalendar,
   dxLayoutControl, StdCtrls, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters;
 
 type
   TfFormShouJu = class(TfFormNormal)

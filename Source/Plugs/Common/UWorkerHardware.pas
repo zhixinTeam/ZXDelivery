@@ -532,6 +532,13 @@ begin
       nCode := Fields[1].AsString + FormatDateTime('YYMMDD',Now);
       //振新:  水泥批次号  + 年月日
       {$ENDIF}
+
+      {$IFDEF QJXY}
+      nCode := Fields[0].AsString;
+      nCode := Copy(nCode,Length(nCode)-2,3);
+      nCode := FormatDateTime('YYMMDD',Now) + Fields[1].AsString + nCode;
+      //曲靖雄业: 年月日 + 水泥批次号 + 流水号
+      {$ENDIF}
     end;
   end;
 

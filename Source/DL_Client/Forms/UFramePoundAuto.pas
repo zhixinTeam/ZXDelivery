@@ -11,7 +11,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFrameBase, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, StdCtrls, ComCtrls, ExtCtrls, cxSplitter,
-  dxSkinsCore, dxSkinsDefaultPainters;
+  dxSkinsCore, dxSkinsDefaultPainters, UMgrAliVision;
 
 type
   TfFramePoundAuto = class(TBaseFrame)
@@ -30,6 +30,8 @@ type
     //记录日志
     procedure LoadPoundItems;
     //载入通道
+    procedure DoTruckStatusChange(const nPound: PPoundItem);
+    //状态变更
   public
     { Public declarations }
     class function FrameID: integer; override;
@@ -49,7 +51,8 @@ implementation
 uses
   IniFiles, UlibFun, UMgrControl, UMgrPoundTunnels, UFramePoundAutoItem,
   {$IFDEF HR1847}UKRTruckProber,{$ELSE}UMgrTruckProbe,{$ENDIF} UMgrRemoteVoice,
-  UMgrVoiceNet,USysGrid, USysLoger, USysConst;
+  UMgrVoiceNet,USysGrid, USysLoger, USysConst, UDataModule, USysDB,
+  USysBusiness;
 
 class function TfFramePoundAuto.FrameID: integer;
 begin
@@ -110,6 +113,17 @@ begin
     {$ENDIF}
   {$ENDIF}
 
+  {$IFDEF AlivisionInClient}
+  if not Assigned(gVisionManager) then
+  begin
+    gVisionManager := TTruckManager.Create;
+    gVisionManager.LoadConfig(gPath + 'AliVision.xml');
+    //gVisionManager.EventMode := emMain;
+    gVisionManager.OnStatusChangeEvent := DoTruckStatusChange;
+  end;
+  gVisionManager.StartService;
+  {$ENDIF}
+
   if gSysParam.FVoiceUser < 1 then
   begin
     Inc(gSysParam.FVoiceUser);
@@ -152,6 +166,10 @@ begin
       gProberManager.StopProber;
     //xxxxx
     {$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF AlivisionInClient}
+  gVisionManager.StopService;
   {$ENDIF}
 
   nIni := TIniFile.Create(gPath + sFormConfig);
@@ -248,6 +266,42 @@ begin
         PoundTunnel := nT;
       end;
     end;
+  end;
+end;
+
+procedure TfFramePoundAuto.DoTruckStatusChange(const nPound: PPoundItem);
+var nStr,nID,nTruck: string;
+    nPos: Integer;
+begin
+  case nPound.FStateNow of
+   tsNewOn   : nStr := Format('新车牌[ %s ]上磅', [nPound.FTruck]);
+   tsLeave   : nStr := Format('车辆[ %s ]离开地磅', [nPound.FTruckPrev]);
+   tsNormal  : nStr := Format('车辆[ %s ]状态正常', [nPound.FTruck]);
+   tsOut     : nStr := Format('车辆[ %s ]未完全上磅', [nPound.FTruck])
+   else        nStr := '';
+  end;
+
+  if nStr <> '' then
+    gSysLoger.AddLog(nStr);
+  //xxxxx
+
+  if (nPound.FStateNow = tsLeave) and (nPound.FValStr <> '') then //车辆下磅后,尝试补全车牌号
+  begin
+    nTruck := nPound.FValStr;
+    //data: id|truck
+
+    nPos := Pos('|', nTruck);
+    nID := Copy(nTruck, 1, nPos - 1);
+    System.Delete(nTruck, 1, nPos);
+
+    nStr := 'Update %s Set V_Camera=''%s'',V_Match=''%s'' ' +
+            'Where V_ID=''%s'' And V_Camera=''''';
+    nStr := Format(nStr, [sTable_Alivision, nPound.FTruckPrev,
+            TruckFuzzyMatch(nTruck, nPound.FTruckPrev), nID]);
+    FDM.ExecuteSQL(nStr);
+
+    nPound.FValStr := '';
+    //重置单据号
   end;
 end;
 

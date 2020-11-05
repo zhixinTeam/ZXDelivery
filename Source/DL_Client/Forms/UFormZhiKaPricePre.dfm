@@ -27,6 +27,8 @@ inherited fFormZKPricePre: TfFormZKPricePre
       Top = 36
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 0
       Width = 200
     end
@@ -35,6 +37,8 @@ inherited fFormZKPricePre: TfFormZKPricePre
       Top = 78
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 121
     end
@@ -43,6 +47,8 @@ inherited fFormZKPricePre: TfFormZKPricePre
       Top = 78
       ParentFont = False
       Properties.ReadOnly = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 3
       Width = 90
     end
@@ -58,6 +64,10 @@ inherited fFormZKPricePre: TfFormZKPricePre
       Top = 103
       ParentFont = False
       Properties.Kind = ckDateTime
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 4
       Width = 166
     end
@@ -83,67 +93,68 @@ inherited fFormZKPricePre: TfFormZKPricePre
       Top = 149
       Caption = #22312#21407#21333#20215#22522#30784#19978#24212#29992#26032#21333#20215'.'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 6
       Transparent = True
       Width = 203
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        AutoAligns = []
-        Caption = #36873#39033
+        AlignHorz = ahLeft
+        CaptionOptions.Text = #36873#39033
         object dxLayout1Item3: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = #27700#27877#21697#31181':'
+          CaptionOptions.Text = #27700#27877#21697#31181':'
           Control = EditStock
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item82: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = 'Panel1'
-          ShowCaption = False
+          CaptionOptions.Text = 'Panel1'
+          CaptionOptions.Visible = False
           Control = pnl1
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Group3: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Item4: TdxLayoutItem
-            Caption = #38144#21806#20215#26684':'
+            CaptionOptions.Text = #38144#21806#20215#26684':'
             Control = EditPrice
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item5: TdxLayoutItem
-            Caption = #26032' '#21333' '#20215':'
+            CaptionOptions.Text = #26032' '#21333' '#20215':'
             Control = EditNew
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Item10: TdxLayoutItem
-          AutoAligns = []
-          Caption = #29983#25928#26102#38388':'
+          AlignHorz = ahLeft
+          AlignVert = avTop
+          CaptionOptions.Text = #29983#25928#26102#38388':'
           Control = EditStart
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item9: TdxLayoutItem
-          Caption = 'cxLabel1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxLabel1'
+          CaptionOptions.Visible = False
           Control = cxLabel1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          AutoAligns = [aaVertical]
-          ShowCaption = False
+          AlignHorz = ahLeft
+          CaptionOptions.Visible = False
           Control = Chk_1
           ControlOptions.ShowBorder = False
         end
       end
       inherited dxLayout1Group1: TdxLayoutGroup
-        AutoAligns = []
         AlignHorz = ahRight
       end
     end

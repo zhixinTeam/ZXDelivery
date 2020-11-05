@@ -12,7 +12,7 @@ uses
   UFormBase, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxDropDownEdit,
   cxTextEdit, dxLayoutControl, StdCtrls, cxCheckBox, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormSaleMValueInfo = class(TfFormNormal)

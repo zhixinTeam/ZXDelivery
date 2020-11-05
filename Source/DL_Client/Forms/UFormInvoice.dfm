@@ -27,6 +27,8 @@ inherited fFormInvoice: TfFormInvoice
       ParentFont = False
       Properties.MaxLength = 0
       Properties.ScrollBars = ssVertical
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Edges = [bLeft, bTop, bRight, bBottom]
       TabOrder = 5
       Height = 45
@@ -59,6 +61,8 @@ inherited fFormInvoice: TfFormInvoice
       Top = 86
       ParentFont = False
       Properties.MaxLength = 25
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 4
       Width = 165
     end
@@ -67,6 +71,8 @@ inherited fFormInvoice: TfFormInvoice
       Top = 36
       ParentFont = False
       Properties.MaxLength = 30
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Color = clWindow
       TabOrder = 1
       Width = 165
@@ -76,70 +82,72 @@ inherited fFormInvoice: TfFormInvoice
       Top = 61
       ParentFont = False
       Properties.MaxLength = 15
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 165
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Group2: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           ShowBorder = False
           object dxLayout1Group6: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayout1Item5: TdxLayoutItem
-              ShowCaption = False
+              CaptionOptions.Visible = False
               Control = Radio2
               ControlOptions.AutoColor = True
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Group5: TdxLayoutGroup
-              AutoAligns = [aaVertical]
               AlignHorz = ahClient
-              ShowCaption = False
+              CaptionOptions.Visible = False
+              ButtonOptions.Buttons = <>
               Hidden = True
               ShowBorder = False
               object dxLayout1Item7: TdxLayoutItem
-                Caption = #24320#22987#32534#21495':'
+                CaptionOptions.Text = #24320#22987#32534#21495':'
                 Control = EditStart
                 ControlOptions.ShowBorder = False
               end
               object dxLayout1Item8: TdxLayoutItem
-                AutoAligns = [aaVertical]
                 AlignHorz = ahClient
-                Caption = #32467#26463#32534#21495':'
+                CaptionOptions.Text = #32467#26463#32534#21495':'
                 Control = EditEnd
                 ControlOptions.ShowBorder = False
               end
             end
           end
           object dxLayout1Group4: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayout1Item3: TdxLayoutItem
-              ShowCaption = False
+              CaptionOptions.Visible = False
               Control = Radio1
               ControlOptions.AutoColor = True
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item6: TdxLayoutItem
-              AutoAligns = [aaVertical]
               AlignHorz = ahClient
-              Caption = #21457#31080#32534#21495':'
+              CaptionOptions.Text = #21457#31080#32534#21495':'
               Control = EditNo
               ControlOptions.ShowBorder = False
             end
           end
         end
         object dxLayout1Item12: TdxLayoutItem
-          AutoAligns = [aaHorizontal]
           AlignVert = avClient
-          Caption = #25552#31034#20449#24687':'
+          CaptionOptions.Text = #25552#31034#20449#24687':'
           CaptionOptions.Layout = clTop
           Offsets.Top = 3
           Control = EditMemo

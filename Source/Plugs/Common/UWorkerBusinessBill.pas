@@ -551,6 +551,9 @@ begin
       Values['SaleID']  := FieldByName('Z_SaleMan').AsString;
       Values['SaleMan'] := FieldByName('S_Name').AsString;
       Values['ZKMoney'] := FieldByName('Z_OnlyMoney').AsString;
+      Values['YF'] := FieldByName('Z_YF').AsString;
+      Values['JF'] := FieldByName('Z_JF').AsString;
+      Values['NF'] := FieldByName('Z_NF').AsString;
     end;
 
     Result := True;
@@ -663,9 +666,26 @@ begin
       end else   //其他业务，获取交货单号
 
       begin
+        {$IFDEF DiffCusTypeForBillNo}
+        nStr := 'select c_type from %s where c_id=''%s''';
+        nStr := Format(nStr,[sTable_Customer, FListA.Values['CusID']]);
+        with gDBConnManager.WorkerQuery(FDBConn,nStr) do
+          nStr := FieldByName('c_type').AsString;
+        if nStr ='A' then
+        begin
+          FListC.Values['Group'] :=sFlag_BusGroup;
+          FListC.Values['Object'] := sFlag_BillNo;
+        end
+        else
+        begin
+          FListC.Values['Group'] :=sFlag_BusGroup;
+          FListC.Values['Object'] := sFlag_BillNoB;
+        end;
+        {$ELSE}
         FListC.Values['Group'] :=sFlag_BusGroup;
         FListC.Values['Object'] := sFlag_BillNo;
         //to get serial no
+        {$ENDIF}
 
         if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
               FListC.Text, sFlag_Yes, @nOut) then
@@ -683,9 +703,10 @@ begin
       // 焦作中晶所有车都开化验单
       FListC.Values['PrintHY']:= 'Y';
       {$ENDIF}
-                                   
+
+      {$IFNDEF QJXY} //曲靖雄业开单不生成批次，现场刷卡生成批次
       {$IFDEF CustomerType}
-        {$IFDEF HYJC}    //恒宇区分AB客户，但是不区分批次号
+        {$IFDEF HYJC}    //恒宇,区分AB客户，但是不区分批次号
          if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcode,
            FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then
            raise Exception.Create(nTmp.FData);
@@ -720,6 +741,7 @@ begin
              FListC.Values['StockNO'], FListC.Values['Value'], @nTmp) then
              raise Exception.Create(nTmp.FData);
          {$ENDIF}
+      {$ENDIF}
       {$ENDIF}
 
       {$IFDEF BatchInHYOfBill}
@@ -796,6 +818,11 @@ begin
               SF('L_WebOrderID', FListA.Values['WebOrderID']),
               {$ENDIF}
 
+              SF('L_YF', FListA.Values['YF']),
+              SF('L_JF', FListA.Values['JF']),
+              SF('L_NF', FListA.Values['NF']),
+              SF('L_BZ', FListA.Values['bz']),
+
               SF('L_ZKMoney', nFixMoney),
               SF('L_Truck', FListA.Values['Truck']),
               SF('L_Lading', FListA.Values['Lading']),
@@ -820,6 +847,7 @@ begin
       gDBConnManager.WorkerExec(FDBConn, nStr);
       //更新磅单基本信息
 
+      {$IFNDEF QJXY}
       nStr := 'UPDate %s Set B_HasUse=B_HasUse+%s Where B_Batcode=''%s''';
           {$IFDEF MoreBeltLine}
            nStr := nStr + ' And B_BeltLine='''+FListA.Values['BeltLine']+'''';
@@ -827,7 +855,8 @@ begin
       nStr := Format(nStr, [sTable_StockBatcode, FListC.Values['Value'],
               FListC.Values['HYDan']]);
       gDBConnManager.WorkerExec(FDBConn, nStr);
-      //更新批次号使用量
+      {$ENDIF}
+      //更新批次号使用量,曲靖现场刷卡生成批次，开单不在更新
 
       if FListA.Values['Card'] = '' then
       begin
@@ -2282,7 +2311,25 @@ begin
 
     FListC.Clear;
     FListC.Values['Group']  := sFlag_BusGroup;
+    {$IFDEF DiffCusTypeForBillNo}
+    nStr := 'select c_type from %s where c_id=''%s''';
+    nStr := Format(nStr,[sTable_Customer, nBills[0].FCusID]);
+    with gDBConnManager.WorkerQuery(FDBConn,nStr) do
+      nStr := FieldByName('c_type').AsString;
+    if nStr ='A' then
+    begin
+      FListC.Values['Group'] :=sFlag_BusGroup;
+      FListC.Values['Object'] := sFlag_PoundID;
+    end
+    else
+    begin
+      FListC.Values['Group'] :=sFlag_BusGroup;
+      FListC.Values['Object'] := sFlag_PoundIDB;
+    end;
+    {$ELSE}
+    FListC.Values['Group'] := sFlag_BusGroup;
     FListC.Values['Object'] := sFlag_PoundID;
+    {$ENDIF}
 
     for nIdx:=Low(nBills) to High(nBills) do
     with nBills[nIdx] do

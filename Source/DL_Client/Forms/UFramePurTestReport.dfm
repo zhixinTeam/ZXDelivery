@@ -79,6 +79,9 @@ inherited fFramePurTestReport: TfFramePurTestReport
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = Edit_NamePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       Width = 176
     end
@@ -92,23 +95,26 @@ inherited fFramePurTestReport: TfFramePurTestReport
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       Width = 176
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #21462#26679#26085#26399#65306
+          CaptionOptions.Text = #21462#26679#26085#26399#65306
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #20851#38190#23383#65306
+          CaptionOptions.Text = #20851#38190#23383#65306
           Control = Edit_Name
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = lbl1
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False

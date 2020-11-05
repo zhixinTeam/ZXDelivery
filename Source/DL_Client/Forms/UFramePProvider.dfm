@@ -34,6 +34,8 @@ inherited fFrameProvider: TfFrameProvider
       Top = 93
       Hint = 'T.P_Name'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 1
       Width = 125
     end
@@ -47,6 +49,9 @@ inherited fFrameProvider: TfFrameProvider
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditNamePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = OnCtrlKeyPress
       Width = 125
@@ -56,25 +61,27 @@ inherited fFrameProvider: TfFrameProvider
       Top = 93
       Hint = 'T.P_Memo'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Width = 274
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #20379#24212#21830':'
+          CaptionOptions.Text = #20379#24212#21830':'
           Control = EditName
           ControlOptions.ShowBorder = False
         end
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #20379#24212#21830':'
+          CaptionOptions.Text = #20379#24212#21830':'
           Control = cxTextEdit1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item4: TdxLayoutItem
-          Caption = #22791#27880#20449#24687':'
+          CaptionOptions.Text = #22791#27880#20449#24687':'
           Control = cxTextEdit2
           ControlOptions.ShowBorder = False
         end

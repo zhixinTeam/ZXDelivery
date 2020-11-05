@@ -155,6 +155,8 @@ function GetHYValueByStockNo(const nNo: string): Double;
 //获取化验单已开量
 function PrintBillReport(nBill: string; const nAsk: Boolean): Boolean;
 //打印提货单
+function PrintRCOrderReport(const nID: string;  const nAsk: Boolean): Boolean;
+//打印采购单
 function PrintPoundReport(const nPound: string; nAsk: Boolean): Boolean;
 //打印榜单
 function PrintHeGeReport(const nHID: string; const nAsk: Boolean): Boolean;
@@ -1300,6 +1302,55 @@ begin
   FDR.Dataset1.DataSet := FDM.SqlTemp;
   FDR.Report1.PrintOptions.Printer := gSysParam.FCardPrinter;
 //  FDR.ShowReport;
+  FDR.PrintReport;
+  Result := FDR.PrintSuccess;
+end;
+
+//Date: 2017-01-11
+//Parm: 采购单号;是否弹出询问
+//Desc: 打印采购验收单
+function PrintRCOrderReport(const nID: string;  const nAsk: Boolean): Boolean;
+var nStr: string;
+    nDS: TDataSet;
+    nParam: TReportParamItem;
+begin
+  Result := False;
+
+  if nAsk then
+  begin
+    nStr := '是否要打印入厂单?';
+    if not QueryDlg(nStr, sAsk) then Exit;
+  end;
+
+  nStr := 'Select * From %s Where O_ID=''%s''';
+  nStr := Format(nStr, [sTable_Order, nID]);
+
+  nDS := FDM.QueryTemp(nStr);
+  if not Assigned(nDS) then Exit;
+
+  if nDS.RecordCount < 1 then
+  begin
+    nStr := '入厂单[ %s ] 已无效!!';
+    nStr := Format(nStr, [nID]);
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nStr := gPath + 'Report\ProvideRC.fr3';
+  if not FDR.LoadReportFile(nStr) then
+  begin
+    nStr := '无法正确加载报表文件';
+    ShowMsg(nStr, sHint); Exit;
+  end;
+
+  nParam.FName := 'UserName';
+  nParam.FValue := gSysParam.FUserID;
+  FDR.AddParamItem(nParam);
+
+  nParam.FName := 'Company';
+  nParam.FValue := gSysParam.FHintText;
+  FDR.AddParamItem(nParam);
+
+  FDR.Dataset1.DataSet := FDM.SqlTemp;
   FDR.PrintReport;
   Result := FDR.PrintSuccess;
 end;

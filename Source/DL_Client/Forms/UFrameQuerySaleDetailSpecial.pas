@@ -16,8 +16,8 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters, UFormBase,
-  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
-  cxGridPopupMenu;
+  dxSkinscxPCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu, dxLayoutcxEditAdapters;
 
 type
   TfFrameSaleDetailQuerySpecial = class(TfFrameNormal)
@@ -131,6 +131,8 @@ end;
 
 function TfFrameSaleDetailQuerySpecial.InitFormDataSQL(const nWhere: string): string;
 begin
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   {$IFDEF UseSelectDateTime}
   EditDate.Text := Format('%s 至 %s', [DateTime2Str(FStart), DateTime2Str(FEnd)]);
   {$ELSE}

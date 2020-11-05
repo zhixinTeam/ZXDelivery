@@ -4,6 +4,7 @@
 *******************************************************************************}
 unit UFrameSaleContract;
 
+{$I Link.Inc}
 interface
 
 uses
@@ -14,7 +15,9 @@ uses
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxLayoutcxEditAdapters, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
 
 type
   TfFrameSaleContract = class(TfFrameNormal)
@@ -76,6 +79,8 @@ end;
 //Desc: 数据查询SQL
 function TfFrameSaleContract.InitFormDataSQL(const nWhere: string): string;
 begin
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   Result := 'Select con.*,sm.S_Name,sm.S_PY,cus.C_Name as Cus_Name,' +
             'cus.C_PY From $Con con' +
             ' Left Join $SM sm On sm.S_ID=con.C_SaleMan' +

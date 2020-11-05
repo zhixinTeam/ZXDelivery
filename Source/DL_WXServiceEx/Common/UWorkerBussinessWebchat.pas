@@ -4381,6 +4381,7 @@ var nStr, nTime, nGID, nMName, nStype: string;
     nMoney,nFMoney,nKDMoney: Double;
     nIdx : Integer;
     nVefyWebOrder : Boolean;
+    nSalesCredit:Double;
 begin
   Result    := False;
   nCanCreate:= True;

@@ -14,7 +14,9 @@ uses
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin, Menus;
+  ComCtrls, ToolWin, Menus, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxLayoutcxEditAdapters, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
 
 type
   TfFramePaymentEx = class(TfFrameNormal)
@@ -78,6 +80,8 @@ end;
 
 function TfFramePaymentEx.InitFormDataSQL(const nWhere: string): string;
 begin
+  {$IFDEF EnableBackupDB} FEnableBackDB := True; {$ENDIF}
+  //启用备份数据库
   EditDate.Text := Format('%s 至 %s', [Date2Str(FStart), Date2Str(FEnd)]);
   
   Result := 'Select iom.*,sm.S_Name From $IOM iom ' +

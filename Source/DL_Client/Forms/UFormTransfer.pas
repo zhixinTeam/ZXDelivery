@@ -34,12 +34,18 @@ type
     dxLayout1Item11: TdxLayoutItem;
     CheckBox1: TcxCheckBox;
     dxLayout1Item10: TdxLayoutItem;
+    editMValue: TcxTextEdit;
+    dxLayout1Item12: TdxLayoutItem;
+    editPValue: TcxTextEdit;
+    dxLayout1Item13: TdxLayoutItem;
+    dxLayout1Group2: TdxLayoutGroup;
     procedure BtnOKClick(Sender: TObject);
     procedure EditMIDPropertiesChange(Sender: TObject);
     procedure EditDCPropertiesChange(Sender: TObject);
     procedure EditTruckKeyPress(Sender: TObject; var Key: Char);
   private
     { Private declarations }
+    FBuDanFlag: Boolean;
     procedure InitFormData;
   public
     { Public declarations }
@@ -69,14 +75,24 @@ var
 class function TfFormTransfer.CreateForm(const nPopedom: string;
   const nParam: Pointer): TWinControl;
 var nP: PFormCommandParam;
+  nBuDan: Boolean;
 begin
   Result := nil;
   if Assigned(nParam) then
     nP := nParam
   else New(nP);
 
+  nBuDan := nPopedom = 'MAIN_MF06';
+
   with TfFormTransfer.Create(Application) do
   try
+    if not nBuDan then
+    begin
+      dxLayout1Item13.Visible := False;
+      dxLayout1Item12.Visible := False;
+    end;
+    FBuDanFlag := nBuDan;
+
     InitFormData;
     nP.FCommand := cCmd_ModalResult;
     nP.FParamA := ShowModal;
@@ -93,7 +109,7 @@ end;
 procedure TfFormTransfer.BtnOKClick(Sender: TObject);
 var nIdx: Integer;
     nList: TStrings;
-    nStr, nStock, nStockName: string;
+    nStr, nStock, nStockName, nSQL: string;
 begin
   if EditMID.ItemIndex >=0 then
   begin
@@ -124,6 +140,13 @@ begin
         Values['NeiDao'] := 'Y'
       else
         Values['NeiDao'] := 'N';
+
+      if FBuDanFlag then
+      begin
+        Values['BuDan'] := 'Y';
+        Values['PValue'] := Trim(editPValue.Text);
+        Values['MValue'] := Trim(editMValue.Text);
+      end;
     end;
 
     nStr := SaveDDBases(PackerEncodeStr(nList.Text));
@@ -131,7 +154,30 @@ begin
     if nStr = '' then Exit;
 
 
-    SetDDCard(nStr, EditTruck.Text, True);
+    {$IFDEF UseELabel}  //矿山绑定电子标签
+    nSQL := 'select T_Card from %s where T_Truck=''%s''';
+    nSQL := Format(nSQL,[sTable_Truck,Trim(EditTruck.Text)]);
+    with FDM.QueryTemp(nSQL) do
+    begin
+      if (FieldByName('T_Card').AsString = '') and (not FBuDanFlag) then
+      begin
+        SetDDCard(nStr, EditTruck.Text, True);
+      end
+      else
+      begin
+        nSQL := FieldByName('T_Card').AsString;
+        if not FBuDanFlag then
+          if not SaveDDCard(nStr, nSQL) then
+        begin
+          ShowMessage('订单绑定电子标签磁卡失败,请删单重开.');
+          Exit;
+        end;
+      end;
+    end;
+    {$ELSE}
+    if not FBuDanFlag then
+      SetDDCard(nStr, EditTruck.Text, True);
+    {$ENDIF}
     //办理磁卡
 
     ModalResult := mrOk;

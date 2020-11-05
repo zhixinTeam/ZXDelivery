@@ -2,23 +2,23 @@ inherited fFormTransfer: TfFormTransfer
   Left = 438
   Top = 340
   Caption = #20498#26009#31649#29702
-  ClientHeight = 256
+  ClientHeight = 285
   ClientWidth = 368
   Position = poDesktopCenter
   PixelsPerInch = 96
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 368
-    Height = 256
+    Height = 285
     inherited BtnOK: TButton
       Left = 222
-      Top = 223
-      TabOrder = 9
+      Top = 252
+      TabOrder = 11
     end
     inherited BtnExit: TButton
       Left = 292
-      Top = 223
-      TabOrder = 10
+      Top = 252
+      TabOrder = 12
     end
     object EditMate: TcxTextEdit [2]
       Left = 81
@@ -104,65 +104,103 @@ inherited fFormTransfer: TfFormTransfer
     end
     object chkNeiDao: TcxCheckBox [9]
       Left = 113
-      Top = 223
+      Top = 252
       Caption = #22330#20869#20498#36816
       ParentFont = False
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
       Style.HotTrack = False
-      TabOrder = 8
+      TabOrder = 10
       Width = 88
     end
     object CheckBox1: TcxCheckBox [10]
       Left = 11
-      Top = 223
+      Top = 252
       Caption = #27492#21345#20026#22266#23450#21345
       ParentFont = False
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
       Style.HotTrack = False
-      TabOrder = 7
+      TabOrder = 9
       Width = 97
+    end
+    object editMValue: TcxTextEdit [11]
+      Left = 226
+      Top = 211
+      ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.HotTrack = False
+      TabOrder = 8
+      Text = '0.00'
+      Width = 114
+    end
+    object editPValue: TcxTextEdit [12]
+      Left = 81
+      Top = 211
+      ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.HotTrack = False
+      TabOrder = 7
+      Text = '0.00'
+      Width = 106
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Item4: TdxLayoutItem
-          Caption = #36710#29260#21495#30721':'
+          CaptionOptions.Text = #36710#29260#21495#30721':'
           Control = EditTruck
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #21407#26009#32534#21495':'
           CaptionOptions.AlignHorz = taRightJustify
+          CaptionOptions.Text = #21407#26009#32534#21495':'
           Control = EditMID
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item5: TdxLayoutItem
-          Caption = #21407#26009#21517#31216':'
+          CaptionOptions.Text = #21407#26009#21517#31216':'
           Control = EditMate
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item8: TdxLayoutItem
-          Caption = #20498#20986#32534#21495':'
+          CaptionOptions.Text = #20498#20986#32534#21495':'
           Visible = False
           Control = EditDC
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          Caption = #20498#20986#22320#28857':'
+          CaptionOptions.Text = #20498#20986#22320#28857':'
           Control = EditSrcAddr
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item9: TdxLayoutItem
-          Caption = #20498#20837#32534#21495':'
+          CaptionOptions.Text = #20498#20837#32534#21495':'
           Visible = False
           Control = EditDR
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item7: TdxLayoutItem
-          Caption = #20498#20837#22320#28857':'
+          CaptionOptions.Text = #20498#20837#22320#28857':'
           Control = EditDstAddr
           ControlOptions.ShowBorder = False
+        end
+        object dxLayout1Group2: TdxLayoutGroup
+          ButtonOptions.Buttons = <>
+          Hidden = True
+          LayoutDirection = ldHorizontal
+          ShowBorder = False
+          object dxLayout1Item13: TdxLayoutItem
+            CaptionOptions.Text = #30382#37325':'
+            Control = editPValue
+            ControlOptions.ShowBorder = False
+          end
+          object dxLayout1Item12: TdxLayoutItem
+            CaptionOptions.Text = #27611#37325':'
+            Control = editMValue
+            ControlOptions.ShowBorder = False
+          end
         end
       end
       inherited dxLayout1Group1: TdxLayoutGroup
@@ -177,6 +215,7 @@ inherited fFormTransfer: TfFormTransfer
       end
     end
     object TdxLayoutGroup
+      ButtonOptions.Buttons = <>
     end
   end
 end

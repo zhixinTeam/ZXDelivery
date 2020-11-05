@@ -7,11 +7,12 @@ uses
   Dialogs, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
-  cxEdit, DB, cxDBData, dxSkinsdxLCPainter, cxContainer, dxLayoutControl,
+  cxEdit, DB, cxDBData, cxContainer, dxLayoutControl,
   cxTextEdit, cxMaskEdit, cxButtonEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin, Menus, cxGridCustomPopupMenu, cxGridPopupMenu;
+  ComCtrls, ToolWin, Menus, cxGridCustomPopupMenu, cxGridPopupMenu,
+  dxLayoutcxEditAdapters;
 
 type
   TfFramePurHYDataReport = class(TfFrameNormal)

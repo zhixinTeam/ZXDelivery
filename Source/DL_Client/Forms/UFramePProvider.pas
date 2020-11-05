@@ -15,7 +15,8 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxLookAndFeels, cxLookAndFeelPainters, dxSkinsCore,
-  dxSkinsDefaultPainters, Menus, dxSkinscxPCPainter, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, Menus, dxSkinscxPCPainter,
+  dxLayoutcxEditAdapters, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameProvider = class(TfFrameNormal)

@@ -41,6 +41,8 @@ inherited fFormBillWx: TfFormBillWx
       ParentFont = False
       ParentShowHint = False
       ShowHint = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -74,6 +76,8 @@ inherited fFormBillWx: TfFormBillWx
       AutoSize = False
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -90,6 +94,8 @@ inherited fFormBillWx: TfFormBillWx
       AutoSize = False
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -106,6 +112,8 @@ inherited fFormBillWx: TfFormBillWx
       AutoSize = False
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -122,6 +130,8 @@ inherited fFormBillWx: TfFormBillWx
       AutoSize = False
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -138,6 +148,8 @@ inherited fFormBillWx: TfFormBillWx
       AutoSize = False
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -156,6 +168,8 @@ inherited fFormBillWx: TfFormBillWx
       ParentFont = False
       Properties.Alignment.Horz = taLeftJustify
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -20
@@ -174,6 +188,8 @@ inherited fFormBillWx: TfFormBillWx
       AutoSize = False
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -190,6 +206,8 @@ inherited fFormBillWx: TfFormBillWx
       AutoSize = False
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -206,6 +224,8 @@ inherited fFormBillWx: TfFormBillWx
       AutoSize = False
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -16
@@ -239,6 +259,8 @@ inherited fFormBillWx: TfFormBillWx
       Top = 347
       Caption = #25171#21360#21270#39564#21333
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -16
@@ -255,11 +277,15 @@ inherited fFormBillWx: TfFormBillWx
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.ItemHeight = 18
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -20
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 9
       Width = 188
@@ -267,116 +293,123 @@ inherited fFormBillWx: TfFormBillWx
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Group3: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           ShowBorder = False
           object dxLayout1Group4: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             ShowBorder = False
             object dxLayout1Group8: TdxLayoutGroup
-              ShowCaption = False
+              CaptionOptions.Visible = False
+              ButtonOptions.Buttons = <>
               Hidden = True
               LayoutDirection = ldHorizontal
               ShowBorder = False
               object dxLayout1Item3: TdxLayoutItem
-                Caption = #24494#20449#35746#21333#21495#65306
+                CaptionOptions.Text = #24494#20449#35746#21333#21495#65306
                 Control = editWebOrderNo
                 ControlOptions.ShowBorder = False
               end
               object dxLayout1Item4: TdxLayoutItem
-                ShowCaption = False
+                CaptionOptions.Visible = False
                 Control = btnQuery
                 ControlOptions.ShowBorder = False
               end
             end
             object dxLayout1Item5: TdxLayoutItem
-              ShowCaption = False
+              CaptionOptions.Visible = False
               Control = Panel1
               ControlOptions.AutoColor = True
               ControlOptions.ShowBorder = False
             end
           end
           object dxLayout1Group7: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxlytmLayout1Item5: TdxLayoutItem
-              Caption = #23458#25143#32534#21495#65306
+              CaptionOptions.Text = #23458#25143#32534#21495#65306
               Control = edt_CID
               ControlOptions.ShowBorder = False
             end
             object dxlytmLayout1Item51: TdxLayoutItem
-              Caption = #23458#25143#21517#31216#65306
+              CaptionOptions.Text = #23458#25143#21517#31216#65306
               Control = edt_CName
               ControlOptions.ShowBorder = False
             end
           end
         end
         object dxLayout1Group6: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxlytmLayout1Item52: TdxLayoutItem
-            Caption = #21697#31181#32534#21495#65306
+            CaptionOptions.Text = #21697#31181#32534#21495#65306
             Control = edt_MID
             ControlOptions.ShowBorder = False
           end
           object dxlytmLayout1Item53: TdxLayoutItem
-            Caption = #21697#31181#21517#31216#65306
+            CaptionOptions.Text = #21697#31181#21517#31216#65306
             Control = edt_MName
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Group2: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxlytmLayout1Item54: TdxLayoutItem
-            Caption = #25552#36135#36710#21495#65306
+            CaptionOptions.Text = #25552#36135#36710#21495#65306
             Control = edt_Truck
             ControlOptions.ShowBorder = False
           end
           object dxlytmLayout1Item55: TdxLayoutItem
-            Caption = #25552#36135#21544#25968#65306
+            CaptionOptions.Text = #25552#36135#21544#25968#65306
             Control = edt_Value
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item7: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            Caption = #29983#20135#32447':'
+            AlignHorz = ahLeft
+            CaptionOptions.Text = #29983#20135#32447':'
             Control = cbb_BeltLine
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Group5: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxlytmLayout1Item57: TdxLayoutItem
-            Caption = #21496#26426#22995#21517#65306
+            CaptionOptions.Text = #21496#26426#22995#21517#65306
             Control = edt_Trucker
             ControlOptions.ShowBorder = False
           end
           object dxlytmLayout1Item56: TdxLayoutItem
-            Caption = #36523#20221#35777#21495#65306
+            CaptionOptions.Text = #36523#20221#35777#21495#65306
             Control = edt_IDCard
             ControlOptions.ShowBorder = False
           end
         end
         object dxlytmLayout1Item58: TdxLayoutItem
-          Caption = #35746#21333#22791#27880#65306
+          CaptionOptions.Text = #35746#21333#22791#27880#65306
           Control = edt_Memo
           ControlOptions.ShowBorder = False
         end
       end
       inherited dxLayout1Group1: TdxLayoutGroup
         object dxLayout1Item6: TdxLayoutItem [0]
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = PrintHY
           ControlOptions.ShowBorder = False
         end

@@ -61,7 +61,7 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       ParentFont = False
       Style.BorderColor = clWindowFrame
       Style.BorderStyle = ebsSingle
-      TabOrder = 5
+      TabOrder = 6
       Width = 165
     end
     object EditDate: TcxButtonEdit [1]
@@ -162,12 +162,12 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item8: TdxLayoutItem
-          Caption = #23458#25143#21517#31216':'
+          CaptionOptions.Text = #23458#25143#21517#31216':'
           Control = EditCustomer
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          Caption = #26085#26399#31579#36873':'
+          CaptionOptions.Text = #26085#26399#31579#36873':'
           Control = EditDate
           ControlOptions.ShowBorder = False
         end
@@ -181,7 +181,7 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item9: TdxLayoutItem
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = Rb_Stock
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
@@ -194,17 +194,17 @@ inherited fFrameSaleDetailTotal: TfFrameSaleDetailTotal
       end
       inherited GroupDetail1: TdxLayoutGroup
         object dxLayout1Item5: TdxLayoutItem
-          Caption = #23458#25143#21517#31216':'
+          CaptionOptions.Text = #23458#25143#21517#31216':'
           Control = cxtxtdt1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #21697#31181#21517#31216':'
+          CaptionOptions.Text = #21697#31181#21517#31216':'
           Control = cxtxtdt4
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #20132#36135#37327'('#21544'):'
+          CaptionOptions.Text = #20132#36135#37327'('#21544'):'
           Control = cxtxtdt2
           ControlOptions.ShowBorder = False
         end

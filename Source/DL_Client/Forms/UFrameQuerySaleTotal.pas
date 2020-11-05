@@ -18,6 +18,8 @@ uses
   cxGridDBTableView, cxGrid, ComCtrls, ToolWin, dxSkinsCore,
   dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter,
   cxGridCustomPopupMenu, cxGridPopupMenu;
+  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxLayoutcxEditAdapters,
+  cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameSaleDetailTotal = class(TfFrameNormal)

@@ -73,6 +73,9 @@ inherited fFramePurTestPlanSet: TfFramePurTestPlanSet
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = Edit_NamePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       OnKeyPress = Edit_NameKeyPress
       Width = 176
@@ -80,12 +83,12 @@ inherited fFramePurTestPlanSet: TfFramePurTestPlanSet
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #26041#26696#21517#31216#65306
+          CaptionOptions.Text = #26041#26696#21517#31216#65306
           Control = Edit_Name
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = lbl1
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False

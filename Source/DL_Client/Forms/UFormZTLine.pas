@@ -12,7 +12,7 @@ uses
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, cxContainer, cxEdit, cxMaskEdit, cxDropDownEdit,
   cxLabel, cxCheckBox, cxTextEdit, dxLayoutControl, StdCtrls, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormZTLine = class(TfFormNormal)

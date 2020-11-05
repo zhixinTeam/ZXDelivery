@@ -16,6 +16,8 @@ uses
   cxLookAndFeelPainters, UBitmapPanel, cxSplitter, dxSkinsCore,
   dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter, Menus,
   cxGridCustomPopupMenu, cxGridPopupMenu;
+  dxSkinsDefaultPainters, dxSkinscxPCPainter,
+  dxLayoutcxEditAdapters, Menus, cxGridCustomPopupMenu, cxGridPopupMenu;
 
 type
   TfFrameInvoice = class(TfFrameNormal)

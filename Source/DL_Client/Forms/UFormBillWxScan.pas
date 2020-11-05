@@ -7,9 +7,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxControls, cxLookAndFeels, USysBusiness,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, dxLayoutControl, StdCtrls, cxContainer, cxEdit,
+  dxLayoutControl, StdCtrls, cxContainer, cxEdit,
   Menus, ExtCtrls, cxButtons, cxTextEdit, cxCheckBox, cxMaskEdit,
-  cxDropDownEdit;
+  cxDropDownEdit, dxLayoutcxEditAdapters, dxLayoutControlAdapters;
 
 type
   TCommonInfo = record

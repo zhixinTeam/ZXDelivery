@@ -1,10 +1,10 @@
 object fFormHYRecord: TfFormHYRecord
-  Left = 615
-  Top = 152
+  Left = 313
+  Top = 6
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   ClientHeight = 683
-  ClientWidth = 596
+  ClientWidth = 812
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -22,16 +22,15 @@ object fFormHYRecord: TfFormHYRecord
   object dxLayoutControl1: TdxLayoutControl
     Left = 0
     Top = 0
-    Width = 596
+    Width = 812
     Height = 683
     Align = alClient
     TabOrder = 0
     TabStop = False
-    AutoContentSizes = [acsWidth, acsHeight]
-    AutoControlTabOrders = False
-    LookAndFeel = FDM.dxLayoutWeb1
+    LayoutLookAndFeel = FDM.dxLayoutWeb1
+    OptionsItem.AutoControlTabOrders = False
     object BtnOK: TButton
-      Left = 440
+      Left = 656
       Top = 649
       Width = 70
       Height = 23
@@ -40,7 +39,7 @@ object fFormHYRecord: TfFormHYRecord
       OnClick = BtnOKClick
     end
     object BtnExit: TButton
-      Left = 515
+      Left = 731
       Top = 649
       Width = 70
       Height = 23
@@ -61,11 +60,14 @@ object fFormHYRecord: TfFormHYRecord
         end>
       Properties.MaxLength = 15
       Properties.OnButtonClick = EditIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
       Style.IsFontAssigned = True
       TabOrder = 0
       OnExit = EditIDExit
@@ -74,7 +76,7 @@ object fFormHYRecord: TfFormHYRecord
     end
     object EditStock: TcxComboBox
       Left = 81
-      Top = 61
+      Top = 62
       Hint = 'E.R_PID'
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
@@ -84,18 +86,22 @@ object fFormHYRecord: TfFormHYRecord
       Properties.ItemHeight = 18
       Properties.MaxLength = 15
       Properties.OnEditValueChanged = EditStockPropertiesEditValueChanged
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 1
       Width = 493
     end
     object wPanel: TPanel
       Left = 23
-      Top = 143
+      Top = 144
       Width = 415
       Height = 262
       Align = alClient
@@ -403,6 +409,89 @@ object fFormHYRecord: TfFormHYRecord
         Font.Name = #23435#20307
         Font.Style = []
         ParentFont = False
+        Transparent = True
+      end
+      object Label48: TLabel
+        Left = 474
+        Top = 61
+        Width = 54
+        Height = 12
+        Caption = #30707' '#28784' '#30707':'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = #23435#20307
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+      end
+      object Label49: TLabel
+        Left = 474
+        Top = 88
+        Width = 54
+        Height = 12
+        Caption = #39029'    '#23721':'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -12
+        Font.Name = #23435#20307
+        Font.Style = []
+        ParentFont = False
+        Transparent = True
+      end
+      object Label50: TLabel
+        Left = 474
+        Top = 5
+        Width = 54
+        Height = 12
+        Caption = #30719'    '#28195':'
+        Transparent = True
+      end
+      object Label51: TLabel
+        Left = 474
+        Top = 33
+        Width = 54
+        Height = 12
+        Caption = #33073#30827#30707#33167':'
+      end
+      object Label52: TLabel
+        Left = 474
+        Top = 115
+        Width = 54
+        Height = 12
+        Caption = '45um'#31579#20313':'
+        Transparent = True
+      end
+      object Label53: TLabel
+        Left = 474
+        Top = 139
+        Width = 54
+        Height = 12
+        Caption = #27700' '#28784' '#27604':'
+        Transparent = True
+      end
+      object Label54: TLabel
+        Left = 474
+        Top = 164
+        Width = 54
+        Height = 12
+        Caption = #35797' '#39292' '#27861':'
+        Transparent = True
+      end
+      object Label55: TLabel
+        Left = 474
+        Top = 191
+        Width = 54
+        Height = 12
+        Caption = #38647' '#27663' '#27861':'
+        Transparent = True
+      end
+      object Label56: TLabel
+        Left = 626
+        Top = 5
+        Width = 42
+        Height = 12
+        Caption = #27969#21160#24230':'
         Transparent = True
       end
       object cxTextEdit29: TcxTextEdit
@@ -1413,18 +1502,166 @@ object fFormHYRecord: TfFormHYRecord
           Width = 74
         end
       end
+      object cxTextEdit62: TcxTextEdit
+        Left = 529
+        Top = 51
+        Hint = 'E.R_shs'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 44
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
+      object cxTextEdit63: TcxTextEdit
+        Left = 528
+        Top = 78
+        Hint = 'E.R_Yy'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 45
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
+      object cxTextEdit64: TcxTextEdit
+        Left = 530
+        Top = 0
+        Hint = 'E.R_KZ'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 46
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
+      object cxTextEdit65: TcxTextEdit
+        Left = 530
+        Top = 26
+        Hint = 'E.R_tlsg'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 47
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
+      object cxTextEdit66: TcxTextEdit
+        Left = 532
+        Top = 102
+        Hint = 'E.R_45sy'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 48
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
+      object cxTextEdit67: TcxTextEdit
+        Left = 531
+        Top = 130
+        Hint = 'E.R_shb'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 49
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
+      object cxTextEdit68: TcxTextEdit
+        Left = 531
+        Top = 155
+        Hint = 'E.R_sbf'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 50
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
+      object cxTextEdit69: TcxTextEdit
+        Left = 531
+        Top = 180
+        Hint = 'E.R_lsf'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 51
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
+      object cxTextEdit70: TcxTextEdit
+        Left = 666
+        Top = 0
+        Hint = 'E.R_ldd'
+        ParentFont = False
+        Properties.MaxLength = 20
+        Style.Font.Charset = GB2312_CHARSET
+        Style.Font.Color = clBlack
+        Style.Font.Height = -13
+        Style.Font.Name = #24494#36719#38597#40657
+        Style.Font.Style = []
+        Style.IsFontAssigned = True
+        TabOrder = 52
+        OnKeyPress = cxTextEdit17KeyPress
+        Width = 90
+      end
     end
     object EditDate: TcxDateEdit
       Left = 81
-      Top = 86
+      Top = 87
       Hint = 'E.R_Date'
       ParentFont = False
       Properties.Kind = ckDateTime
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 2
       Width = 220
@@ -1435,6 +1672,8 @@ object fFormHYRecord: TfFormHYRecord
       Hint = 'E.R_Man'
       ParentFont = False
       Properties.ReadOnly = True
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -1446,103 +1685,107 @@ object fFormHYRecord: TfFormHYRecord
     end
     object EditCXDate: TcxDateEdit
       Left = 364
-      Top = 86
+      Top = 87
       Hint = 'E.R_CXDate'
       ParentFont = False
       Properties.Kind = ckDateTime
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 3
       Width = 210
     end
     object dxLayoutControl1Group_Root: TdxLayoutGroup
-      ShowCaption = False
+      AlignHorz = ahParentManaged
+      AlignVert = avParentManaged
+      CaptionOptions.Visible = False
+      ButtonOptions.Buttons = <>
       Hidden = True
       ShowBorder = False
       object dxLayoutControl1Group1: TdxLayoutGroup
-        Caption = #22522#26412#20449#24687
+        CaptionOptions.Text = #22522#26412#20449#24687
+        ButtonOptions.Buttons = <>
         object dxLayoutControl1Group4: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayoutControl1Item1: TdxLayoutItem
-            Caption = #25209#27425#32534#21495':'
+            CaptionOptions.Text = #25209#27425#32534#21495':'
             Control = EditID
             ControlOptions.ShowBorder = False
           end
           object dxLayoutControl1Item3: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #24405#20837#20154':'
+            CaptionOptions.Text = #24405#20837#20154':'
             Control = EditMan
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayoutControl1Item12: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = #25152#23646#21697#31181':'
+          CaptionOptions.Text = #25152#23646#21697#31181':'
           Control = EditStock
           ControlOptions.ShowBorder = False
         end
         object dxLayoutControl1Group3: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayoutControl1Item2: TdxLayoutItem
-            Caption = #21462#26679#26085#26399':'
+            CaptionOptions.Text = #21462#26679#26085#26399':'
             Control = EditDate
             ControlOptions.ShowBorder = False
           end
           object dxlytmLayoutControl1Item5: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #25104#22411#26085#26399':'
+            CaptionOptions.Text = #25104#22411#26085#26399':'
             Control = EditCXDate
             ControlOptions.ShowBorder = False
           end
         end
       end
       object dxLayoutControl1Group2: TdxLayoutGroup
-        AutoAligns = [aaHorizontal]
         AlignVert = avClient
-        Caption = #26816#39564#25968#25454
+        CaptionOptions.Text = #26816#39564#25968#25454
+        ButtonOptions.Buttons = <>
         object dxLayoutControl1Item4: TdxLayoutItem
-          AutoAligns = [aaHorizontal]
           AlignVert = avClient
-          Caption = 'Panel1'
-          ShowCaption = False
+          CaptionOptions.Text = 'Panel1'
+          CaptionOptions.Visible = False
           Control = wPanel
           ControlOptions.AutoColor = True
           ControlOptions.ShowBorder = False
         end
       end
       object dxLayoutControl1Group5: TdxLayoutGroup
-        AutoAligns = [aaHorizontal]
         AlignVert = avBottom
-        ShowCaption = False
+        CaptionOptions.Visible = False
+        ButtonOptions.Buttons = <>
         Hidden = True
         LayoutDirection = ldHorizontal
         ShowBorder = False
         object dxLayoutControl1Item10: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahRight
-          Caption = 'Button3'
-          ShowCaption = False
+          CaptionOptions.Text = 'Button3'
+          CaptionOptions.Visible = False
           Control = BtnOK
           ControlOptions.ShowBorder = False
         end
         object dxLayoutControl1Item11: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahRight
-          Caption = 'Button4'
-          ShowCaption = False
+          CaptionOptions.Text = 'Button4'
+          CaptionOptions.Visible = False
           Control = BtnExit
           ControlOptions.ShowBorder = False
         end

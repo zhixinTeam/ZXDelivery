@@ -15,7 +15,7 @@ uses
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, Menus,
   cxLookAndFeels, cxLookAndFeelPainters, UBitmapPanel, cxSplitter,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
-  dxSkinsdxLCPainter, cxGridCustomPopupMenu, cxGridPopupMenu;
+  cxGridCustomPopupMenu, cxGridPopupMenu, dxLayoutcxEditAdapters;
 
 type
   TfFrameInvoiceK = class(TfFrameNormal)
@@ -344,7 +344,8 @@ begin
         FValue := nVal;
         FKValue:= FValue;
 
-        FRecordID := GetVal(nIdx, 'R_ID');         FBeltLine:= GetVal(nIdx, 'R_BeltLine');
+        FRecordID := GetVal(nIdx, 'R_ID');
+        //FBeltLine:= GetVal(nIdx, 'R_BeltLine');
         FStockType := GetVal(nIdx, 'R_Type');
         FStockName := GetVal(nIdx, 'R_Stock');
         

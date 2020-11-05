@@ -16,7 +16,7 @@ uses
   cxDataStorage, DB, cxDBData, ADODB, cxGridLevel, cxClasses,
   cxGridCustomView, cxGridCustomTableView, cxGridTableView,
   cxGridDBTableView, cxGrid, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, dxSkinscxPCPainter, cxLabel;
+  dxSkinscxPCPainter, cxLabel, dxLayoutcxEditAdapters;
 
 type
   TfFormGetEditZhiKa = class(TfFormNormal)

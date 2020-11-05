@@ -12,7 +12,8 @@ uses
   cxLookAndFeelPainters, ComCtrls, cxContainer, cxEdit, Menus,
   cxDropDownEdit, cxCalendar, cxCheckBox, cxLabel, cxMaskEdit,
   cxButtonEdit, cxTextEdit, cxListView, dxLayoutControl, StdCtrls,
-  cxCurrencyEdit, dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  cxCurrencyEdit, dxSkinsCore, dxSkinsDefaultPainters,
+  dxLayoutcxEditAdapters;
 
 type
   TStockItem = record
@@ -84,6 +85,13 @@ type
     dxLayout1Group7: TdxLayoutGroup;
     dxLayout1Item4: TdxLayoutItem;
     EditStock: TcxTextEdit;
+    editYF: TcxCurrencyEdit;
+    dxLayout1Item21: TdxLayoutItem;
+    editJF: TcxCurrencyEdit;
+    dxLayout1Item22: TdxLayoutItem;
+    dxLayout1Group8: TdxLayoutGroup;
+    editNF: TcxCurrencyEdit;
+    dxLayout1Item23: TdxLayoutItem;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditSManPropertiesEditValueChanged(Sender: TObject);
@@ -297,6 +305,9 @@ begin
       //Ô¤¸¶½ð
       editXHSpot.Text := FieldByName('Z_XHSpot').AsString;
       editFreight.Value := FieldByName('Z_Freight').AsFloat;
+      editYF.Value := FieldByName('Z_YF').AsFloat;
+      editJF.Value := FieldByName('Z_JF').AsFloat;
+      editNF.Value := FieldByName('Z_NF').AsFloat;
 
       nStr := 'Select * From %s Where D_ZID=''%s''';
       nStr := Format(nStr, [sTable_ZhiKaDtl, nID]);
@@ -809,6 +820,10 @@ begin
     if GetCtrlData(EditLading) = sFlag_SongH then
       nList.Add(Format('Z_Freight=''%s''', [editFreight.Text]));
 
+    nList.Add(Format('Z_YF=''%s''', [FloatToStr(StrToFloatDef(editYF.Text,0))]));
+    nList.Add(Format('Z_JF=''%s''', [FloatToStr(StrToFloatDef(editJF.Text,0))]));
+    nList.Add(Format('Z_NF=''%s''', [FloatToStr(StrToFloatDef(editNF.Text,0))]));
+
     if FRecordID = '' then
     begin
       nZID := GetSerialNo(sFlag_BusGroup, sFlag_ZhiKa, True);
@@ -831,8 +846,11 @@ begin
       nStr := Format('Z_ID=''%s''', [FRecordID]);
       nSQL := MakeSQLByForm(Self, sTable_ZhiKa, nStr, False, nil, nList);
     end;
+    nList.Clear;
+    nList.Text := nSQL;
+    nList.SaveToFile('d:\a.txt');
 
-     FDM.ExecuteSQL(nSQL);
+    FDM.ExecuteSQL(nSQL);
     //write data
 
     if FRecordID <> '' then

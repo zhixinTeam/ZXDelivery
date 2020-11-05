@@ -16,8 +16,8 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinscxPCPainter, dxSkinsdxLCPainter, cxGridCustomPopupMenu,
-  cxGridPopupMenu, cxCheckBox;
+  dxSkinscxPCPainter, cxGridCustomPopupMenu,
+  cxGridPopupMenu, cxCheckBox, dxLayoutcxEditAdapters;
 
 type
   TfFrameCustomer = class(TfFrameNormal)

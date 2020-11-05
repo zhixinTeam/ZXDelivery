@@ -13,7 +13,7 @@ uses
   cxMCListBox, cxMemo, dxLayoutControl, cxContainer, cxEdit, cxTextEdit,
   cxControls, cxButtonEdit, cxCalendar, ExtCtrls, cxPC, cxLookAndFeels,
   cxLookAndFeelPainters, cxGroupBox, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters, dxLayoutControlAdapters;
 
 type
   TfFormHYRecord = class(TForm)
@@ -159,6 +159,24 @@ type
     edt_12: TcxTextEdit;
     lbl_3YaAVG: TLabel;
     lbl_28YaAVG: TLabel;
+    Label48: TLabel;
+    Label49: TLabel;
+    Label50: TLabel;
+    Label51: TLabel;
+    Label52: TLabel;
+    Label53: TLabel;
+    Label54: TLabel;
+    Label55: TLabel;
+    cxTextEdit62: TcxTextEdit;
+    cxTextEdit63: TcxTextEdit;
+    cxTextEdit64: TcxTextEdit;
+    cxTextEdit65: TcxTextEdit;
+    cxTextEdit66: TcxTextEdit;
+    cxTextEdit67: TcxTextEdit;
+    cxTextEdit68: TcxTextEdit;
+    cxTextEdit69: TcxTextEdit;
+    Label56: TLabel;
+    cxTextEdit70: TcxTextEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure EditIDPropertiesButtonClick(Sender: TObject;

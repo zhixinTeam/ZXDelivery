@@ -30,6 +30,10 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Properties.ImmediateDropDown = False
       Properties.ItemHeight = 18
       Properties.OnChange = EditSaleManPropertiesChange
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 0
       Width = 301
     end
@@ -41,6 +45,10 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Properties.ImmediateDropDown = False
       Properties.ItemHeight = 18
       Properties.MaxLength = 35
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 1
       OnKeyPress = EditCusKeyPress
       Width = 301
@@ -50,6 +58,8 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Top = 86
       ParentFont = False
       Properties.ReadOnly = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 2
       Text = '0'
       Width = 142
@@ -72,6 +82,8 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       ParentFont = False
       Properties.MaxLength = 50
       Properties.ScrollBars = ssVertical
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Edges = [bBottom]
       TabOrder = 6
       Height = 50
@@ -82,6 +94,10 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
       Top = 111
       ParentFont = False
       Properties.Kind = ckDateTime
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 4
       Width = 142
     end
@@ -100,68 +116,67 @@ inherited fFormCustomerCredit: TfFormCustomerCredit
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #19994#21153#20154#21592':'
+          CaptionOptions.Text = #19994#21153#20154#21592':'
           Control = EditSaleMan
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Group2: TdxLayoutGroup
-          AutoAligns = [aaHorizontal]
           AlignVert = avClient
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           ShowBorder = False
           object dxLayout1Item4: TdxLayoutItem
-            Caption = #23458#25143#21015#34920':'
+            CaptionOptions.Text = #23458#25143#21015#34920':'
             Control = EditCus
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Group3: TdxLayoutGroup
-            AutoAligns = [aaHorizontal]
             AlignVert = avClient
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             ShowBorder = False
             object dxLayout1Group4: TdxLayoutGroup
-              ShowCaption = False
+              CaptionOptions.Visible = False
+              ButtonOptions.Buttons = <>
               Hidden = True
               LayoutDirection = ldHorizontal
               ShowBorder = False
               object dxLayout1Item5: TdxLayoutItem
-                Caption = #20449#29992#37329#39069':'
+                CaptionOptions.Text = #20449#29992#37329#39069':'
                 Control = EditCredit
                 ControlOptions.ShowBorder = False
               end
               object dxLayout1Item6: TdxLayoutItem
-                AutoAligns = [aaVertical]
                 AlignHorz = ahClient
-                ShowCaption = False
+                CaptionOptions.Visible = False
                 Control = cxLabel1
                 ControlOptions.ShowBorder = False
               end
             end
             object dxLayout1Group5: TdxLayoutGroup
-              ShowCaption = False
+              CaptionOptions.Visible = False
+              ButtonOptions.Buttons = <>
               Hidden = True
               LayoutDirection = ldHorizontal
               ShowBorder = False
               object dxLayout1Item8: TdxLayoutItem
-                Caption = #26377#25928#26085#26399':'
+                CaptionOptions.Text = #26377#25928#26085#26399':'
                 Control = EditEnd
                 ControlOptions.ShowBorder = False
               end
               object dxLayout1Item9: TdxLayoutItem
-                AutoAligns = [aaVertical]
                 AlignHorz = ahClient
-                Caption = 'cxLabel2'
-                ShowCaption = False
+                CaptionOptions.Text = 'cxLabel2'
+                CaptionOptions.Visible = False
                 Control = cxLabel2
                 ControlOptions.ShowBorder = False
               end
             end
             object dxLayout1Item7: TdxLayoutItem
-              AutoAligns = [aaHorizontal]
               AlignVert = avClient
-              Caption = #22791#27880#20449#24687':'
+              CaptionOptions.Text = #22791#27880#20449#24687':'
               Control = EditMemo
               ControlOptions.ShowBorder = False
             end

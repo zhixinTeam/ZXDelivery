@@ -6,8 +6,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxControls, cxLookAndFeels, DateUtils,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters, UFormBase,
-  dxSkinsdxLCPainter, cxContainer, cxEdit, cxTextEdit, cxMaskEdit,
-  cxButtonEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxCalendar;
+  cxContainer, cxEdit, cxTextEdit, cxMaskEdit,
+  cxButtonEdit, dxLayoutControl, StdCtrls, cxDropDownEdit, cxCalendar,
+  dxLayoutcxEditAdapters;
 
 type
   TfFormCusSalePlanByMoney = class(TfFormNormal)

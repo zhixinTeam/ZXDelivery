@@ -13,7 +13,7 @@ uses
   cxRadioGroup, cxTextEdit, cxCheckBox, ExtCtrls, dxLayoutcxEditAdapters,
   dxLayoutControl, cxDropDownEdit, cxMaskEdit, cxButtonEdit,
   USysConst, cxListBox, ComCtrls,Contnrs,UFormCtrl, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters;
 
 type
   TfFormNewPurchaseCard = class(TForm)
@@ -507,13 +507,13 @@ function TfFormNewPurchaseCard.SaveBillProxy: Boolean;
 var
   nHint,nMsg:string;
   nWebOrderID:string;
-  nList: TStrings;
+  nList, nStocks: TStrings;
   nOrderItem:stMallPurchaseItem;
   nOrder:string;
   nNewCardNo:string;
   nidx:Integer;
   i:Integer;
-  nRet:Boolean;
+  nRet, nPrint:Boolean;
   nCard:string;
 begin
   Result := False;
@@ -613,6 +613,8 @@ begin
   end;
 
   nList := TStringList.Create;
+  nStocks := TStringList.Create;
+  LoadSysDictItem(sFlag_PrintBill, nStocks);
   try
     nList.Values['SQID'] := EditID.Text;
     nList.Values['Area'] := '';
@@ -625,6 +627,7 @@ begin
     nList.Values['StockNO'] := nOrderItem.FGoodsID;
     nList.Values['StockName'] := nOrderItem.FGoodsname;
     nList.Values['Value'] := EditValue.Text;
+    nPrint := nStocks.IndexOf(nOrderItem.FGoodsID) >= 0;
 
     nList.Values['WebOrderID'] := nWebOrderID;
 
@@ -679,6 +682,8 @@ begin
     ShowMsg(nMsg,sWarn);
   end;
   Result := True;
+  if nPrint then
+    PrintRCOrderReport(nOrder, false);
 end;
 
 function TfFormNewPurchaseCard.SaveWebOrderMatch(const nBillID,

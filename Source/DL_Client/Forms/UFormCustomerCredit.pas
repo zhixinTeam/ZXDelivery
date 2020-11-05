@@ -10,8 +10,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   UFormNormal, cxGraphics, cxControls, cxLookAndFeels, Dialogs, 
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, cxContainer, cxEdit, cxDropDownEdit, cxCalendar,
-  cxMemo, cxLabel, cxTextEdit, cxMaskEdit, dxLayoutControl, StdCtrls;
+  cxContainer, cxEdit, cxDropDownEdit, cxCalendar,
+  cxMemo, cxLabel, cxTextEdit, cxMaskEdit, dxLayoutControl, StdCtrls,
+  dxLayoutcxEditAdapters;
 
 type
   TfFormCustomerCredit = class(TfFormNormal)

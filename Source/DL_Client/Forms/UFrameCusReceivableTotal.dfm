@@ -40,6 +40,10 @@ inherited fFrameCusReceivableTotal: TfFrameCusReceivableTotal
       ParentFont = False
       Properties.SaveTime = False
       Properties.ShowTime = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 1
       Width = 130
     end
@@ -64,28 +68,32 @@ inherited fFrameCusReceivableTotal: TfFrameCusReceivableTotal
       ParentFont = False
       Properties.SaveTime = False
       Properties.ShowTime = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 0
       Width = 130
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxlytmLayout1Item4: TdxLayoutItem
-          Caption = #24320#22987#26102#38388':'
+          CaptionOptions.Text = #24320#22987#26102#38388':'
           Control = EditStart
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item2: TdxLayoutItem
-          Caption = #25130#27490#26102#38388#65306
+          CaptionOptions.Text = #25130#27490#26102#38388#65306
           Control = EditEnd
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item3: TdxLayoutItem
-          Caption = #23458#25143#32534#21495#65306
+          CaptionOptions.Text = #23458#25143#32534#21495#65306
           Control = cxButtonEdit1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #23458#25143#21517#31216#65306
+          CaptionOptions.Text = #23458#25143#21517#31216#65306
           Control = EditCustomer
           ControlOptions.ShowBorder = False
         end

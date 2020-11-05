@@ -46,7 +46,7 @@ implementation
 {$R *.dfm}
 uses
   IniFiles, ULibFun, USysConst, USysDB, USysPopedom, USysMenu, UMgrPopedom,
-  USysLoger, UFormWait, UFormConn, UDataModule;
+  USysLoger, UFormWait, UFormConn, UDataModule, USysMAC, USysBusiness;
   
 ResourceString
   sUserLogin = '用户[ %s ]尝试登陆系统';
@@ -184,7 +184,7 @@ end;
 //Desc: 登录
 procedure TfFormLogin.BtnLoginClick(Sender: TObject);
 var nStr: string;
-    nMsg: string;
+    nMsg, nLastMac: string;
     nList: TStrings;
 begin
   Edit_User.Text := Trim(Edit_User.Text);
@@ -230,7 +230,7 @@ begin
       ShowDlg(sConnDBError, sWarn, Handle); Exit;
     end;
 
-    nStr := 'Select U_NAME from $a Where U_NAME=''$b'' and U_PASSWORD=''$c'' ' +
+    nStr := 'Select U_NAME,U_Mac from $a Where U_NAME=''$b'' and U_PASSWORD=''$c'' ' +
             'and U_State=$d';
     nStr := MacroValue(nStr, [MI('$a',sTable_User),
                               MI('$b',Edit_User.Text),
@@ -247,6 +247,25 @@ begin
     gSysParam.FUserID := Edit_User.Text;
     gSysParam.FUserName := FDM.SqlQuery.Fields[0].AsString;
     gSysParam.FUserPwd := Edit_Pwd.Text;
+    gSysParam.FLocalMAC   := MakeActionID_MAC;
+    nLastMac := FDM.SqlQuery.FieldByName('U_Mac').AsString;
+
+    if (gSysParam.FLocalMAC <> nLastMac) and (nLastMac <> '') then
+    begin
+      AddManualEventRecord(gSysParam.FUserID + gSysParam.FLocalMAC,gSysParam.FUserID,'DoubleLogin',
+              nLastMac,sFlag_Solution_YNI,'DealDoubleLogin',True,'');
+
+      nStr := 'update %s set U_Mac=''%s'' where U_Name=''%s''';
+      nStr := Format(nStr,[sTable_User,gSysParam.FLocalMAC,gSysParam.FUserID]);
+      FDM.ExecuteSQL(nStr);
+    end;
+
+    if nLastMac ='' then
+    begin
+      nStr := 'update %s set U_Mac=''%s'' where U_Name=''%s''';
+      nStr := Format(nStr,[sTable_User,gSysParam.FLocalMAC,gSysParam.FUserID]);
+      FDM.ExecuteSQL(nStr);
+    end;
 
     ShowWaitForm(nil, '载入数据');
     {$IFDEF EnableBackupDB}

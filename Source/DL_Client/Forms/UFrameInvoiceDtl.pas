@@ -15,8 +15,8 @@ uses
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   ComCtrls, ToolWin, cxDropDownEdit, Menus, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinscxPCPainter, dxSkinsdxLCPainter,
-  cxGridCustomPopupMenu, cxGridPopupMenu;
+  dxSkinsDefaultPainters, dxSkinscxPCPainter, 
+  cxGridCustomPopupMenu, cxGridPopupMenu, dxLayoutcxEditAdapters;
 
 type
   TfFrameInvoiceDtl = class(TfFrameNormal)

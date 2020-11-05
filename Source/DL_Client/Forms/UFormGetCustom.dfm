@@ -12,16 +12,16 @@ inherited fFormGetCustom: TfFormGetCustom
   TextHeight = 12
   inherited dxLayout1: TdxLayoutControl
     Width = 486
-    Height = 302
+    Height = 303
     inherited BtnOK: TButton
       Left = 340
-      Top = 269
+      Top = 270
       Caption = #30830#23450
       TabOrder = 5
     end
     inherited BtnExit: TButton
       Left = 410
-      Top = 269
+      Top = 270
       TabOrder = 6
     end
     object EditSMan: TcxComboBox [2]
@@ -32,6 +32,10 @@ inherited fFormGetCustom: TfFormGetCustom
       Properties.DropDownRows = 20
       Properties.ItemHeight = 18
       Properties.OnEditValueChanged = EditSManPropertiesEditValueChanged
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 0
       Width = 121
     end
@@ -42,6 +46,10 @@ inherited fFormGetCustom: TfFormGetCustom
       Properties.DropDownRows = 20
       Properties.ItemHeight = 18
       Properties.OnEditValueChanged = EditCustomPropertiesEditValueChanged
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       TabOrder = 2
       Width = 121
     end
@@ -55,6 +63,9 @@ inherited fFormGetCustom: TfFormGetCustom
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditCIDPropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 1
       OnKeyPress = OnCtrlKeyPress
       Width = 121
@@ -103,41 +114,40 @@ inherited fFormGetCustom: TfFormGetCustom
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
-        Caption = #26597#35810#26465#20214
+        CaptionOptions.Text = #26597#35810#26465#20214
         object dxLayout1Group3: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Item3: TdxLayoutItem
-            Caption = #19994#21153#20154#21592':'
+            CaptionOptions.Text = #19994#21153#20154#21592':'
             Control = EditSMan
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item5: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #23458#25143#21517#31216':'
+            CaptionOptions.Text = #23458#25143#21517#31216':'
             Control = EditCus
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Item4: TdxLayoutItem
-          Caption = #23458#25143'('#36873'):'
+          CaptionOptions.Text = #23458#25143'('#36873'):'
           Control = EditCustom
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item7: TdxLayoutItem
-          Caption = 'cxLabel1'
-          ShowCaption = False
+          CaptionOptions.Text = 'cxLabel1'
+          CaptionOptions.Visible = False
           Control = cxLabel1
           ControlOptions.ShowBorder = False
         end
         object dxLayout1Item6: TdxLayoutItem
-          AutoAligns = [aaHorizontal]
           AlignVert = avClient
-          Caption = #26597#35810#32467#26524':'
-          ShowCaption = False
+          CaptionOptions.Text = #26597#35810#32467#26524':'
+          CaptionOptions.Visible = False
           Control = ListCustom
           ControlOptions.ShowBorder = False
         end

@@ -12,7 +12,7 @@ uses
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, cxListView,
   cxDropDownEdit, cxTextEdit, cxMaskEdit, cxButtonEdit, cxMCListBox,
   dxLayoutControl, StdCtrls, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters;
 
 type
   TfFormGetZhiKa = class(TfFormNormal)

@@ -28,13 +28,16 @@ inherited fFramePurTestVerify: TfFramePurTestVerify
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = EditDatePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
+      Style.ButtonStyle = btsHotFlat
       TabOrder = 0
       Width = 176
     end
     inherited dxGroup1: TdxLayoutGroup
       inherited GroupSearch1: TdxLayoutGroup
         object dxLayout1Item1: TdxLayoutItem
-          Caption = #26816#39564#26085#26399#65306
+          CaptionOptions.Text = #26816#39564#26085#26399#65306
           Control = EditDate
           ControlOptions.ShowBorder = False
         end

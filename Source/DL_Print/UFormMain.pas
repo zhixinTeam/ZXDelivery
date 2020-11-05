@@ -83,6 +83,7 @@ var nIni: TIniFile;
     nReg: TRegistry;
 begin
   gPath := ExtractFilePath(Application.ExeName);
+  WriteLog('zyww::'+gPath);
   InitGlobalVariant(gPath, gPath+sConfig, gPath+sForm, gPath+sDB);
   
   gSysLoger := TSysLoger.Create(gPath + 'Logs\');
@@ -285,7 +286,7 @@ begin
   nStr := gPath + 'Report\LadingBill.fr3';
   if not FDR.LoadReportFile(nStr) then
   begin
-    nHint := '无法正确加载报表文件 '+ nStr;
+    nHint := 'PrintBill无法正确加载报表文件 '+ nStr;
     Exit;
   end;
 
@@ -339,7 +340,7 @@ begin
   nStr := gPath + 'Report\PurchaseOrder.fr3';
   if not FDR.LoadReportFile(nStr) then
   begin
-    nHint := '无法正确加载报表文件: ' + nStr;
+    nHint := 'PrintOrder无法正确加载报表文件: ' + nStr;
     Exit;
   end;
 
@@ -442,7 +443,7 @@ begin
 
   if not FDR.LoadReportFile(nStr) then
   begin
-    nHint := '无法正确加载报表文件: ' + nStr;
+    nHint := 'PrintHYdan无法正确加载报表文件: ' + nStr;
     Exit;
   end;
 

@@ -12,7 +12,7 @@ uses
   cxLookAndFeelPainters, cxContainer, cxEdit, ComCtrls, ImgList, DB, ADODB,
   ExtCtrls, cxGroupBox, cxRadioGroup, cxMemo, cxTextEdit, cxListView,
   cxLabel, dxLayoutControl, StdCtrls, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters;
 
 type
   TfFormTodo = class(TfFormNormal)
@@ -167,7 +167,7 @@ begin
 end;
 
 function TfFormTodo.LoadEventFromDB: Boolean;
-var nStr: string;
+var nStr, nEventID: string;
     nIdx: Integer;
     nBool: Boolean;
     nItem: PEventItem;
@@ -177,6 +177,25 @@ begin
   begin
     nItem := gEventList[nIdx];
     nItem.FEnable := False;
+  end;
+
+  with ADOQuery1 do
+  begin
+    nStr := 'select * from %s where E_From=''%s'' and E_Key=''%s''';
+    nStr := Format(nStr,[sTable_ManualEvent,gSysParam.FLocalMAC,gSysParam.FUserID]);
+    FDM.QueryData(ADOQuery1, nStr);
+    if RecordCount > 0 then
+    begin
+      try
+        nEventID := FieldByName('E_ID').AsString;
+        nStr:= 'Delete from %s where E_ID=''%s''';
+        nStr := Format(nStr,[sTable_ManualEvent,nEventID]);
+        FDM.ExecuteSQL(nStr);
+        ShowDlg('操作员已在其他电脑登录.',sHint);
+        Application.Terminate;
+      except
+      end;
+    end;
   end;
 
   with ADOQuery1 do

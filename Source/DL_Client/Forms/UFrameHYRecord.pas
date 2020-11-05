@@ -16,8 +16,8 @@ uses
   ComCtrls, ToolWin, cxTextEdit, cxMaskEdit, cxButtonEdit, UFrameNormal,
   Menus, UBitmapPanel, cxSplitter, cxLookAndFeels, cxLookAndFeelPainters,
   dxSkinsCore, dxSkinsDefaultPainters, dxSkinscxPCPainter,
-  dxSkinsdxLCPainter, cxDropDownEdit, cxGridCustomPopupMenu,
-  cxGridPopupMenu;
+  cxDropDownEdit, cxGridCustomPopupMenu,
+  cxGridPopupMenu, dxLayoutcxEditAdapters;
 
 type
   TfFrameHYRecord = class(TfFrameNormal)

@@ -15,7 +15,9 @@ uses
   cxMaskEdit, cxButtonEdit, cxTextEdit, ADODB, cxLabel, UBitmapPanel,
   cxSplitter, cxGridLevel, cxClasses, cxGridCustomView,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
-  ComCtrls, ToolWin;
+  ComCtrls, ToolWin, dxSkinsCore, dxSkinsDefaultPainters,
+  dxSkinscxPCPainter, dxLayoutcxEditAdapters, cxGridCustomPopupMenu,
+  cxGridPopupMenu;
 
 type
   TfFrameOrderDetailQuery = class(TfFrameNormal)
@@ -45,6 +47,9 @@ type
     N6: TMenuItem;
     N7: TMenuItem;
     N8: TMenuItem;
+    N9: TMenuItem;
+    N10: TMenuItem;
+    N11: TMenuItem;
     procedure EditDatePropertiesButtonClick(Sender: TObject;
       AButtonIndex: Integer);
     procedure EditTruckPropertiesButtonClick(Sender: TObject;
@@ -55,6 +60,8 @@ type
     procedure N5Click(Sender: TObject);
     procedure N7Click(Sender: TObject);
     procedure N8Click(Sender: TObject);
+    procedure N10Click(Sender: TObject);
+    procedure N11Click(Sender: TObject);
   private
     { Private declarations }
   protected
@@ -320,6 +327,70 @@ begin
 
     InitFormData(FWhere);
     ShowMsg('收货地点修改成功', sHint);
+  end;
+end;
+
+procedure TfFrameOrderDetailQuery.N10Click(Sender: TObject);
+var
+  nList: TStrings;
+  nStr, nSQL: string;
+  nLength, nIdx: Integer;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then Exit;
+  nList := TStringList.Create;
+  try
+
+    nLength := cxView1.DataController.RowCount -1;
+    for nIdx := 0 to nLength do
+    begin
+      if cxView1.DataController.IsRowSelected(nIdx) then
+      begin
+        nStr := GetVal(nIdx, 'D_ID');
+        nList.Add(nStr);
+      end;
+    end;
+
+    nStr := CombinStr(nList, ',' , False);
+    nStr := AdjustListStrFormat(nStr , '''' , True , ',' , False);
+    nSQL := 'Update %s set D_JsFlag=''%s'' where D_Id in (%s)';
+    nSQL := Format(nSQL,[sTable_OrderDtl, sFlag_Yes, nStr]);
+    FDM.ExecuteSQL(nSQL);
+    InitFormData(FWhere);
+    ShowMsg('标记结算状态成功.',sHint);
+  finally
+    nList.Free;
+  end;
+end;
+
+procedure TfFrameOrderDetailQuery.N11Click(Sender: TObject);
+var
+  nList: TStrings;
+  nStr, nSQL: string;
+  nLength, nIdx: Integer;
+begin
+  if cxView1.DataController.GetSelectedCount < 1 then Exit;
+  nList := TStringList.Create;
+  try
+
+    nLength := cxView1.DataController.RowCount -1;
+    for nIdx := 0 to nLength do
+    begin
+      if cxView1.DataController.IsRowSelected(nIdx) then
+      begin
+        nStr := GetVal(nIdx, 'D_ID');
+        nList.Add(nStr);
+      end;
+    end;
+
+    nStr := CombinStr(nList, ',' , False);
+    nStr := AdjustListStrFormat(nStr , '''' , True , ',' , False);
+    nSQL := 'Update %s set D_JsFlag=''%s'' where D_Id in (%s)';
+    nSQL := Format(nSQL,[sTable_OrderDtl, sFlag_No, nStr]);
+    FDM.ExecuteSQL(nSQL);
+    InitFormData(FWhere);
+    ShowMsg('标记结算状态成功.',sHint);
+  finally
+    nList.Free;
   end;
 end;
 

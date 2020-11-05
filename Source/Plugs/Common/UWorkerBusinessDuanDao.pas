@@ -123,7 +123,7 @@ end;
 
 function TWorkerBusinessDuanDao.SaveDDBase(var nData: string): Boolean;
 var nStr, nTruck: string;
-    nOut: TWorkerBusinessCommand;
+    nOut, nOutX: TWorkerBusinessCommand;
 begin
   FListA.Text := PackerDecodeStr(FIn.FData);
   nTruck := FListA.Values['Truck'];
@@ -203,6 +203,49 @@ begin
             SF('B_Date', sField_SQLServer_Now, sfVal)
             ], sTable_TransBase, '', True);
     gDBConnManager.WorkerExec(FDBConn, nStr);
+
+    if FListA.Values['BuDan']= sFlag_Yes then
+    begin
+      FListC.Clear;
+      FListC.Values['Group'] := sFlag_BusGroup;
+      FListC.Values['Object'] := sFlag_Transfer;
+
+      if not TWorkerBusinessCommander.CallMe(cBC_GetSerialNO,
+              FListC.Text, sFlag_Yes, @nOutX) then
+        raise Exception.Create(nOutX.FData);
+      //xxxxx
+
+      nStr := MakeSQLByStr([
+              SF('T_ID', nOutX.FData),
+              SF('T_Truck', FListA.Values['Truck']),
+              SF('T_PID', nOut.FData),
+              SF('T_SrcAddr', FListA.Values['SrcAddr']),
+              SF('T_DestAddr', FListA.Values['DestAddr']),
+              SF('T_Type', SFlag_San),
+
+              SF('T_StockNo', FListA.Values['StockNO']),
+              SF('T_StockName', FListA.Values['StockName']),
+              SF('T_Status', 'O'),
+              SF('T_NextStatus', ''),
+              SF('T_InTime', sField_SQLServer_Now, sfVal),
+              SF('T_InMan', FIn.FBase.FFrom.FUser),
+
+              SF('T_PValue', FListA.Values['PValue']),
+              SF('T_PDate', sField_SQLServer_Now, sfVal),
+              SF('T_PMan',  FIn.FBase.FFrom.FUser),
+
+              SF('T_MValue', FListA.Values['MValue']),
+              SF('T_MDate',  sField_SQLServer_Now, sfVal),
+              SF('T_OutMan',   FIn.FBase.FFrom.FUser),
+              SF('T_MMan',   FIn.FBase.FFrom.FUser)
+              ], sTable_Transfer, '', True);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+
+      nStr:= 'UPDate %s Set T_OutFact=DateAdd(Minute, 7, T_PDate), T_Value=isNull(T_MValue,0)-isNull(T_PValue,0) '+
+             'Where  T_ID=''%s'' ';
+      nStr:= Format(nStr, [sTable_Transfer, nOutX.FData]);
+      gDBConnManager.WorkerExec(FDBConn, nStr);
+    end;
 
     FDBConn.FConn.CommitTrans;
 
@@ -509,7 +552,7 @@ begin
           MI('$CD', FIn.FData)]);
   //xxxxx }
 
-  nStr := 'Select a.*, b.T_Truck, IsNull(b.T_PrePUse, ''N'') PrePUse, IsNull(b.T_PValue, 0) PrePValue, '+
+  nStr := 'Select a.*, b.T_Truck, IsNull(b.T_PrePUse, ''N'') PrePUse, IsNull(b.T_PrePValue, 0) PrePValue, '+
                  'IsNull(b.T_PrePMan, '''') PrePMan, IsNull(b.T_PrePTime, GETDATE()) PrePTime  '+
           ' From $TransBase a  Left Join $Truck b On T_Truck=B_Truck ';
   nStr := nStr + 'Where B_Card=''$CD'' ';
@@ -550,7 +593,14 @@ begin
       FIsVIP      := FieldByName('B_IsUsed').AsString;
       FIsNei      := FieldByName('B_IsNei').AsString;  //是否内倒
 
-      if FIsVIP <> sFlag_Yes then
+      with FPData do
+      begin
+        FDate   := FieldByName('B_PDate').AsDateTime;
+        FValue  := FieldByName('B_PValue').AsFloat;
+        FOperator := FieldByName('B_PMan').AsString;
+      end;
+
+      if FIsVIP <> sFlag_Yes then     //新单据
       begin
         FStatus     := sFlag_TruckNone;
         FNextStatus := sFlag_TruckNone;
@@ -585,13 +635,6 @@ begin
         end;
       end;
       //如果订单非占用状态
-
-      with FPData do
-      begin
-        FDate   := FieldByName('B_PDate').AsDateTime;
-        FValue  := FieldByName('B_PValue').AsFloat;
-        FOperator := FieldByName('B_PMan').AsString;
-      end;
 
       FMemo         := FieldByName('B_SrcAddr').AsString;
       FYSValid      := FieldByName('B_DestAddr').AsString;
@@ -853,6 +896,7 @@ begin
         nSQL := MakeSQLByStr([
                 SF('T_Status', sFlag_TruckBFM),
                 SF('T_NextStatus', sFlag_TruckOut),
+                SF('T_PValue', FPData.FValue, sfVal),
                 SF('T_MValue', FMData.FValue, sfVal),
                 SF('T_MDate', sField_SQLServer_Now, sfVal),
                 SF('T_MMan', FIn.FBase.FFrom.FUser),
@@ -870,6 +914,7 @@ begin
                 ], sTable_TransBase, SF('B_ID', FZhiKa), False);
         FListA.Add(nSQL);
       end;
+      FNextStatus := sFlag_TruckOut;
     end;
 
     nSQL := 'Select P_ID From %s Where P_Order=''%s'' And P_MValue Is Null';
@@ -890,6 +935,8 @@ begin
     if nN = sFlag_TruckOut then
     with nPound[0] do
     begin
+      FNextStatus := '';
+      
       nSQL := MakeSQLByStr([
               SF('T_Status', sFlag_TruckOut),
               SF('T_NextStatus', ''),
@@ -928,6 +975,13 @@ begin
           nSQL := 'Update %s Set C_Status=''%s'', C_Used=Null, C_TruckNo=Null ' +
                   'Where C_Card=''%s''';
           nSQL := Format(nSQL, [sTable_Card, sFlag_CardInvalid, FCard]);
+          FListA.Add(nSQL);
+        end
+        else
+        begin
+          nSQL := 'Update %s Set B_PValue=Null,B_MValue=NULL,B_PDate=NULL,'+
+                  'B_MDate=NULL,B_PMan=NULL,B_MMan=NULL Where B_ID=''%s''';
+          nSQL := Format(nSQL, [sTable_TransBase, FZhiKa]);
           FListA.Add(nSQL);
         end;
       end;

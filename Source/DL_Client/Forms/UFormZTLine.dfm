@@ -35,6 +35,8 @@ inherited fFormZTLine: TfFormZTLine
       Hint = 'T.Z_Name'
       ParentFont = False
       Properties.ReadOnly = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -50,6 +52,8 @@ inherited fFormZTLine: TfFormZTLine
       Hint = 'T.Z_ID'
       ParentFont = False
       Properties.ReadOnly = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -66,6 +70,8 @@ inherited fFormZTLine: TfFormZTLine
       HelpType = htKeyword
       HelpKeyword = 'I'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -93,6 +99,8 @@ inherited fFormZTLine: TfFormZTLine
       Top = 75
       Hint = 'T.Z_Stock'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -122,6 +130,8 @@ inherited fFormZTLine: TfFormZTLine
       HelpType = htKeyword
       HelpKeyword = 'I'
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -153,11 +163,15 @@ inherited fFormZTLine: TfFormZTLine
       Properties.ItemHeight = 20
       Properties.MaxLength = 20
       Properties.OnChange = EditStockIDPropertiesChange
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 2
       Width = 210
@@ -174,11 +188,15 @@ inherited fFormZTLine: TfFormZTLine
         '2.VIP'
         '3.'#26632#21488
         '4.'#33337#36816)
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 5
       Text = '1.'#26222#36890
@@ -204,11 +222,15 @@ inherited fFormZTLine: TfFormZTLine
       ParentFont = False
       Properties.DropDownListStyle = lsEditFixedList
       Properties.ItemHeight = 18
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #23435#20307
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 3
       Width = 210
@@ -216,103 +238,108 @@ inherited fFormZTLine: TfFormZTLine
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Group3: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object LayItem1: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            Caption = #26632#21488#32534#21495':'
+            AlignHorz = ahLeft
+            CaptionOptions.Text = #26632#21488#32534#21495':'
             Control = EditID
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item5: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #26632#21488#21517#31216':'
+            CaptionOptions.Text = #26632#21488#21517#31216':'
             Control = EditName
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Group2: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Group5: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             ShowBorder = False
             object dxLayout1Item21: TdxLayoutItem
-              Caption = #21697#31181#32534#21495':'
+              CaptionOptions.Text = #21697#31181#32534#21495':'
               Control = EditStockID
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item6: TdxLayoutItem
-              Caption = #29983' '#20135' '#32447':'
+              CaptionOptions.Text = #29983' '#20135' '#32447':'
               Control = cbb_BeltLine
               ControlOptions.ShowBorder = False
             end
           end
           object dxLayout1Item8: TdxLayoutItem
-            AutoAligns = [aaVertical]
             AlignHorz = ahClient
-            Caption = #21697#31181#21517#31216':'
+            CaptionOptions.Text = #21697#31181#21517#31216':'
             Control = EditStockName
             ControlOptions.ShowBorder = False
           end
         end
         object dxLayout1Group4: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           ShowBorder = False
           object dxLayout1Group10: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayout1Item3: TdxLayoutItem
-              Caption = #26632#21488#31867#22411':'
+              CaptionOptions.Text = #26632#21488#31867#22411':'
               Control = EditType
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item22: TdxLayoutItem
-              AutoAligns = [aaVertical]
-              ShowCaption = False
+              AlignHorz = ahLeft
+              CaptionOptions.Visible = False
               Control = cxLabel5
               ControlOptions.ShowBorder = False
             end
           end
           object dxLayout1Group12: TdxLayoutGroup
-            ShowCaption = False
+            CaptionOptions.Visible = False
+            ButtonOptions.Buttons = <>
             Hidden = True
             LayoutDirection = ldHorizontal
             ShowBorder = False
             object dxLayout1Item4: TdxLayoutItem
-              Caption = #38431#21015#23481#37327':'
+              CaptionOptions.Text = #38431#21015#23481#37327':'
               Control = EditMax
               ControlOptions.ShowBorder = False
             end
             object dxLayout1Item10: TdxLayoutItem
-              Caption = 'cxLabel2'
-              ShowCaption = False
+              CaptionOptions.Text = 'cxLabel2'
+              CaptionOptions.Visible = False
               Control = cxLabel2
               ControlOptions.ShowBorder = False
             end
           end
         end
         object dxLayout1Group9: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Item19: TdxLayoutItem
-            Caption = #21333#34955#37325#37327':'
+            CaptionOptions.Text = #21333#34955#37325#37327':'
             Control = EditPeer
             ControlOptions.ShowBorder = False
           end
           object dxLayout1Item20: TdxLayoutItem
-            ShowCaption = False
+            CaptionOptions.Visible = False
             Control = cxLabel4
             ControlOptions.ShowBorder = False
           end
@@ -320,7 +347,7 @@ inherited fFormZTLine: TfFormZTLine
       end
       inherited dxLayout1Group1: TdxLayoutGroup
         object dxLayout1Item7: TdxLayoutItem [0]
-          ShowCaption = False
+          CaptionOptions.Visible = False
           Control = CheckValid
           ControlOptions.ShowBorder = False
         end

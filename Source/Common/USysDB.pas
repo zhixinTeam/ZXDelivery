@@ -258,7 +258,9 @@ const
 
   sFlag_BusGroup      = 'BusFunction';               //业务编码组
   sFlag_BillNo        = 'Bus_Bill';                  //交货单号
+  sFlag_BillNoB       = 'Bus_Bill_B';                //交货单号
   sFlag_PoundID       = 'Bus_Pound';                 //称重记录
+  sFlag_PoundIDB      = 'Bus_Pound_B';               //称重记录
   sFlag_Customer      = 'Bus_Customer';              //客户编号
   sFlag_SaleMan       = 'Bus_SaleMan';               //业务员编号
   sFlag_Contract      = 'Bus_Contract';              //合同编号
@@ -316,7 +318,9 @@ const
   sFlag_TruckType     = 'TruckType';                 //车辆类型
   sFlag_DefaultPValue = 'DefaultPValue';             //默认皮重
   sFlag_PValueWuCha   = 'PValueWuCha';               //皮重浮动范围
-  
+  sFlag_GetBatCodeByTunnel ='GetBatCodeByTunnel';    //根据通道获取批次
+  sFlag_ShowCountType  = 'ShowCountType';            //现场计数器屏显示品种配置
+
   {*数据表*}
   sTable_Group        = 'Sys_Group';                 //用户组
   sTable_User         = 'Sys_User';                  //用户表
@@ -438,6 +442,7 @@ const
 
   sTable_SalePlanStock    = 'X_SalePlanStock';      //销售计划品种限量
   sTable_SalePlanCustomer = 'X_SalePlanCustomer';   //销售计划品种客户限量
+  sTable_Alivision        = 'Sys_Alivision';        //图像识别
 
 
   {*新建表*}
@@ -829,7 +834,8 @@ const
        'Z_YFMoney $Float, Z_FixedMoney $Float, Z_OnlyMoney Char(1),' +
        'Z_TJStatus Char(1), Z_Memo varChar(200), Z_Man varChar(32),' +
        'Z_Date DateTime, Z_VerifyMan varChar(32), Z_VerifyDate DateTime,'+
-       'Z_Area varChar(30), Z_XHSpot varchar(30), Z_Freight $Float Default 0)';
+       'Z_Area varChar(30), Z_XHSpot varchar(30), Z_Freight $Float Default 0,'+
+       'Z_YF $Float Default 0,Z_JF $Float Default 0,Z_NF $Float Default 0)';
   {-----------------------------------------------------------------------------
    纸卡办理: ZhiKa
    *.R_ID:记录编号
@@ -929,7 +935,8 @@ const
        'L_XHSpot varChar(30), L_Freight $Float, L_Ident varChar(30),' +
        'L_DelMan varChar(32), L_DelDate DateTime, L_Memo varChar(320),' +
        'L_SnapStatus Char(1) Default ''Y'', L_BeltLine varChar(50),L_NowVaildMoney $Float,'+
-       'L_HYPrintCount int Default 0,L_WebOrderID varchar(32), L_SJName varchar(32))';
+       'L_HYPrintCount int Default 0,L_WebOrderID varchar(32), L_SJName varchar(32),'+
+       'L_BZ varchar(200))';
   {-----------------------------------------------------------------------------
    交货单表: Bill
    *.R_ID: 编号
@@ -978,6 +985,7 @@ const
    *.L_Ident:身份证号
    *.L_SJName:司机姓名
    *.L_BeltLine : 订单发货生产线或生产厂区
+   *.L_BZ:备注
   -----------------------------------------------------------------------------}
 
   sSQL_CusSalePlanByMoney = 'Create Table $Table(R_ID $Inc, X_CID varChar(50),' +
@@ -1656,6 +1664,9 @@ const
        'R_3DYa4 varChar(20), R_3DYa5 varChar(20), R_3DYa6 varChar(20),' +
        'R_28Ya1 varChar(20), R_28Ya2 varChar(20), R_28Ya3 varChar(20),' +
        'R_28Ya4 varChar(20), R_28Ya5 varChar(20), R_28Ya6 varChar(20),' +
+       'R_KZ varChar(20), R_tlsg varChar(20), R_SHS varChar(20),R_YY varChar(20),'+
+       'R_45sy varChar(20),R_sbf varChar(20),R_Lsf varChar(20),'+
+       'R_ldd varChar(20), R_shb varChar(20),'+
        'R_FMH varChar(20), R_ZMJ varChar(20), R_RMLZ varChar(20), R_KF varChar(20),' +
        'R_JZSMBZ varChar(50), R_JZSSFHL varChar(50),R_JZSNKHL varChar(50), R_JZSJGXZB varChar(50),R_GaO varChar(50),'+
        'R_FMHXSLB varChar(32),R_FMHMD varChar(32),R_FMHZLFS varChar(32),R_FMHHXZS varChar(32),' +
@@ -2247,6 +2258,18 @@ const
    *.Q_Truck       : 图2
    *.Q_Time       : 日期
   -----------------------------------------------------------------------------}
+  sSQL_NewAlivision = 'Create Table $Table(R_ID $Inc, V_ID varChar(15),' +
+       'V_Pound varChar(10), V_Truck varChar(15), V_Camera varChar(15),' +
+       'V_Status Char(1), V_Date DateTime)';
+  {-----------------------------------------------------------------------------
+   图像识别: Alivision
+   *.V_ID: 业务编号
+   *.V_Pound: 磅站号
+   *.V_Truck: 业务车牌
+   *.V_Camera: 识别车牌
+   *.V_Status: 识别状态
+   *.V_Date: 时间
+  -----------------------------------------------------------------------------}
 
 
 
@@ -2437,7 +2460,7 @@ begin
 
   AddSysTableItem(sTable_SalePlanStock, sSQL_SalePlanStock);
   AddSysTableItem(sTable_SalePlanCustomer, sSQL_SalePlanCustomer);
-
+  AddSysTableItem(sTable_Alivision, sSQL_NewAlivision);
 end;
 
 //Desc: 清理系统表

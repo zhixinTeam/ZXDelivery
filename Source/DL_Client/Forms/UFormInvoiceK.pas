@@ -11,7 +11,7 @@ uses
   UDataModule, cxGraphics, dxLayoutControl, cxMemo, cxTextEdit,
   cxMCListBox, cxDropDownEdit, cxCalendar, cxContainer, cxEdit, cxMaskEdit,
   cxButtonEdit, StdCtrls, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
-  dxSkinsCore, dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsCore, dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   PInvoiceDataItem = ^TInvoiceDataItem;

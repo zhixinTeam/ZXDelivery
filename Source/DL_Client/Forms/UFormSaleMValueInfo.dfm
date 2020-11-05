@@ -24,15 +24,16 @@ inherited fFormSaleMValueInfo: TfFormSaleMValueInfo
       Top = 36
       ParentFont = False
       Properties.MaxLength = 100
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       TabOrder = 0
       Width = 125
     end
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Item5: TdxLayoutItem
-          AutoAligns = [aaVertical]
           AlignHorz = ahClient
-          Caption = #27611#37325#19978#38480':'
+          CaptionOptions.Text = #27611#37325#19978#38480':'
           Control = EditMValueMax
           ControlOptions.ShowBorder = False
         end

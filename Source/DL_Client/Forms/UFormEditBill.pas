@@ -6,8 +6,9 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, dxLayoutControl, StdCtrls, cxContainer, cxEdit,
-  cxLabel, cxTextEdit, cxMaskEdit, cxButtonEdit, cxMemo;
+  dxLayoutControl, StdCtrls, cxContainer, cxEdit,
+  cxLabel, cxTextEdit, cxMaskEdit, cxButtonEdit, cxMemo,
+  dxLayoutcxEditAdapters;
 
 type
   TfFormEditBill = class(TfFormNormal)

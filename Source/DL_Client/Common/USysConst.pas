@@ -3,7 +3,7 @@
   描述: 项目通用常,变量定义单元
 *******************************************************************************}
 unit USysConst;
-
+{$I Link.Inc}
 interface
 
 uses
@@ -230,6 +230,7 @@ const
   cFI_FrameSaleTotalQuery2HY = $1117;                //恒宇销售汇总
   cFI_FrameCusTotalMoney     = $1118;                //账务周期
   cFI_FrameCusReceivable     = $1119;                //应收款明细
+  cFI_FrameCusReceivable_ForJG     = $1124;                //应收款明细-全部
 
   cFI_FrameQrySaleByMonth    = $1121;                //按月统计销售数据
   cFI_FramePurchByMonth      = $1122;                //按月统计采购数据
@@ -259,6 +260,9 @@ const
 
   cFI_FrameCusSalePlanByMoney= $1130;                //销售客户金额限量
   cFI_FormCusSalePlanByMoney = $1131;                //销售客户金额限量 编辑
+
+  cFI_FrameTransferDetailQuery = $0094;              //短倒明细查询
+  cFI_FormTransDetail   = $0096;                     //短倒办理
   {*Command*}
   cCmd_RefreshData      = $0002;                     //刷新数据
   cCmd_ViewSysLog       = $0003;                     //系统日志
@@ -511,7 +515,11 @@ begin
   {$ENDIF}
   AddMenuModuleItem('MAIN_L21', cFI_FrameSaleTotalQuery2HY);
   AddMenuModuleItem('MAIN_L22', cFI_FrameCusTotalMoney);
+  {$IFDEF QJXY}  //曲靖吉港专用
+  AddMenuModuleItem('MAIN_L23', cFI_FrameCusReceivable_ForJG);
+  {$ELSE}
   AddMenuModuleItem('MAIN_L23', cFI_FrameCusReceivable);
+  {$ENDIF}
   AddMenuModuleItem('MAIN_L24', cFI_FrameQrySaleByMonth);
   AddMenuModuleItem('MAIN_L25', cFI_FramePurchByMonth);
   AddMenuModuleItem('MAIN_L33', cFI_FrameCusReceivableTotal);
@@ -538,6 +546,9 @@ begin
   AddMenuModuleItem('MAIN_M11', cFI_FrameCrossCard);
   AddMenuModuleItem('MAIN_M12', cFI_FrameTruckCross);
   AddMenuModuleItem('MAIN_M15', cFI_FrameKDInfo);
+  AddMenuModuleItem('MAIN_L26', cFI_FrameTransferDetailQuery);
+  AddMenuModuleItem('MAIN_MF05',cFI_FormOrder, mtForm);
+  AddMenuModuleItem('MAIN_MF06',cFI_FormTransBase, mtForm);
  // AddMenuModuleItem('MAIN_M13', cFI_FrameYCLStock);
  // AddMenuModuleItem('MAIN_M14', cFI_FrameYCLStockRecord);
  

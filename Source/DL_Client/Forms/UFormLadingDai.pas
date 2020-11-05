@@ -11,7 +11,7 @@ uses
   USysBusiness, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, ComCtrls, cxContainer, cxEdit, cxTextEdit,
   cxListView, cxMCListBox, dxLayoutControl, StdCtrls, dxSkinsCore,
-  dxSkinsDefaultPainters, dxSkinsdxLCPainter;
+  dxSkinsDefaultPainters, dxLayoutcxEditAdapters;
 
 type
   TfFormLadingDai = class(TfFormNormal)

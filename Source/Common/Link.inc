@@ -17,7 +17,7 @@
 {$DEFINE RO_v90}
 //XE.Lib启用RO支持
 
-{.$DEFINE EnableBackupDB}
+{$DEFINE EnableBackupDB}
 //备用数据库支持
 {.$DEFINE EnableDoubleDB}
 //双数据库支持
@@ -53,6 +53,7 @@
 {.$DEFINE COMMON}
 //通用版本
 
+{$DEFINE QJXY}
 {$DEFINE JZZJ}
 //特定系统
 
@@ -1136,4 +1137,94 @@
   //收款关联收据信息
   {$DEFINE SalePlanCheckByMoney} 
   //收款关联收据信息
+{$ENDIF}
+
+//曲靖雄业水泥
+{$IFDEF QJXY}
+  {$DEFINE COMMON}
+  {$DEFINE HYRFID201}
+  //华益读头
+  {$DEFINE TTCEM100}
+  //自动收卡票箱
+  {$DEFINE MITTruckProber}
+  //车检由中间件控制
+  {$DEFINE MultiReplay}
+  //计数器应答模式
+  {$DEFINE PrintHYEach}
+  //随车开化验单
+  {$DEFINE BatchInHYOfBill}
+  //批次保存在化验单字段
+  {$DEFINE SanPreHK}
+  //散装开单时预合卡
+  {$DEFINE DaiStepWuCha}
+  //包装阶梯误差
+  {$DEFINE NoShowPriceChange}
+  //不显示价格调整提示
+  {$DEFINE NoCheckOnPayment}
+  //退款时不校验资金余额
+  {$DEFINE MicroMsg}
+  //使用微信
+  {$DEFINE UseCustomertMoney}
+  //订单量使用客户余额计算
+  {$DEFINE PrintHY}
+  //出厂打印化验单
+  {$DEFINE SaveHyDanEvent}
+  //生成推送化验单事件
+  {$DEFINE WxShowCusMoney}
+  //微信端显示客户金额
+  {$DEFINE CastMoney}
+  //对吨位及金额小数位后2位四舍五入
+  {$DEFINE NoCheckOrderValue}
+  //自助机原材料开卡不检查订单剩余量
+  {$DEFINE ProberShow}
+  //车检发送小屏
+  {$DEFINE OrderNoMulCard}
+  //采购禁止一车多单
+  {$DEFINE CapturePictureEx}
+  //磅房抓拍模式扩展
+  {$DEFINE BusinessOnly}
+  //车辆同一时间只能进行1种业务
+  {$DEFINE ForceMemo}
+  //强制输入备注
+  {$DEFINE InfoOnly}
+  //档案信息唯一
+  {$DEFINE AlwaysUseDate}
+  //报表查询始终使用日期条件
+  {.$DEFINE AllowMultiM}
+  //允许多次过重车
+  {$DEFINE CustomerType}
+  //客户分类
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //纸卡调价时修改已提货单据价格
+  {$DEFINE UseFreight}
+  //使用运费
+  {$DEFINE UseWXServiceEx}
+  //使用二期微信中间件
+  {.$DEFINE DoubleCheck}
+  //采购两次验收
+  {.$DEFINE NoCheckPound}
+  //使用业务员授信
+  {.$DEFINE UseSalesCredit}
+  //备份销售单到备用库
+  {.$DEFINE SendBillToBakDB}
+  //启用袋装不同重量设置
+  {.$DEFINE ChkPeerWeight}
+  //纸卡调价时修改已提货单据价格
+  {$DEFINE ChangeBillWhenPriceAdjust}
+  //补单可以修改补单日期
+  {$DEFINE BuDanChangeDate} 
+  //补单可以修改补单日期
+  {.$DEFINE DaiOnceLade} 
+  //袋装装车道只允许装一次
+  {$DEFINE UseELabel} 
+  //电子标签办临时卡
+  {$DEFINE UseBXFontLED} 
+  //电子标签办临时卡
+  {.$DEFINE EnableAlivision}
+  {.$DEFINE AlivisionInClient}
+  //启用阿里图像识别
+  {$DEFINE DiffCusTypeForBillNo}
+  //不同客户采用不同单据编号
+  {$DEFINE GetBatCodeByTunnel}
+  //根据通道获取批次号
 {$ENDIF}

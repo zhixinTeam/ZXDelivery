@@ -30,11 +30,14 @@ inherited fFormCusSalePlanByMoney: TfFormCusSalePlanByMoney
           Kind = bkEllipsis
         end>
       Properties.OnButtonClick = Edt_CNamePropertiesButtonClick
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
       Style.IsFontAssigned = True
       TabOrder = 1
       OnKeyPress = Edt_CNameKeyPress
@@ -44,6 +47,8 @@ inherited fFormCusSalePlanByMoney: TfFormCusSalePlanByMoney
       Left = 87
       Top = 96
       ParentFont = False
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
@@ -58,12 +63,15 @@ inherited fFormCusSalePlanByMoney: TfFormCusSalePlanByMoney
       Top = 36
       ParentFont = False
       Properties.Buttons = <>
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Edges = []
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
       Style.IsFontAssigned = True
       TabOrder = 0
       Width = 255
@@ -73,11 +81,15 @@ inherited fFormCusSalePlanByMoney: TfFormCusSalePlanByMoney
       Top = 156
       ParentFont = False
       Properties.Kind = ckDateTime
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 4
       Width = 172
@@ -87,11 +99,15 @@ inherited fFormCusSalePlanByMoney: TfFormCusSalePlanByMoney
       Top = 126
       ParentFont = False
       Properties.Kind = ckDateTime
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -12
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
+      Style.PopupBorderStyle = epbsSingle
       Style.IsFontAssigned = True
       TabOrder = 3
       Width = 172
@@ -99,30 +115,30 @@ inherited fFormCusSalePlanByMoney: TfFormCusSalePlanByMoney
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxlytmLayout1Item32: TdxLayoutItem
-          Caption = #23458#25143#21517#31216#65306
+          CaptionOptions.Text = #23458#25143#21517#31216#65306
           Control = Edt_CID
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item3: TdxLayoutItem
-          Caption = #23458#25143#21517#31216#65306
+          CaptionOptions.Text = #23458#25143#21517#31216#65306
           Control = Edt_CName
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item31: TdxLayoutItem
-          AutoAligns = [aaVertical]
-          Caption = #27599#26085#38480#39069#65306
+          AlignHorz = ahLeft
+          CaptionOptions.Text = #27599#26085#38480#39069#65306
           Control = edt_Money
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item34: TdxLayoutItem
-          AutoAligns = [aaVertical]
-          Caption = #24320#22987#26102#38388#65306
+          AlignHorz = ahLeft
+          CaptionOptions.Text = #24320#22987#26102#38388#65306
           Control = DateSTime
           ControlOptions.ShowBorder = False
         end
         object dxlytmLayout1Item33: TdxLayoutItem
-          AutoAligns = [aaVertical]
-          Caption = #32467#26463#26102#38388#65306
+          AlignHorz = ahLeft
+          CaptionOptions.Text = #32467#26463#26102#38388#65306
           Control = DateETime
           ControlOptions.ShowBorder = False
         end

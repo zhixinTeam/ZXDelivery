@@ -7,12 +7,12 @@ uses
   Dialogs, UFrameNormal, cxGraphics, cxControls, cxLookAndFeels, IniFiles,
   cxLookAndFeelPainters, cxStyles, dxSkinsCore, dxSkinsDefaultPainters,
   dxSkinscxPCPainter, cxCustomData, cxFilter, cxData, cxDataStorage,
-  cxEdit, DB, cxDBData, dxSkinsdxLCPainter, cxContainer,
+  cxEdit, DB, cxDBData, cxContainer,
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, ADODB,
   cxLabel, UBitmapPanel, cxSplitter, dxLayoutControl, cxGridLevel,
   cxClasses, cxGridCustomView, cxGrid, ComCtrls, ToolWin, Provider,
   DBClient, StdCtrls, cxTextEdit, cxMaskEdit, cxButtonEdit, ExtCtrls,
-  Menus, cxGridCustomPopupMenu, cxGridPopupMenu;
+  Menus, cxGridCustomPopupMenu, cxGridPopupMenu, dxLayoutcxEditAdapters;
 
 type
   TfFramePurTestPlanSet = class(TfFrameNormal)

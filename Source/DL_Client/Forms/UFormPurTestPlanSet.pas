@@ -6,8 +6,8 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UFormNormal, cxGraphics, cxControls, cxLookAndFeels,
   cxLookAndFeelPainters, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter, dxLayoutControl, StdCtrls, cxContainer, cxEdit,
-  cxTextEdit, cxMaskEdit, cxButtonEdit;
+  dxLayoutControl, StdCtrls, cxContainer, cxEdit,
+  cxTextEdit, cxMaskEdit, cxButtonEdit, dxLayoutcxEditAdapters;
 
 type
   TfFormPurTestPlanSet = class(TfFormNormal)

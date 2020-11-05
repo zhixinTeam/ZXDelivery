@@ -33,11 +33,14 @@ inherited fFormGetInspStandard: TfFormGetInspStandard
           Default = True
           Kind = bkEllipsis
         end>
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = GB2312_CHARSET
       Style.Font.Color = clBlack
       Style.Font.Height = -15
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
       Style.IsFontAssigned = True
       TabOrder = 0
       Width = 200
@@ -91,19 +94,20 @@ inherited fFormGetInspStandard: TfFormGetInspStandard
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxLayout1Group2: TdxLayoutGroup
-          ShowCaption = False
+          CaptionOptions.Visible = False
+          ButtonOptions.Buttons = <>
           Hidden = True
           LayoutDirection = ldHorizontal
           ShowBorder = False
           object dxLayout1Item3: TdxLayoutItem
-            AutoAligns = [aaVertical]
-            Caption = #26631#20934#21517#31216#65306
+            AlignHorz = ahLeft
+            CaptionOptions.Text = #26631#20934#21517#31216#65306
             Control = Edit_Txt
             ControlOptions.ShowBorder = False
           end
           object dxlytmLayout1Item5: TdxLayoutItem
-            Caption = 'Button1'
-            ShowCaption = False
+            CaptionOptions.Text = 'Button1'
+            CaptionOptions.Visible = False
             Control = btn_Search
             ControlOptions.ShowBorder = False
           end

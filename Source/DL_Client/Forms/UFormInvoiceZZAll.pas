@@ -13,7 +13,7 @@ uses
   cxButtonEdit, cxLabel, cxTextEdit, cxContainer, cxEdit, cxMaskEdit,
   cxDropDownEdit, cxCalendar, cxGraphics, cxLookAndFeels,
   cxLookAndFeelPainters, cxRadioGroup, dxSkinsCore, dxSkinsDefaultPainters,
-  dxSkinsdxLCPainter;
+  dxLayoutcxEditAdapters;
 
 type
   TfFormInvoiceZZAll = class(TfFormNormal)
@@ -340,7 +340,7 @@ begin
   }
   //----------------------------------------------------------------------------
   nSQL := 'Select I_CusID,I_SaleID,D_Type,D_Stock,D_Price,Sum(D_Value) As D_Value' + {$IFDEF MoreBeltLine} ', D_BeltLine ' +  {$ENDIF}
-          'From ( Select * From $Dtl Left Join $Inv On I_ID=D_Invoice ' +
+          ' From ( Select * From $Dtl Left Join $Inv On I_ID=D_Invoice ' +
           '  Where I_Status=''$Use'' And I_Week=''$W'' And I_Flag=''$Req''' +
           ') inv Group By I_CusID,I_SaleID,D_Type,D_Stock,D_Price'{$IFDEF MoreBeltLine} +', D_BeltLine '{$ENDIF};
   nSQL := MacroValue(nSQL, [MI('$Dtl', sTable_InvoiceDtl), MI('$W', FNowWeek),

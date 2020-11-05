@@ -17,6 +17,9 @@ uses
   UMgrHardHelper, U02NReader, UMgrERelay, UMgrRemotePrint, UMgrBXFontCard,
   UMgrRemoteSnap, UMgrBasisWeight,UMgrPoundTunnels,UMgrVoiceNet,UMgrTruckProbe,
   UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100, UMgrSendCardNo, UMgrERelayPLC;
+  UMgrRemoteSnap, UMgrVoiceNet, IDGlobal,
+  UMgrLEDDisp, UMgrRFID102, UBlueReader, UMgrTTCEM100, UMgrSendCardNo,
+  UMgrBasisWeight, UMgrPoundTunnels, UMgrTruckProbe;
 
 procedure ShowTextByBXFontCard(nCard, nTitle, nData:string);
 procedure WhenReaderCardArrived(const nReader: THHReaderItem);
@@ -56,7 +59,7 @@ procedure AutoTruckOutFact(const nCard : string);
 implementation
 
 uses
-  ULibFun, USysDB, USysLoger, UTaskMonitor;
+  ULibFun, USysDB, USysLoger, UTaskMonitor,UWorkerBusiness;
 
 const
   sPost_In   = 'in';
@@ -2004,6 +2007,7 @@ function PrintBillCode(const nTunnel,nBill: string; var nHint: string): Boolean;
 var nStr: string;
     nTask: Int64;
     nOut: TWorkerBusinessCommand;
+    nIdx: Integer;
 begin
   Result := True;
 
@@ -2013,12 +2017,15 @@ begin
 
   nTask := gTaskMonitor.AddTask('UHardBusiness.PrintBillCode', cTaskTimeoutLong);
   //to mon
-  
-  if not CallHardwareCommand(cBC_PrintCode, nBill, nTunnel, @nOut) then
+  for nIdx := 0 to 2 do
   begin
-    nStr := '向通道[ %s ]发送防违流码失败,描述: %s';
-    nStr := Format(nStr, [nTunnel, nOut.FData]);  
-    WriteNearReaderLog(nStr);
+    if not CallHardwareCommand(cBC_PrintCode, nBill, nTunnel, @nOut) then
+    begin
+      nStr := '向通道[ %s ]发送防违流码失败,描述: %s';
+      nStr := Format(nStr, [nTunnel, nOut.FData]);  
+      WriteNearReaderLog(nStr);
+    end;
+    Sleep(300);
   end;
 
   gTaskMonitor.DelTask(nTask, True);
@@ -2068,7 +2075,8 @@ begin
       nTask := gTaskMonitor.AddTask('UHardBusiness.AddJS', cTaskTimeoutLong);
       //to mon
       {$IFNDEF UseModbusJS}
-      gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
+      for nIdx := 0 to 2 do
+        gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
       {$ELSE}
       gMultiJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
       gModbusJSManager.AddJS(nTunnel, nTruck, nBill, nPTruck.FDai, True);
@@ -2133,11 +2141,14 @@ end;
 //Parm: 磁卡号;通道号
 //Desc: 对nCard执行袋装装车操作
 procedure MakeTruckLadingDai(const nCard: string; nTunnel: string);
-var nStr: string;
+var nStr,nType: string;
     nIdx,nInt: Integer;
     nPLine: PLineItem;
     nPTruck: PTruckItem;
     nTrucks: TLadingBillItems;
+    nWorker: PDBWorker;
+    nList:TStrings;
+    nTmp: TWorkerBusinessCommand;
 
     function IsJSRun: Boolean;
     begin
@@ -2217,6 +2228,51 @@ begin
     WriteHardHelperLog(nStr);
     Exit;
   end;
+
+  {$IFDEF GetBatCodeByTunnel}
+  nWorker := nil;
+  nList := TStringList.Create;
+  try
+    nStr := 'Select * from %s where D_name=''%s'' and D_Memo=''%s''';
+    nStr := Format(nStr,[sTable_SysDict, sFlag_GetBatCodeByTunnel, nTunnel]);
+    with gDBConnManager.SQLQuery(nStr, nWorker) do
+      nType := FieldByName('D_Value').asstring;
+    if nType = '' then
+    begin
+      nStr := '通道['+nTunnel+']未配置批次分类.';
+      WriteNearReaderLog(nStr);
+      Exit;
+    end;
+    nList.Values['CustomerType'] := nType;
+    nList.Values['Value'] := FloatToStr(nTrucks[0].FValue);
+
+
+    if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcodeByCusType,
+       nTrucks[0].FStockNo, nList.Text, @nTmp) then
+       raise Exception.Create(nTmp.FData);
+
+    nStr := 'update %s set L_HYDan=''%s'' where L_id=''%s''';
+    nStr := Format(nStr,[sTable_Bill, nTmp.FData, nTrucks[0].FID]);
+    gDBConnManager.WorkerExec(nWorker, nStr);
+
+    nStr := 'select * from %s where l_id=''%s''';
+    nStr := Format(nstr, [sTable_Bill, nTrucks[0].FID]);
+    with gDBConnManager.WorkerQuery(nWorker, nStr) do
+    begin
+      if FieldByName('l_ladetime').AsString = '' then
+      begin
+        nStr := 'UPDate %s Set B_HasUse=B_HasUse+%s Where B_Batcode=''%s'' and B_type=''%s''';
+        nStr := Format(nStr, [sTable_StockBatcode, FloatToStr(nTrucks[0].FValue),nTmp.FData, nType]);
+        gDBConnManager.WorkerExec(nWorker, nStr);
+      end;
+    end;
+    
+    WriteNearReaderLog('通道['+nTunnel+'],提单:['+nTrucks[0].FID+']现场刷卡获取批次号:'+nTmp.FData);
+  finally
+    gDBConnManager.ReleaseConnection(nWorker);
+    nList.free;
+  end;
+  {$ENDIF}
 
   for nIdx:=Low(nTrucks) to High(nTrucks) do
   with nTrucks[nIdx] do
@@ -2310,11 +2366,14 @@ end;
 //Parm: 磁卡号;通道号
 //Desc: 对nCard执行袋装装车操作
 procedure MakeTruckLadingSan(const nCard,nTunnel: string);
-var nStr: string;
+var nStr, nType: string;
     nIdx: Integer;
     nPLine: PLineItem;
     nPTruck: PTruckItem;
     nTrucks: TLadingBillItems;
+    nWorker:PDBWorker;
+    nList:TStrings;
+    nTmp: TWorkerBusinessCommand;
 begin
   {$IFDEF DEBUG}
   WriteNearReaderLog('MakeTruckLadingSan进入.');
@@ -2376,6 +2435,52 @@ begin
   with nTrucks[nIdx] do
   begin
     SaveStockKuWei(FID, nTunnel, FStockNo);
+  end;
+  {$ENDIF}
+
+  {$IFDEF GetBatCodeByTunnel}
+  nWorker := nil;
+  nList := TStringList.Create;
+  try
+    nStr := 'Select * from %s where D_name=''%s'' and D_Memo=''%s''';
+    nStr := Format(nStr,[sTable_SysDict, sFlag_GetBatCodeByTunnel, nTunnel]);
+    //WriteNearReaderLog('zyww::'+nstr);
+    with gDBConnManager.SQLQuery(nStr, nWorker) do
+      nType := FieldByName('D_Value').asstring;
+    if nType = '' then
+    begin
+      nStr := '通道['+nTunnel+']未配置批次分类.';
+      WriteNearReaderLog(nStr);
+      Exit;
+    end;
+    nList.Values['CustomerType'] := nType;
+    nList.Values['Value'] := FloatToStr(nTrucks[0].FValue);
+    //WriteNearReaderLog('zywww::'+ntype+'::'+FloatToStr(nTrucks[0].FValue));
+
+    if not TWorkerBusinessCommander.CallMe(cBC_GetStockBatcodeByCusType,
+       nTrucks[0].FStockNo, nList.Text, @nTmp) then
+       raise Exception.Create(nTmp.FData);
+       
+    nStr := 'update %s set L_HYDan=''%s'' where L_id=''%s''';
+    nStr := Format(nStr,[sTable_Bill, nTmp.FData, nTrucks[0].FID]);
+    gDBConnManager.WorkerExec(nWorker, nStr);
+
+    nStr := 'select * from %s where l_id=''%s''';
+    nStr := Format(nstr, [sTable_Bill, nTrucks[0].FID]);
+    with gDBConnManager.WorkerQuery(nWorker, nStr) do
+    begin
+      if FieldByName('l_ladetime').AsString = '' then
+      begin
+        nStr := 'UPDate %s Set B_HasUse=B_HasUse+%s Where B_Batcode=''%s'' and B_type=''%s''';
+        nStr := Format(nStr, [sTable_StockBatcode, FloatToStr(nTrucks[0].FValue),nTmp.FData, nType]);
+        gDBConnManager.WorkerExec(nWorker, nStr);
+      end;
+    end;
+
+    WriteNearReaderLog('通道['+nTunnel+'],提单:['+nTrucks[0].FID+']现场刷卡获取批次号:'+nTmp.FData);
+  finally
+    gDBConnManager.ReleaseConnection(nWorker);
+    nList.free;
   end;
   {$ENDIF}
 
@@ -2547,7 +2652,7 @@ end;
 //Parm: 车牌号;交货单
 //Desc: 格式化nBill交货单需要显示的车牌号
 function GetJSTruck(const nTruck,nBill: string): string;
-var nStr: string;
+var nStr, nSQL, nType: string;
     nLen: Integer;
     nWorker: PDBWorker;
 begin
@@ -2569,6 +2674,31 @@ begin
 
       nLen := cMultiJS_Truck - 2;
       Result := 'B-' + Copy(nTruck, Length(nTruck) - nLen + 1, nLen);
+    end;
+  finally
+    gDBConnManager.ReleaseConnection(nWorker);
+  end;
+  {$ENDIF}
+
+  {$IFDEF QJXY}
+  nWorker := nil;
+  try
+    nStr := 'Select L_StockNo From %s Where L_ID=''%s''';
+    nStr := Format(nStr, [sTable_Bill, nBill]);
+
+    with gDBConnManager.SQLQuery(nStr, nWorker) do
+    if RecordCount > 0 then
+    begin
+      nStr := UpperCase(Fields[0].AsString);
+      nSQL := 'select * from %s where D_name=''%s'' and D_memo=''%s''';
+      nSQL := Format(nSQL,[sTable_SysDict, sFlag_ShowCountType, nStr]);
+      with gDBConnManager.WorkerQuery(nWorker, nSQL) do
+      begin
+        if recordcount = 0 then Exit;
+        nType := UpperCase(FieldByName('D_Value').asstring);
+        nLen := cMultiJS_Truck - 2;
+        Result := nType + Copy(nTruck, Length(nTruck) - nLen + 1, nLen);
+      end;
     end;
   finally
     gDBConnManager.ReleaseConnection(nWorker);

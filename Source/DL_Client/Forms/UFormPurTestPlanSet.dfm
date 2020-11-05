@@ -28,11 +28,14 @@ inherited fFormPurTestPlanSet: TfFormPurTestPlanSet
       Top = 36
       ParentFont = False
       Properties.Buttons = <>
+      Style.BorderColor = clWindowFrame
+      Style.BorderStyle = ebsSingle
       Style.Font.Charset = DEFAULT_CHARSET
       Style.Font.Color = clWindowText
       Style.Font.Height = -13
       Style.Font.Name = #24494#36719#38597#40657
       Style.Font.Style = []
+      Style.ButtonStyle = btsHotFlat
       Style.IsFontAssigned = True
       TabOrder = 0
       Width = 272
@@ -40,7 +43,7 @@ inherited fFormPurTestPlanSet: TfFormPurTestPlanSet
     inherited dxLayout1Group_Root: TdxLayoutGroup
       inherited dxGroup1: TdxLayoutGroup
         object dxlytmLayout1Item3: TdxLayoutItem
-          Caption = #26041#26696#21517#31216#65306
+          CaptionOptions.Text = #26041#26696#21517#31216#65306
           Control = Edt_1
           ControlOptions.ShowBorder = False
         end

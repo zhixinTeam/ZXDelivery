@@ -413,6 +413,9 @@ function ChkZTTrucksInfo(const nLid: string): Boolean;
 function IsCardValid(const nCard: string): Boolean;
 
 
+function TruckFuzzyMatch(nNormal,nWrong: WideString): string;
+//模糊匹配业务车牌和图像识别车牌
+
 implementation
 
 //Desc: 记录日志
@@ -4853,5 +4856,49 @@ begin
 end;
 
 
+
+//Date: 2020-03-27
+//Parm: 业务正确车牌;识别错误车牌
+//Desc: 使用特定规则判断nWrong是否能匹配到nNormal,实现容错
+function TruckFuzzyMatch(nNormal,nWrong: WideString): string;
+var nStr: string;
+    nIdx,nInt: Integer;
+    nLenN,nLenW: Integer;
+begin
+  Result := '';
+  nLenW := Length(nWrong);
+  if nLenW < 1 then Exit; //0.无数据
+
+  if nNormal = nWrong then //1.完全一致
+  begin
+    Result := nWrong;
+    Exit;
+  end;
+
+  nInt := 0;
+  nLenN := Length(nNormal);
+  if nLenN = nLenW then
+  begin
+    for nIdx:=1 to nLenW do
+    if nNormal[nIdx] <> nWrong[nIdx] then
+    begin
+      nWrong[nIdx] := '*';
+      Inc(nInt);
+    end;
+
+    if nInt <= 3 then //2.错误不超过3个
+    begin
+      Result := nWrong;
+      Exit;
+    end;
+  end;
+
+  nStr := Copy(nWrong, nLenW-4, 5);
+  if Copy(nNormal, nLenN-4, 5) = nStr then //3.最后5位匹配
+  begin
+    Result := StringOfChar('*', nLenW-5) + nStr;
+    Exit;
+  end;
+end;
 
 end.
